@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
@@ -39,6 +41,7 @@ fun ReminderSettingScreen(
 
     var hourText by remember { mutableStateOf(state.hour.toString()) }
     var minuteText by remember { mutableStateOf(state.minute.toString()) }
+    var errorText by remember { mutableStateOf<String?>(null) }
 
     Column(
         modifier = Modifier
@@ -48,55 +51,95 @@ fun ReminderSettingScreen(
     ) {
         Text("러닝 알림 설정")
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            OutlinedTextField(
-                value = hourText,
-                onValueChange = { hourText = it },
-                label = { Text("시 (0~23)") },
-                modifier = Modifier.weight(1f)
-            )
-            OutlinedTextField(
-                value = minuteText,
-                onValueChange = { minuteText = it },
-                label = { Text("분 (0~59)") },
-                modifier = Modifier.weight(1f)
-            )
-        }
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                // 현재 설정 요약
+                val currentTimeLabel = "%02d:%02d".format(state.hour, state.minute)
+                Text("현재 알림 시각: $currentTimeLabel")
+                Text(if (state.enabled) "알림 사용: 켜짐" else "알림 사용: 꺼짐")
 
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("알림 사용")
-            Switch(
-                checked = state.enabled,
-                onCheckedChange = { enabled -> vm.updateEnabled(enabled) }
-            )
-        }
-
-        Button(
-            onClick = {
-                val h = hourText.toIntOrNull()
-                val m = minuteText.toIntOrNull()
-                if (h != null && m != null && h in 0..23 && m in 0..59) {
-                    vm.updateTime(h, m)
-
-                    if (state.enabled) {
-                        // 알림 사용 ON이면 알람 예약
-                        scheduler.schedule(h, m)
-                    } else {
-                        // 알림 사용 OFF면 알람 취소
-                        scheduler.cancel(h, m)
-                    }
-
-                    onBack()
+                // 시/분 입력
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = hourText,
+                        onValueChange = {
+                            hourText = it
+                            errorText = null
+                        },
+                        label = { Text("시 (0~23)") },
+                        modifier = Modifier.weight(1f)
+                    )
+                    OutlinedTextField(
+                        value = minuteText,
+                        onValueChange = {
+                            minuteText = it
+                            errorText = null
+                        },
+                        label = { Text("분 (0~59)") },
+                        modifier = Modifier.weight(1f)
+                    )
                 }
-            },
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            Text("저장하기")
+
+                // 알림 사용 스위치
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("알림 사용")
+                    Switch(
+                        checked = state.enabled,
+                        onCheckedChange = { enabled ->
+                            vm.updateEnabled(enabled)
+                        }
+                    )
+                }
+
+                if (errorText != null) {
+                    Text(errorText!!)
+                }
+
+                Button(
+                    onClick = {
+                        val h = hourText.toIntOrNull()
+                        val m = minuteText.toIntOrNull()
+
+                        when {
+                            h == null || m == null -> {
+                                errorText = "시/분을 숫자로 입력해주세요."
+                            }
+                            h !in 0..23 || m !in 0..59 -> {
+                                errorText = "시(0~23), 분(0~59) 범위로 입력해주세요."
+                            }
+                            else -> {
+                                vm.updateTime(h, m)
+
+                                val enabled = state.enabled
+                                if (enabled) {
+                                    scheduler.schedule(h, m)
+                                } else {
+                                    scheduler.cancel(h, m)
+                                }
+
+                                onBack()
+                            }
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("저장하기")
+                }
+            }
         }
     }
 }
