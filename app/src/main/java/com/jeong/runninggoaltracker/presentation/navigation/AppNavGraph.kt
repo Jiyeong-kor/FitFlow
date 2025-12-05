@@ -43,7 +43,6 @@ fun AppNavGraph(
 
         composable("reminder") {
             ReminderSettingScreen(
-                onBack = { navController.popBackStack() }
             )
         }
     }

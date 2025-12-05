@@ -26,4 +26,6 @@ interface RunningDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertReminder(reminder: RunningReminderEntity)
+
+
 }

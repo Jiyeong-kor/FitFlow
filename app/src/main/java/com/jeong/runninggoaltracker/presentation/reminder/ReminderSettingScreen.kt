@@ -20,6 +20,7 @@ import androidx.compose.material3.TimePicker
 import androidx.compose.material3.TimePickerDialog
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,11 +34,20 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
 import java.util.Calendar
 
+private val DAYS_OF_WEEK = mapOf(
+    Calendar.SUNDAY to "일",
+    Calendar.MONDAY to "월",
+    Calendar.TUESDAY to "화",
+    Calendar.WEDNESDAY to "수",
+    Calendar.THURSDAY to "목",
+    Calendar.FRIDAY to "금",
+    Calendar.SATURDAY to "토"
+)
+
 @SuppressLint("ScheduleExactAlarm")
 @Composable
 fun ReminderSettingScreen(
-    viewModel: ReminderViewModel = hiltViewModel(),
-    onBack: () -> Unit
+    viewModel: ReminderViewModel = hiltViewModel()
 ) {
 
     val state by viewModel.uiState.collectAsState()
@@ -46,10 +56,12 @@ fun ReminderSettingScreen(
 
     var hourText by remember { mutableStateOf(state.hour.toString()) }
     var minuteText by remember { mutableStateOf(state.minute.toString()) }
-    var errorText by remember { mutableStateOf<String?>(null) }
     var showTimePicker by remember { mutableStateOf(false) }
 
-    val errorCheckTimeSelection = stringResource(R.string.error_check_time_selection)
+    LaunchedEffect(state.hour, state.minute, state.days) {
+        hourText = state.hour.toString()
+        minuteText = state.minute.toString()
+    }
 
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -118,39 +130,14 @@ fun ReminderSettingScreen(
                         checked = state.enabled,
                         onCheckedChange = { enabled ->
                             viewModel.updateEnabled(enabled)
-                        }
-                    )
-                }
 
-                if (errorText != null) {
-                    Text(
-                        text = errorText!!,
-                        color = colorScheme.error,
-                        style = typography.bodyMedium
-                    )
-                }
-
-                Button(
-                    onClick = {
-                        val h = hourText.toIntOrNull()
-                        val m = minuteText.toIntOrNull()
-
-                        if (h != null && m != null) {
-                            viewModel.updateTime(h, m)
-
-                            if (state.enabled) {
-                                scheduler.schedule(h, m)
+                            if (enabled) {
+                                scheduler.schedule(pendingHour, pendingMinute)
                             } else {
-                                scheduler.cancel(h, m)
+                                scheduler.cancel(pendingHour, pendingMinute)
                             }
-                            onBack()
-                        } else {
-                            errorText = errorCheckTimeSelection
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.button_save))
+                    )
                 }
             }
         }
@@ -166,9 +153,20 @@ fun ReminderSettingScreen(
 
                 confirmButton = {
                     Button(onClick = {
-                        hourText = timeState.hour.toString()
-                        minuteText = timeState.minute.toString()
-                        errorText = null
+                        val h = timeState.hour
+                        val m = timeState.minute
+
+                        viewModel.updateTime(h, m)
+
+
+                        if (state.enabled) {
+                            scheduler.schedule(h, m)
+                        } else {
+                            scheduler.cancel(h, m)
+                        }
+
+                        hourText = h.toString()
+                        minuteText = m.toString()
                         showTimePicker = false
                     }) {
                         Text(stringResource(R.string.button_confirm))

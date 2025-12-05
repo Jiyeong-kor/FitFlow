@@ -12,7 +12,8 @@ import javax.inject.Inject
 data class ReminderUiState(
     val hour: Int = 20,
     val minute: Int = 0,
-    val enabled: Boolean = false
+    val enabled: Boolean = false,
+    val days: Set<Int> = setOf()
 )
 
 @HiltViewModel
@@ -27,7 +28,8 @@ class ReminderViewModel @Inject constructor(
                     ReminderUiState(
                         hour = reminder.hour,
                         minute = reminder.minute,
-                        enabled = reminder.enabled
+                        enabled = reminder.enabled,
+                        days = reminder.days
                     )
                 } else {
                     ReminderUiState()
@@ -40,21 +42,27 @@ class ReminderViewModel @Inject constructor(
 
     fun updateEnabled(enabled: Boolean) {
         val current = uiState.value
-        save(current.hour, current.minute, enabled)
+        save(current.hour, current.minute, enabled, current.days)
     }
 
     fun updateTime(hour: Int, minute: Int) {
         val current = uiState.value
-        save(hour, minute, current.enabled)
+        save(hour, minute, current.enabled, current.days)
     }
 
-    private fun save(hour: Int, minute: Int, enabled: Boolean) {
+    fun updateDays(days: Set<Int>) {
+        val current = uiState.value
+        save(current.hour, current.minute, current.enabled, days)
+    }
+
+    private fun save(hour: Int, minute: Int, enabled: Boolean, days: Set<Int>) {
         viewModelScope.launch {
             repository.upsertReminder(
                 RunningReminder(
                     hour = hour,
                     minute = minute,
-                    enabled = enabled
+                    enabled = enabled,
+                    days = days
                 )
             )
         }
