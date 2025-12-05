@@ -37,8 +37,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
 import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
 import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
@@ -47,14 +46,11 @@ import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionState
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun HomeScreen(
-    repository: RunningRepository,
+    viewModel: HomeViewModel = hiltViewModel(),
     onRecordClick: () -> Unit,
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
 ) {
-    val viewModel: HomeViewModel = viewModel(
-        factory = HomeViewModelFactory(repository)
-    )
 
     val state by viewModel.uiState.collectAsState()
     val activityState by ActivityRecognitionStateHolder.state.collectAsState()
@@ -68,7 +64,6 @@ fun HomeScreen(
         else -> rawLabel
     }
 
-    // nullable 값은 로컬 변수로 빼서 사용
     val weeklyGoalKm = state.weeklyGoalKm
     val totalThisWeekKm = state.totalThisWeekKm
 
@@ -99,7 +94,6 @@ fun HomeScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        // 오늘 상태 / 주간 목표
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -175,7 +169,6 @@ fun HomeScreen(
             }
         }
 
-        // 빠른 메뉴
         Card(
             modifier = Modifier.fillMaxWidth(),
             colors = CardDefaults.cardColors(
@@ -218,7 +211,6 @@ fun HomeScreen(
             }
         }
 
-        // 최근 활동 로그 (있을 때만)
         if (activityLogs.isNotEmpty()) {
             val lastLogs = activityLogs.takeLast(5).asReversed()
 

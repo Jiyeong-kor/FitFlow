@@ -4,30 +4,13 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
-import androidx.room.Room
-import com.jeong.runninggoaltracker.data.local.RunningDatabase
-import com.jeong.runninggoaltracker.data.repository.RunningRepositoryImpl
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import dagger.hilt.android.HiltAndroidApp
 
+@HiltAndroidApp
 class RunningGoalTrackerApp : Application() {
-
-    // 앱 전체에서 함께 쓸 DB / Repository
-    lateinit var runningRepository: RunningRepository
-        private set
 
     override fun onCreate() {
         super.onCreate()
-
-        // Room DB 인스턴스 생성
-        val db = Room.databaseBuilder(
-            applicationContext,
-            RunningDatabase::class.java,
-            RunningDatabase.NAME
-        ).fallbackToDestructiveMigration(false) // ← 버전 바뀌면 DB 날리고 다시 생성
-            .build()
-
-        // Repository 생성
-        runningRepository = RunningRepositoryImpl(db.runningDao())
 
         createNotificationChannel()
     }

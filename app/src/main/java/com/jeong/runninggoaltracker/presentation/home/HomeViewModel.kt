@@ -7,21 +7,24 @@ import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
 import java.time.DayOfWeek
 import java.time.LocalDate
+import javax.inject.Inject
 
 data class HomeUiState(
     val weeklyGoalKm: Double? = null,
     val totalThisWeekKm: Double = 0.0,
     val recordCountThisWeek: Int = 0,
-    val progress: Float = 0f // 0.0 ~ 1.0
+    val progress: Float = 0f
 )
 
-class HomeViewModel(
+@HiltViewModel
+class HomeViewModel @Inject constructor(
     repository: RunningRepository
 ) : ViewModel() {
 
@@ -43,7 +46,6 @@ class HomeViewModel(
         val startOfWeek = LocalDate.now().with(DayOfWeek.MONDAY)
 
         val thisWeekRecords = records.filter { record ->
-            // date를 "yyyy-MM-dd" 형식으로 저장했다고 가정
             val date = runCatching { LocalDate.parse(record.date) }.getOrNull()
             date != null && !date.isBefore(startOfWeek)
         }

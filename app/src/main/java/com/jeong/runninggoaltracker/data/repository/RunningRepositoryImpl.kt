@@ -9,8 +9,9 @@ import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class RunningRepositoryImpl(
+class RunningRepositoryImpl @Inject constructor(
     private val dao: RunningDao
 ) : RunningRepository {
 

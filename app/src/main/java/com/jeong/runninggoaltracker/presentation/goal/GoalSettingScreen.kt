@@ -21,18 +21,13 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @Composable
 fun GoalSettingScreen(
-    repository: RunningRepository,
+    viewModel: GoalViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
-    val viewModel: GoalViewModel = viewModel(
-        factory = GoalViewModelFactory(repository)
-    )
-
     val state by viewModel.uiState.collectAsState()
 
     var goalText by remember {

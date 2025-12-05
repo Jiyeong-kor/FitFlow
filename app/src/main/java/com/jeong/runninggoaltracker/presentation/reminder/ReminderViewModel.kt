@@ -4,8 +4,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 data class ReminderUiState(
     val hour: Int = 20,
@@ -13,7 +15,8 @@ data class ReminderUiState(
     val enabled: Boolean = false
 )
 
-class ReminderViewModel(
+@HiltViewModel
+class ReminderViewModel @Inject constructor(
     private val repository: RunningRepository
 ) : ViewModel() {
 

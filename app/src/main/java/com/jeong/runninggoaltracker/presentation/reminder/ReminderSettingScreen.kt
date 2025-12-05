@@ -27,24 +27,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @SuppressLint("ScheduleExactAlarm")
 @Composable
 fun ReminderSettingScreen(
-    repository: RunningRepository,
+    viewModel: ReminderViewModel = hiltViewModel(),
     onBack: () -> Unit
 ) {
-    val vm: ReminderViewModel = viewModel(
-        factory = ReminderViewModelFactory(repository)
-    )
 
-    val state by vm.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scheduler = remember { ReminderAlarmScheduler(context) }
 
-    // TimePicker에서 선택된 값을 임시 저장하기 위한 상태
     var hourText by remember { mutableStateOf(state.hour.toString()) }
     var minuteText by remember { mutableStateOf(state.minute.toString()) }
     var errorText by remember { mutableStateOf<String?>(null) }
@@ -72,14 +67,12 @@ fun ReminderSettingScreen(
                     .padding(16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                // 저장된 시간 표시
                 val currentTimeLabel = "%02d:%02d".format(state.hour, state.minute)
                 Text(
                     text = "현재 알림 시각: $currentTimeLabel",
                     style = typography.bodyLarge
                 )
 
-                // TimePicker 호출 버튼
                 Row(modifier = Modifier.fillMaxWidth()) {
                     OutlinedButton(
                         onClick = { showTimePicker = true },
@@ -87,7 +80,6 @@ fun ReminderSettingScreen(
                     ) { Text(text = "알림 시간 선택: $currentTimeLabel", style = typography.bodyLarge) }
                 }
 
-                // 알림 활성화 스위치
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier.fillMaxWidth()
@@ -96,7 +88,7 @@ fun ReminderSettingScreen(
                     Switch(
                         checked = state.enabled,
                         onCheckedChange = { enabled ->
-                            vm.updateEnabled(enabled)
+                            viewModel.updateEnabled(enabled)
                         }
                     )
                 }
@@ -109,14 +101,13 @@ fun ReminderSettingScreen(
                     )
                 }
 
-                // 저장 버튼
                 Button(
                     onClick = {
                         val h = hourText.toIntOrNull()
                         val m = minuteText.toIntOrNull()
 
                         if (h != null && m != null) {
-                            vm.updateTime(h, m)
+                            viewModel.updateTime(h, m)
 
                             if (state.enabled) {
                                 scheduler.schedule(h, m)

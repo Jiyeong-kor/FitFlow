@@ -36,19 +36,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
 import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecordScreen(
-    repository: RunningRepository
+    viewModel : RecordViewModel = hiltViewModel(),
 ) {
-    val viewModel: RecordViewModel = viewModel(
-        factory = RecordViewModelFactory(repository)
-    )
 
     var distanceText by remember { mutableStateOf("") }
     var durationText by remember { mutableStateOf("") }
