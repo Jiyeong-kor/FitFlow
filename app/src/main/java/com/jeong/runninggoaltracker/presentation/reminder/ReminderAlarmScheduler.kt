@@ -5,8 +5,11 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.util.Log
 import androidx.annotation.RequiresPermission
 import java.util.Calendar
+import java.util.Date
 
 class ReminderAlarmScheduler(
     private val context: Context
@@ -14,70 +17,73 @@ class ReminderAlarmScheduler(
     private val alarmManager: AlarmManager =
         context.getSystemService(AlarmManager::class.java)
 
-    private fun createPendingIntent(hour: Int, minute: Int): PendingIntent {
+    private fun getUniqueRequestCode(id: Int, hour: Int, minute: Int, dayOfWeek: Int): Int =
+        REQUEST_CODE_BASE + id * 10000 + hour * 100 + minute * 10 + dayOfWeek
+
+    private fun createPendingIntent(
+        id: Int,
+        hour: Int,
+        minute: Int,
+        dayOfWeek: Int
+    ): PendingIntent {
         val intent = Intent(context, ReminderAlarmReceiver::class.java).apply {
+            action = "com.jeong.runninggoaltracker.REMINDER_ALARM_${id}_${dayOfWeek}"
+
+            putExtra("id", id)
             putExtra("hour", hour)
             putExtra("minute", minute)
+            putExtra("dayOfWeek", dayOfWeek)
         }
 
         return PendingIntent.getBroadcast(
             context,
-            REQUEST_CODE,
+            getUniqueRequestCode(id, hour, minute, dayOfWeek),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
     }
 
-    /**
-     * 정확 알람 권한이 있으면 setExactAndAllowWhileIdle
-     * 권한이 없으면 setAndAllowWhileIdle 로 degrade
-     */
     @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
-    fun schedule(hour: Int, minute: Int) {
-        val calendar = Calendar.getInstance().apply {
-            timeInMillis = System.currentTimeMillis()
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+    fun schedule(id: Int?, hour: Int, minute: Int, days: Set<Int>) {
+        val nonNullId = id ?: return
+        if (days.isEmpty()) return
 
-            // 이미 지난 시각이면 내일로 이동
-            if (timeInMillis <= System.currentTimeMillis()) {
-                add(Calendar.DAY_OF_YEAR, 1)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val canExact = alarmManager.canScheduleExactAlarms()
+            Log.d("ReminderAlarmScheduler", "정확한 알람 예약 가능 여부 = $canExact")
+            if (!canExact) {
+                Log.w(
+                    "ReminderAlarmScheduler",
+                    "정확한 알람을 예약할 수 없습니다. 예약을 건너뜁니다."
+                )
+                return
             }
         }
 
-        val triggerAtMillis = calendar.timeInMillis
-        val pendingIntent = createPendingIntent(hour, minute)
+        days.forEach { dayOfWeek ->
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = System.currentTimeMillis()
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, minute)
+                set(Calendar.SECOND, 0)
+                set(Calendar.MILLISECOND, 0)
+                set(Calendar.DAY_OF_WEEK, dayOfWeek)
 
-        try {
-            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
-                if (alarmManager.canScheduleExactAlarms()) {
-                    // 정확 알람 허용됨
-                    alarmManager.setExactAndAllowWhileIdle(
-                        AlarmManager.RTC_WAKEUP,
-                        triggerAtMillis,
-                        pendingIntent
-                    )
-                } else {
-                    // 정확 알람 불가 → 부정확하지만 동작은 하도록 degrade
-                    alarmManager.setAndAllowWhileIdle(
-                        AlarmManager.RTC_WAKEUP,
-                        triggerAtMillis,
-                        pendingIntent
-                    )
+                if (timeInMillis <= System.currentTimeMillis()) {
+                    add(Calendar.WEEK_OF_YEAR, 1)
                 }
-            } else {
-                // Android 11 이하: 정확 알람 허용
-                alarmManager.setExactAndAllowWhileIdle(
-                    AlarmManager.RTC_WAKEUP,
-                    triggerAtMillis,
-                    pendingIntent
-                )
             }
-        } catch (_: SecurityException) {
-            // 권한 없음 → 부정확 알람으로 degrade
-            alarmManager.setAndAllowWhileIdle(
+
+            val triggerAtMillis = calendar.timeInMillis
+            val pendingIntent = createPendingIntent(nonNullId, hour, minute, dayOfWeek)
+
+            Log.d(
+                "ReminderAlarmScheduler",
+                "scheduleExact(): id=$nonNullId, dayOfWeek=$dayOfWeek, " +
+                        "time=${Date(triggerAtMillis)}, triggerAtMillis=$triggerAtMillis"
+            )
+
+            alarmManager.setExactAndAllowWhileIdle(
                 AlarmManager.RTC_WAKEUP,
                 triggerAtMillis,
                 pendingIntent
@@ -85,12 +91,20 @@ class ReminderAlarmScheduler(
         }
     }
 
-    fun cancel(hour: Int, minute: Int) {
-        val pendingIntent = createPendingIntent(hour, minute)
-        alarmManager.cancel(pendingIntent)
+    fun cancel(id: Int?, hour: Int, minute: Int, days: Set<Int>) {
+        val nonNullId = id ?: return
+
+        days.forEach { dayOfWeek ->
+            val pendingIntent = createPendingIntent(nonNullId, hour, minute, dayOfWeek)
+            Log.d(
+                "ReminderAlarmScheduler",
+                "cancel(): id=$nonNullId, dayOfWeek=$dayOfWeek"
+            )
+            alarmManager.cancel(pendingIntent)
+        }
     }
 
     companion object {
-        private const val REQUEST_CODE = 1002
+        private const val REQUEST_CODE_BASE = 1000
     }
 }

@@ -1,16 +1,33 @@
 package com.jeong.runninggoaltracker.presentation.reminder
 
+import android.Manifest
 import android.annotation.SuppressLint
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.text.format.DateFormat
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -25,163 +42,319 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
 import java.util.Calendar
-
-private val DAYS_OF_WEEK = mapOf(
-    Calendar.SUNDAY to "일",
-    Calendar.MONDAY to "월",
-    Calendar.TUESDAY to "화",
-    Calendar.WEDNESDAY to "수",
-    Calendar.THURSDAY to "목",
-    Calendar.FRIDAY to "금",
-    Calendar.SATURDAY to "토"
-)
 
 @SuppressLint("ScheduleExactAlarm")
 @Composable
 fun ReminderSettingScreen(
     viewModel: ReminderViewModel = hiltViewModel()
 ) {
-
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
     val scheduler = remember { ReminderAlarmScheduler(context) }
 
-    var hourText by remember { mutableStateOf(state.hour.toString()) }
-    var minuteText by remember { mutableStateOf(state.minute.toString()) }
-    var showTimePicker by remember { mutableStateOf(false) }
+    val reminderErrorNotificationPermissionDenied =
+        stringResource(R.string.reminder_error_notification_permission_denied)
 
-    LaunchedEffect(state.hour, state.minute, state.days) {
-        hourText = state.hour.toString()
-        minuteText = state.minute.toString()
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (!granted) {
+            Toast.makeText(
+                context,
+                reminderErrorNotificationPermissionDenied,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+
+            if (!hasPermission) {
+                notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
     }
 
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
-    val pendingHour = hourText.toIntOrNull() ?: state.hour
-    val pendingMinute = minuteText.toIntOrNull() ?: state.minute
-
-    val displayTimeLabel = run {
-        val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, pendingHour)
-            set(Calendar.MINUTE, pendingMinute)
-        }
-        DateFormat.getTimeFormat(context).format(cal.time)
-    }
-
-    Column(
+    LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 20.dp, vertical = 16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surfaceContainerLow
-            ),
-            elevation = CardDefaults.cardElevation(1.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text(
-                    text = stringResource(
-                        R.string.reminder_select_time_format,
-                        displayTimeLabel
-                    ),
-                    style = typography.bodyLarge
-                )
 
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedButton(
-                        onClick = { showTimePicker = true },
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Text(
-                            text = stringResource(
-                                R.string.reminder_select_time_format,
-                                displayTimeLabel
-                            ), style = typography.bodyLarge
-                        )
-                    }
-                }
+        val list = state.reminders.filter { it.id != null }
 
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(
-                        stringResource(R.string.reminder_toggle_label),
-                        style = typography.bodyLarge
-                    )
-                    Switch(
-                        checked = state.enabled,
-                        onCheckedChange = { enabled ->
-                            viewModel.updateEnabled(enabled)
-
-                            if (enabled) {
-                                scheduler.schedule(pendingHour, pendingMinute)
-                            } else {
-                                scheduler.cancel(pendingHour, pendingMinute)
-                            }
-                        }
-                    )
-                }
-            }
+        items(
+            count = list.size,
+            key = { index -> list[index].id!! }
+        ) { index ->
+            ReminderCard(
+                reminder = list[index],
+                viewModel = viewModel,
+                scheduler = scheduler,
+                context = context,
+                colorScheme = colorScheme,
+                typography = typography
+            )
         }
 
-        @OptIn(ExperimentalMaterial3Api::class)
-        if (showTimePicker) {
-            val timeState = rememberTimePickerState(
-                initialHour = hourText.toIntOrNull() ?: state.hour,
-                initialMinute = minuteText.toIntOrNull() ?: state.minute
-            )
-            TimePickerDialog(
-                onDismissRequest = { showTimePicker = false },
-
-                confirmButton = {
-                    Button(onClick = {
-                        val h = timeState.hour
-                        val m = timeState.minute
-
-                        viewModel.updateTime(h, m)
-
-
-                        if (state.enabled) {
-                            scheduler.schedule(h, m)
-                        } else {
-                            scheduler.cancel(h, m)
-                        }
-
-                        hourText = h.toString()
-                        minuteText = m.toString()
-                        showTimePicker = false
-                    }) {
-                        Text(stringResource(R.string.button_confirm))
-                    }
-                },
-
-                dismissButton = {
-                    OutlinedButton(onClick = { showTimePicker = false }) {
-                        Text(stringResource(R.string.button_cancel))
-                    }
-                },
-
-                title = { Text(stringResource(R.string.reminder_dialog_title_select_time)) }) {
-                TimePicker(state = timeState)
+        item {
+            Button(
+                onClick = { viewModel.addReminder() },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.reminder_add_button_label))
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ReminderCard(
+    reminder: ReminderUiState,
+    viewModel: ReminderViewModel,
+    scheduler: ReminderAlarmScheduler,
+    context: Context,
+    colorScheme: ColorScheme,
+    typography: androidx.compose.material3.Typography,
+) {
+    val daysOfWeek = rememberDaysOfWeek()
+
+    val showTimePicker = remember { mutableStateOf(false) }
+
+    val displayTimeLabel = run {
+        val cal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, reminder.hour)
+            set(Calendar.MINUTE, reminder.minute)
+        }
+        DateFormat.getTimeFormat(context).format(cal.time)
+    }
+
+    val id = reminder.id ?: return
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surfaceContainerLow
+        ),
+        elevation = CardDefaults.cardElevation(1.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                OutlinedButton(
+                    onClick = { showTimePicker.value = true },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(
+                        text = stringResource(
+                            R.string.reminder_select_time_format,
+                            displayTimeLabel
+                        ), style = typography.bodyLarge
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(16.dp))
+
+                Switch(
+                    checked = reminder.enabled,
+                    onCheckedChange = { enabled ->
+
+                        if (enabled && reminder.days.isEmpty()) {
+                            Toast.makeText(
+                                context,
+                                context.getString(
+                                    R.string.reminder_error_select_at_least_one_day
+                                ),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            return@Switch
+                        }
+
+                        viewModel.updateEnabled(id, enabled)
+
+                        if (enabled && reminder.days.isNotEmpty()) {
+                            scheduler.schedule(id, reminder.hour, reminder.minute, reminder.days)
+                        } else {
+                            scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
+                        }
+                    }
+                )
+            }
+
+            Text(
+                text = stringResource(R.string.reminder_select_days_label),
+                style = typography.bodyMedium
+            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                daysOfWeek.forEach { (dayInt, dayName) ->
+                    Box(
+                        modifier = Modifier.weight(1f),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        DaySelectionButton(
+                            dayName = dayName,
+                            isSelected = reminder.days.contains(dayInt),
+                            onClick = {
+                                viewModel.toggleDay(id, dayInt)
+
+                                if (reminder.enabled) {
+                                    scheduler.cancel(
+                                        id,
+                                        reminder.hour,
+                                        reminder.minute,
+                                        reminder.days
+                                    )
+
+                                    val newDays = if (reminder.days.contains(dayInt)) {
+                                        reminder.days.minus(dayInt)
+                                    } else {
+                                        reminder.days.plus(dayInt)
+                                    }
+                                    if (newDays.isNotEmpty()) {
+                                        scheduler.schedule(
+                                            id,
+                                            reminder.hour,
+                                            reminder.minute,
+                                            newDays
+                                        )
+                                    } else {
+                                        viewModel.updateEnabled(id, false)
+                                    }
+                                }
+                            }
+                        )
+                    }
+                }
+            }
+
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
+                        viewModel.deleteReminder(id)
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(contentColor = colorScheme.error)
+                ) {
+                    Text(stringResource(R.string.reminder_delete_button_label))
+                }
+            }
+        }
+    }
+
+    if (showTimePicker.value) {
+        val timeState = rememberTimePickerState(
+            initialHour = reminder.hour,
+            initialMinute = reminder.minute
+        )
+        TimePickerDialog(
+            onDismissRequest = { showTimePicker.value = false },
+            confirmButton = {
+                Button(onClick = {
+                    val h = timeState.hour
+                    val m = timeState.minute
+
+                    viewModel.updateTime(id, h, m)
+
+                    if (reminder.enabled && reminder.days.isNotEmpty()) {
+                        scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
+                        scheduler.schedule(id, h, m, reminder.days)
+                    }
+
+                    showTimePicker.value = false
+                }) {
+                    Text(stringResource(R.string.button_confirm))
+                }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showTimePicker.value = false }) {
+                    Text(stringResource(R.string.button_cancel))
+                }
+            },
+            title = { Text(stringResource(R.string.reminder_dialog_title_select_time)) }
+        ) {
+            TimePicker(state = timeState)
+        }
+    }
+}
+
+@Composable
+fun DaySelectionButton(
+    dayName: String,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    val backgroundColor = if (isSelected) colorScheme.primary else Color.Transparent
+    val contentColor = if (isSelected) colorScheme.onPrimary else colorScheme.onSurfaceVariant
+
+    Box(
+        modifier = Modifier
+            .aspectRatio(1f)
+            .clip(CircleShape)
+            .clickable(onClick = onClick),
+        contentAlignment = Alignment.Center
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .clip(CircleShape)
+                .background(backgroundColor),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = dayName,
+                color = contentColor,
+                style = MaterialTheme.typography.labelLarge
+            )
+        }
+    }
+}
+
+@Composable
+private fun rememberDaysOfWeek(): Map<Int, String> {
+    return mapOf(
+        Calendar.SUNDAY to stringResource(R.string.day_sun),
+        Calendar.MONDAY to stringResource(R.string.day_mon),
+        Calendar.TUESDAY to stringResource(R.string.day_tue),
+        Calendar.WEDNESDAY to stringResource(R.string.day_wed),
+        Calendar.THURSDAY to stringResource(R.string.day_thu),
+        Calendar.FRIDAY to stringResource(R.string.day_fri),
+        Calendar.SATURDAY to stringResource(R.string.day_sat)
+    )
 }

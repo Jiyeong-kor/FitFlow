@@ -30,10 +30,15 @@ class RunningRepositoryImpl @Inject constructor(
         dao.upsertGoal(goal.toEntity())
     }
 
-    override fun getReminder(): Flow<RunningReminder?> =
-        dao.getReminder().map { it?.toDomain() }
+    override fun getAllReminders(): Flow<List<RunningReminder>> =
+        dao.getAllReminders()
+            .map { list -> list.map { it.toDomain() } }
 
     override suspend fun upsertReminder(reminder: RunningReminder) {
         dao.upsertReminder(reminder.toEntity())
+    }
+
+    override suspend fun deleteReminder(reminderId: Int) {
+        dao.deleteReminder(reminderId)
     }
 }

@@ -21,11 +21,12 @@ interface RunningDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertGoal(goal: RunningGoalEntity)
 
-    @Query("SELECT * FROM running_reminder WHERE id = 0")
-    fun getReminder(): Flow<RunningReminderEntity?>
+    @Query("SELECT * FROM running_reminder ORDER BY id ASC")
+    fun getAllReminders(): Flow<List<RunningReminderEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertReminder(reminder: RunningReminderEntity)
 
-
+    @Query("DELETE FROM running_reminder WHERE id = :reminderId")
+    suspend fun deleteReminder(reminderId: Int)
 }

@@ -13,6 +13,7 @@ interface RunningRepository {
     fun getGoal(): Flow<RunningGoal?>
     suspend fun upsertGoal(goal: RunningGoal)
 
-    fun getReminder(): Flow<RunningReminder?>
+    fun getAllReminders(): Flow<List<RunningReminder>>
     suspend fun upsertReminder(reminder: RunningReminder)
+    suspend fun deleteReminder(reminderId: Int)
 }

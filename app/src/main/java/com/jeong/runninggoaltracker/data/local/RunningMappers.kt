@@ -4,6 +4,8 @@ import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
 
+private const val DAYS_DELIMITER = ","
+
 fun RunningRecordEntity.toDomain(): RunningRecord =
     RunningRecord(
         id = id,
@@ -32,14 +34,20 @@ fun RunningGoal.toEntity(): RunningGoalEntity =
 
 fun RunningReminderEntity.toDomain(): RunningReminder =
     RunningReminder(
+        id = id,
         hour = hour,
         minute = minute,
-        enabled = enabled
-    )
+        enabled = enabled,
+        days = days.split(DAYS_DELIMITER)
+            .filter { it.isNotBlank() }
+            .mapNotNull { it.toIntOrNull() }
+            .toSet())
 
 fun RunningReminder.toEntity(): RunningReminderEntity =
     RunningReminderEntity(
+        id = id,
         hour = hour,
         minute = minute,
-        enabled = enabled
+        enabled = enabled,
+        days = days.joinToString(DAYS_DELIMITER)
     )
