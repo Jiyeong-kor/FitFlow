@@ -7,8 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -19,11 +17,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.presentation.common.AppContentCard
 
 @Composable
 fun GoalSettingScreen(
@@ -46,78 +45,70 @@ fun GoalSettingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surfaceContainerLow
+            .padding(
+                horizontal = dimensionResource(R.dimen.padding_screen_horizontal),
+                vertical = dimensionResource(R.dimen.padding_screen_vertical)
             ),
-            elevation = CardDefaults.cardElevation(1.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                if (state.currentGoalKm != null) {
-                    Text(
-                        text = stringResource(
-                            R.string.goal_current_format,
-                            state.currentGoalKm!!
-                        ),
-                        style = typography.bodyLarge
-                    )
-                } else {
-                    Text(
-                        text = stringResource(R.string.goal_no_current_goal),
-                        style = typography.bodyLarge
-                    )
-                }
-
-                OutlinedTextField(
-                    value = goalText,
-                    onValueChange = {
-                        goalText = it
-                        errorText = null
-                    },
-                    label = { Text(stringResource(R.string.goal_weekly_distance_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+        verticalArrangement = Arrangement.spacedBy(
+            dimensionResource(R.dimen.spacing_screen_elements)
+        )
+    ) {
+        AppContentCard {
+            if (state.currentGoalKm != null) {
+                Text(
+                    text = stringResource(
+                        R.string.goal_current_format,
+                        state.currentGoalKm!!
+                    ),
+                    style = typography.bodyLarge
                 )
+            } else {
+                Text(
+                    text = stringResource(R.string.goal_no_current_goal),
+                    style = typography.bodyLarge
+                )
+            }
 
-                if (errorText != null) {
-                    Text(
-                        text = errorText!!,
-                        color = colorScheme.error,
-                        style = typography.bodyMedium
-                    )
-                }
+            OutlinedTextField(
+                value = goalText,
+                onValueChange = {
+                    goalText = it
+                    errorText = null
+                },
+                label = { Text(stringResource(R.string.goal_weekly_distance_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
 
-                Button(
-                    onClick = {
-                        val goal = goalText.toDoubleOrNull()
-                        when {
-                            goal == null -> {
-                                errorText = errorEnterNumber
-                            }
+            if (errorText != null) {
+                Text(
+                    text = errorText!!,
+                    color = colorScheme.error,
+                    style = typography.bodyMedium
+                )
+            }
 
-                            goal <= 0.0 -> {
-                                errorText = errorEnterPositiveValue
-                            }
-
-                            else -> {
-                                viewModel.saveGoal(goal)
-                                onBack()
-                            }
+            Button(
+                onClick = {
+                    val goal = goalText.toDoubleOrNull()
+                    when {
+                        goal == null -> {
+                            errorText = errorEnterNumber
                         }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.button_save))
-                }
+
+                        goal <= 0.0 -> {
+                            errorText = errorEnterPositiveValue
+                        }
+
+                        else -> {
+                            viewModel.saveGoal(goal)
+                            onBack()
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.button_save))
             }
         }
     }

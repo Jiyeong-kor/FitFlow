@@ -36,10 +36,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.presentation.common.AppContentCard
 import com.jeong.runninggoaltracker.presentation.common.toDistanceLabel
 import com.jeong.runninggoaltracker.presentation.common.toKoreanDateLabel
 import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
@@ -61,7 +63,9 @@ fun HomeScreen(
     val rawLabel = activityState.label
     val activityLabel = when (rawLabel) {
         "NO_PERMISSION" -> stringResource(R.string.activity_permission_needed)
-        "REQUEST_FAILED", "SECURITY_EXCEPTION" -> stringResource(R.string.activity_recognition_failed)
+        "REQUEST_FAILED", "SECURITY_EXCEPTION" ->
+            stringResource(R.string.activity_recognition_failed)
+
         "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> stringResource(R.string.activity_unknown)
         else -> rawLabel
     }
@@ -92,188 +96,168 @@ fun HomeScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.padding_screen_horizontal),
+                vertical = dimensionResource(R.dimen.padding_screen_vertical)
+            )
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(
+            dimensionResource(R.dimen.spacing_screen_elements)
+        )
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surfaceContainerLow
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            shape = RoundedCornerShape(16.dp)
+        AppContentCard(
+            verticalArrangement = Arrangement.spacedBy(
+                dimensionResource(R.dimen.card_spacing_medium)
+            )
         ) {
-            Column(
+            Text(
+                text = stringResource(R.string.home_title_today_status),
+                style = typography.titleMedium,
+                color = colorScheme.onSurface
+            )
+
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                    .wrapContentWidth()
+                    .clip(
+                        RoundedCornerShape(
+                            dimensionResource(R.dimen.chip_corner_radius)
+                        )
+                    )
+                    .background(activityChipColor)
+                    .padding(
+                        horizontal = dimensionResource(R.dimen.chip_padding_horizontal),
+                        vertical = dimensionResource(R.dimen.chip_padding_vertical)
+                    ),
+                horizontalArrangement = Arrangement.spacedBy(
+                    dimensionResource(R.dimen.card_spacing_small)
+                )
             ) {
-                Text(
-                    text = stringResource(R.string.home_title_today_status),
-                    style = typography.titleMedium,
-                    color = colorScheme.onSurface
-                )
-
-                Row(
-                    modifier = Modifier
-                        .wrapContentWidth()
-                        .clip(RoundedCornerShape(999.dp))
-                        .background(activityChipColor)
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = activityIcon,
-                        contentDescription = stringResource(R.string.content_description_current_activity),
-                        tint = colorScheme.onPrimaryContainer
-                    )
-                    Text(
-                        text = activityLabel,
-                        style = typography.bodyMedium,
-                        color = colorScheme.onPrimaryContainer
-                    )
-                }
-
-                if (weeklyGoalKm != null) {
-                    Text(
-                        text = stringResource(
-                            R.string.home_weekly_goal_format,
-                            weeklyGoalKm.toDistanceLabel()
-                        ), style = typography.bodyLarge
-                    )
-                } else {
-                    Text(
-                        text = stringResource(R.string.home_weekly_goal_not_set),
-                        style = typography.bodyLarge
-                    )
-                }
-
-                Text(
-                    text = stringResource(
-                        R.string.home_total_distance_this_week_format,
-                        totalThisWeekKm.toDistanceLabel()
-                    ), style = typography.bodyMedium
+                Icon(
+                    imageVector = activityIcon,
+                    contentDescription = stringResource(
+                        R.string.content_description_current_activity
+                    ),
+                    tint = colorScheme.onPrimaryContainer
                 )
                 Text(
-                    text = stringResource(
-                        R.string.home_running_count_this_week_format,
-                        state.recordCountThisWeek
-                    ), style = typography.bodyMedium
-                )
-
-                Spacer(Modifier.height(8.dp))
-
-                LinearProgressIndicator(
-                    progress = { state.progress },
-                    modifier = Modifier.fillMaxWidth()
-                )
-                Text(
-                    text = stringResource(
-                        R.string.home_progress_format,
-                        (state.progress * 100).toInt()
-                    ), style = typography.labelSmall,
-                    color = colorScheme.onSurfaceVariant
+                    text = activityLabel,
+                    style = typography.bodyMedium,
+                    color = colorScheme.onPrimaryContainer
                 )
             }
+
+            if (weeklyGoalKm != null) {
+                Text(
+                    text = stringResource(
+                        R.string.home_weekly_goal_format,
+                        weeklyGoalKm.toDistanceLabel()
+                    ), style = typography.bodyLarge
+                )
+            } else {
+                Text(
+                    text = stringResource(R.string.home_weekly_goal_not_set),
+                    style = typography.bodyLarge
+                )
+            }
+
+            Text(
+                text = stringResource(
+                    R.string.home_total_distance_this_week_format,
+                    totalThisWeekKm.toDistanceLabel()
+                ), style = typography.bodyMedium
+            )
+            Text(
+                text = stringResource(
+                    R.string.home_running_count_this_week_format,
+                    state.recordCountThisWeek
+                ), style = typography.bodyMedium
+            )
+
+            Spacer(Modifier.height(dimensionResource(R.dimen.card_spacing_small)))
+
+            LinearProgressIndicator(
+                progress = { state.progress },
+                modifier = Modifier.fillMaxWidth()
+            )
+            Text(
+                text = stringResource(
+                    R.string.home_progress_format,
+                    (state.progress * 100).toInt()
+                ), style = typography.labelSmall,
+                color = colorScheme.onSurfaceVariant
+            )
         }
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surfaceContainerLow
-            ),
-            elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+        AppContentCard {
+            Text(
+                text = stringResource(R.string.home_title_quick_menu),
+                style = typography.titleMedium
+            )
+
+            Button(
+                onClick = onRecordClick,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Text(
-                    text = stringResource(R.string.home_title_quick_menu),
-                    style = typography.titleMedium
-                )
+                Text(stringResource(R.string.button_add_view_record))
+            }
 
-                Button(
-                    onClick = onRecordClick,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.button_add_view_record))
-                }
+            Button(
+                onClick = onGoalClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.button_set_weekly_goal))
+            }
 
-                Button(
-                    onClick = onGoalClick,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.button_set_weekly_goal))
-                }
-
-                Button(
-                    onClick = onReminderClick,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text(stringResource(R.string.button_set_reminder))
-                }
+            Button(
+                onClick = onReminderClick,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.button_set_reminder))
             }
         }
 
         if (activityLogs.isNotEmpty()) {
             val lastLogs = activityLogs.takeLast(5).asReversed()
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                colors = CardDefaults.cardColors(
-                    containerColor = colorScheme.surfaceContainerLow
-                ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 1.dp),
-                shape = RoundedCornerShape(16.dp)
-            ) {
-                Column(
+            AppContentCard {
+                Text(
+                    text = stringResource(R.string.home_title_recent_activity_logs),
+                    style = typography.titleMedium
+                )
+
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        .heightIn(max = 200.dp)
                 ) {
-                    Text(
-                        text = stringResource(R.string.home_title_recent_activity_logs),
-                        style = typography.titleMedium
-                    )
-
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(6.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 200.dp)
-                    ) {
-                        items(lastLogs) { log ->
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = colorScheme.surfaceContainerHigh
-                                ),
-                                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-                                shape = RoundedCornerShape(12.dp)
+                    items(lastLogs) { log ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = colorScheme.surfaceContainerHigh
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                            shape = RoundedCornerShape(
+                                dimensionResource(R.dimen.log_card_corner_radius)
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensionResource(R.dimen.log_card_padding)),
+                                horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    horizontalArrangement = Arrangement.SpaceBetween
-                                ) {
-                                    Text(
-                                        text = "${log.label} (${log.confidence}%)",
-                                        style = typography.bodyLarge
-                                    )
-                                    Text(
-                                        text = log.time.toKoreanDateLabel(),
-                                        style = typography.labelSmall,
-                                        color = colorScheme.onSurfaceVariant
-                                    )
-                                }
+                                Text(
+                                    text = "${log.label} (${log.confidence}%)",
+                                    style = typography.bodyLarge
+                                )
+                                Text(
+                                    text = log.time.toKoreanDateLabel(),
+                                    style = typography.labelSmall,
+                                    color = colorScheme.onSurfaceVariant
+                                )
                             }
                         }
                     }

@@ -13,7 +13,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
@@ -25,8 +24,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -47,11 +44,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.presentation.common.AppContentCard
 import java.util.Calendar
 
 @SuppressLint("ScheduleExactAlarm")
@@ -97,8 +95,13 @@ fun ReminderSettingScreen(
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+            .padding(
+                horizontal = dimensionResource(R.dimen.padding_screen_horizontal),
+                vertical = dimensionResource(R.dimen.padding_screen_vertical)
+            ),
+        verticalArrangement = Arrangement.spacedBy(
+            dimensionResource(R.dimen.spacing_screen_elements)
+        )
     ) {
 
         val list = state.reminders.filter { it.id != null }
@@ -152,127 +155,123 @@ fun ReminderCard(
 
     val id = reminder.id ?: return
 
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(
-            containerColor = colorScheme.surfaceContainerLow
-        ),
-        elevation = CardDefaults.cardElevation(1.dp)
+    AppContentCard(
+        verticalArrangement = Arrangement.spacedBy(
+            dimensionResource(R.dimen.card_spacing_medium)
+        )
     ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+        Row(
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.fillMaxWidth()
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier.fillMaxWidth()
+            OutlinedButton(
+                onClick = { showTimePicker.value = true },
+                modifier = Modifier.weight(1f)
             ) {
-                OutlinedButton(
-                    onClick = { showTimePicker.value = true },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(
-                        text = stringResource(
-                            R.string.reminder_select_time_format,
-                            displayTimeLabel
-                        ), style = typography.bodyLarge
-                    )
-                }
-
-                Spacer(modifier = Modifier.width(16.dp))
-
-                Switch(
-                    checked = reminder.enabled,
-                    onCheckedChange = { enabled ->
-
-                        if (enabled && reminder.days.isEmpty()) {
-                            Toast.makeText(
-                                context,
-                                context.getString(
-                                    R.string.reminder_error_select_at_least_one_day
-                                ),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@Switch
-                        }
-
-                        viewModel.updateEnabled(id, enabled)
-
-                        if (enabled && reminder.days.isNotEmpty()) {
-                            scheduler.schedule(id, reminder.hour, reminder.minute, reminder.days)
-                        } else {
-                            scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
-                        }
-                    }
+                Text(
+                    text = stringResource(
+                        R.string.reminder_select_time_format,
+                        displayTimeLabel
+                    ), style = typography.bodyLarge
                 )
             }
 
-            Text(
-                text = stringResource(R.string.reminder_select_days_label),
-                style = typography.bodyMedium
+            Spacer(
+                modifier = Modifier.width(
+                    dimensionResource(R.dimen.card_spacing_medium)
+                )
             )
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                daysOfWeek.forEach { (dayInt, dayName) ->
-                    Box(
-                        modifier = Modifier.weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        DaySelectionButton(
-                            dayName = dayName,
-                            isSelected = reminder.days.contains(dayInt),
-                            onClick = {
-                                viewModel.toggleDay(id, dayInt)
 
-                                if (reminder.enabled) {
-                                    scheduler.cancel(
+            Switch(
+                checked = reminder.enabled,
+                onCheckedChange = { enabled ->
+
+                    if (enabled && reminder.days.isEmpty()) {
+                        Toast.makeText(
+                            context,
+                            context.getString(
+                                R.string.reminder_error_select_at_least_one_day
+                            ),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        return@Switch
+                    }
+
+                    viewModel.updateEnabled(id, enabled)
+
+                    if (enabled && reminder.days.isNotEmpty()) {
+                        scheduler.schedule(id, reminder.hour, reminder.minute, reminder.days)
+                    } else {
+                        scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
+                    }
+                }
+            )
+        }
+
+        Text(
+            text = stringResource(R.string.reminder_select_days_label),
+            style = typography.bodyMedium
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(
+                dimensionResource(R.dimen.card_spacing_extra_small)
+            )
+        ) {
+            daysOfWeek.forEach { (dayInt, dayName) ->
+                Box(
+                    modifier = Modifier.weight(1f),
+                    contentAlignment = Alignment.Center
+                ) {
+                    DaySelectionButton(
+                        dayName = dayName,
+                        isSelected = reminder.days.contains(dayInt),
+                        onClick = {
+                            viewModel.toggleDay(id, dayInt)
+
+                            if (reminder.enabled) {
+                                scheduler.cancel(
+                                    id,
+                                    reminder.hour,
+                                    reminder.minute,
+                                    reminder.days
+                                )
+
+                                val newDays = if (reminder.days.contains(dayInt)) {
+                                    reminder.days.minus(dayInt)
+                                } else {
+                                    reminder.days.plus(dayInt)
+                                }
+                                if (newDays.isNotEmpty()) {
+                                    scheduler.schedule(
                                         id,
                                         reminder.hour,
                                         reminder.minute,
-                                        reminder.days
+                                        newDays
                                     )
-
-                                    val newDays = if (reminder.days.contains(dayInt)) {
-                                        reminder.days.minus(dayInt)
-                                    } else {
-                                        reminder.days.plus(dayInt)
-                                    }
-                                    if (newDays.isNotEmpty()) {
-                                        scheduler.schedule(
-                                            id,
-                                            reminder.hour,
-                                            reminder.minute,
-                                            newDays
-                                        )
-                                    } else {
-                                        viewModel.updateEnabled(id, false)
-                                    }
+                                } else {
+                                    viewModel.updateEnabled(id, false)
                                 }
                             }
-                        )
-                    }
+                        }
+                    )
                 }
             }
+        }
 
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.End
+        ) {
+            OutlinedButton(
+                onClick = {
+                    scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
+                    viewModel.deleteReminder(id)
+                },
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = colorScheme.error)
             ) {
-                OutlinedButton(
-                    onClick = {
-                        scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
-                        viewModel.deleteReminder(id)
-                    },
-                    colors = ButtonDefaults.outlinedButtonColors(contentColor = colorScheme.error)
-                ) {
-                    Text(stringResource(R.string.reminder_delete_button_label))
-                }
+                Text(stringResource(R.string.reminder_delete_button_label))
             }
         }
     }
