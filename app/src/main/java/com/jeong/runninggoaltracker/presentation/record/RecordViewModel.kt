@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import java.time.LocalDate
 import javax.inject.Inject
 
 @HiltViewModel
@@ -35,7 +36,8 @@ class RecordViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun addRecord(distanceKm: Double, durationMinutes: Int) {
         viewModelScope.launch {
-            addRunningRecordUseCase(distanceKm, durationMinutes)
+            val today = LocalDate.now().toString()
+            addRunningRecordUseCase(today, distanceKm, durationMinutes)
         }
     }
 }

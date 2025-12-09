@@ -1,7 +1,5 @@
 package com.jeong.runninggoaltracker.domain.usecase
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRepository
@@ -9,7 +7,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.time.DayOfWeek
 import java.time.LocalDate
-import javax.inject.Inject
 
 data class RunningSummary(
     val weeklyGoalKm: Double? = null,
@@ -18,17 +15,14 @@ data class RunningSummary(
     val progress: Float = 0f
 )
 
-@RequiresApi(Build.VERSION_CODES.O)
-class GetRunningSummaryUseCase @Inject constructor(
+class GetRunningSummaryUseCase(
     private val repository: RunningRepository
 ) {
-    operator fun invoke(): Flow<RunningSummary> {
-        return combine(
-            repository.getGoal(),
-            repository.getAllRecords()
-        ) { goal, records ->
-            buildSummary(goal, records)
-        }
+    operator fun invoke(): Flow<RunningSummary> = combine(
+        repository.getGoal(),
+        repository.getAllRecords()
+    ) { goal, records ->
+        buildSummary(goal, records)
     }
 
     private fun buildSummary(goal: RunningGoal?, records: List<RunningRecord>): RunningSummary {

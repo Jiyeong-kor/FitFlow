@@ -36,6 +36,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
@@ -50,6 +51,9 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":domain"))
+
+    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // core / lifecycle / activity / viewmodel-compose
     implementation(libs.androidx.core.ktx)
