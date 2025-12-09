@@ -1,10 +1,10 @@
 package com.jeong.runninggoaltracker.domain.usecase
 
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
 
 class AddRunningReminderUseCase(
-    private val repository: RunningRepository
+    private val repository: RunningReminderRepository
 ) {
     suspend operator fun invoke() {
         val newReminder = RunningReminder(

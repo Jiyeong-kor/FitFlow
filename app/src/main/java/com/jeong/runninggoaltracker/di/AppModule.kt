@@ -4,8 +4,12 @@ import android.content.Context
 import androidx.room.Room
 import com.jeong.runninggoaltracker.data.local.RunningDao
 import com.jeong.runninggoaltracker.data.local.RunningDatabase
-import com.jeong.runninggoaltracker.data.repository.RunningRepositoryImpl
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import com.jeong.runninggoaltracker.data.repository.RunningGoalRepositoryImpl
+import com.jeong.runninggoaltracker.data.repository.RunningRecordRepositoryImpl
+import com.jeong.runninggoaltracker.data.repository.RunningReminderRepositoryImpl
+import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
+import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
+import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
@@ -14,6 +18,8 @@ import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
+import com.jeong.runninggoaltracker.domain.util.DateProvider
+import com.jeong.runninggoaltracker.domain.util.SystemDateProvider
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -41,42 +47,49 @@ object AppProvidesModule {
     fun provideRunningDao(db: RunningDatabase): RunningDao = db.runningDao()
 
     @Provides
-    fun provideAddRunningRecordUseCase(repository: RunningRepository): AddRunningRecordUseCase =
+    @Singleton
+    fun provideDateProvider(): DateProvider = SystemDateProvider()
+
+    @Provides
+    fun provideAddRunningRecordUseCase(repository: RunningRecordRepository): AddRunningRecordUseCase =
         AddRunningRecordUseCase(repository)
 
+    @Provides
+    fun provideGetRunningSummaryUseCase(
+        goalRepository: RunningGoalRepository,
+        recordRepository: RunningRecordRepository,
+        dateProvider: DateProvider
+    ): GetRunningSummaryUseCase =
+        GetRunningSummaryUseCase(goalRepository, recordRepository, dateProvider)
+
 
     @Provides
-    fun provideGetRunningSummaryUseCase(repository: RunningRepository): GetRunningSummaryUseCase =
-        GetRunningSummaryUseCase(repository)
-
-
-    @Provides
-    fun provideAddRunningReminderUseCase(repository: RunningRepository): AddRunningReminderUseCase =
+    fun provideAddRunningReminderUseCase(repository: RunningReminderRepository): AddRunningReminderUseCase =
         AddRunningReminderUseCase(repository)
 
 
     @Provides
-    fun provideDeleteRunningReminderUseCase(repository: RunningRepository): DeleteRunningReminderUseCase =
+    fun provideDeleteRunningReminderUseCase(repository: RunningReminderRepository): DeleteRunningReminderUseCase =
         DeleteRunningReminderUseCase(repository)
 
 
     @Provides
-    fun provideGetRunningGoalUseCase(repository: RunningRepository): GetRunningGoalUseCase =
+    fun provideGetRunningGoalUseCase(repository: RunningGoalRepository): GetRunningGoalUseCase =
         GetRunningGoalUseCase(repository)
 
 
     @Provides
-    fun provideGetRunningRemindersUseCase(repository: RunningRepository): GetRunningRemindersUseCase =
+    fun provideGetRunningRemindersUseCase(repository: RunningReminderRepository): GetRunningRemindersUseCase =
         GetRunningRemindersUseCase(repository)
 
 
     @Provides
-    fun provideUpsertRunningGoalUseCase(repository: RunningRepository): UpsertRunningGoalUseCase =
+    fun provideUpsertRunningGoalUseCase(repository: RunningGoalRepository): UpsertRunningGoalUseCase =
         UpsertRunningGoalUseCase(repository)
 
 
     @Provides
-    fun provideUpsertRunningReminderUseCase(repository: RunningRepository): UpsertRunningReminderUseCase =
+    fun provideUpsertRunningReminderUseCase(repository: RunningReminderRepository): UpsertRunningReminderUseCase =
         UpsertRunningReminderUseCase(repository)
 
 }
@@ -85,7 +98,16 @@ object AppProvidesModule {
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class AppBindsModule {
+
     @Binds
     @Singleton
-    abstract fun bindRunningRepository(impl: RunningRepositoryImpl): RunningRepository
+    abstract fun bindRunningGoalRepository(impl: RunningGoalRepositoryImpl): RunningGoalRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRunningRecordRepository(impl: RunningRecordRepositoryImpl): RunningRecordRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindRunningReminderRepository(impl: RunningReminderRepositoryImpl): RunningReminderRepository
 }

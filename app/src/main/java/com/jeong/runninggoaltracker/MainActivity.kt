@@ -30,18 +30,13 @@ import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
 import com.jeong.runninggoaltracker.presentation.navigation.AppNavGraph
 import com.jeong.runninggoaltracker.presentation.navigation.bottomNavItems
 import com.jeong.runninggoaltracker.ui.theme.RunningGoalTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
-
-    @Inject
-    lateinit var runningRepository: RunningRepository
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {

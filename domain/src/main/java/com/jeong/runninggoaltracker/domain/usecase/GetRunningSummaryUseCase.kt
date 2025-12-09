@@ -2,7 +2,9 @@ package com.jeong.runninggoaltracker.domain.usecase
 
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
-import com.jeong.runninggoaltracker.domain.repository.RunningRepository
+import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
+import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
+import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import java.time.DayOfWeek
@@ -16,17 +18,19 @@ data class RunningSummary(
 )
 
 class GetRunningSummaryUseCase(
-    private val repository: RunningRepository
+    private val goalRepository: RunningGoalRepository,
+    private val recordRepository: RunningRecordRepository,
+    private val dateProvider: DateProvider
 ) {
     operator fun invoke(): Flow<RunningSummary> = combine(
-        repository.getGoal(),
-        repository.getAllRecords()
+        goalRepository.getGoal(),
+        recordRepository.getAllRecords()
     ) { goal, records ->
         buildSummary(goal, records)
     }
 
     private fun buildSummary(goal: RunningGoal?, records: List<RunningRecord>): RunningSummary {
-        val startOfWeek = LocalDate.now().with(DayOfWeek.MONDAY)
+        val startOfWeek = dateProvider.getToday().with(DayOfWeek.MONDAY)
 
         val thisWeekRecords = records.filter { record ->
             val date = runCatching { LocalDate.parse(record.date) }.getOrNull()
