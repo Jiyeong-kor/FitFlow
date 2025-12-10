@@ -50,7 +50,7 @@ import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.shared.util.R as SharedR
-import com.jeong.runninggoaltracker.shared.util.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import java.util.Calendar
 
 @SuppressLint("ScheduleExactAlarm")

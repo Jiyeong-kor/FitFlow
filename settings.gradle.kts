@@ -22,4 +22,5 @@ dependencyResolutionManagement {
 rootProject.name = "RunningGoalTracker"
 include(":app")
 include(":domain")
+include(":shared:designsystem")
 include(":shared:util")

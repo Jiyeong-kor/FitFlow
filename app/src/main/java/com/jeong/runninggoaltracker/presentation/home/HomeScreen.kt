@@ -45,11 +45,11 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.shared.util.R as SharedR
-import com.jeong.runninggoaltracker.shared.util.common.AppContentCard
-import com.jeong.runninggoaltracker.shared.util.common.toDistanceLabel
-import com.jeong.runninggoaltracker.shared.util.common.toKoreanDateLabel
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
 import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
+import com.jeong.runninggoaltracker.util.toDistanceLabel
+import com.jeong.runninggoaltracker.util.toKoreanDateLabel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

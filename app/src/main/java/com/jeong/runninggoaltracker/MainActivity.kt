@@ -32,7 +32,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.jeong.runninggoaltracker.presentation.navigation.AppNavGraph
 import com.jeong.runninggoaltracker.presentation.navigation.bottomNavItems
-import com.jeong.runninggoaltracker.shared.util.theme.RunningGoalTrackerTheme
+import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
