@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.util
+package com.jeong.runninggoaltracker.shared.util
 
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import java.time.LocalDate

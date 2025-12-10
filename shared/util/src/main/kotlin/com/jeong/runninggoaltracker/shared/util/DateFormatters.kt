@@ -1,12 +1,9 @@
-package com.jeong.runninggoaltracker.util
+package com.jeong.runninggoaltracker.shared.util
 
-import android.os.Build
-import androidx.annotation.RequiresApi
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun LocalDate.toKoreanDateLabel(): String = try {
     val formatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREA)
     this.format(formatter)
@@ -14,7 +11,6 @@ fun LocalDate.toKoreanDateLabel(): String = try {
     this.toString()
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
 fun String.toKoreanDateLabel(): String = try {
     val parsed = LocalDate.parse(this)
     val formatter = DateTimeFormatter.ofPattern("M월 d일 (E)", Locale.KOREA)

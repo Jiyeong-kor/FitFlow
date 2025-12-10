@@ -34,13 +34,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
-import com.jeong.runninggoaltracker.util.toDistanceLabel
-import com.jeong.runninggoaltracker.util.toKoreanDateLabel
+import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.util.toDistanceLabel
+import com.jeong.runninggoaltracker.shared.util.toKoreanDateLabel
 import java.time.LocalDate
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -74,242 +77,216 @@ fun RecordScreen(
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
+    val horizontalPadding = dimensionResource(SharedR.dimen.padding_screen_horizontal)
+    val verticalPadding = dimensionResource(SharedR.dimen.padding_screen_vertical)
+    val sectionSpacing = dimensionResource(SharedR.dimen.spacing_screen_elements)
+    val cardSpacingSmall = dimensionResource(SharedR.dimen.card_spacing_small)
+    val cardSpacingMedium = dimensionResource(SharedR.dimen.card_spacing_medium)
+    val cardSpacingExtraSmall = dimensionResource(SharedR.dimen.card_spacing_extra_small)
+    val recordListMaxHeight = dimensionResource(SharedR.dimen.list_max_height_large)
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 20.dp, vertical = 16.dp)
+            .padding(horizontal = horizontalPadding, vertical = verticalPadding)
             .verticalScroll(rememberScrollState()),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        verticalArrangement = Arrangement.spacedBy(sectionSpacing)
     ) {
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surfaceContainerLow
-            ),
-            elevation = CardDefaults.cardElevation(1.dp),
-            shape = RoundedCornerShape(16.dp)
+        AppContentCard(
+            verticalArrangement = Arrangement.spacedBy(cardSpacingSmall)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Text(
+                text = stringResource(R.string.record_title_activity_recognition),
+                style = typography.titleMedium
+            )
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
             ) {
-                Text(
-                    text = stringResource(R.string.record_title_activity_recognition),
-                    style = typography.titleMedium
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
+                    contentDescription = null,
+                    tint = colorScheme.primary
                 )
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
-                        contentDescription = null,
-                        tint = colorScheme.primary
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.record_current_activity_format,
-                            displayLabel
-                        ), style = typography.bodyLarge
-                    )
-                }
-
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    Button(
-                        onClick = { activityManager.startUpdates() },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(R.string.button_start_detection))
-                    }
-                    Button(
-                        onClick = { activityManager.stopUpdates() },
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Text(stringResource(R.string.button_stop_detection))
-                    }
-                }
+                Text(
+                    text = stringResource(
+                        R.string.record_current_activity_format,
+                        displayLabel
+                    ), style = typography.bodyLarge
+                )
             }
-        }
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surfaceContainerLow
-            ),
-            elevation = CardDefaults.cardElevation(1.dp),
-            shape = RoundedCornerShape(16.dp)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
             ) {
-                Text(
-                    text = stringResource(R.string.record_title_add_record),
-                    style = typography.titleMedium
-                )
-
-                OutlinedTextField(
-                    value = distanceText,
-                    onValueChange = {
-                        distanceText = it
-                        errorText = null
-                    },
-                    label = { Text(stringResource(R.string.record_distance_label)) },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-
-                OutlinedTextField(
-                    value = durationText,
-                    onValueChange = {
-                        durationText = it
-                        errorText = null
-                    },
-                    label = { Text(recordDurationLabel) },
-                    modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
-                )
-
-                if (errorText != null) {
-                    Text(
-                        text = errorText!!,
-                        color = colorScheme.error,
-                        style = typography.bodyMedium
-                    )
-                }
-
                 Button(
-                    onClick = {
-                        val distance = distanceText.toDoubleOrNull()
-                        val duration = durationText.toIntOrNull()
-
-                        when {
-                            distance == null || duration == null -> {
-                                errorText = errorEnterNumberFormat
-                            }
-
-                            distance <= 0.0 || duration <= 0 -> {
-                                errorText = errorEnterPositiveValue
-                            }
-
-                            else -> {
-                                val todayString = LocalDate.now().toString()
-                                viewModel.addRecord(
-                                    dateString = todayString,
-                                    distanceKm = distance,
-                                    durationMinutes = duration
-                                )
-                                distanceText = ""
-                                durationText = ""
-                                errorText = null
-                            }
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
+                    onClick = { activityManager.startUpdates() },
+                    modifier = Modifier.weight(1f)
                 ) {
-                    Text(stringResource(R.string.button_save))
+                    Text(stringResource(R.string.button_start_detection))
+                }
+                Button(
+                    onClick = { activityManager.stopUpdates() },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Text(stringResource(R.string.button_stop_detection))
                 }
             }
         }
 
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            colors = CardDefaults.cardColors(
-                containerColor = colorScheme.surfaceContainerLow
-            ),
-            elevation = CardDefaults.cardElevation(1.dp),
-            shape = RoundedCornerShape(16.dp)
+        AppContentCard(
+            verticalArrangement = Arrangement.spacedBy(cardSpacingSmall)
         ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(
-                    text = stringResource(R.string.record_title_saved_records),
-                    style = typography.titleMedium
-                )
+            Text(
+                text = stringResource(R.string.record_title_add_record),
+                style = typography.titleMedium
+            )
 
-                if (records.isEmpty()) {
-                    Text(
-                        text = stringResource(R.string.record_no_saved_records),
-                        style = typography.bodyMedium,
-                        color = colorScheme.onSurfaceVariant
-                    )
-                } else {
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 300.dp)
-                    ) {
-                        items(records) { record ->
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = colorScheme.surfaceContainer
-                                ),
-                                elevation = CardDefaults.cardElevation(0.dp),
-                                shape = RoundedCornerShape(12.dp)
+            OutlinedTextField(
+                value = distanceText,
+                onValueChange = {
+                    distanceText = it
+                    errorText = null
+                },
+                label = { Text(stringResource(R.string.record_distance_label)) },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            OutlinedTextField(
+                value = durationText,
+                onValueChange = {
+                    durationText = it
+                    errorText = null
+                },
+                label = { Text(recordDurationLabel) },
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+            )
+
+            if (errorText != null) {
+                Text(
+                    text = errorText!!,
+                    color = colorScheme.error,
+                    style = typography.bodyMedium
+                )
+            }
+
+            Button(
+                onClick = {
+                    val distance = distanceText.toDoubleOrNull()
+                    val duration = durationText.toIntOrNull()
+
+                    when {
+                        distance == null || duration == null -> {
+                            errorText = errorEnterNumberFormat
+                        }
+
+                        distance <= 0.0 || duration <= 0 -> {
+                            errorText = errorEnterPositiveValue
+                        }
+
+                        else -> {
+                            val todayString = LocalDate.now().toString()
+                            viewModel.addRecord(
+                                dateString = todayString,
+                                distanceKm = distance,
+                                durationMinutes = duration
+                            )
+                            distanceText = ""
+                            durationText = ""
+                            errorText = null
+                        }
+                    }
+                },
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(stringResource(R.string.button_save))
+            }
+        }
+
+        AppContentCard(
+            verticalArrangement = Arrangement.spacedBy(cardSpacingSmall)
+        ) {
+            Text(
+                text = stringResource(R.string.record_title_saved_records),
+                style = typography.titleMedium
+            )
+
+            if (records.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.record_no_saved_records),
+                    style = typography.bodyMedium,
+                    color = colorScheme.onSurfaceVariant
+                )
+            } else {
+                LazyColumn(
+                    verticalArrangement = Arrangement.spacedBy(cardSpacingSmall),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = recordListMaxHeight)
+                ) {
+                    items(records) { record ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = colorScheme.surfaceContainer
+                            ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                            shape = RoundedCornerShape(
+                                dimensionResource(SharedR.dimen.log_card_corner_radius)
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(dimensionResource(SharedR.dimen.log_card_padding)),
+                                horizontalArrangement = Arrangement.spacedBy(cardSpacingMedium)
                             ) {
-                                Row(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(12.dp),
-                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
+                                    contentDescription = null,
+                                    tint = colorScheme.primary
+                                )
+                                Column(
+                                    verticalArrangement = Arrangement.spacedBy(cardSpacingExtraSmall)
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
-                                        contentDescription = null,
-                                        tint = colorScheme.primary
-                                    )
-                                    Column(
-                                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(cardSpacingExtraSmall)
                                     ) {
+                                        Icon(
+                                            imageVector = Icons.Filled.CalendarToday,
+                                            contentDescription = null,
+                                            tint = colorScheme.onSurfaceVariant
+                                        )
+                                        Text(
+                                            text = record.date.toKoreanDateLabel(),
+                                            style = typography.bodyMedium
+                                        )
+                                    }
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
+                                    ) {
+                                        Text(
+                                            text = record.distanceKm.toDistanceLabel(),
+                                            style = typography.bodyMedium
+                                        )
                                         Row(
-                                            horizontalArrangement = Arrangement.spacedBy(4.dp)
+                                            horizontalArrangement = Arrangement.spacedBy(cardSpacingExtraSmall)
                                         ) {
                                             Icon(
-                                                imageVector = Icons.Filled.CalendarToday,
+                                                imageVector = Icons.Filled.Schedule,
                                                 contentDescription = null,
                                                 tint = colorScheme.onSurfaceVariant
                                             )
                                             Text(
-                                                text = record.date.toKoreanDateLabel(),
-                                                style = typography.bodyMedium
+                                                text = stringResource(
+                                                    R.string.record_duration_minutes_format,
+                                                    record.durationMinutes
+                                                ), style = typography.bodyMedium
                                             )
-                                        }
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                                        ) {
-                                            Text(
-                                                text = record.distanceKm.toDistanceLabel(),
-                                                style = typography.bodyMedium
-                                            )
-                                            Row(
-                                                horizontalArrangement = Arrangement.spacedBy(4.dp)
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Filled.Schedule,
-                                                    contentDescription = null,
-                                                    tint = colorScheme.onSurfaceVariant
-                                                )
-                                                Text(
-                                                    text = stringResource(
-                                                        R.string.record_duration_minutes_format,
-                                                        record.durationMinutes
-                                                    ), style = typography.bodyMedium
-                                                )
-                                            }
                                         }
                                     }
                                 }

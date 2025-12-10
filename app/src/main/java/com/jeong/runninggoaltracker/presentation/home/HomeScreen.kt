@@ -48,8 +48,8 @@ import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
 import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
-import com.jeong.runninggoaltracker.util.toDistanceLabel
-import com.jeong.runninggoaltracker.util.toKoreanDateLabel
+import com.jeong.runninggoaltracker.shared.util.toDistanceLabel
+import com.jeong.runninggoaltracker.shared.util.toKoreanDateLabel
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -234,10 +234,12 @@ fun HomeScreen(
                 )
 
                 LazyColumn(
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(
+                        dimensionResource(SharedR.dimen.list_spacing_small)
+                    ),
                     modifier = Modifier
                         .fillMaxWidth()
-                        .heightIn(max = 200.dp)
+                        .heightIn(max = dimensionResource(SharedR.dimen.list_max_height_medium))
                 ) {
                     items(lastLogs) { log ->
                         Card(
