@@ -9,19 +9,15 @@ import android.text.format.DateFormat
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ColorScheme
@@ -41,17 +37,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
-import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.designsystem.common.DaySelectionButton
 import java.util.Calendar
+import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 
 @SuppressLint("ScheduleExactAlarm")
 @Composable
@@ -310,39 +305,6 @@ fun ReminderCard(
             title = { Text(stringResource(R.string.reminder_dialog_title_select_time)) }
         ) {
             TimePicker(state = timeState)
-        }
-    }
-}
-
-@Composable
-fun DaySelectionButton(
-    dayName: String,
-    isSelected: Boolean,
-    onClick: () -> Unit
-) {
-    val colorScheme = MaterialTheme.colorScheme
-    val backgroundColor = if (isSelected) colorScheme.primary else Color.Transparent
-    val contentColor = if (isSelected) colorScheme.onPrimary else colorScheme.onSurfaceVariant
-
-    Box(
-        modifier = Modifier
-            .aspectRatio(1f)
-            .clip(CircleShape)
-            .clickable(onClick = onClick),
-        contentAlignment = Alignment.Center
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .clip(CircleShape)
-                .background(backgroundColor),
-            contentAlignment = Alignment.Center
-        ) {
-            Text(
-                text = dayName,
-                color = contentColor,
-                style = MaterialTheme.typography.labelLarge
-            )
         }
     }
 }
