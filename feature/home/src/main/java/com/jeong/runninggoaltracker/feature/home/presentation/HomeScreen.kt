@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.home
+package com.jeong.runninggoaltracker.feature.home.presentation
 
 import android.os.Build
 import androidx.annotation.RequiresApi
@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -43,27 +42,56 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.feature.home.R
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
-import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
-import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
-import com.jeong.runninggoaltracker.util.toDistanceLabel
-import com.jeong.runninggoaltracker.util.toKoreanDateLabel
+import com.jeong.runninggoaltracker.shared.designsystem.util.toDistanceLabel
+import com.jeong.runninggoaltracker.shared.designsystem.util.toKoreanDateLabel
+import kotlinx.coroutines.flow.Flow
+
+data class ActivityRecognitionUiState(
+    val label: String = "UNKNOWN"
+)
+
+data class ActivityLogUiModel(
+    val time: String,
+    val label: String
+)
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun HomeScreen(
+fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
+    activityStateFlow: Flow<ActivityRecognitionUiState>,
+    activityLogsFlow: Flow<List<ActivityLogUiModel>>,
     onRecordClick: () -> Unit,
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val activityState by activityStateFlow.collectAsState(initial = ActivityRecognitionUiState())
+    val activityLogs by activityLogsFlow.collectAsState(initial = emptyList())
 
-    val state by viewModel.uiState.collectAsState()
-    val activityState by ActivityRecognitionStateHolder.state.collectAsState()
-    val activityLogs by ActivityLogHolder.logs.collectAsState()
+    HomeScreen(
+        uiState = uiState,
+        activityState = activityState,
+        activityLogs = activityLogs,
+        onRecordClick = onRecordClick,
+        onGoalClick = onGoalClick,
+        onReminderClick = onReminderClick
+    )
+}
 
+@RequiresApi(Build.VERSION_CODES.O)
+@Composable
+fun HomeScreen(
+    uiState: HomeUiState,
+    activityState: ActivityRecognitionUiState,
+    activityLogs: List<ActivityLogUiModel>,
+    onRecordClick: () -> Unit,
+    onGoalClick: () -> Unit,
+    onReminderClick: () -> Unit
+) {
     val rawLabel = activityState.label
     val activityLabel = when (rawLabel) {
         "NO_PERMISSION" -> stringResource(R.string.activity_permission_needed)
@@ -74,8 +102,8 @@ fun HomeScreen(
         else -> rawLabel
     }
 
-    val weeklyGoalKm = state.weeklyGoalKm
-    val totalThisWeekKm = state.totalThisWeekKm
+    val weeklyGoalKm = uiState.weeklyGoalKm
+    val totalThisWeekKm = uiState.totalThisWeekKm
 
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -122,16 +150,12 @@ fun HomeScreen(
 
             Row(
                 modifier = Modifier
-                    .wrapContentWidth()
-                    .clip(
-                        RoundedCornerShape(
-                            dimensionResource(SharedR.dimen.chip_corner_radius)
-                        )
-                    )
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(999.dp))
                     .background(activityChipColor)
                     .padding(
-                        horizontal = dimensionResource(SharedR.dimen.chip_padding_horizontal),
-                        vertical = dimensionResource(SharedR.dimen.chip_padding_vertical)
+                        horizontal = dimensionResource(SharedR.dimen.card_spacing_medium),
+                        vertical = dimensionResource(SharedR.dimen.card_spacing_small)
                     ),
                 horizontalArrangement = Arrangement.spacedBy(
                     dimensionResource(SharedR.dimen.card_spacing_small)
@@ -174,7 +198,7 @@ fun HomeScreen(
             Text(
                 text = stringResource(
                     R.string.home_running_count_this_week_format,
-                    state.recordCountThisWeek
+                    uiState.recordCountThisWeek
                 ), style = typography.bodyMedium
             )
 
@@ -187,13 +211,13 @@ fun HomeScreen(
                     .align(Alignment.CenterHorizontally)
             ) {
                 CircularProgressIndicator(
-                    progress = { state.progress },
+                    progress = { uiState.progress },
                     modifier = Modifier.matchParentSize()
                 )
                 Text(
                     text = stringResource(
                         R.string.home_progress_format,
-                        (state.progress * 100).toInt()
+                        (uiState.progress * 100).toInt()
                     ), style = typography.titleMedium,
                     color = colorScheme.onSurfaceVariant,
                     modifier = Modifier.align(Alignment.Center)

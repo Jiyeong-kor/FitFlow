@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.home
+package com.jeong.runninggoaltracker.feature.home.presentation
 
 import android.os.Build
 import androidx.annotation.RequiresApi

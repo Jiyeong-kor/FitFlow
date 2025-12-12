@@ -7,10 +7,17 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.jeong.runninggoaltracker.feature.home.presentation.ActivityLogUiModel
+import com.jeong.runninggoaltracker.feature.home.presentation.ActivityRecognitionUiState
+import com.jeong.runninggoaltracker.feature.home.presentation.HomeRoute
 import com.jeong.runninggoaltracker.presentation.goal.GoalSettingScreen
-import com.jeong.runninggoaltracker.presentation.home.HomeScreen
 import com.jeong.runninggoaltracker.presentation.record.RecordScreen
+import com.jeong.runninggoaltracker.presentation.record.ActivityLogHolder
+import com.jeong.runninggoaltracker.presentation.record.ActivityRecognitionStateHolder
+import com.jeong.runninggoaltracker.presentation.record.ActivityLogEntry
+import com.jeong.runninggoaltracker.presentation.record.ActivityState
 import com.jeong.runninggoaltracker.presentation.reminder.ReminderSettingScreen
+import kotlinx.coroutines.flow.map
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
@@ -24,7 +31,13 @@ fun AppNavGraph(
         modifier = modifier
     ) {
         composable("home") {
-            HomeScreen(
+            HomeRoute(
+                activityStateFlow = ActivityRecognitionStateHolder.state.map { state ->
+                    state.toUiState()
+                },
+                activityLogsFlow = ActivityLogHolder.logs.map { entries ->
+                    entries.map { it.toUiModel() }
+                },
                 onRecordClick = { navController.navigate("record") },
                 onGoalClick = { navController.navigate("goal") },
                 onReminderClick = { navController.navigate("reminder") }
@@ -47,3 +60,12 @@ fun AppNavGraph(
         }
     }
 }
+
+private fun ActivityState.toUiState(): ActivityRecognitionUiState =
+    ActivityRecognitionUiState(label = label)
+
+private fun ActivityLogEntry.toUiModel(): ActivityLogUiModel =
+    ActivityLogUiModel(
+        time = time,
+        label = label
+    )
