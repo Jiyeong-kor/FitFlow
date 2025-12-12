@@ -11,11 +11,13 @@ import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
+import com.jeong.runninggoaltracker.domain.usecase.CreateDefaultReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
 import com.jeong.runninggoaltracker.domain.usecase.RunningSummaryCalculator
+import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.WeeklySummaryCalculator
@@ -42,7 +44,6 @@ object AppProvidesModule {
             RunningDatabase.NAME
         ).fallbackToDestructiveMigration(false)
             .build()
-
 
     @Provides
     fun provideRunningDao(db: RunningDatabase): RunningDao = db.runningDao()
@@ -72,26 +73,34 @@ object AppProvidesModule {
     fun provideDeleteRunningReminderUseCase(repository: RunningReminderRepository): DeleteRunningReminderUseCase =
         DeleteRunningReminderUseCase(repository)
 
-
     @Provides
     fun provideGetRunningGoalUseCase(repository: RunningGoalRepository): GetRunningGoalUseCase =
         GetRunningGoalUseCase(repository)
 
+    @Provides
+    @Singleton
+    fun provideGetRunningRemindersUseCase(
+        repository: RunningReminderRepository
+    ): GetRunningRemindersUseCase = GetRunningRemindersUseCase(repository)
 
     @Provides
-    fun provideGetRunningRemindersUseCase(repository: RunningReminderRepository): GetRunningRemindersUseCase =
-        GetRunningRemindersUseCase(repository)
+    @Singleton
+    fun provideCreateDefaultReminderUseCase(): CreateDefaultReminderUseCase =
+        CreateDefaultReminderUseCase()
 
+    @Provides
+    @Singleton
+    fun provideToggleReminderDayUseCase(): ToggleReminderDayUseCase = ToggleReminderDayUseCase()
 
     @Provides
     fun provideUpsertRunningGoalUseCase(repository: RunningGoalRepository): UpsertRunningGoalUseCase =
         UpsertRunningGoalUseCase(repository)
 
-
     @Provides
-    fun provideUpsertRunningReminderUseCase(repository: RunningReminderRepository): UpsertRunningReminderUseCase =
-        UpsertRunningReminderUseCase(repository)
-
+    @Singleton
+    fun provideUpsertRunningReminderUseCase(
+        repository: RunningReminderRepository
+    ): UpsertRunningReminderUseCase = UpsertRunningReminderUseCase(repository)
 }
 
 @Suppress("unused")
