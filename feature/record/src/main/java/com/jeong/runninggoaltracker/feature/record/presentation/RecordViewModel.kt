@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
+import com.jeong.runninggoaltracker.domain.usecase.RunningRecordValidationResult
+import com.jeong.runninggoaltracker.domain.usecase.ValidateRunningRecordInputUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -38,7 +40,8 @@ private data class RecordInputState(
 class RecordViewModel @Inject constructor(
     getRunningRecordsUseCase: GetRunningRecordsUseCase,
     private val addRunningRecordUseCase: AddRunningRecordUseCase,
-    private val dateProvider: DateProvider
+    private val dateProvider: DateProvider,
+    private val validateRunningRecordInputUseCase: ValidateRunningRecordInputUseCase
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(RecordInputState())
@@ -72,28 +75,28 @@ class RecordViewModel @Inject constructor(
     }
 
     fun saveRecord() {
-        val distance = inputState.value.distanceInput.toDoubleOrNull()
-        val duration = inputState.value.durationInput.toIntOrNull()
-
-        when {
-            distance == null || duration == null -> {
+        when (val result = validateRunningRecordInputUseCase(
+            inputState.value.distanceInput,
+            inputState.value.durationInput
+        )) {
+            RunningRecordValidationResult.Error.INVALID_NUMBER -> {
                 inputState.update { current ->
                     current.copy(error = RecordInputError.INVALID_NUMBER)
                 }
             }
 
-            distance <= 0.0 || duration <= 0 -> {
+            RunningRecordValidationResult.Error.NON_POSITIVE -> {
                 inputState.update { current ->
                     current.copy(error = RecordInputError.NON_POSITIVE)
                 }
             }
 
-            else -> {
+            is RunningRecordValidationResult.Valid -> {
                 viewModelScope.launch {
                     addRunningRecordUseCase(
                         date = dateProvider.getToday(),
-                        distanceKm = distance,
-                        durationMinutes = duration
+                        distanceKm = result.distanceKm,
+                        durationMinutes = result.durationMinutes
                     )
                     inputState.value = RecordInputState()
                 }

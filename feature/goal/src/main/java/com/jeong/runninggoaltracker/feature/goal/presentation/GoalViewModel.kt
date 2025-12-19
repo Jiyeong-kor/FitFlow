@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
+import com.jeong.runninggoaltracker.domain.usecase.ValidateWeeklyGoalUseCase
+import com.jeong.runninggoaltracker.domain.usecase.WeeklyGoalValidationResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,7 +36,8 @@ private data class GoalInputState(
 @HiltViewModel
 class GoalViewModel @Inject constructor(
     getRunningGoalUseCase: GetRunningGoalUseCase,
-    private val upsertRunningGoalUseCase: UpsertRunningGoalUseCase
+    private val upsertRunningGoalUseCase: UpsertRunningGoalUseCase,
+    private val validateWeeklyGoalUseCase: ValidateWeeklyGoalUseCase
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(GoalInputState())
@@ -66,23 +69,22 @@ class GoalViewModel @Inject constructor(
     }
 
     fun saveGoal(onSuccess: () -> Unit) {
-        val weeklyGoal = inputState.value.weeklyGoalInput.toDoubleOrNull()
-        when {
-            weeklyGoal == null -> {
+        when (val result = validateWeeklyGoalUseCase(inputState.value.weeklyGoalInput)) {
+            WeeklyGoalValidationResult.Error.INVALID_NUMBER -> {
                 inputState.update { current ->
                     current.copy(error = GoalInputError.INVALID_NUMBER)
                 }
             }
 
-            weeklyGoal <= 0.0 -> {
+            WeeklyGoalValidationResult.Error.NON_POSITIVE -> {
                 inputState.update { current ->
                     current.copy(error = GoalInputError.NON_POSITIVE)
                 }
             }
 
-            else -> {
+            is WeeklyGoalValidationResult.Valid -> {
                 viewModelScope.launch {
-                    upsertRunningGoalUseCase(RunningGoal(weeklyGoalKm = weeklyGoal))
+                    upsertRunningGoalUseCase(RunningGoal(weeklyGoalKm = result.weeklyGoalKm))
                     inputState.update { current ->
                         current.copy(error = null)
                     }

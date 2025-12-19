@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.feature.record.di
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
+import com.jeong.runninggoaltracker.domain.usecase.ValidateRunningRecordInputUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,4 +22,8 @@ object RecordModule {
     fun provideGetRunningRecordsUseCase(
         repository: RunningRecordRepository
     ): GetRunningRecordsUseCase = GetRunningRecordsUseCase(repository)
+
+    @Provides
+    fun provideValidateRunningRecordInputUseCase(): ValidateRunningRecordInputUseCase =
+        ValidateRunningRecordInputUseCase()
 }

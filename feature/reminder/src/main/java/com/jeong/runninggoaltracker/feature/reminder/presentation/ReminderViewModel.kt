@@ -73,14 +73,8 @@ class ReminderViewModel @Inject constructor(
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun toggleDay(id: Int, day: Int) {
-        val dayOfWeek = try {
-            DayOfWeek.of(day)
-        } catch (_: IllegalArgumentException) {
-            return
-        }
-
         updateAndPersistReminder(id) { current ->
-            toggleReminderDayUseCase(current, dayOfWeek)
+            toggleReminderDayUseCase(current, day)
         }
     }
 
