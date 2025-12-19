@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.di
+package com.jeong.runninggoaltracker.data.di
 
 import android.content.Context
 import com.jeong.runninggoaltracker.data.local.RunningDao
@@ -7,6 +7,7 @@ import com.jeong.runninggoaltracker.data.local.RunningDatabaseFactory
 import com.jeong.runninggoaltracker.data.repository.RunningGoalRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningReminderRepositoryImpl
+import com.jeong.runninggoaltracker.data.util.SystemDateProvider
 import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
@@ -23,7 +24,6 @@ import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.WeeklySummaryCalculator
 import com.jeong.runninggoaltracker.domain.util.DateProvider
-import com.jeong.runninggoaltracker.util.SystemDateProvider
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -34,7 +34,7 @@ import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
-object AppProvidesModule {
+object DataProvidesModule {
 
     @Provides
     @Singleton
@@ -109,7 +109,7 @@ object AppProvidesModule {
 @Suppress("unused")
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class AppBindsModule {
+abstract class DataBindsModule {
 
     @Binds
     @Singleton

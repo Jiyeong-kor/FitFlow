@@ -1,7 +1,7 @@
 [versions]
 # Gradle / Kotlin
 agp = "8.13.2"
-kotlin = "2.2.21"
+kotlin = "2.3.0"
 ksp = "2.2.21-2.0.4"
 
 # Core / build support
@@ -20,10 +20,10 @@ javaxInject = "1"
 # AndroidX core / lifecycle / activity
 coreKtx = "1.17.0"
 lifecycleRuntimeKtx = "2.10.0"
-activityCompose = "1.12.1"
+activityCompose = "1.12.2"
 
 # Compose
-composeBom = "2025.12.00"
+composeBom = "2025.12.01"
 navigationCompose = "2.9.6"
 
 # Room

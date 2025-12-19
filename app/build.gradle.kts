@@ -52,7 +52,6 @@ kotlin {
 
 dependencies {
     implementation(project(":data"))
-    implementation(project(":domain"))
     implementation(project(":shared:designsystem"))
     implementation(project(":feature:home"))
     implementation(project(":feature:goal"))
