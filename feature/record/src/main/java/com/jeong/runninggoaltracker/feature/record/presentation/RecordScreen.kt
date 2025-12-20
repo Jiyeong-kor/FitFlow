@@ -32,32 +32,30 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.record.R
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionManager
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
-import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.util.toDistanceLabel
 import com.jeong.runninggoaltracker.shared.designsystem.util.toKoreanDateLabel
+import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
+
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecordRoute(
     viewModel: RecordViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val activityState by ActivityRecognitionStateHolder.state.collectAsState()
 
     RecordScreen(
         uiState = uiState,
-        activityLabel = activityState.label,
+        onStartActivityRecognition = viewModel::startActivityRecognition,
+        onStopActivityRecognition = viewModel::stopActivityRecognition,
+        onPermissionDenied = viewModel::notifyPermissionDenied,
         onDistanceChange = viewModel::onDistanceChanged,
         onDurationChange = viewModel::onDurationChanged,
         onSaveRecord = viewModel::saveRecord
@@ -68,18 +66,20 @@ fun RecordRoute(
 @Composable
 fun RecordScreen(
     uiState: RecordUiState,
-    activityLabel: String,
+    onStartActivityRecognition: ((onPermissionRequired: () -> Unit) -> Unit),
+    onStopActivityRecognition: () -> Unit,
+    onPermissionDenied: () -> Unit,
     onDistanceChange: (String) -> Unit,
     onDurationChange: (String) -> Unit,
     onSaveRecord: () -> Unit
 ) {
-    val displayLabel = when (activityLabel) {
+    val displayLabel = when (uiState.activityLabel) {
         "NO_PERMISSION" -> stringResource(R.string.activity_permission_needed)
         "REQUEST_FAILED", "SECURITY_EXCEPTION" ->
             stringResource(R.string.activity_recognition_failed)
 
         "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> stringResource(R.string.activity_unknown)
-        else -> activityLabel
+        else -> uiState.activityLabel
     }
 
     val recordDurationLabel = stringResource(R.string.record_duration_label)
@@ -104,15 +104,13 @@ fun RecordScreen(
             .verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(sectionSpacing)
     ) {
-        val context = LocalContext.current
-        val activityManager = remember { ActivityRecognitionManager(context.applicationContext) }
         val permissionLauncher = rememberLauncherForActivityResult(
             contract = ActivityResultContracts.RequestPermission()
         ) { granted ->
             if (granted) {
-                activityManager.startUpdates()
+                onStartActivityRecognition {}
             } else {
-                ActivityRecognitionStateHolder.update("NO_PERMISSION")
+                onPermissionDenied()
             }
         }
 
@@ -147,10 +145,12 @@ fun RecordScreen(
             ) {
                 Button(
                     onClick = {
-                        if (activityManager.hasPermission()) {
-                            activityManager.startUpdates()
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                            onStartActivityRecognition {
+                                permissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+                            }
                         } else {
-                            permissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+                            onStartActivityRecognition {}
                         }
                     },
                     modifier = Modifier.weight(1f)
@@ -158,7 +158,7 @@ fun RecordScreen(
                     Text(stringResource(R.string.button_start_detection))
                 }
                 Button(
-                    onClick = { activityManager.stopUpdates() },
+                    onClick = onStopActivityRecognition,
                     modifier = Modifier.weight(1f)
                 ) {
                     Text(stringResource(R.string.button_stop_detection))
@@ -265,7 +265,9 @@ fun RecordScreen(
                                     verticalArrangement = Arrangement.spacedBy(cardSpacingExtraSmall)
                                 ) {
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(cardSpacingExtraSmall)
+                                        horizontalArrangement = Arrangement.spacedBy(
+                                            cardSpacingExtraSmall
+                                        )
                                     ) {
                                         Icon(
                                             imageVector = Icons.Filled.CalendarToday,
@@ -278,14 +280,18 @@ fun RecordScreen(
                                         )
                                     }
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
+                                        horizontalArrangement = Arrangement.spacedBy(
+                                            cardSpacingSmall
+                                        )
                                     ) {
                                         Text(
                                             text = record.distanceKm.toDistanceLabel(),
                                             style = typography.bodyMedium
                                         )
                                         Row(
-                                            horizontalArrangement = Arrangement.spacedBy(cardSpacingExtraSmall)
+                                            horizontalArrangement = Arrangement.spacedBy(
+                                                cardSpacingExtraSmall
+                                            )
                                         ) {
                                             Icon(
                                                 imageVector = Icons.Filled.Schedule,

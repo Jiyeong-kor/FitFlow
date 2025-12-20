@@ -10,7 +10,7 @@ import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
-import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderAlarmScheduler
+import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderSchedulerCoordinator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +39,7 @@ class ReminderViewModel @Inject constructor(
     private val upsertRunningReminderUseCase: UpsertRunningReminderUseCase,
     private val createDefaultReminderUseCase: CreateDefaultReminderUseCase,
     private val toggleReminderDayUseCase: ToggleReminderDayUseCase,
-    private val reminderAlarmScheduler: ReminderAlarmScheduler
+    private val schedulerCoordinator: ReminderSchedulerCoordinator
 ) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -63,7 +63,7 @@ class ReminderViewModel @Inject constructor(
     fun deleteReminder(id: Int) {
         val currentReminder = uiState.value.reminders.find { it.id == id }?.toDomainOrNull()
         if (currentReminder != null) {
-            cancelReminderSchedule(currentReminder)
+            schedulerCoordinator.cancel(currentReminder)
         }
         viewModelScope.launch { deleteRunningReminderUseCase(id) }
     }
@@ -118,30 +118,8 @@ class ReminderViewModel @Inject constructor(
         previous: RunningReminder,
         updated: RunningReminder
     ) {
-        cancelReminderSchedule(previous)
-        scheduleReminderIfNeeded(updated)
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun cancelReminderSchedule(reminder: RunningReminder) {
-        reminderAlarmScheduler.cancel(
-            reminder.id,
-            reminder.hour,
-            reminder.minute,
-            reminder.days.map { it.value }.toSet()
-        )
-    }
-
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun scheduleReminderIfNeeded(reminder: RunningReminder) {
-        if (reminder.enabled && reminder.days.isNotEmpty()) {
-            reminderAlarmScheduler.schedule(
-                reminder.id,
-                reminder.hour,
-                reminder.minute,
-                reminder.days.map { it.value }.toSet()
-            )
-        }
+        schedulerCoordinator.cancel(previous)
+        schedulerCoordinator.scheduleIfNeeded(updated)
     }
 }
 

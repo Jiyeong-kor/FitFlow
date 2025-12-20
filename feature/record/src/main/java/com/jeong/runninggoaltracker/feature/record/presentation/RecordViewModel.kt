@@ -8,6 +8,8 @@ import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.usecase.RunningRecordValidationResult
 import com.jeong.runninggoaltracker.domain.usecase.ValidateRunningRecordInputUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionManager
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +24,8 @@ data class RecordUiState(
     val records: List<RunningRecord> = emptyList(),
     val distanceInput: String = "",
     val durationInput: String = "",
-    val error: RecordInputError? = null
+    val error: RecordInputError? = null,
+    val activityLabel: String = "UNKNOWN"
 )
 
 enum class RecordInputError {
@@ -41,20 +44,24 @@ class RecordViewModel @Inject constructor(
     getRunningRecordsUseCase: GetRunningRecordsUseCase,
     private val addRunningRecordUseCase: AddRunningRecordUseCase,
     private val dateProvider: DateProvider,
-    private val validateRunningRecordInputUseCase: ValidateRunningRecordInputUseCase
+    private val validateRunningRecordInputUseCase: ValidateRunningRecordInputUseCase,
+    private val activityRecognitionManager: ActivityRecognitionManager,
+    private val activityRecognitionStateHolder: ActivityRecognitionStateHolder
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(RecordInputState())
 
     val uiState: StateFlow<RecordUiState> = combine(
         getRunningRecordsUseCase(),
-        inputState
-    ) { records, input ->
+        inputState,
+        activityRecognitionStateHolder.state
+    ) { records, input, activity ->
         RecordUiState(
             records = records,
             distanceInput = input.distanceInput,
             durationInput = input.durationInput,
-            error = input.error
+            error = input.error,
+            activityLabel = activity.label
         )
     }.stateIn(
         scope = viewModelScope,
@@ -102,5 +109,21 @@ class RecordViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun startActivityRecognition(onPermissionRequired: () -> Unit) {
+        if (activityRecognitionManager.hasPermission()) {
+            activityRecognitionManager.startUpdates()
+        } else {
+            onPermissionRequired()
+        }
+    }
+
+    fun stopActivityRecognition() {
+        activityRecognitionManager.stopUpdates()
+    }
+
+    fun notifyPermissionDenied() {
+        activityRecognitionStateHolder.update("NO_PERMISSION")
     }
 }

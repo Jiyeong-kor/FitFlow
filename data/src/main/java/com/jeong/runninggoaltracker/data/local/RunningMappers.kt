@@ -5,10 +5,9 @@ import androidx.annotation.RequiresApi
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
-import java.time.DayOfWeek
 import java.time.LocalDate
 
-private const val DAYS_DELIMITER = ","
+private val dayOfWeekConverter = DayOfWeekConverter()
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun RunningRecordEntity.toDomain(): RunningRecord =
@@ -44,12 +43,7 @@ fun RunningReminderEntity.toDomain(): RunningReminder =
         hour = hour,
         minute = minute,
         enabled = enabled,
-        days = days.split(DAYS_DELIMITER)
-            .filter { it.isNotBlank() }
-            .mapNotNull { it.toIntOrNull() }
-            .mapNotNull { dayInt ->
-                runCatching { DayOfWeek.of(dayInt) }.getOrNull()
-            }.toSet()
+        days = dayOfWeekConverter.fromDays(days)
     )
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -59,5 +53,5 @@ fun RunningReminder.toEntity(): RunningReminderEntity =
         hour = hour,
         minute = minute,
         enabled = enabled,
-        days = days.map { it.value }.joinToString(DAYS_DELIMITER)
+        days = dayOfWeekConverter.toDays(days)
     )

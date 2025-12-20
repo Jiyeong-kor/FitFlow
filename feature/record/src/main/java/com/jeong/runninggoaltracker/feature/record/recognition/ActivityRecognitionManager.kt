@@ -10,9 +10,11 @@ import android.os.Build
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.ActivityRecognition
 import com.google.android.gms.location.ActivityRecognitionClient
+import javax.inject.Inject
 
-class ActivityRecognitionManager(
-    private val context: Context
+class ActivityRecognitionManager @Inject constructor(
+    private val context: Context,
+    private val stateHolder: ActivityRecognitionStateHolder
 ) {
 
     private val client: ActivityRecognitionClient =
@@ -20,10 +22,10 @@ class ActivityRecognitionManager(
 
     fun hasPermission(): Boolean {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACTIVITY_RECOGNITION
-            ) == PackageManager.PERMISSION_GRANTED
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun createPendingIntent(): PendingIntent {
@@ -41,7 +43,7 @@ class ActivityRecognitionManager(
     @SuppressLint("MissingPermission")
     fun startUpdates() {
         if (!hasPermission()) {
-            ActivityRecognitionStateHolder.update("NO_PERMISSION")
+            stateHolder.update("NO_PERMISSION")
             return
         }
 
@@ -51,10 +53,10 @@ class ActivityRecognitionManager(
                 createPendingIntent()
             ).addOnSuccessListener {
             }.addOnFailureListener {
-                ActivityRecognitionStateHolder.update("REQUEST_FAILED")
+                stateHolder.update("REQUEST_FAILED")
             }
         } catch (_: SecurityException) {
-            ActivityRecognitionStateHolder.update("SECURITY_EXCEPTION")
+            stateHolder.update("SECURITY_EXCEPTION")
         }
     }
 
@@ -64,7 +66,7 @@ class ActivityRecognitionManager(
             client.removeActivityUpdates(createPendingIntent())
         } catch (_: SecurityException) {
         }
-        ActivityRecognitionStateHolder.update("STOPPED")
+        stateHolder.update("STOPPED")
     }
 
     companion object {

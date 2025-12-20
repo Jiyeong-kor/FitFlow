@@ -6,6 +6,7 @@ import android.app.NotificationManager
 import android.os.Build
 import com.jeong.runninggoaltracker.feature.reminder.R as ReminderR
 import com.jeong.runninggoaltracker.feature.reminder.notification.ReminderNotifier
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitorHolder
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
@@ -13,6 +14,7 @@ class RunningGoalTrackerApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        ActivityRecognitionMonitorHolder.initialize(this)
         createNotificationChannel()
     }
 

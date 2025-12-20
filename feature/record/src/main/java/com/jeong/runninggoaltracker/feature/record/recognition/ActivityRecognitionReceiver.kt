@@ -6,25 +6,26 @@ import android.content.Intent
 import android.util.Log
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
-import kotlin.collections.ArrayDeque
+import dagger.hilt.android.EntryPointAccessors
+import dagger.hilt.components.SingletonComponent
 
 class ActivityRecognitionReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
 
         if (!ActivityRecognitionResult.hasResult(intent)) {
-            ActivityRecognitionStateHolder.update("NO_RESULT")
+            getStateHolder(context).update("NO_RESULT")
             return
         }
 
         val result = ActivityRecognitionResult.extractResult(intent) ?: run {
-            ActivityRecognitionStateHolder.update("NO_RESULT")
+            getStateHolder(context).update("NO_RESULT")
             return
         }
 
         val activities: List<DetectedActivity> = result.probableActivities
         if (activities.isEmpty()) {
-            ActivityRecognitionStateHolder.update("NO_ACTIVITY")
+            getStateHolder(context).update("NO_ACTIVITY")
             return
         }
 
@@ -32,7 +33,7 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
 
         val labelForSmoothing =
             if (rawLabel == "UNKNOWN") {
-                ActivityRecognitionStateHolder.state.value.label
+                getStateHolder(context).state.value.label
             } else {
                 rawLabel
             }
@@ -44,7 +45,7 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             "raw=$rawLabel, smooth=$smoothLabel, all=$activities"
         )
 
-        ActivityRecognitionStateHolder.update(
+        getStateHolder(context).update(
             label = smoothLabel
         )
 
@@ -69,6 +70,20 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             DetectedActivity.STILL in types -> "STILL"
             else -> "UNKNOWN"
         }
+    }
+
+    private fun getStateHolder(context: Context): ActivityRecognitionStateHolder {
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ActivityRecognitionEntryPoint::class.java
+        )
+        return entryPoint.activityRecognitionStateHolder()
+    }
+
+    @dagger.hilt.EntryPoint
+    @dagger.hilt.InstallIn(SingletonComponent::class)
+    interface ActivityRecognitionEntryPoint {
+        fun activityRecognitionStateHolder(): ActivityRecognitionStateHolder
     }
 }
 
