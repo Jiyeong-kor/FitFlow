@@ -10,6 +10,7 @@ import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
+import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderAlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -37,7 +38,8 @@ class ReminderViewModel @Inject constructor(
     private val deleteRunningReminderUseCase: DeleteRunningReminderUseCase,
     private val upsertRunningReminderUseCase: UpsertRunningReminderUseCase,
     private val createDefaultReminderUseCase: CreateDefaultReminderUseCase,
-    private val toggleReminderDayUseCase: ToggleReminderDayUseCase
+    private val toggleReminderDayUseCase: ToggleReminderDayUseCase,
+    private val reminderAlarmScheduler: ReminderAlarmScheduler
 ) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -57,13 +59,24 @@ class ReminderViewModel @Inject constructor(
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     fun deleteReminder(id: Int) {
+        val currentReminder = uiState.value.reminders.find { it.id == id }?.toDomainOrNull()
+        if (currentReminder != null) {
+            cancelReminderSchedule(currentReminder)
+        }
         viewModelScope.launch { deleteRunningReminderUseCase(id) }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun updateEnabled(id: Int, enabled: Boolean) {
-        updateAndPersistReminder(id) { it.copy(enabled = enabled) }
+        updateAndPersistReminder(id) { reminder ->
+            if (enabled && reminder.days.isEmpty()) {
+                reminder
+            } else {
+                reminder.copy(enabled = enabled)
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -74,7 +87,12 @@ class ReminderViewModel @Inject constructor(
     @RequiresApi(Build.VERSION_CODES.O)
     fun toggleDay(id: Int, day: Int) {
         updateAndPersistReminder(id) { current ->
-            toggleReminderDayUseCase(current, day)
+            val toggled = toggleReminderDayUseCase(current, day)
+            if (toggled.enabled && toggled.days.isEmpty()) {
+                toggled.copy(enabled = false)
+            } else {
+                toggled
+            }
         }
     }
 
@@ -85,15 +103,45 @@ class ReminderViewModel @Inject constructor(
     ) {
         val currentReminderUiState = uiState.value.reminders.find { it.id == id } ?: return
 
-        val currentRunningReminder = try {
-            currentReminderUiState.toDomain()
-        } catch (_: IllegalArgumentException) {
-            return
-        }
+        val currentRunningReminder = currentReminderUiState.toDomainOrNull() ?: return
 
         val newRunningReminder = update(currentRunningReminder)
 
-        viewModelScope.launch { upsertRunningReminderUseCase(newRunningReminder) }
+        viewModelScope.launch {
+            upsertRunningReminderUseCase(newRunningReminder)
+            rescheduleReminder(currentRunningReminder, newRunningReminder)
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun rescheduleReminder(
+        previous: RunningReminder,
+        updated: RunningReminder
+    ) {
+        cancelReminderSchedule(previous)
+        scheduleReminderIfNeeded(updated)
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun cancelReminderSchedule(reminder: RunningReminder) {
+        reminderAlarmScheduler.cancel(
+            reminder.id,
+            reminder.hour,
+            reminder.minute,
+            reminder.days.map { it.value }.toSet()
+        )
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun scheduleReminderIfNeeded(reminder: RunningReminder) {
+        if (reminder.enabled && reminder.days.isNotEmpty()) {
+            reminderAlarmScheduler.schedule(
+                reminder.id,
+                reminder.hour,
+                reminder.minute,
+                reminder.days.map { it.value }.toSet()
+            )
+        }
     }
 }
 
@@ -116,3 +164,7 @@ private fun ReminderUiState.toDomain(): RunningReminder =
         enabled = enabled,
         days = days.map { DayOfWeek.of(it) }.toSet()
     )
+
+@RequiresApi(Build.VERSION_CODES.O)
+private fun ReminderUiState.toDomainOrNull(): RunningReminder? =
+    runCatching { toDomain() }.getOrNull()

@@ -8,11 +8,15 @@ import android.content.Intent
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresPermission
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Calendar
 import java.util.Date
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ReminderAlarmScheduler(
-    private val context: Context
+@Singleton
+class ReminderAlarmScheduler @Inject constructor(
+    @param:ApplicationContext private val context: Context
 ) {
     private val alarmManager: AlarmManager =
         context.getSystemService(AlarmManager::class.java)

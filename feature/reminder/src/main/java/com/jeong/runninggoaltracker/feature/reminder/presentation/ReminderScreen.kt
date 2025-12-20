@@ -42,7 +42,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.reminder.R
-import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderAlarmScheduler
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.DaySelectionButton
 import java.util.Calendar
@@ -55,12 +54,10 @@ fun ReminderRoute(
 ) {
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
-    val scheduler = remember { ReminderAlarmScheduler(context) }
 
     ReminderScreen(
         state = state,
         context = context,
-        scheduler = scheduler,
         onAddReminder = viewModel::addReminder,
         onDeleteReminder = viewModel::deleteReminder,
         onToggleReminder = viewModel::updateEnabled,
@@ -74,7 +71,6 @@ fun ReminderRoute(
 fun ReminderScreen(
     state: ReminderListUiState,
     context: Context,
-    scheduler: ReminderAlarmScheduler,
     onAddReminder: () -> Unit,
     onDeleteReminder: (Int) -> Unit,
     onToggleReminder: (Int, Boolean) -> Unit,
@@ -136,7 +132,6 @@ fun ReminderScreen(
                 onUpdateTime = onUpdateTime,
                 onToggleDay = onToggleDay,
                 onDeleteReminder = onDeleteReminder,
-                scheduler = scheduler,
                 context = context,
                 colorScheme = colorScheme,
                 typography = typography
@@ -162,7 +157,6 @@ private fun ReminderCard(
     onUpdateTime: (Int, Int, Int) -> Unit,
     onToggleDay: (Int, Int) -> Unit,
     onDeleteReminder: (Int) -> Unit,
-    scheduler: ReminderAlarmScheduler,
     context: Context,
     colorScheme: ColorScheme,
     typography: androidx.compose.material3.Typography
@@ -198,12 +192,6 @@ private fun ReminderCard(
                     }
 
                     onToggleReminder(id, enabled)
-
-                    if (enabled && reminder.days.isNotEmpty()) {
-                        scheduler.schedule(id, reminder.hour, reminder.minute, reminder.days)
-                    } else {
-                        scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
-                    }
                 }
             )
         }
@@ -228,31 +216,6 @@ private fun ReminderCard(
                         isSelected = reminder.days.contains(dayInt),
                         onClick = {
                             onToggleDay(id, dayInt)
-
-                            if (reminder.enabled) {
-                                scheduler.cancel(
-                                    id,
-                                    reminder.hour,
-                                    reminder.minute,
-                                    reminder.days
-                                )
-
-                                val newDays = if (reminder.days.contains(dayInt)) {
-                                    reminder.days.minus(dayInt)
-                                } else {
-                                    reminder.days.plus(dayInt)
-                                }
-                                if (newDays.isNotEmpty()) {
-                                    scheduler.schedule(
-                                        id,
-                                        reminder.hour,
-                                        reminder.minute,
-                                        newDays
-                                    )
-                                } else {
-                                    onToggleReminder(id, false)
-                                }
-                            }
                         }
                     )
                 }
@@ -265,7 +228,6 @@ private fun ReminderCard(
         ) {
             OutlinedButton(
                 onClick = {
-                    scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
                     onDeleteReminder(id)
                 },
                 colors = ButtonDefaults.outlinedButtonColors(contentColor = colorScheme.error)
@@ -288,11 +250,6 @@ private fun ReminderCard(
                     val m = timeState.minute
 
                     onUpdateTime(id, h, m)
-
-                    if (reminder.enabled && reminder.days.isNotEmpty()) {
-                        scheduler.cancel(id, reminder.hour, reminder.minute, reminder.days)
-                        scheduler.schedule(id, h, m, reminder.days)
-                    }
 
                     showTimePicker.value = false
                 }) {

@@ -13,8 +13,7 @@ import com.jeong.runninggoaltracker.feature.home.presentation.ActivityRecognitio
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeRoute
 import com.jeong.runninggoaltracker.feature.record.presentation.RecordRoute
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogEntry
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogHolder
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitorHolder
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityState
 import com.jeong.runninggoaltracker.feature.reminder.presentation.ReminderRoute
 import kotlinx.coroutines.flow.map
@@ -32,10 +31,10 @@ fun AppNavGraph(
     ) {
         composable("home") {
             HomeRoute(
-                activityStateFlow = ActivityRecognitionStateHolder.state.map { state ->
+                activityStateFlow = ActivityRecognitionMonitorHolder.activityState.map { state ->
                     state.toUiState()
                 },
-                activityLogsFlow = ActivityLogHolder.logs.map { entries ->
+                activityLogsFlow = ActivityRecognitionMonitorHolder.activityLogs.map { entries ->
                     entries.map { it.toUiModel() }
                 },
                 onRecordClick = { navController.navigate("record") },
