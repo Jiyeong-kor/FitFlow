@@ -15,17 +15,17 @@ import javax.inject.Inject
 class ActivityRecognitionManager @Inject constructor(
     private val context: Context,
     private val stateHolder: ActivityRecognitionStateHolder
-) {
+) : ActivityRecognitionController {
 
     private val client: ActivityRecognitionClient =
         ActivityRecognition.getClient(context)
 
-    fun hasPermission(): Boolean {
+    private fun hasPermission(): Boolean {
         return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
-                ContextCompat.checkSelfPermission(
-                    context,
-                    Manifest.permission.ACTIVITY_RECOGNITION
-                ) == PackageManager.PERMISSION_GRANTED
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.ACTIVITY_RECOGNITION
+            ) == PackageManager.PERMISSION_GRANTED
     }
 
     private fun createPendingIntent(): PendingIntent {
@@ -41,9 +41,10 @@ class ActivityRecognitionManager @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    fun startUpdates() {
+    override fun startUpdates(onPermissionRequired: () -> Unit) {
         if (!hasPermission()) {
             stateHolder.update("NO_PERMISSION")
+            onPermissionRequired()
             return
         }
 
@@ -61,12 +62,16 @@ class ActivityRecognitionManager @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    fun stopUpdates() {
+    override fun stopUpdates() {
         try {
             client.removeActivityUpdates(createPendingIntent())
         } catch (_: SecurityException) {
         }
         stateHolder.update("STOPPED")
+    }
+
+    override fun notifyPermissionDenied() {
+        stateHolder.update("NO_PERMISSION")
     }
 
     companion object {

@@ -8,7 +8,7 @@ import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.usecase.RunningRecordValidationResult
 import com.jeong.runninggoaltracker.domain.usecase.ValidateRunningRecordInputUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionManager
+import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -45,8 +45,8 @@ class RecordViewModel @Inject constructor(
     private val addRunningRecordUseCase: AddRunningRecordUseCase,
     private val dateProvider: DateProvider,
     private val validateRunningRecordInputUseCase: ValidateRunningRecordInputUseCase,
-    private val activityRecognitionManager: ActivityRecognitionManager,
-    private val activityRecognitionStateHolder: ActivityRecognitionStateHolder
+    private val activityRecognitionController: ActivityRecognitionController,
+    activityRecognitionStateHolder: ActivityRecognitionStateHolder
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(RecordInputState())
@@ -112,18 +112,14 @@ class RecordViewModel @Inject constructor(
     }
 
     fun startActivityRecognition(onPermissionRequired: () -> Unit) {
-        if (activityRecognitionManager.hasPermission()) {
-            activityRecognitionManager.startUpdates()
-        } else {
-            onPermissionRequired()
-        }
+        activityRecognitionController.startUpdates(onPermissionRequired)
     }
 
     fun stopActivityRecognition() {
-        activityRecognitionManager.stopUpdates()
+        activityRecognitionController.stopUpdates()
     }
 
     fun notifyPermissionDenied() {
-        activityRecognitionStateHolder.update("NO_PERMISSION")
+        activityRecognitionController.notifyPermissionDenied()
     }
 }

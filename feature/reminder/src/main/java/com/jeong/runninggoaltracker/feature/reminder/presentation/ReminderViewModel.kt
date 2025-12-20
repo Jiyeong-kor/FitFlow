@@ -10,7 +10,7 @@ import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
-import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderSchedulerCoordinator
+import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +39,7 @@ class ReminderViewModel @Inject constructor(
     private val upsertRunningReminderUseCase: UpsertRunningReminderUseCase,
     private val createDefaultReminderUseCase: CreateDefaultReminderUseCase,
     private val toggleReminderDayUseCase: ToggleReminderDayUseCase,
-    private val schedulerCoordinator: ReminderSchedulerCoordinator
+    private val reminderScheduler: ReminderScheduler
 ) : ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -63,7 +63,7 @@ class ReminderViewModel @Inject constructor(
     fun deleteReminder(id: Int) {
         val currentReminder = uiState.value.reminders.find { it.id == id }?.toDomainOrNull()
         if (currentReminder != null) {
-            schedulerCoordinator.cancel(currentReminder)
+            reminderScheduler.cancel(currentReminder)
         }
         viewModelScope.launch { deleteRunningReminderUseCase(id) }
     }
@@ -118,8 +118,8 @@ class ReminderViewModel @Inject constructor(
         previous: RunningReminder,
         updated: RunningReminder
     ) {
-        schedulerCoordinator.cancel(previous)
-        schedulerCoordinator.scheduleIfNeeded(updated)
+        reminderScheduler.cancel(previous)
+        reminderScheduler.scheduleIfNeeded(updated)
     }
 }
 

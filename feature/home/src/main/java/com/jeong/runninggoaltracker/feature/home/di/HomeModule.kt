@@ -9,18 +9,19 @@ import com.jeong.runninggoaltracker.domain.util.DateProvider
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object HomeModule {
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideRunningSummaryCalculator(): RunningSummaryCalculator = WeeklySummaryCalculator()
 
     @Provides
+    @ViewModelScoped
     fun provideGetRunningSummaryUseCase(
         goalRepository: RunningGoalRepository,
         recordRepository: RunningRecordRepository,

@@ -6,39 +6,56 @@ import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
+import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderScheduler
+import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderSchedulerCoordinator
+import dagger.Binds
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
 @Module
-@InstallIn(SingletonComponent::class)
+@InstallIn(ViewModelComponent::class)
 object ReminderModule {
 
     @Provides
+    @ViewModelScoped
     fun provideDeleteRunningReminderUseCase(
         repository: RunningReminderRepository
     ): DeleteRunningReminderUseCase = DeleteRunningReminderUseCase(repository)
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideGetRunningRemindersUseCase(
         repository: RunningReminderRepository
     ): GetRunningRemindersUseCase = GetRunningRemindersUseCase(repository)
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideCreateDefaultReminderUseCase(): CreateDefaultReminderUseCase =
         CreateDefaultReminderUseCase()
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideToggleReminderDayUseCase(): ToggleReminderDayUseCase = ToggleReminderDayUseCase()
 
     @Provides
-    @Singleton
+    @ViewModelScoped
     fun provideUpsertRunningReminderUseCase(
         repository: RunningReminderRepository
     ): UpsertRunningReminderUseCase = UpsertRunningReminderUseCase(repository)
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class ReminderSingletonModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindReminderScheduler(
+        coordinator: ReminderSchedulerCoordinator
+    ): ReminderScheduler
 }

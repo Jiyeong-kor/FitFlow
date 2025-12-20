@@ -9,10 +9,10 @@ import javax.inject.Singleton
 @Singleton
 class ReminderSchedulerCoordinator @Inject constructor(
     private val reminderAlarmScheduler: ReminderAlarmScheduler
-) {
+) : ReminderScheduler {
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun scheduleIfNeeded(reminder: RunningReminder) {
+    override fun scheduleIfNeeded(reminder: RunningReminder) {
         if (!reminder.enabled || reminder.days.isEmpty()) return
 
         reminderAlarmScheduler.schedule(
@@ -24,7 +24,7 @@ class ReminderSchedulerCoordinator @Inject constructor(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun cancel(reminder: RunningReminder) {
+    override fun cancel(reminder: RunningReminder) {
         reminderAlarmScheduler.cancel(
             reminder.id,
             reminder.hour,
