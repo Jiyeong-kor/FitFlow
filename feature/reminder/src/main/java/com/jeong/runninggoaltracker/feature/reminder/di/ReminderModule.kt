@@ -6,7 +6,6 @@ import com.jeong.runninggoaltracker.domain.usecase.DeleteRunningReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningReminderUseCase
-import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderSchedulerCoordinator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -42,10 +41,4 @@ object ReminderModule {
     fun provideUpsertRunningReminderUseCase(
         repository: RunningReminderRepository
     ): UpsertRunningReminderUseCase = UpsertRunningReminderUseCase(repository)
-
-    @Provides
-    @Singleton
-    fun provideReminderSchedulerCoordinator(
-        reminderSchedulerCoordinator: ReminderSchedulerCoordinator
-    ): ReminderSchedulerCoordinator = reminderSchedulerCoordinator
 }
