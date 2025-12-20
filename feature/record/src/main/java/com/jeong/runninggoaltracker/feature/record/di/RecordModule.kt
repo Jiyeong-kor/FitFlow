@@ -35,7 +35,6 @@ object RecordModule {
     ): GetRunningRecordsUseCase = GetRunningRecordsUseCase(repository)
 
     @Provides
-    @ViewModelScoped
     fun provideValidateRunningRecordInputUseCase(): ValidateRunningRecordInputUseCase =
         ValidateRunningRecordInputUseCase()
 }

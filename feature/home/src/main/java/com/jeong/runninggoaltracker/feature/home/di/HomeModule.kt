@@ -17,7 +17,6 @@ import dagger.hilt.android.scopes.ViewModelScoped
 object HomeModule {
 
     @Provides
-    @ViewModelScoped
     fun provideRunningSummaryCalculator(): RunningSummaryCalculator = WeeklySummaryCalculator()
 
     @Provides

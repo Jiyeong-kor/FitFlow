@@ -27,6 +27,5 @@ object GoalModule {
     ): UpsertRunningGoalUseCase = UpsertRunningGoalUseCase(repository)
 
     @Provides
-    @ViewModelScoped
     fun provideValidateWeeklyGoalUseCase(): ValidateWeeklyGoalUseCase = ValidateWeeklyGoalUseCase()
 }
