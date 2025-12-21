@@ -36,7 +36,8 @@ object DataProvidesModule {
 
     @Provides
     @Singleton
-    fun provideDateProvider(): DateProvider = SystemDateProvider()
+    fun provideDateProvider(@ApplicationContext context: Context): DateProvider =
+        SystemDateProvider(context)
 }
 
 @Suppress("unused")

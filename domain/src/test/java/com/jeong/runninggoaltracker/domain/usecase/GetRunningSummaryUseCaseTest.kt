@@ -7,17 +7,19 @@ import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import java.time.LocalDate
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class GetRunningSummaryUseCaseTest {
 
     private val goalRepository = FakeRunningGoalRepository()
@@ -32,7 +34,7 @@ class GetRunningSummaryUseCaseTest {
     )
 
     @Test
-    fun `최신 목표와 기록 및 오늘 날짜 기준으로 summary emit`() = runBlocking {
+    fun `최신 목표와 기록 및 오늘 날짜 기준으로 summary emit`() = runTest {
         goalRepository.upsertGoal(RunningGoal(weeklyGoalKm = 25.0))
         recordRepository.addRecord(
             RunningRecord(
@@ -68,14 +70,17 @@ class GetRunningSummaryUseCaseTest {
     }
 
     @Test
-    fun `목표나 기록 변경 시 summary 업데이트`() = runBlocking {
+    fun `목표나 기록 변경 시 summary 업데이트`() = runTest {
         val summaries = mutableListOf<RunningSummary>()
-
         val collectionJob = launch {
-            useCase().take(2).toList(summaries)
+            useCase().toList(summaries)
         }
 
+        advanceUntilIdle()
+
         goalRepository.upsertGoal(RunningGoal(weeklyGoalKm = 12.0))
+        advanceUntilIdle()
+
         recordRepository.addRecord(
             RunningRecord(
                 date = LocalDate.of(2024, 11, 30),
@@ -83,25 +88,32 @@ class GetRunningSummaryUseCaseTest {
                 durationMinutes = 60
             )
         )
+        advanceUntilIdle()
 
-        collectionJob.join()
-
+        assertEquals(3, summaries.size)
         assertEquals(0.0, summaries.first().totalThisWeekKm, 0.0)
         assertEquals(12.0, summaries.last().totalThisWeekKm, 0.0)
         assertEquals(1, summaries.last().recordCountThisWeek)
         assertEquals(1f, summaries.last().progress)
+
+        collectionJob.cancel()
     }
 
     @Test
-    fun `새로운 날짜에서도 계산기 호출`() = runBlocking {
+    fun `새로운 날짜에서도 계산기 호출`() = runTest {
         val summaries = mutableListOf<RunningSummary>()
 
         val collectionJob = launch {
-            useCase().take(2).toList(summaries)
+            useCase().toList(summaries)
         }
+        advanceUntilIdle()
 
         goalRepository.upsertGoal(RunningGoal(weeklyGoalKm = 5.0))
-        dateProvider.today = LocalDate.of(2024, 12, 2)
+        advanceUntilIdle()
+
+        dateProvider.currentDate.value = LocalDate.of(2024, 12, 2)
+        advanceUntilIdle()
+
         recordRepository.addRecord(
             RunningRecord(
                 date = LocalDate.of(2024, 12, 2),
@@ -109,17 +121,20 @@ class GetRunningSummaryUseCaseTest {
                 durationMinutes = 20
             )
         )
-
-        collectionJob.join()
+        advanceUntilIdle()
 
         assertEquals(
             listOf(
                 LocalDate.of(2024, 12, 1),
+                LocalDate.of(2024, 12, 1),
+                LocalDate.of(2024, 12, 2),
                 LocalDate.of(2024, 12, 2)
             ),
             summaryCalculator.invocations.map { it.today }
         )
         assertTrue(summaries.last().progress > 0f)
+
+        collectionJob.cancel()
     }
 
     private class FakeRunningGoalRepository : RunningGoalRepository {
@@ -142,8 +157,10 @@ class GetRunningSummaryUseCaseTest {
         }
     }
 
-    private class FakeDateProvider(var today: LocalDate) : DateProvider {
-        override fun getToday(): LocalDate = today
+    private class FakeDateProvider(initialDate: LocalDate) : DateProvider {
+        val currentDate = MutableStateFlow(initialDate)
+        override fun getTodayFlow(): Flow<LocalDate> = currentDate
+        override fun getToday(): LocalDate = currentDate.value
     }
 
     private class FakeRunningSummaryCalculator : RunningSummaryCalculator {

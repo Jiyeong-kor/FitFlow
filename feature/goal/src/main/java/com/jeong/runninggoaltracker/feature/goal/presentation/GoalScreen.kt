@@ -83,7 +83,7 @@ fun GoalScreen(
                 onValueChange = onGoalChange,
                 label = { Text(stringResource(R.string.goal_weekly_distance_label)) },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
 
             if (errorText != null) {

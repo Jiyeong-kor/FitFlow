@@ -15,12 +15,13 @@ class GetRunningSummaryUseCase(
 ) {
     operator fun invoke(): Flow<RunningSummary> = combine(
         goalRepository.getGoal(),
-        recordRepository.getAllRecords()
-    ) { goal, records ->
+        recordRepository.getAllRecords(),
+        dateProvider.getTodayFlow()
+    ) { goal, records, today ->
         summaryCalculator.calculate(
             goal = goal,
             records = records,
-            today = dateProvider.getToday()
+            today = today
         )
     }
 }

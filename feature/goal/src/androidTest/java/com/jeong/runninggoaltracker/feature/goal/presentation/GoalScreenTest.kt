@@ -1,21 +1,28 @@
 package com.jeong.runninggoaltracker.feature.goal.presentation
 
+import androidx.activity.ComponentActivity
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.junit4.createComposeRule
+import androidx.compose.ui.test.junit4.createAndroidComposeRule
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTextClearance
 import androidx.compose.ui.test.performTextInput
+import androidx.test.ext.junit.runners.AndroidJUnit4
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
 import org.junit.Test
+import org.junit.runner.RunWith
 
+@RunWith(AndroidJUnit4::class)
 class GoalScreenTest {
 
     @get:Rule
-    val composeRule = createComposeRule()
+    val composeRule = createAndroidComposeRule<ComponentActivity>()
 
     @Test
     fun shows_current_goal_when_available() {
@@ -23,9 +30,7 @@ class GoalScreenTest {
             RunningGoalTrackerTheme {
                 GoalScreen(
                     state = GoalUiState(
-                        currentGoalKm = 15.0,
-                        weeklyGoalInput = "",
-                        error = null
+                        currentGoalKm = 15.0
                     ),
                     onGoalChange = {},
                     onSave = {}
@@ -39,35 +44,12 @@ class GoalScreenTest {
     }
 
     @Test
-    fun shows_error_message_for_invalid_input() {
-        composeRule.setContent {
-            RunningGoalTrackerTheme {
-                GoalScreen(
-                    state = GoalUiState(
-                        currentGoalKm = null,
-                        weeklyGoalInput = "abc",
-                        error = GoalInputError.INVALID_NUMBER
-                    ),
-                    onGoalChange = {},
-                    onSave = {}
-                )
-            }
-        }
-
-        composeRule
-            .onNodeWithText("숫자를 입력해주세요.")
-            .assertIsDisplayed()
-    }
-
-    @Test
     fun shows_no_current_goal_message_when_goal_not_set() {
         composeRule.setContent {
             RunningGoalTrackerTheme {
                 GoalScreen(
                     state = GoalUiState(
-                        currentGoalKm = null,
-                        weeklyGoalInput = "",
-                        error = null
+                        currentGoalKm = null
                     ),
                     onGoalChange = {},
                     onSave = {}
@@ -88,9 +70,7 @@ class GoalScreenTest {
             RunningGoalTrackerTheme {
                 GoalScreen(
                     state = GoalUiState(
-                        currentGoalKm = 8.0,
-                        weeklyGoalInput = "10",
-                        error = null
+                        weeklyGoalInput = "10"
                     ),
                     onGoalChange = {},
                     onSave = { saveInvoked = true }
@@ -104,29 +84,52 @@ class GoalScreenTest {
     }
 
     @Test
-    fun updates_goal_input_and_shows_non_positive_error() {
-        var latestGoalInput = ""
-
+    fun updates_goal_input_via_callback() {
+        val state = MutableStateFlow(GoalUiState(weeklyGoalInput = ""))
         composeRule.setContent {
+            val uiState by state.collectAsState()
             RunningGoalTrackerTheme {
                 GoalScreen(
-                    state = GoalUiState(
-                        currentGoalKm = 5.0,
-                        weeklyGoalInput = "0",
-                        error = GoalInputError.NON_POSITIVE
-                    ),
-                    onGoalChange = { latestGoalInput = it },
+                    state = uiState,
+                    onGoalChange = { newValue -> state.update { it.copy(weeklyGoalInput = newValue) } },
                     onSave = {}
                 )
             }
         }
 
-        composeRule.onNodeWithText("주간 목표 거리 (km)").performTextClearance()
         composeRule.onNodeWithText("주간 목표 거리 (km)").performTextInput("7.5")
 
-        composeRule
-            .onNodeWithText("0보다 큰 값을 입력해주세요.")
-            .assertIsDisplayed()
-        assertEquals("7.5", latestGoalInput)
+        assertEquals("7.5", state.value.weeklyGoalInput)
+    }
+
+    @Test
+    fun shows_and_hides_error_messages() {
+        val state = MutableStateFlow(GoalUiState())
+
+        composeRule.setContent {
+            RunningGoalTrackerTheme {
+                val uiState by state.collectAsState()
+                GoalScreen(
+                    state = uiState,
+                    onGoalChange = {},
+                    onSave = {}
+                )
+            }
+        }
+
+        composeRule.onNodeWithText("숫자를 입력해주세요.").assertDoesNotExist()
+        composeRule.onNodeWithText("0보다 큰 값을 입력해주세요.").assertDoesNotExist()
+
+        state.value = GoalUiState(error = GoalInputError.INVALID_NUMBER)
+        composeRule.onNodeWithText("숫자를 입력해주세요.").assertIsDisplayed()
+        composeRule.onNodeWithText("0보다 큰 값을 입력해주세요.").assertDoesNotExist()
+
+        state.value = GoalUiState(error = GoalInputError.NON_POSITIVE)
+        composeRule.onNodeWithText("0보다 큰 값을 입력해주세요.").assertIsDisplayed()
+        composeRule.onNodeWithText("숫자 형식으로 입력해주세요.").assertDoesNotExist()
+
+        state.value = GoalUiState(error = null)
+        composeRule.onNodeWithText("숫자를 입력해주세요.").assertDoesNotExist()
+        composeRule.onNodeWithText("0보다 큰 값을 입력해주세요.").assertDoesNotExist()
     }
 }

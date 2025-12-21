@@ -82,6 +82,7 @@ androidx-play-services-location = { group = "com.google.android.gms", name = "pl
 
 # Coroutines
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
 
 # Test
 junit = { group = "junit", name = "junit", version.ref = "junit" }

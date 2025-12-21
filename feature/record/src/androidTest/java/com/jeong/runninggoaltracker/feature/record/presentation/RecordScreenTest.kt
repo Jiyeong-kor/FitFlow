@@ -2,16 +2,22 @@ package com.jeong.runninggoaltracker.feature.record.presentation
 
 import android.os.Build
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.SdkSuppress
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import java.time.LocalDate
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Rule
@@ -71,9 +77,9 @@ class RecordScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("2월 1일 (목)").assertIsDisplayed()
-        composeRule.onNodeWithText("5 km").assertIsDisplayed()
-        composeRule.onNodeWithText("30 분").assertIsDisplayed()
+        composeRule.onNodeWithText("2월 1일 (목)").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("5 km").performScrollTo().assertIsDisplayed()
+        composeRule.onNodeWithText("30 분").performScrollTo().assertIsDisplayed()
     }
 
     @Test
@@ -99,36 +105,36 @@ class RecordScreenTest {
 
     @Test
     fun updates_inputs_and_triggers_callbacks() {
-        var distanceInput = ""
-        var durationInput = ""
+        val state = MutableStateFlow(RecordUiState(activityLabel = "UNKNOWN"))
         var startInvoked = false
         var stopInvoked = false
         var saveInvoked = false
 
         composeRule.setContent {
+            val uiState by state.collectAsState()
             RunningGoalTrackerTheme {
                 RecordScreen(
-                    uiState = RecordUiState(activityLabel = "UNKNOWN"),
+                    uiState = uiState,
                     onStartActivityRecognition = {
                         startInvoked = true
                     },
                     onStopActivityRecognition = { stopInvoked = true },
                     onPermissionDenied = {},
-                    onDistanceChange = { distanceInput = it },
-                    onDurationChange = { durationInput = it },
+                    onDistanceChange = { newValue -> state.update { it.copy(distanceInput = newValue) } },
+                    onDurationChange = { newValue -> state.update { it.copy(durationInput = newValue) } },
                     onSaveRecord = { saveInvoked = true }
                 )
             }
         }
 
-        composeRule.onNodeWithText("거리 (km)").performTextInput("10.5")
-        composeRule.onNodeWithText("시간 (분)").performTextInput("40")
-        composeRule.onNodeWithText("활동 감지 시작").performClick()
-        composeRule.onNodeWithText("활동 감지 중지").performClick()
-        composeRule.onNodeWithText("저장하기").performClick()
+        composeRule.onNodeWithTag("distance_input").performScrollTo().performTextInput("10.5")
+        composeRule.onNodeWithTag("duration_input").performScrollTo().performTextInput("40")
+        composeRule.onNodeWithText("활동 감지 시작").performScrollTo().performClick()
+        composeRule.onNodeWithText("활동 감지 중지").performScrollTo().performClick()
+        composeRule.onNodeWithText("저장하기").performScrollTo().performClick()
 
-        assertEquals("10.5", distanceInput)
-        assertEquals("40", durationInput)
+        assertEquals("10.5", state.value.distanceInput)
+        assertEquals("40", state.value.durationInput)
         assertTrue(startInvoked)
         assertTrue(stopInvoked)
         assertTrue(saveInvoked)
@@ -136,15 +142,13 @@ class RecordScreenTest {
 
     @Test
     fun shows_error_messages_for_invalid_inputs() {
+        val state = MutableStateFlow(RecordUiState(activityLabel = "UNKNOWN"))
+
         composeRule.setContent {
             RunningGoalTrackerTheme {
+                val uiState by state.collectAsState()
                 RecordScreen(
-                    uiState = RecordUiState(
-                        distanceInput = "abc",
-                        durationInput = "-1",
-                        error = RecordInputError.INVALID_NUMBER,
-                        activityLabel = "UNKNOWN"
-                    ),
+                    uiState = uiState,
                     onStartActivityRecognition = {},
                     onStopActivityRecognition = {},
                     onPermissionDenied = {},
@@ -154,29 +158,14 @@ class RecordScreenTest {
                 )
             }
         }
+
+        state.value = RecordUiState(error = RecordInputError.INVALID_NUMBER)
 
         composeRule
             .onNodeWithText("숫자 형식으로 입력해주세요.")
             .assertIsDisplayed()
 
-        composeRule.setContent {
-            RunningGoalTrackerTheme {
-                RecordScreen(
-                    uiState = RecordUiState(
-                        distanceInput = "0",
-                        durationInput = "0",
-                        error = RecordInputError.NON_POSITIVE,
-                        activityLabel = "UNKNOWN"
-                    ),
-                    onStartActivityRecognition = {},
-                    onStopActivityRecognition = {},
-                    onPermissionDenied = {},
-                    onDistanceChange = {},
-                    onDurationChange = {},
-                    onSaveRecord = {}
-                )
-            }
-        }
+        state.value = RecordUiState(error = RecordInputError.NON_POSITIVE)
 
         composeRule
             .onNodeWithText("0보다 큰 값을 입력해주세요.")

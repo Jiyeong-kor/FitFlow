@@ -33,6 +33,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -97,11 +98,13 @@ fun RecordScreen(
     val cardSpacingExtraSmall = dimensionResource(SharedR.dimen.card_spacing_extra_small)
     val recordListMaxHeight = dimensionResource(SharedR.dimen.list_max_height_large)
 
+    val scrollState = rememberScrollState()
+
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = horizontalPadding, vertical = verticalPadding)
-            .verticalScroll(rememberScrollState()),
+            .verticalScroll(scrollState)
+            .padding(horizontal = horizontalPadding, vertical = verticalPadding),
         verticalArrangement = Arrangement.spacedBy(sectionSpacing)
     ) {
         val permissionLauncher = rememberLauncherForActivityResult(
@@ -178,16 +181,20 @@ fun RecordScreen(
                 value = uiState.distanceInput,
                 onValueChange = onDistanceChange,
                 label = { Text(stringResource(R.string.record_distance_label)) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("distance_input"),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
 
             OutlinedTextField(
                 value = uiState.durationInput,
                 onValueChange = onDurationChange,
                 label = { Text(recordDurationLabel) },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("duration_input"),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
             )
 
             when (uiState.error) {
