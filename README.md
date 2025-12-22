@@ -66,10 +66,10 @@
 - **`:shared:designsystem`**: 공통으로 사용되는 UI 컴포넌트, 테마, 색상, 폰트 등을 정의하는 모듈입니다.
 - **`:app`**: 최종 애플리케이션 모듈로, 위 모듈들을 통합하여 완전한 앱을 구성합니다.
 
-### 의존성 구조 다이어그램
+### 의존성 구조 다이어그램 (Dependency Graph)
 ```mermaid
 %%{init: {"theme":"base","themeVariables":{
-  "fontFamily":"Pretendard, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif",
+  "fontFamily":"system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif",
   "lineColor":"#B9D7EA",
   "textColor":"#0F172A",
   "background":"#FFFFFF"
@@ -130,7 +130,7 @@ graph LR
     class DATA data
     class DesignSystem shared
 
-    %% Blue-tone refined theme
+    %% Blue-tone palette (F7FBFC / D6E6F2 / B9D7EA / 769FCD 기반)
     classDef app fill:#D6E6F2,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
     classDef feature fill:#F7FBFC,stroke:#B9D7EA,stroke-width:1.5px,color:#0F172A
     classDef domain fill:#EAF3FA,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
