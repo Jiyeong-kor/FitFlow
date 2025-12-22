@@ -76,9 +76,9 @@
   },
   "flowchart": {
     "curve": "linear",
-    "rankSpacing": 100,
-    "nodeSpacing": 50,
-    "htmlLabels": true
+    "rankSpacing": 120,
+    "nodeSpacing": 80, 
+    "ranker": "network-simplex"
   }
 }}%%
 graph LR
@@ -110,7 +110,8 @@ graph LR
         DesignSystem[":shared:designsystem"]
     end
 
-    %% Dependencies (선이 꼬이지 않도록 순서 재배치)
+    %% Dependencies
+    %% App에서 나가는 선 분리 유도
     APP --> HOME
     APP --> GOAL
     APP --> RECORD
@@ -118,19 +119,21 @@ graph LR
     APP --> DATA
     APP --> DesignSystem
 
-    HOME --> DOMAIN
-    GOAL --> DOMAIN
-    RECORD --> DOMAIN
-    REMINDER --> DOMAIN
-
-    HOME --> DesignSystem
-    GOAL --> DesignSystem
-    RECORD --> DesignSystem
-    REMINDER --> DesignSystem
+    %% Feature에서 Domain으로 가는 선 분리
+    HOME --- DOMAIN
+    GOAL --- DOMAIN
+    RECORD --- DOMAIN
+    REMINDER --- DOMAIN
+    
+    %% Feature에서 DesignSystem으로 가는 선 분리
+    HOME --- DesignSystem
+    GOAL --- DesignSystem
+    RECORD --- DesignSystem
+    REMINDER --- DesignSystem
 
     DATA --> DOMAIN
 
-    %% Styling
+    %% Styling 및 클래스 적용 (기존과 동일)
     classDef app fill:#333333,stroke:#000000,color:#FFFFFF
     classDef data fill:#777777,stroke:#000000,color:#FFFFFF
     classDef shared fill:#AAAAAA,stroke:#000000,color:#000000
