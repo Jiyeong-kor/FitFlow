@@ -115,55 +115,24 @@ graph TD
 
 ```mermaid
 graph LR
-    %% App Layer
-    subgraph App_Layer
-        APP[":app"]
-    end
+    APP[":app"]
+    HOME[":feature:home"]
+    DOMAIN[":domain"]
+    DATA[":data"]
+    DesignSystem[":shared:designsystem"]
 
-    %% Feature Layer
-    subgraph Feature_Layer
-        HOME[":feature:home"]
-        GOAL[":feature:goal"]
-        RECORD[":feature:record"]
-        REMINDER[":feature:reminder"]
-    end
+    class APP app
+    class HOME feature
+    class DOMAIN domain
+    class DATA data
+    class DesignSystem shared
 
-    %% Domain Layer
-    subgraph Domain_Layer
-        DOMAIN[":domain"]
-    end
+    classDef app fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px
+    classDef feature fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px
+    classDef domain fill:#FFFDE7,stroke:#F9A825,stroke-width:2px
+    classDef data fill:#FCE4EC,stroke:#C2185B,stroke-width:2px
+    classDef shared fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px
 
-    %% Data Layer
-    subgraph Data_Layer
-        DATA[":data"]
-    end
-
-    %% Shared Layer
-    subgraph Shared_Layer
-        DesignSystem[":shared:designsystem"]
-    end
-
-    %% App -> Feature
-    APP --> HOME
-    APP --> GOAL
-    APP --> RECORD
-    APP --> REMINDER
-    APP --> DATA
-    APP --> DesignSystem
-
-    %% Feature -> Domain / Shared
-    HOME --> DOMAIN
-    GOAL --> DOMAIN
-    RECORD --> DOMAIN
-    REMINDER --> DOMAIN
-
-    HOME --> DesignSystem
-    GOAL --> DesignSystem
-    RECORD --> DesignSystem
-    REMINDER --> DesignSystem
-
-    %% Data -> Domain
-    DATA --> DOMAIN
 ```
 
 ---
