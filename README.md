@@ -81,31 +81,52 @@
 }}%%
 
 flowchart LR
-  %% ===== Nodes =====
+  %% =========================
+  %% App Layer
+  %% =========================
   subgraph App_Layer["App Layer"]
     APP[":app"]
   end
 
+  %% =========================
+  %% Feature Layer
+  %% =========================
   subgraph Feature_Layer["Feature Layer"]
     HOME[":feature:home"]
     GOAL[":feature:goal"]
     RECORD[":feature:record"]
     REMINDER[":feature:reminder"]
+
+    %% layout only (no semantic meaning)
+    HOME ~~~ GOAL
+    GOAL ~~~ RECORD
+    RECORD ~~~ REMINDER
   end
 
+  %% =========================
+  %% Domain Layer
+  %% =========================
   subgraph Domain_Layer["Domain Layer"]
     DOMAIN[":domain"]
   end
 
+  %% =========================
+  %% Data Layer
+  %% =========================
   subgraph Data_Layer["Data Layer"]
     DATA[":data"]
   end
 
+  %% =========================
+  %% Shared Layer
+  %% =========================
   subgraph Shared_Layer["Shared Layer"]
     DS[":shared:designsystem"]
   end
 
-  %% ===== Dependencies =====
+  %% =========================
+  %% Dependencies (semantic)
+  %% =========================
   APP --> HOME
   APP --> GOAL
   APP --> RECORD
@@ -125,22 +146,27 @@ flowchart LR
 
   DATA --> DOMAIN
 
-  %% ===== Monotone (Lightness-only) Styling =====
-  classDef app fill:#e6e6e6,stroke:#2f2f2f,stroke-width:2px,color:#111;
+  %% =========================
+  %% Monotone Styling (lightness only)
+  %% =========================
+  classDef app fill:#e0e0e0,stroke:#2f2f2f,stroke-width:2px,color:#111;
   classDef feature fill:#f0f0f0,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
   classDef domain fill:#fafafa,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
-  classDef data fill:#f7f7f7,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef data fill:#f6f6f6,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
   classDef shared fill:#ededed,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
 
-  %% Layer assignment
   class APP app;
   class HOME,GOAL,RECORD,REMINDER feature;
   class DOMAIN domain;
   class DATA data;
   class DS shared;
 
-  %% Optional: make arrows slightly lighter than borders (still monochrome)
-  linkStyle 0,1,2,3,4,5,6,7,8,9,10,11,12,13 stroke:#5a5a5a,stroke-width:1.4px;
+  %% =========================
+  %% Hide layout-only links
+  %% (HOME~GOAL, GOAL~RECORD, RECORD~REMINDER)
+  %% =========================
+  linkStyle 0,1,2 stroke-width:0px;
+
 ```
 
 ---
