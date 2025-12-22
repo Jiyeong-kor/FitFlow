@@ -68,86 +68,66 @@
 
 ### 의존성 구조 다이어그램 (Dependency Graph)
 ```mermaid
-%%{init: {
-  "theme":"base",
-  "themeVariables":{
-    "fontFamily":"system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif"
-  },
-  "flowchart": {
-    "curve": "linear",
-    "rankSpacing": 80,
-    "nodeSpacing": 30
-  }
-}}%%
-graph LR
+flowchart LR
+    %% =========================
     %% App Layer
-    subgraph App_Layer [App Layer]
+    %% =========================
+    subgraph App_Layer["App Layer"]
         APP[":app"]
     end
 
+    %% =========================
     %% Feature Layer
-    subgraph Feature_Layer [Feature Layer]
+    %% =========================
+    subgraph Feature_Layer["Feature Layer"]
         HOME[":feature:home"]
         GOAL[":feature:goal"]
         RECORD[":feature:record"]
         REMINDER[":feature:reminder"]
     end
 
-    %% 중간 경로 분리를 위한 투명 노드
-    subgraph Space [ ]
-        direction TB
-        s1[ ] --- s2[ ] --- s3[ ] --- s4[ ]
-    end
-    style Space fill:none,stroke:none
-    style s1 fill:none,stroke:none
-    style s2 fill:none,stroke:none
-    style s3 fill:none,stroke:none
-    style s4 fill:none,stroke:none
-
-    %% Data / Domain / Shared
-    subgraph Data_Layer [Data Layer]
-        DATA[":data"]
-    end
-    subgraph Domain_Layer [Domain Layer]
+    %% =========================
+    %% Domain Layer
+    %% =========================
+    subgraph Domain_Layer["Domain Layer"]
         DOMAIN[":domain"]
     end
-    subgraph Shared_Layer [Shared Layer]
-        DesignSystem[":shared:designsystem"]
+
+    %% =========================
+    %% Data Layer
+    %% =========================
+    subgraph Data_Layer["Data Layer"]
+        DATA[":data"]
     end
 
-    %% 선 겹침 방지를 위한 개별 연결
+    %% =========================
+    %% Shared Layer
+    %% =========================
+    subgraph Shared_Layer["Shared Layer"]
+        DS[":shared:designsystem"]
+    end
+
+    %% =========================
+    %% Dependencies
+    %% =========================
     APP --> HOME
     APP --> GOAL
     APP --> RECORD
     APP --> REMINDER
-    
-    %% 개별 노드에서 각각의 경로로 분리 유도
+    APP --> DATA
+    APP --> DS
+
     HOME --> DOMAIN
     GOAL --> DOMAIN
     RECORD --> DOMAIN
     REMINDER --> DOMAIN
 
-    HOME --> DesignSystem
-    GOAL --> DesignSystem
-    RECORD --> DesignSystem
-    REMINDER --> DesignSystem
+    HOME --> DS
+    GOAL --> DS
+    RECORD --> DS
+    REMINDER --> DS
 
-    APP --> DATA
-    APP --> DesignSystem
     DATA --> DOMAIN
-
-    %% 클래스 설정
-    classDef app fill:#333333,stroke:#000000,color:#FFFFFF
-    classDef data fill:#777777,stroke:#000000,color:#FFFFFF
-    classDef shared fill:#AAAAAA,stroke:#000000,color:#000000
-    classDef domain fill:#DDDDDD,stroke:#000000,color:#000000
-    classDef feature fill:#FFFFFF,stroke:#000000,color:#000000
-
-    class APP app
-    class HOME,GOAL,RECORD,REMINDER feature
-    class DOMAIN domain
-    class DATA data
-    class DesignSystem shared
 ```
 
 ---
