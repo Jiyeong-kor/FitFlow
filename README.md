@@ -69,65 +69,54 @@
 ### 의존성 구조 다이어그램 (Dependency Graph)
 ```mermaid
 flowchart LR
-    %% =========================
-    %% App Layer
-    %% =========================
-    subgraph App_Layer["App Layer"]
-        APP[":app"]
-    end
 
-    %% =========================
-    %% Feature Layer
-    %% =========================
-    subgraph Feature_Layer["Feature Layer"]
-        HOME[":feature:home"]
-        GOAL[":feature:goal"]
-        RECORD[":feature:record"]
-        REMINDER[":feature:reminder"]
-    end
+subgraph App_Layer["App Layer"]
+    direction TB
+    APP[":app"]
+end
 
-    %% =========================
-    %% Domain Layer
-    %% =========================
-    subgraph Domain_Layer["Domain Layer"]
-        DOMAIN[":domain"]
-    end
+subgraph Feature_Layer["Feature Layer"]
+    direction TB
+    HOME[":feature:home"]
+    GOAL[":feature:goal"]
+    RECORD[":feature:record"]
+    REMINDER[":feature:reminder"]
+end
 
-    %% =========================
-    %% Data Layer
-    %% =========================
-    subgraph Data_Layer["Data Layer"]
-        DATA[":data"]
-    end
+subgraph Domain_Layer["Domain Layer"]
+    direction TB
+    DOMAIN[":domain"]
+end
 
-    %% =========================
-    %% Shared Layer
-    %% =========================
-    subgraph Shared_Layer["Shared Layer"]
-        DS[":shared:designsystem"]
-    end
+subgraph Data_Layer["Data Layer"]
+    direction TB
+    DATA[":data"]
+end
 
-    %% =========================
-    %% Dependencies
-    %% =========================
-    APP --> HOME
-    APP --> GOAL
-    APP --> RECORD
-    APP --> REMINDER
-    APP --> DATA
-    APP --> DS
+subgraph Shared_Layer["Shared Layer"]
+    direction TB
+    DS[":shared:designsystem"]
+end
 
-    HOME --> DOMAIN
-    GOAL --> DOMAIN
-    RECORD --> DOMAIN
-    REMINDER --> DOMAIN
+APP --> HOME
+APP --> GOAL
+APP --> RECORD
+APP --> REMINDER
+APP --> DATA
+APP --> DS
 
-    HOME --> DS
-    GOAL --> DS
-    RECORD --> DS
-    REMINDER --> DS
+HOME --> DOMAIN
+GOAL --> DOMAIN
+RECORD --> DOMAIN
+REMINDER --> DOMAIN
 
-    DATA --> DOMAIN
+HOME --> DS
+GOAL --> DS
+RECORD --> DS
+REMINDER --> DS
+
+DATA --> DOMAIN
+
 ```
 
 ---
