@@ -114,25 +114,74 @@ graph TD
 ```
 
 ```mermaid
+%%{init: {"theme":"base","themeVariables":{
+  "fontFamily":"Pretendard, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif",
+  "lineColor":"#90A4AE",
+  "textColor":"#111827",
+  "background":"#ffffff"
+}}}%%
 graph LR
-    APP[":app"]
-    HOME[":feature:home"]
-    DOMAIN[":domain"]
-    DATA[":data"]
-    DesignSystem[":shared:designsystem"]
+    %% App Layer
+    subgraph App_Layer [App Layer]
+        APP[":app"]
+    end
 
+    %% Feature Layer
+    subgraph Feature_Layer [Feature Layer]
+        HOME[":feature:home"]
+        GOAL[":feature:goal"]
+        RECORD[":feature:record"]
+        REMINDER[":feature:reminder"]
+    end
+
+    %% Data Layer
+    subgraph Data_Layer [Data Layer]
+        DATA[":data"]
+    end
+
+    %% Domain Layer
+    subgraph Domain_Layer [Domain Layer]
+        DOMAIN[":domain"]
+    end
+
+    %% Shared Layer
+    subgraph Shared_Layer [Shared Layer]
+        DesignSystem[":shared:designsystem"]
+    end
+
+    %% Dependencies
+    APP --> HOME
+    APP --> GOAL
+    APP --> RECORD
+    APP --> REMINDER
+    APP --> DATA
+    APP --> DesignSystem
+
+    HOME --> DOMAIN
+    GOAL --> DOMAIN
+    RECORD --> DOMAIN
+    REMINDER --> DOMAIN
+
+    HOME --> DesignSystem
+    GOAL --> DesignSystem
+    RECORD --> DesignSystem
+    REMINDER --> DesignSystem
+
+    DATA --> DOMAIN
+
+    %% Layer classes
     class APP app
-    class HOME feature
+    class HOME,GOAL,RECORD,REMINDER feature
     class DOMAIN domain
     class DATA data
     class DesignSystem shared
 
-    classDef app fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px
-    classDef feature fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px
-    classDef domain fill:#FFFDE7,stroke:#F9A825,stroke-width:2px
-    classDef data fill:#FCE4EC,stroke:#C2185B,stroke-width:2px
-    classDef shared fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px
-
+    %% Layer styles (recommended)
+    classDef app fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px,color:#0F172A
+    classDef feature fill:#E8F5E9,stroke:#2E7D32,stroke-width:2px,color:#0F172A
+    classDef domain fill:#FFFDE7,stroke:#F9A825,stroke-width:2px,color:#0F172A
+    classDef data fill:#FCE4EC,stroke:#C2185B,stroke-width:2px,color:#0F172A
+    classDef shared fill:#F3E5F5,stroke:#6A1B9A,stroke-width:2px,color:#0F172A
 ```
 
 ---
