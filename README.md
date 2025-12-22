@@ -68,14 +68,6 @@
 
 ### 의존성 구조 다이어그램 (Dependency Graph)
 ```mermaid
----
-config:
-  layout: elk
-  elk:
-    mergeEdges: true
-    nodePlacementStrategy: LINEAR_SEGMENTS
----
-
 flowchart LR
     subgraph App_Layer["App Layer"]
         APP[":app"]
@@ -86,6 +78,11 @@ flowchart LR
         GOAL[":feature:goal"]
         RECORD[":feature:record"]
         REMINDER[":feature:reminder"]
+
+        %% 정렬 강제(보이지 않는 링크)
+        HOME ~~~ GOAL
+        GOAL ~~~ RECORD
+        RECORD ~~~ REMINDER
     end
 
     subgraph Domain_Layer["Domain Layer"]
@@ -118,6 +115,7 @@ flowchart LR
     REMINDER --> DS
 
     DATA --> DOMAIN
+
 ```
 
 ---
