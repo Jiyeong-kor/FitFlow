@@ -68,53 +68,79 @@
 
 ### 의존성 구조 다이어그램 (Dependency Graph)
 ```mermaid
-flowchart TD
-    subgraph App_Layer["App Layer"]
-        APP[":app"]
-    end
+%%{init: {
+  "theme": "base",
+  "themeVariables": {
+    "background": "#ffffff",
+    "primaryColor": "#f2f2f2",
+    "primaryTextColor": "#111111",
+    "primaryBorderColor": "#444444",
+    "lineColor": "#444444",
+    "fontSize": "14px"
+  }
+}}%%
 
-    subgraph Feature_Layer["Feature Layer"]
-        HOME[":feature:home"]
-        GOAL[":feature:goal"]
-        RECORD[":feature:record"]
-        REMINDER[":feature:reminder"]
+flowchart LR
+  %% ===== Nodes =====
+  subgraph App_Layer["App Layer"]
+    APP[":app"]
+  end
 
-        %% 정렬 강제(보이지 않는 링크)
-        HOME ~~~ GOAL
-        GOAL ~~~ RECORD
-        RECORD ~~~ REMINDER
-    end
+  subgraph Feature_Layer["Feature Layer"]
+    HOME[":feature:home"]
+    GOAL[":feature:goal"]
+    RECORD[":feature:record"]
+    REMINDER[":feature:reminder"]
+  end
 
-    subgraph Domain_Layer["Domain Layer"]
-        DOMAIN[":domain"]
-    end
+  subgraph Domain_Layer["Domain Layer"]
+    DOMAIN[":domain"]
+  end
 
-    subgraph Data_Layer["Data Layer"]
-        DATA[":data"]
-    end
+  subgraph Data_Layer["Data Layer"]
+    DATA[":data"]
+  end
 
-    subgraph Shared_Layer["Shared Layer"]
-        DS[":shared:designsystem"]
-    end
+  subgraph Shared_Layer["Shared Layer"]
+    DS[":shared:designsystem"]
+  end
 
-    APP --> HOME
-    APP --> GOAL
-    APP --> RECORD
-    APP --> REMINDER
-    APP --> DATA
-    APP --> DS
+  %% ===== Dependencies =====
+  APP --> HOME
+  APP --> GOAL
+  APP --> RECORD
+  APP --> REMINDER
+  APP --> DATA
+  APP --> DS
 
-    HOME --> DOMAIN
-    GOAL --> DOMAIN
-    RECORD --> DOMAIN
-    REMINDER --> DOMAIN
+  HOME --> DOMAIN
+  GOAL --> DOMAIN
+  RECORD --> DOMAIN
+  REMINDER --> DOMAIN
 
-    HOME --> DS
-    GOAL --> DS
-    RECORD --> DS
-    REMINDER --> DS
+  HOME --> DS
+  GOAL --> DS
+  RECORD --> DS
+  REMINDER --> DS
 
-    DATA --> DOMAIN
+  DATA --> DOMAIN
+
+  %% ===== Monotone (Lightness-only) Styling =====
+  classDef app fill:#e6e6e6,stroke:#2f2f2f,stroke-width:2px,color:#111;
+  classDef feature fill:#f0f0f0,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef domain fill:#fafafa,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef data fill:#f7f7f7,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef shared fill:#ededed,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+
+  %% Layer assignment
+  class APP app;
+  class HOME,GOAL,RECORD,REMINDER feature;
+  class DOMAIN domain;
+  class DATA data;
+  class DS shared;
+
+  %% Optional: make arrows slightly lighter than borders (still monochrome)
+  linkStyle 0,1,2,3,4,5,6,7,8,9,10,11,12,13 stroke:#5a5a5a,stroke-width:1.4px;
 ```
 
 ---
