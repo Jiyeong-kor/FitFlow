@@ -68,7 +68,7 @@
 
 ### 의존성 구조 다이어그램 (Dependency Graph)
 ```mermaid
-flowchart LR
+flowchart TD
     subgraph App_Layer["App Layer"]
         APP[":app"]
     end
@@ -115,7 +115,6 @@ flowchart LR
     REMINDER --> DS
 
     DATA --> DOMAIN
-
 ```
 
 ---
