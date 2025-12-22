@@ -70,8 +70,8 @@
 ```mermaid
 %%{init: {"theme":"base","themeVariables":{
   "fontFamily":"system-ui, -apple-system, BlinkMacSystemFont, Segoe UI, Apple SD Gothic Neo, Noto Sans KR, Arial, sans-serif",
-  "lineColor":"#B9D7EA",
-  "textColor":"#0F172A",
+  "lineColor":"#333333",
+  "textColor":"#000000",
   "background":"#FFFFFF"
 }}}%%
 graph LR
@@ -130,13 +130,13 @@ graph LR
     class DATA data
     class DesignSystem shared
 
-    %% Blue-tone palette (F7FBFC / D6E6F2 / B9D7EA / 769FCD 기반)
-    classDef app fill:#D6E6F2,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
-    classDef feature fill:#F7FBFC,stroke:#B9D7EA,stroke-width:1.5px,color:#0F172A
-    classDef domain fill:#EAF3FA,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
-    classDef data fill:#B9D7EA,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
-    classDef shared fill:#DCEAF7,stroke:#769FCD,stroke-width:1.5px,color:#0F172A
-
+    %% Grayscale Palette (명도 차이 강조)
+    %% App (가장 어두움) -> Data -> Shared -> Domain -> Feature (가장 밝음)
+    classDef app fill:#333333,stroke:#000000,stroke-width:2px,color:#FFFFFF
+    classDef data fill:#777777,stroke:#000000,stroke-width:1.5px,color:#FFFFFF
+    classDef shared fill:#AAAAAA,stroke:#000000,stroke-width:1.5px,color:#000000
+    classDef domain fill:#DDDDDD,stroke:#000000,stroke-width:1px,color:#000000
+    classDef feature fill:#FFFFFF,stroke:#000000,stroke-width:1px,color:#000000
 ```
 
 ---
