@@ -69,65 +69,103 @@
 ### 의존성 구조 다이어그램 (Dependency Graph)
 ```mermaid
 %%{init: {
-  "theme": "base",
-  "themeVariables": {
-    "fontFamily": "Inter, system-ui, sans-serif",
-    "fontSize": "14px",
-    "lineColor": "#888888",
-    "edgeLabelBackground":"#ffffff"
-  }
+  "theme": "base",
+  "themeVariables": {
+    "background": "#ffffff",
+    "primaryColor": "#f2f2f2",
+    "primaryTextColor": "#111111",
+    "primaryBorderColor": "#444444",
+    "lineColor": "#444444",
+    "fontSize": "14px"
+  }
 }}%%
 
 flowchart TD
-  %% =========================
-  %% Layers Configuration
-  %% =========================
-  subgraph App_Layer["App Layer"]
-    APP[":app"]
-  end
+  %% =========================
+  %% App Layer
+  %% =========================
+  subgraph App_Layer["App Layer"]
+    APP[":app"]
+  end
 
-  subgraph Feature_Layer["Feature Layer"]
-    direction LR
-    FEATURES[":feature:home, goal, record, reminder"]
-    style FEATURES fill:#ffffff,stroke:#555,stroke-dasharray: 5 5
-  end
+  %% =========================
+  %% Feature Layer
+  %% =========================
+  subgraph Feature_Layer["Feature Layer"]
+    HOME[":feature:home"]
+    GOAL[":feature:goal"]
+    RECORD[":feature:record"]
+    REMINDER[":feature:reminder"]
 
-  subgraph Core_Layers["Core & Data"]
-    DOMAIN[":domain"]
-    DATA[":data"]
-  end
+    %% layout only (no semantic meaning)
+    HOME ~~~ GOAL
+    GOAL ~~~ RECORD
+    RECORD ~~~ REMINDER
+  end
 
-  subgraph Shared_Layer["Shared Layer"]
-    DS[":shared:designsystem"]
-  end
+  %% =========================
+  %% Domain Layer
+  %% =========================
+  subgraph Domain_Layer["Domain Layer"]
+    DOMAIN[":domain"]
+  end
 
-  %% =========================
-  %% Balanced Dependencies
-  %% =========================
-  %% App에서 나가는 선을 하나로 묶어 표현 (가독성 핵심)
-  APP --> FEATURES
-  APP --> DATA
-  APP --> DS
+  %% =========================
+  %% Data Layer
+  %% =========================
+  subgraph Data_Layer["Data Layer"]
+    DATA[":data"]
+  end
 
-  %% Feature에서 내려가는 선
-  FEATURES --> DOMAIN
-  FEATURES --> DS
+  %% =========================
+  %% Shared Layer
+  %% =========================
+  subgraph Shared_Layer["Shared Layer"]
+    DS[":shared:designsystem"]
+  end
 
-  %% Data에서 Domain으로
-  DATA --> DOMAIN
+  %% =========================
+  %% Dependencies (semantic)
+  %% =========================
+  APP --> HOME
+  APP --> GOAL
+  APP --> RECORD
+  APP --> REMINDER
+  APP --> DATA
+  APP --> DS
 
-  %% =========================
-  %% Simple & Clean Styling
-  %% =========================
-  classDef app fill:#444,stroke:#222,color:#fff,stroke-width:1px;
-  classDef feature fill:#f9f9f9,stroke:#999,stroke-width:1px;
-  classDef core fill:#fff,stroke:#bbb,stroke-width:1px;
-  classDef shared fill:#f1f5f9,stroke:#cbd5e1,color:#475569;
+  HOME --> DOMAIN
+  GOAL --> DOMAIN
+  RECORD --> DOMAIN
+  REMINDER --> DOMAIN
 
-  class APP app;
-  class FEATURES feature;
-  class DOMAIN,DATA core;
-  class DS shared;
+  HOME --> DS
+  GOAL --> DS
+  RECORD --> DS
+  REMINDER --> DS
+
+  DATA --> DOMAIN
+
+  %% =========================
+  %% Monotone Styling (lightness only)
+  %% =========================
+  classDef app fill:#e0e0e0,stroke:#2f2f2f,stroke-width:2px,color:#111;
+  classDef feature fill:#f0f0f0,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef domain fill:#fafafa,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef data fill:#f6f6f6,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef shared fill:#ededed,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+
+  class APP app;
+  class HOME,GOAL,RECORD,REMINDER feature;
+  class DOMAIN domain;
+  class DATA data;
+  class DS shared;
+
+  %% =========================
+  %% Hide layout-only links
+  %% (HOME~GOAL, GOAL~RECORD, RECORD~REMINDER)
+  %% =========================
+  linkStyle 0,1,2 stroke-width:0px;
 ```
 
 ---
