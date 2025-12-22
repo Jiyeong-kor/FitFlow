@@ -43,7 +43,7 @@
 
 ---
 
-## 🏗️ 프로젝트 구조 (Module Architecture)
+## 프로젝트 구조 (Module Architecture)
 
 본 프로젝트는 Clean Architecture 원칙에 따라 각 계층의 역할을 분리한 멀티 모듈 구조로 설계되었습니다.
 
