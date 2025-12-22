@@ -77,7 +77,7 @@
     "background":"#FFFFFF"
   },
   "flowchart": {
-    "curve": "step"
+    "curve": "monotoneX"
   }
 }}%%
 graph LR
