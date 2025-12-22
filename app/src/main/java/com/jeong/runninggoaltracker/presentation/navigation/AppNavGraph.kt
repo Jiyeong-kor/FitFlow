@@ -23,7 +23,8 @@ import kotlinx.coroutines.flow.map
 fun AppNavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier,
-    activityRecognitionMonitor: ActivityRecognitionMonitor
+    activityRecognitionMonitor: ActivityRecognitionMonitor,
+    requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
     NavHost(
         navController = navController,
@@ -45,7 +46,9 @@ fun AppNavGraph(
         }
 
         composable("record") {
-            RecordRoute()
+            RecordRoute(
+                onRequestTrackingPermissions = requestTrackingPermissions
+            )
         }
 
         composable("goal") {

@@ -2,15 +2,14 @@ package com.jeong.runninggoaltracker.feature.record.presentation
 
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
-import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
-import com.jeong.runninggoaltracker.domain.usecase.ValidateRunningRecordInputUseCase
-import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogEntry
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityState
-import java.time.LocalDate
+import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerController
+import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerMonitor
+import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -31,9 +30,10 @@ class RecordViewModelTest {
 
     private val testDispatcher = StandardTestDispatcher()
     private val repository = FakeRunningRecordRepository()
-    private val dateProvider = FakeDateProvider(LocalDate.of(2024, 6, 10))
     private val activityMonitor = FakeActivityRecognitionMonitor()
     private val activityController = FakeActivityRecognitionController()
+    private val runningTrackerMonitor = FakeRunningTrackerMonitor()
+    private val runningTrackerController = FakeRunningTrackerController()
 
     private lateinit var viewModel: RecordViewModel
 
@@ -42,60 +42,16 @@ class RecordViewModelTest {
         Dispatchers.setMain(testDispatcher)
         viewModel = RecordViewModel(
             getRunningRecordsUseCase = GetRunningRecordsUseCase(repository),
-            addRunningRecordUseCase = AddRunningRecordUseCase(repository),
-            dateProvider = dateProvider,
-            validateRunningRecordInputUseCase = ValidateRunningRecordInputUseCase(),
             activityRecognitionController = activityController,
-            activityRecognitionMonitor = activityMonitor
+            activityRecognitionMonitor = activityMonitor,
+            runningTrackerController = runningTrackerController,
+            runningTrackerMonitor = runningTrackerMonitor
         )
     }
 
     @After
     fun tearDown() {
         Dispatchers.resetMain()
-    }
-
-    @Test
-    fun `잘못된 숫자 입력 시 오류 상태를 노출한다`() = runTest {
-        viewModel.onDistanceChanged("abc")
-        viewModel.onDurationChanged("10")
-
-        viewModel.saveRecord()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        assertEquals(RecordInputError.INVALID_NUMBER, viewModel.uiState.value.error)
-        assertTrue(repository.records.value.isEmpty())
-    }
-
-    @Test
-    fun `0 이하의 값을 입력하면 NON_POSITIVE 오류를 반환한다`() = runTest {
-        viewModel.onDistanceChanged("0")
-        viewModel.onDurationChanged("-5")
-
-        viewModel.saveRecord()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        assertEquals(RecordInputError.NON_POSITIVE, viewModel.uiState.value.error)
-        assertTrue(repository.records.value.isEmpty())
-    }
-
-    @Test
-    fun `유효한 입력이면 기록을 저장하고 입력 값을 초기화한다`() = runTest {
-        viewModel.onDistanceChanged("6.5")
-        viewModel.onDurationChanged("42")
-
-        viewModel.saveRecord()
-        testDispatcher.scheduler.advanceUntilIdle()
-
-        val saved = repository.records.value.single()
-        assertEquals(dateProvider.getToday(), saved.date)
-        assertEquals(6.5, saved.distanceKm, 0.0)
-        assertEquals(42, saved.durationMinutes)
-
-        val currentState = viewModel.uiState.value
-        assertEquals("", currentState.distanceInput)
-        assertEquals("", currentState.durationInput)
-        assertEquals(null, currentState.error)
     }
 
     @Test
@@ -109,6 +65,35 @@ class RecordViewModelTest {
         assertTrue(activityController.permissionRequested)
     }
 
+    @Test
+    fun `트래커 상태를 UI로 노출한다`() = runTest {
+        val trackerState = RunningTrackerState(
+            isTracking = true,
+            distanceKm = 1.5,
+            elapsedMillis = 120_000,
+            permissionRequired = false
+        )
+        runningTrackerMonitor.update(trackerState)
+        testDispatcher.scheduler.advanceUntilIdle()
+
+        val uiState = viewModel.uiState.value
+        assertTrue(uiState.isTracking)
+        assertEquals(1.5, uiState.distanceKm, 0.0)
+        assertEquals(120_000, uiState.elapsedMillis)
+        assertEquals(false, uiState.permissionRequired)
+    }
+
+    @Test
+    fun `러닝 트래킹 제어 요청을 위임한다`() = runTest {
+        viewModel.startTracking { runningTrackerController.permissionRequested = true }
+        viewModel.stopTracking()
+        viewModel.notifyTrackingPermissionDenied()
+
+        assertTrue(runningTrackerController.started)
+        assertTrue(runningTrackerController.stopped)
+        assertTrue(runningTrackerController.permissionRequested)
+    }
+
     private class FakeRunningRecordRepository : RunningRecordRepository {
         val records = MutableStateFlow<List<RunningRecord>>(emptyList())
 
@@ -117,14 +102,6 @@ class RecordViewModelTest {
         override suspend fun addRecord(record: RunningRecord) {
             records.value += record
         }
-    }
-
-    private class FakeDateProvider(
-        private val _today: LocalDate
-    ) : DateProvider {
-        private val todayFlow = MutableStateFlow(_today)
-        override fun getTodayFlow(): Flow<LocalDate> = todayFlow
-        override fun getToday(): LocalDate = _today
     }
 
     private class FakeActivityRecognitionController : ActivityRecognitionController {
@@ -151,5 +128,33 @@ class RecordViewModelTest {
         override val activityState: StateFlow<ActivityState> = _activityState
         override val activityLogs: StateFlow<List<ActivityLogEntry>> =
             MutableStateFlow(emptyList())
+    }
+
+    private class FakeRunningTrackerMonitor : RunningTrackerMonitor {
+        private val _state = MutableStateFlow(RunningTrackerState())
+        override val trackerState: StateFlow<RunningTrackerState> = _state
+
+        fun update(state: RunningTrackerState) {
+            _state.value = state
+        }
+    }
+
+    private class FakeRunningTrackerController : RunningTrackerController {
+        var started = false
+        var stopped = false
+        var permissionRequested = false
+
+        override fun startTracking(onPermissionRequired: () -> Unit) {
+            started = true
+            onPermissionRequired()
+        }
+
+        override fun stopTracking() {
+            stopped = true
+        }
+
+        override fun notifyPermissionDenied() {
+            permissionRequested = true
+        }
     }
 }

@@ -1,11 +1,12 @@
 package com.jeong.runninggoaltracker
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.Manifest
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -23,10 +24,11 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -47,9 +49,27 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        requestActivityRecognitionPermissionIfNeeded()
-
         setContent {
+            var onTrackingPermissionResult by remember {
+                mutableStateOf<(Boolean) -> Unit>({ _ -> })
+            }
+            val trackingPermissionLauncher = rememberLauncherForActivityResult(
+                contract = ActivityResultContracts.RequestMultiplePermissions()
+            ) { results ->
+                val granted = results.values.all { it }
+                onTrackingPermissionResult(granted)
+            }
+
+            val requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit =
+                { onResult ->
+                    onTrackingPermissionResult = onResult
+                    val permissions = mutableListOf(Manifest.permission.ACCESS_FINE_LOCATION)
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        permissions.add(Manifest.permission.ACTIVITY_RECOGNITION)
+                    }
+                    trackingPermissionLauncher.launch(permissions.toTypedArray())
+                }
+
             RunningGoalTrackerTheme {
                 val navController = rememberNavController()
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
@@ -66,34 +86,12 @@ class MainActivity : ComponentActivity() {
                     AppNavGraph(
                         navController = navController,
                         modifier = Modifier.padding(innerPadding),
-                        activityRecognitionMonitor = activityRecognitionMonitor
+                        activityRecognitionMonitor = activityRecognitionMonitor,
+                        requestTrackingPermissions = requestTrackingPermissions
                     )
                 }
             }
         }
-    }
-
-    private fun requestActivityRecognitionPermissionIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val permission = Manifest.permission.ACTIVITY_RECOGNITION
-
-            val granted = ContextCompat.checkSelfPermission(
-                this,
-                permission
-            ) == PackageManager.PERMISSION_GRANTED
-
-            if (!granted) {
-                ActivityCompat.requestPermissions(
-                    this,
-                    arrayOf(permission),
-                    REQUEST_CODE_ACTIVITY_RECOGNITION
-                )
-            }
-        }
-    }
-
-    companion object {
-        private const val REQUEST_CODE_ACTIVITY_RECOGNITION = 3001
     }
 }
 

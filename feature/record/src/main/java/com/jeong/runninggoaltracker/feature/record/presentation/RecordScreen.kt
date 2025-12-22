@@ -16,7 +16,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
@@ -27,27 +26,26 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.util.toDistanceLabel
 import com.jeong.runninggoaltracker.shared.designsystem.util.toKoreanDateLabel
+import java.time.Duration
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun RecordRoute(
+    onRequestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
     viewModel: RecordViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -57,9 +55,10 @@ fun RecordRoute(
         onStartActivityRecognition = viewModel::startActivityRecognition,
         onStopActivityRecognition = viewModel::stopActivityRecognition,
         onPermissionDenied = viewModel::notifyPermissionDenied,
-        onDistanceChange = viewModel::onDistanceChanged,
-        onDurationChange = viewModel::onDurationChanged,
-        onSaveRecord = viewModel::saveRecord
+        onStartTracking = viewModel::startTracking,
+        onStopTracking = viewModel::stopTracking,
+        onTrackingPermissionDenied = viewModel::notifyTrackingPermissionDenied,
+        onRequestTrackingPermissions = onRequestTrackingPermissions
     )
 }
 
@@ -70,9 +69,10 @@ fun RecordScreen(
     onStartActivityRecognition: ((onPermissionRequired: () -> Unit) -> Unit),
     onStopActivityRecognition: () -> Unit,
     onPermissionDenied: () -> Unit,
-    onDistanceChange: (String) -> Unit,
-    onDurationChange: (String) -> Unit,
-    onSaveRecord: () -> Unit
+    onStartTracking: ((onPermissionRequired: () -> Unit) -> Unit),
+    onStopTracking: () -> Unit,
+    onTrackingPermissionDenied: () -> Unit,
+    onRequestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
     val displayLabel = when (uiState.activityLabel) {
         "NO_PERMISSION" -> stringResource(R.string.activity_permission_needed)
@@ -82,10 +82,6 @@ fun RecordScreen(
         "NO_RESULT", "NO_ACTIVITY", "UNKNOWN" -> stringResource(R.string.activity_unknown)
         else -> uiState.activityLabel
     }
-
-    val recordDurationLabel = stringResource(R.string.record_duration_label)
-    val errorEnterNumberFormat = stringResource(R.string.error_enter_number_format)
-    val errorEnterPositiveValue = stringResource(R.string.error_enter_positive_value)
 
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
@@ -173,55 +169,80 @@ fun RecordScreen(
             verticalArrangement = Arrangement.spacedBy(cardSpacingSmall)
         ) {
             Text(
-                text = stringResource(R.string.record_title_add_record),
+                text = stringResource(R.string.record_title_tracking),
                 style = typography.titleMedium
             )
 
-            OutlinedTextField(
-                value = uiState.distanceInput,
-                onValueChange = onDistanceChange,
-                label = { Text(stringResource(R.string.record_distance_label)) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("distance_input"),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-            )
-
-            OutlinedTextField(
-                value = uiState.durationInput,
-                onValueChange = onDurationChange,
-                label = { Text(recordDurationLabel) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .testTag("duration_input"),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal)
-            )
-
-            when (uiState.error) {
-                RecordInputError.INVALID_NUMBER -> {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(cardSpacingExtraSmall)
+                ) {
                     Text(
-                        text = errorEnterNumberFormat,
-                        color = colorScheme.error,
-                        style = typography.bodyMedium
+                        text = stringResource(R.string.record_distance_dashboard_label),
+                        style = typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = uiState.distanceKm.toDistanceLabel(),
+                        style = typography.headlineSmall
                     )
                 }
-
-                RecordInputError.NON_POSITIVE -> {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(cardSpacingExtraSmall)
+                ) {
                     Text(
-                        text = errorEnterPositiveValue,
-                        color = colorScheme.error,
-                        style = typography.bodyMedium
+                        text = stringResource(R.string.record_elapsed_time_dashboard_label),
+                        style = typography.bodyMedium,
+                        color = colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = formatElapsedTime(uiState.elapsedMillis),
+                        style = typography.headlineSmall
                     )
                 }
-
-                null -> Unit
             }
 
-            Button(
-                onClick = onSaveRecord,
-                modifier = Modifier.fillMaxWidth()
+            if (uiState.permissionRequired) {
+                Text(
+                    text = stringResource(R.string.record_tracking_permission_required),
+                    color = colorScheme.error,
+                    style = typography.bodyMedium
+                )
+            }
+
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
             ) {
-                Text(stringResource(R.string.button_save))
+                Button(
+                    onClick = {
+                        onStartTracking {
+                            onRequestTrackingPermissions { granted ->
+                                if (granted) {
+                                    onStartTracking {}
+                                } else {
+                                    onTrackingPermissionDenied()
+                                }
+                            }
+                        }
+                    },
+                    modifier = Modifier.weight(1f),
+                    enabled = !uiState.isTracking
+                ) {
+                    Text(stringResource(R.string.button_start_tracking))
+                }
+                Button(
+                    onClick = onStopTracking,
+                    modifier = Modifier.weight(1f),
+                    enabled = uiState.isTracking
+                ) {
+                    Text(stringResource(R.string.button_stop_tracking))
+                }
             }
         }
 
@@ -320,5 +341,18 @@ fun RecordScreen(
                 }
             }
         }
+    }
+}
+
+private fun formatElapsedTime(elapsedMillis: Long): String {
+    val duration = Duration.ofMillis(elapsedMillis)
+    val hours = duration.toHours()
+    val minutes = duration.toMinutes() % 60
+    val seconds = duration.seconds % 60
+
+    return if (hours > 0) {
+        String.format("%d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format("%02d:%02d", minutes, seconds)
     }
 }
