@@ -1,10 +1,10 @@
 package com.jeong.runninggoaltracker.domain.model
 
-import java.time.LocalDate
+import com.jeong.runninggoaltracker.domain.model.time.AppDate
 
 data class RunningRecord(
     val id: Long = 0L,
-    val date: LocalDate,
+    val date: AppDate,
     val distanceKm: Double,
     val durationMinutes: Int
 ) {

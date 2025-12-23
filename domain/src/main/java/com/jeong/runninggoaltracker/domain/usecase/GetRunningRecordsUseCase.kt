@@ -4,8 +4,9 @@ import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class GetRunningRecordsUseCase(
+class GetRunningRecordsUseCase @Inject constructor(
     private val repository: RunningRecordRepository
 ) {
     operator fun invoke(): Flow<List<RunningRecord>> =

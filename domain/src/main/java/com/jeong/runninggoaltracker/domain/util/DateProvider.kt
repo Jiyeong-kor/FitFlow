@@ -1,9 +1,9 @@
 package com.jeong.runninggoaltracker.domain.util
 
-import java.time.LocalDate
+import com.jeong.runninggoaltracker.domain.model.time.AppDate
 import kotlinx.coroutines.flow.Flow
 
 interface DateProvider {
-    fun getTodayFlow(): Flow<LocalDate>
-    fun getToday(): LocalDate
+    fun getTodayFlow(): Flow<AppDate>
+    fun getToday(): AppDate
 }

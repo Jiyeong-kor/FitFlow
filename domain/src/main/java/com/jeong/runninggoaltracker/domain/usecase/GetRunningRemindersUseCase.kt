@@ -4,8 +4,9 @@ import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class GetRunningRemindersUseCase(
+class GetRunningRemindersUseCase @Inject constructor(
     private val repository: RunningReminderRepository
 ) {
     operator fun invoke(): Flow<List<RunningReminder>> = repository.getAllReminders()

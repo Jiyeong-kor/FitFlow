@@ -3,24 +3,25 @@ package com.jeong.runninggoaltracker.domain.usecase
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
-import java.time.DayOfWeek
-import java.time.LocalDate
+import com.jeong.runninggoaltracker.domain.model.time.AppDate
+import com.jeong.runninggoaltracker.domain.model.time.AppDayOfWeek
+import javax.inject.Inject
 
 interface RunningSummaryCalculator {
     fun calculate(
         goal: RunningGoal?,
         records: List<RunningRecord>,
-        today: LocalDate
+        today: AppDate
     ): RunningSummary
 }
 
-class WeeklySummaryCalculator : RunningSummaryCalculator {
+class WeeklySummaryCalculator @Inject constructor() : RunningSummaryCalculator {
     override fun calculate(
         goal: RunningGoal?,
         records: List<RunningRecord>,
-        today: LocalDate
+        today: AppDate
     ): RunningSummary {
-        val startOfWeek = today.with(DayOfWeek.MONDAY)
+        val startOfWeek = today.with(AppDayOfWeek.MONDAY)
 
         val thisWeekRecords = records.filter { record ->
             !record.date.isBefore(startOfWeek)

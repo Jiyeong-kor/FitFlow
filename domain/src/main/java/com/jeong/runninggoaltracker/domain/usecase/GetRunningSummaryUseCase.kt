@@ -6,8 +6,9 @@ import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import javax.inject.Inject
 
-class GetRunningSummaryUseCase(
+class GetRunningSummaryUseCase @Inject constructor(
     private val goalRepository: RunningGoalRepository,
     private val recordRepository: RunningRecordRepository,
     private val dateProvider: DateProvider,

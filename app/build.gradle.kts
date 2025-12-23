@@ -36,7 +36,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
@@ -57,8 +56,6 @@ dependencies {
     implementation(project(":feature:goal"))
     implementation(project(":feature:record"))
     implementation(project(":feature:reminder"))
-
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     // core / lifecycle / activity / viewmodel-compose
     implementation(libs.androidx.core.ktx)

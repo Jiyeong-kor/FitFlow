@@ -1,5 +1,7 @@
 package com.jeong.runninggoaltracker.domain.usecase
 
+import javax.inject.Inject
+
 sealed interface WeeklyGoalValidationResult {
 
     data class Valid(
@@ -12,7 +14,7 @@ sealed interface WeeklyGoalValidationResult {
     }
 }
 
-class ValidateWeeklyGoalUseCase {
+class ValidateWeeklyGoalUseCase @Inject constructor() {
 
     operator fun invoke(input: String): WeeklyGoalValidationResult {
         val weeklyGoalKm = input.toDoubleOrNull()

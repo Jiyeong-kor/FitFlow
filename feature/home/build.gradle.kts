@@ -31,7 +31,6 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
-        isCoreLibraryDesugaringEnabled = true
     }
     buildFeatures {
         compose = true
@@ -46,8 +45,6 @@ kotlin {
 dependencies {
     implementation(project(":domain"))
     implementation(project(":shared:designsystem"))
-
-    coreLibraryDesugaring(libs.desugar.jdk.libs)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)

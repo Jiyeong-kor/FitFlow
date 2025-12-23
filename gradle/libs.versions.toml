@@ -4,9 +4,6 @@ agp = "8.13.2"
 kotlin = "2.2.21"
 ksp = "2.2.21-2.0.4"
 
-# Core / build support
-desugar_jdk_libs = "2.1.5"
-
 # Coroutines
 kotlinxCoroutinesCore = "1.10.2"
 
@@ -42,7 +39,6 @@ androidxTestRunner = "1.7.0"
 [libraries]
 # Core
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-desugar_jdk_libs = { module = "com.android.tools:desugar_jdk_libs", version.ref = "desugar_jdk_libs" }
 
 # Lifecycle / ViewModel / Activity
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }

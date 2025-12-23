@@ -1,9 +1,6 @@
 package com.jeong.runninggoaltracker.feature.record.di
 
 import android.content.Context
-import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
-import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
-import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionManager
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
@@ -53,16 +50,6 @@ object RecordSingletonModule {
         context = context,
         activityStateUpdater = stateHolder
     )
-
-    @Provides
-    fun provideAddRunningRecordUseCase(
-        repository: RunningRecordRepository
-    ): AddRunningRecordUseCase = AddRunningRecordUseCase(repository)
-
-    @Provides
-    fun provideGetRunningRecordsUseCase(
-        repository: RunningRecordRepository
-    ): GetRunningRecordsUseCase = GetRunningRecordsUseCase(repository)
 }
 
 @Module

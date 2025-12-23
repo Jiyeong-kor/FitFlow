@@ -1,11 +1,12 @@
 package com.jeong.runninggoaltracker.domain.usecase
 
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
-import java.time.DayOfWeek
+import com.jeong.runninggoaltracker.domain.model.time.AppDayOfWeek
+import javax.inject.Inject
 
-class ToggleReminderDayUseCase {
+class ToggleReminderDayUseCase @Inject constructor() {
     operator fun invoke(reminder: RunningReminder, day: Int): RunningReminder {
-        val dayOfWeek = runCatching { DayOfWeek.of(day) }
+        val dayOfWeek = runCatching { AppDayOfWeek.of(day) }
             .getOrNull()
             ?: return reminder
 
