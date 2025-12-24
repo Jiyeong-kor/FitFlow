@@ -43,7 +43,9 @@ kotlin {
         jvmTarget.set(JvmTarget.JVM_21)
     }
 }
-
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
 dependencies {
     implementation(project(":domain"))
 
