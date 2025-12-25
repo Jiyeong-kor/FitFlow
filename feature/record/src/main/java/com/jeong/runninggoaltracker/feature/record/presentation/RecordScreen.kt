@@ -34,7 +34,6 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
@@ -48,7 +47,9 @@ fun RecordRoute(
 
     RecordScreen(
         uiState = uiState,
-        dateFormatter = viewModel.dateFormatter,
+        formatDistance = viewModel::formatToDistanceLabel,
+        formatElapsedTime = viewModel::formatElapsedTime,
+        formatDate = viewModel::formatToKoreanDate,
         onStartActivityRecognition = viewModel::startActivityRecognition,
         onStopActivityRecognition = viewModel::stopActivityRecognition,
         onPermissionDenied = viewModel::notifyPermissionDenied,
@@ -62,7 +63,9 @@ fun RecordRoute(
 @Composable
 fun RecordScreen(
     uiState: RecordUiState,
-    dateFormatter: DateFormatter,
+    formatDistance: (Double) -> String,
+    formatElapsedTime: (Long) -> String,
+    formatDate: (Long) -> String,
     onStartActivityRecognition: ((onPermissionRequired: () -> Unit) -> Unit),
     onStopActivityRecognition: () -> Unit,
     onPermissionDenied: () -> Unit,
@@ -184,7 +187,7 @@ fun RecordScreen(
                         color = colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = dateFormatter.formatToDistanceLabel(uiState.distanceKm),
+                        text = formatDistance(uiState.distanceKm),
                         style = typography.headlineSmall
                     )
                 }
@@ -198,7 +201,7 @@ fun RecordScreen(
                         color = colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = dateFormatter.formatElapsedTime(uiState.elapsedMillis),
+                        text = formatElapsedTime(uiState.elapsedMillis),
                         style = typography.headlineSmall
                     )
                 }
@@ -294,28 +297,28 @@ fun RecordScreen(
                                             cardSpacingExtraSmall
                                         )
                                     ) {
-                                        Icon(
-                                            imageVector = Icons.Filled.CalendarToday,
-                                            contentDescription = null,
-                                            tint = colorScheme.onSurfaceVariant
-                                        )
-                                        Text(
-                                            text = dateFormatter.formatToKoreanDate(record.date),
-                                            style = typography.bodyMedium
-                                        )
-                                    }
-                                    Row(
-                                        horizontalArrangement = Arrangement.spacedBy(
+                                    Icon(
+                                        imageVector = Icons.Filled.CalendarToday,
+                                        contentDescription = null,
+                                        tint = colorScheme.onSurfaceVariant
+                                    )
+                                    Text(
+                                        text = formatDate(record.date),
+                                        style = typography.bodyMedium
+                                    )
+                                }
+                                Row(
+                                    horizontalArrangement = Arrangement.spacedBy(
                                             cardSpacingSmall
                                         )
-                                    ) {
-                                        Text(
-                                            text = dateFormatter.formatToDistanceLabel(record.distanceKm),
-                                            style = typography.bodyMedium
-                                        )
-                                        Row(
-                                            horizontalArrangement = Arrangement.spacedBy(
-                                                cardSpacingExtraSmall
+                                ) {
+                                    Text(
+                                        text = formatDistance(record.distanceKm),
+                                        style = typography.bodyMedium
+                                    )
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(
+                                            cardSpacingExtraSmall
                                             )
                                         ) {
                                             Icon(

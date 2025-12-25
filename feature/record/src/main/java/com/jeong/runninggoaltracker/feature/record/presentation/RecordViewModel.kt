@@ -27,7 +27,7 @@ data class RecordUiState(
 
 @HiltViewModel
 class RecordViewModel @Inject constructor(
-    val dateFormatter: DateFormatter,
+    private val dateFormatter: DateFormatter,
     getRunningRecordsUseCase: GetRunningRecordsUseCase,
     private val activityRecognitionController: ActivityRecognitionController,
     activityRecognitionMonitor: ActivityRecognitionMonitor,
@@ -77,4 +77,12 @@ class RecordViewModel @Inject constructor(
     fun notifyTrackingPermissionDenied() {
         runningTrackerController.notifyPermissionDenied()
     }
+
+    fun formatToKoreanDate(timestamp: Long): String = dateFormatter.formatToKoreanDate(timestamp)
+
+    fun formatToDistanceLabel(distanceKm: Double): String =
+        dateFormatter.formatToDistanceLabel(distanceKm)
+
+    fun formatElapsedTime(elapsedMillis: Long): String =
+        dateFormatter.formatElapsedTime(elapsedMillis)
 }

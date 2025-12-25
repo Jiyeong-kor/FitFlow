@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.feature.record.presentation
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
+import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityLogEntry
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
@@ -41,6 +42,7 @@ class RecordViewModelTest {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
         viewModel = RecordViewModel(
+            dateFormatter = FakeDateFormatter(),
             getRunningRecordsUseCase = GetRunningRecordsUseCase(repository),
             activityRecognitionController = activityController,
             activityRecognitionMonitor = activityMonitor,
@@ -156,5 +158,14 @@ class RecordViewModelTest {
         override fun notifyPermissionDenied() {
             permissionRequested = true
         }
+    }
+
+    private class FakeDateFormatter : DateFormatter {
+        override fun formatToKoreanDate(timestamp: Long): String = timestamp.toString()
+
+        override fun formatToDistanceLabel(distanceKm: Double): String =
+            "${distanceKm}km"
+
+        override fun formatElapsedTime(elapsedMillis: Long): String = elapsedMillis.toString()
     }
 }
