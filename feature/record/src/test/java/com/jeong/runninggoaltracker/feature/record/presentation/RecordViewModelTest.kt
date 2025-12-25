@@ -11,6 +11,7 @@ import com.jeong.runninggoaltracker.feature.record.recognition.ActivityState
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerController
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerMonitor
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerState
+import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow

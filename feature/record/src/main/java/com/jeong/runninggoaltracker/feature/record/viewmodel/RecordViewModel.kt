@@ -1,29 +1,20 @@
-package com.jeong.runninggoaltracker.feature.record.presentation
+package com.jeong.runninggoaltracker.feature.record.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.util.DateFormatter
+import com.jeong.runninggoaltracker.feature.record.presentation.RecordUiState
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerController
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
-
-data class RecordUiState(
-    val records: List<RunningRecord> = emptyList(),
-    val activityLabel: String = "UNKNOWN",
-    val isTracking: Boolean = false,
-    val distanceKm: Double = 0.0,
-    val elapsedMillis: Long = 0L,
-    val permissionRequired: Boolean = false
-)
+import javax.inject.Inject
 
 @HiltViewModel
 class RecordViewModel @Inject constructor(
