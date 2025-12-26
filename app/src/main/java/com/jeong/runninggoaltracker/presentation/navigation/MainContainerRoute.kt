@@ -40,7 +40,7 @@ fun MainContainerRoute(
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = startDestination.route,
+            startDestination = startDestination,
             modifier = Modifier.padding(innerPadding)
         ) {
             mainDestinations(

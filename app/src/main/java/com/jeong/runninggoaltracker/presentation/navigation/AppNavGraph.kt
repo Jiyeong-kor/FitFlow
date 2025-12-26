@@ -19,7 +19,7 @@ fun AppNavGraph(
 ) {
     NavHost(
         navController = navController,
-        startDestination = MainNavigationRoute.Main.route,
+        startDestination = MainNavigationRoute.Main,
         modifier = modifier
     ) {
         mainNavGraph(

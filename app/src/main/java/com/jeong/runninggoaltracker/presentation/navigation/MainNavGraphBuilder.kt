@@ -22,7 +22,7 @@ fun NavGraphBuilder.mainNavGraph(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
-    composable(route = MainNavigationRoute.Main) {
+    composable<MainNavigationRoute.Main> {
         MainContainerRoute(
             activityRecognitionMonitor = activityRecognitionMonitor,
             requestTrackingPermissions = requestTrackingPermissions
@@ -36,7 +36,7 @@ internal fun NavGraphBuilder.mainDestinations(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
-    composable(route = MainNavigationRoute.Home) { backStackEntry ->
+    composable<MainNavigationRoute.Home> { backStackEntry ->
         val viewModel: HomeViewModel = hiltViewModel(backStackEntry)
         HomeRoute(
             viewModel = viewModel,
@@ -52,7 +52,7 @@ internal fun NavGraphBuilder.mainDestinations(
         )
     }
 
-    composable(route = MainNavigationRoute.Record) { backStackEntry ->
+    composable<MainNavigationRoute.Record> { backStackEntry ->
         val viewModel: RecordViewModel = hiltViewModel(backStackEntry)
         RecordRoute(
             viewModel = viewModel,
@@ -60,7 +60,7 @@ internal fun NavGraphBuilder.mainDestinations(
         )
     }
 
-    composable(route = MainNavigationRoute.Goal) { backStackEntry ->
+    composable<MainNavigationRoute.Goal> { backStackEntry ->
         val viewModel: GoalViewModel = hiltViewModel(backStackEntry)
         GoalRoute(
             viewModel = viewModel,
@@ -68,7 +68,7 @@ internal fun NavGraphBuilder.mainDestinations(
         )
     }
 
-    composable(route = MainNavigationRoute.Reminder) { backStackEntry ->
+    composable<MainNavigationRoute.Reminder> { backStackEntry ->
         val viewModel: ReminderViewModel = hiltViewModel(backStackEntry)
         ReminderRoute(viewModel = viewModel)
     }

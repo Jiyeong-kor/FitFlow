@@ -1,5 +1,6 @@
 package com.jeong.runninggoaltracker.presentation.navigation
 
+import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -7,11 +8,9 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.compose.ui.res.stringResource
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
 
 @Composable
@@ -28,9 +27,7 @@ fun MainBottomNavigationBar(
     NavigationBar(containerColor = colorScheme.surface) {
         MainTab.entries.forEach { tab ->
             val tabItem = tabItemsByTab[tab] ?: return@forEach
-            val selected = currentDestination?.hierarchy?.any {
-                it.route == tabItem.tab.route.route
-            } == true
+            val selected = currentDestination.isRouteInHierarchy(tabItem.tab.route)
 
             NavigationBarItem(
                 selected = selected,
