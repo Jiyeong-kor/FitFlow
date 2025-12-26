@@ -65,8 +65,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
 
-    implementation(libs.androidx.room.runtime)
-
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
@@ -75,9 +73,6 @@ dependencies {
     // Compose UI
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)
-
-    // Location
-    implementation(libs.androidx.play.services.location)
 
     // unit test
     testImplementation(libs.junit)
