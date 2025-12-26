@@ -52,6 +52,7 @@ kotlin {
 dependencies {
     implementation(project(":data"))
     implementation(project(":shared:designsystem"))
+    implementation(project(":shared:navigation"))
     implementation(project(":feature:home"))
     implementation(project(":feature:goal"))
     implementation(project(":feature:record"))
@@ -62,6 +63,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
+    implementation(libs.androidx.navigation.compose)
 
     implementation(libs.androidx.room.runtime)
 

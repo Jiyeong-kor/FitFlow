@@ -1,0 +1,20 @@
+package com.jeong.runninggoaltracker.shared.navigation
+
+import kotlinx.serialization.Serializable
+
+@Serializable
+enum class BottomTabIcon {
+    HOME,
+    RECORD,
+    REMINDER
+}
+
+@Serializable
+enum class MainTab(
+    val route: MainNavigationRoute,
+    val icon: BottomTabIcon
+) {
+    HOME(MainNavigationRoute.Home, BottomTabIcon.HOME),
+    RECORD(MainNavigationRoute.Record, BottomTabIcon.RECORD),
+    REMINDER(MainNavigationRoute.Reminder, BottomTabIcon.REMINDER);
+}
