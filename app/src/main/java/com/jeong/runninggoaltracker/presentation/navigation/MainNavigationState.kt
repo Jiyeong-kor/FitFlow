@@ -7,6 +7,8 @@ import androidx.navigation.NavDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
+import com.jeong.runninggoaltracker.shared.navigation.MainTabItem
+import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
 
 @Composable
 fun rememberMainNavigationState(
@@ -20,16 +22,16 @@ fun rememberMainNavigationState(
     val activeTab = remember(currentDestination) {
         MainTab.entries.firstNotNullOfOrNull { tab ->
             val tabItem = tabItemsByTab[tab] ?: return@firstNotNullOfOrNull null
-            if (currentDestination.isRouteInHierarchy(tab.route)) tabItem.screen else null
+            if (currentDestination.isRouteInHierarchy(tab.route)) tabItem else null
         }
     }
 
-    return remember(currentDestination, activeTab) {
+    return remember(currentDestination, activeTab, currentScreen) {
         MainNavigationState(
             currentDestination = currentDestination,
             currentScreen = currentScreen,
             activeTab = activeTab,
-            titleResId = (currentScreen ?: activeTab)?.titleResId
+            titleResId = currentScreen?.titleResId ?: activeTab?.titleResId
         )
     }
 }
@@ -37,6 +39,6 @@ fun rememberMainNavigationState(
 data class MainNavigationState(
     val currentDestination: NavDestination?,
     val currentScreen: MainScreen?,
-    val activeTab: MainScreen?,
-    val titleResId: Int?
+    val activeTab: MainTabItem?,
+    val titleResId: Int?,
 )

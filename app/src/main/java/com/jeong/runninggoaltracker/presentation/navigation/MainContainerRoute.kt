@@ -7,7 +7,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppTopBar
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
 
@@ -27,7 +29,12 @@ fun MainContainerRoute(
     }
 
     Scaffold(
-        topBar = { AppTopBar(titleResId = navigationState.titleResId) },
+        topBar = {
+            AppTopBar(
+                titleResId = navigationState.titleResId,
+                fallbackTitleResId = R.string.app_name_full
+            )
+        },
         bottomBar = {
             MainBottomNavigationBar(
                 tabItemsByTab = tabItemsByTab,

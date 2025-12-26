@@ -1,4 +1,4 @@
-package com.jeong.runninggoaltracker.presentation.navigation
+package com.jeong.runninggoaltracker.shared.navigation
 
 import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.runtime.Composable
@@ -9,8 +9,6 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.compose.composable
-import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
-import com.jeong.runninggoaltracker.shared.navigation.NavigationRoute
 
 fun NavHostController.navigateTo(
     route: NavigationRoute,

@@ -9,8 +9,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.navigation.NavDestination
 import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.shared.navigation.BottomTabIcon
-import com.jeong.runninggoaltracker.shared.navigation.MainTab
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
+import com.jeong.runninggoaltracker.shared.navigation.MainTab
+import com.jeong.runninggoaltracker.shared.navigation.MainTabItem
+import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
 
 sealed interface MainScreen {
     val route: MainNavigationRoute
@@ -48,12 +50,8 @@ sealed interface MainScreen {
             val icon = tab.icon.asImageVector() ?: return@mapNotNull null
             MainTabItem(
                 tab = tab,
-                screen = screen,
-                bottomNavItem = BottomNavItem(
-                    route = screen.route,
-                    labelResId = screen.titleResId,
-                    icon = icon
-                )
+                titleResId = screen.titleResId,
+                icon = icon
             )
         }
 
@@ -69,9 +67,3 @@ private fun BottomTabIcon.asImageVector(): ImageVector? = when (this) {
     BottomTabIcon.RECORD -> Icons.AutoMirrored.Filled.DirectionsRun
     BottomTabIcon.REMINDER -> Icons.Filled.Notifications
 }
-
-data class MainTabItem(
-    val tab: MainTab,
-    val screen: MainScreen,
-    val bottomNavItem: BottomNavItem
-)

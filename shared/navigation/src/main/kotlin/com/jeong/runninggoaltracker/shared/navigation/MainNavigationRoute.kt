@@ -3,10 +3,7 @@ package com.jeong.runninggoaltracker.shared.navigation
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed interface NavigationRoute {
-    val route: String
-        get() = requireNotNull(this::class.qualifiedName)
-}
+sealed interface NavigationRoute
 
 @Serializable
 sealed interface FeatureNavigationRoute : NavigationRoute

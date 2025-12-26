@@ -1,30 +1,30 @@
 package com.jeong.runninggoaltracker.presentation.navigation
 
-import androidx.compose.ui.res.stringResource
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
+import com.jeong.runninggoaltracker.shared.navigation.MainTabItem
+import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
+import com.jeong.runninggoaltracker.shared.navigation.navigateTo
 
 @Composable
 fun MainBottomNavigationBar(
     tabItemsByTab: Map<MainTab, MainTabItem>,
     navController: NavHostController,
 ) {
-    val colorScheme = MaterialTheme.colorScheme
-    val typography = MaterialTheme.typography
-
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
 
-    NavigationBar(containerColor = colorScheme.surface) {
+    NavigationBar {
         MainTab.entries.forEach { tab ->
             val tabItem = tabItemsByTab[tab] ?: return@forEach
             val selected = currentDestination.isRouteInHierarchy(tabItem.tab.route)
@@ -44,13 +44,13 @@ fun MainBottomNavigationBar(
                 },
                 icon = {
                     Icon(
-                        imageVector = tabItem.bottomNavItem.icon,
-                        contentDescription = stringResource(tabItem.bottomNavItem.labelResId)
+                        imageVector = tabItem.icon,
+                        contentDescription = stringResource(tabItem.titleResId)
                     )
                 },
                 label = {
                     Text(
-                        text = stringResource(tabItem.bottomNavItem.labelResId),
+                        text = stringResource(tabItem.titleResId),
                         style = typography.labelSmall
                     )
                 }

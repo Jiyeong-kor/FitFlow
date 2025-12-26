@@ -13,6 +13,8 @@ import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
 import com.jeong.runninggoaltracker.feature.reminder.presentation.ReminderRoute
 import com.jeong.runninggoaltracker.feature.reminder.presentation.ReminderViewModel
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
+import com.jeong.runninggoaltracker.shared.navigation.composable
+import com.jeong.runninggoaltracker.shared.navigation.navigateTo
 import kotlinx.coroutines.flow.map
 
 fun NavGraphBuilder.mainNavGraph(
