@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppTopBar
@@ -18,8 +19,9 @@ fun MainContainerRoute(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
 ) {
+    val viewModel: MainNavigationViewModel = hiltViewModel()
     val navController = rememberNavController()
-    val tabItemsByTab = remember { MainTabItems.tabItemsByTab }
+    val tabItemsByTab = remember(viewModel) { viewModel.tabItemsByTab }
     val navigationState = rememberMainNavigationState(
         navController = navController,
         tabItemsByTab = tabItemsByTab
