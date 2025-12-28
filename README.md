@@ -28,7 +28,7 @@
 - **UI**: [Jetpack Compose](https://developer.android.com/jetpack/compose) (BOM 기반 최신 버전)
 - **Dependency Injection**: [Hilt (Dagger Hilt)](https://dagger.dev/hilt/)
 - **Database**: [Room](https://developer.android.com/training/data-storage/room)
-- **Architecture**: Clean Architecture 기반의 멀티 모듈 구조
+- **Architecture**: MVVM, Clean Architecture, Multi Module, Hybrid (Layered + Feature-based) Architecture
 - **Asynchronous**: [Coroutines & Flow](https://kotlinlang.org/docs/coroutines-guide.html)
 - **Libraries**:
   - [Play Services Location & Activity Recognition](https://developer.android.com/training/location)
