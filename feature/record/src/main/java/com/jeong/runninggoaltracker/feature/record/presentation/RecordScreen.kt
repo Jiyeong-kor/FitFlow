@@ -148,24 +148,6 @@ fun RecordScreen(
                     ), style = typography.bodyLarge
                 )
             }
-
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(cardSpacingSmall)
-            ) {
-                Button(
-                    onClick = startActivityRecognitionWithPermission,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(stringResource(R.string.button_start_detection))
-                }
-                Button(
-                    onClick = onStopActivityRecognition,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(stringResource(R.string.button_stop_detection))
-                }
-            }
         }
 
         AppContentCard(

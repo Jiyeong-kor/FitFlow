@@ -12,8 +12,6 @@
     <string name="activity_recognition_failed">활동 인식에 실패했습니다</string>
     <string name="activity_unknown">활동 알 수 없음</string>
 
-    <string name="button_start_detection">활동 감지 시작</string>
-    <string name="button_stop_detection">감지 중지</string>
     <string name="button_start_tracking">자동 측정 시작</string>
     <string name="button_stop_tracking">측정 종료</string>
     <string name="record_tracking_permission_required">위치/활동 권한이 필요합니다</string>
