@@ -1,9 +1,5 @@
 package com.jeong.runninggoaltracker.feature.record.presentation
 
-import android.Manifest
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -42,6 +38,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.R as SharedR
 @Composable
 fun RecordRoute(
     onRequestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
+    onRequestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     viewModel: RecordViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -57,6 +54,7 @@ fun RecordRoute(
         onStartTracking = viewModel::startTracking,
         onStopTracking = viewModel::stopTracking,
         onTrackingPermissionDenied = viewModel::notifyTrackingPermissionDenied,
+        onRequestActivityRecognitionPermission = onRequestActivityRecognitionPermission,
         onRequestTrackingPermissions = onRequestTrackingPermissions
     )
 }
@@ -73,6 +71,7 @@ fun RecordScreen(
     onStartTracking: ((onPermissionRequired: () -> Unit) -> Unit),
     onStopTracking: () -> Unit,
     onTrackingPermissionDenied: () -> Unit,
+    onRequestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     onRequestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
     val displayLabel = when (uiState.activityLabel) {
@@ -103,23 +102,15 @@ fun RecordScreen(
             .padding(horizontal = horizontalPadding),
         verticalArrangement = Arrangement.spacedBy(sectionSpacing)
     ) {
-        val permissionLauncher = rememberLauncherForActivityResult(
-            contract = ActivityResultContracts.RequestPermission()
-        ) { granted ->
-            if (granted) {
-                onStartActivityRecognition {}
-            } else {
-                onPermissionDenied()
-            }
-        }
-
         val startActivityRecognitionWithPermission: () -> Unit = {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                onStartActivityRecognition {
-                    permissionLauncher.launch(Manifest.permission.ACTIVITY_RECOGNITION)
+            onStartActivityRecognition {
+                onRequestActivityRecognitionPermission { granted ->
+                    if (granted) {
+                        onStartActivityRecognition {}
+                    } else {
+                        onPermissionDenied()
+                    }
                 }
-            } else {
-                onStartActivityRecognition {}
             }
         }
 

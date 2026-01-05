@@ -9,6 +9,7 @@ import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonito
 @Composable
 fun EntryPointScreen(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
+    requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -18,6 +19,7 @@ fun EntryPointScreen(
         navController = navController,
         modifier = modifier,
         activityRecognitionMonitor = activityRecognitionMonitor,
+        requestActivityRecognitionPermission = requestActivityRecognitionPermission,
         requestTrackingPermissions = requestTrackingPermissions
     )
 }

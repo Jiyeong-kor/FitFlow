@@ -12,6 +12,7 @@ fun AppNavGraph(
     navController: NavHostController,
     modifier: Modifier = Modifier,
     activityRecognitionMonitor: ActivityRecognitionMonitor,
+    requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
     NavHost(
@@ -21,6 +22,7 @@ fun AppNavGraph(
     ) {
         mainNavGraph(
             activityRecognitionMonitor = activityRecognitionMonitor,
+            requestActivityRecognitionPermission = requestActivityRecognitionPermission,
             requestTrackingPermissions = requestTrackingPermissions
         )
     }

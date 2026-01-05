@@ -19,11 +19,13 @@ import kotlinx.coroutines.flow.map
 
 fun NavGraphBuilder.mainNavGraph(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
+    requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
     composable<MainNavigationRoute.Main> {
         MainContainerRoute(
             activityRecognitionMonitor = activityRecognitionMonitor,
+            requestActivityRecognitionPermission = requestActivityRecognitionPermission,
             requestTrackingPermissions = requestTrackingPermissions
         )
     }
@@ -32,6 +34,7 @@ fun NavGraphBuilder.mainNavGraph(
 internal fun NavGraphBuilder.mainDestinations(
     navController: NavHostController,
     activityRecognitionMonitor: ActivityRecognitionMonitor,
+    requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
     composable<MainNavigationRoute.Home> { backStackEntry ->
@@ -54,6 +57,7 @@ internal fun NavGraphBuilder.mainDestinations(
         val viewModel: RecordViewModel = hiltViewModel(backStackEntry)
         RecordRoute(
             viewModel = viewModel,
+            onRequestActivityRecognitionPermission = requestActivityRecognitionPermission,
             onRequestTrackingPermissions = requestTrackingPermissions
         )
     }
