@@ -54,7 +54,7 @@
 
 | 알림 설정 | 푸시 알림 수신 |
 | :---: | :---: |
-| <img src="RunningGoalTracker_알림설정.gif" width="300"/> | <img src="RunningGoalTracker_알림.gif" width="300"/> |
+| <img src="RunningGoalTracker_알림%20설정.gif" width="300"/> | <img src="RunningGoalTracker_알림.gif" width="300"/> |
 | 리마인더 요일 및 시간 설정 | 설정 시간 알림 제공 |
 
 ---
