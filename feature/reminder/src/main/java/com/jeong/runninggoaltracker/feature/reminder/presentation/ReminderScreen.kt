@@ -91,41 +91,13 @@ fun ReminderScreen(
     onUpdateTime: (Int, Int, Int) -> Unit,
     onToggleDay: (Int, Int) -> Unit
 ) {
-    val notificationPermissionLauncher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { granted ->
-        if (!granted) {
-            Toast.makeText(
-                context,
-                R.string.reminder_error_notification_permission_denied,
-                Toast.LENGTH_SHORT
-            ).show()
-        }
-    }
-
     val onAddReminderThrottled = rememberThrottleClick(onClick = onAddReminder)
 
-    LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            val hasPermission = ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-            if (!hasPermission) notificationPermissionLauncher.launch(
-                Manifest.permission.POST_NOTIFICATIONS
-            )
-        }
-    }
+    ReminderNotificationPermissionRequest(context = context)
 
     Scaffold(
         topBar = {
-            Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
-                Text(
-                    text = "총 ${state.reminders.size}개의 알람이 등록되어 있습니다",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.outline
-                )
-            }
+            ReminderTopBar(reminderCount = state.reminders.size)
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -200,11 +172,7 @@ private fun ReminderCard(
                             else MaterialTheme.colorScheme.outline
                         )
                         Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = if (reminder.hour < 12) "오전" else "오후",
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.outline
-                        )
+                        ReminderPeriodText(hour = reminder.hour)
                     }
                     Text(
                         text = formatTime(reminder.hour, reminder.minute),
@@ -270,7 +238,7 @@ private fun ReminderCard(
                 ) {
                     Icon(
                         Icons.Rounded.Delete,
-                        contentDescription = "삭제",
+                        contentDescription = stringResource(R.string.reminder_delete_button_label),
                         modifier = Modifier.size(20.dp)
                     )
                 }
@@ -296,7 +264,7 @@ private fun ReminderCard(
             dismissButton = {
                 TextButton(onClick = onDismissClick) { Text(stringResource(R.string.button_cancel)) }
             },
-            title = { R.string.reminder_add_button_label },
+            title = { Text(stringResource(R.string.reminder_add_button_label)) },
             text = { TimeInput(state = timeState) }
         )
     }
@@ -305,13 +273,13 @@ private fun ReminderCard(
 @Composable
 private fun rememberDaysOfWeek(): Map<Int, String> {
     return mapOf(
-        Calendar.SUNDAY to "일",
-        Calendar.MONDAY to "월",
-        Calendar.TUESDAY to "화",
-        Calendar.WEDNESDAY to "수",
-        Calendar.THURSDAY to "목",
-        Calendar.FRIDAY to "금",
-        Calendar.SATURDAY to "토"
+        Calendar.SUNDAY to stringResource(R.string.day_sun),
+        Calendar.MONDAY to stringResource(R.string.day_mon),
+        Calendar.TUESDAY to stringResource(R.string.day_tue),
+        Calendar.WEDNESDAY to stringResource(R.string.day_wed),
+        Calendar.THURSDAY to stringResource(R.string.day_thu),
+        Calendar.FRIDAY to stringResource(R.string.day_fri),
+        Calendar.SATURDAY to stringResource(R.string.day_sat)
     )
 }
 
@@ -319,4 +287,53 @@ private fun rememberDaysOfWeek(): Map<Int, String> {
 private fun formatTime(hour: Int, minute: Int): String {
     val displayHour = if (hour % 12 == 0) 12 else hour % 12
     return String.format("%02d:%02d", displayHour, minute)
+}
+
+@Composable
+private fun ReminderTopBar(reminderCount: Int) {
+    Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+        Text(
+            text = stringResource(R.string.reminder_total_count, reminderCount),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.outline
+        )
+    }
+}
+
+@Composable
+private fun ReminderPeriodText(hour: Int) {
+    Text(
+        text = stringResource(
+            if (hour < 12) R.string.reminder_time_period_am else R.string.reminder_time_period_pm
+        ),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.outline
+    )
+}
+
+@Composable
+private fun ReminderNotificationPermissionRequest(context: Context) {
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (!granted) {
+            Toast.makeText(
+                context,
+                R.string.reminder_error_notification_permission_denied,
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            val hasPermission = ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_GRANTED
+            if (!hasPermission) notificationPermissionLauncher.launch(
+                Manifest.permission.POST_NOTIFICATIONS
+            )
+        }
+    }
 }

@@ -6,6 +6,8 @@ import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onFirst
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.test.platform.app.InstrumentationRegistry
+import com.jeong.runninggoaltracker.feature.reminder.R
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
@@ -32,11 +34,13 @@ class ReminderScreenTest {
             days = setOf(java.util.Calendar.MONDAY)
         )
 
+        val context = InstrumentationRegistry.getInstrumentation().targetContext
+
         composeRule.setContent {
             RunningGoalTrackerTheme {
                 ReminderScreen(
                     state = ReminderListUiState(reminders = listOf(reminder)),
-                    context = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation().targetContext,
+                    context = context,
                     onAddReminder = { addCalled = true },
                     onDeleteReminder = { deletedId = it },
                     onToggleReminder = { _, enabled -> toggleCalled = enabled },
@@ -46,11 +50,16 @@ class ReminderScreenTest {
             }
         }
 
-        composeRule.onNodeWithText("알림 시간 선택: 06:30").assertIsDisplayed()
-        composeRule.onNodeWithText("알림 추가").performClick()
+        val reminderCountText = context.getString(R.string.reminder_total_count, 1)
+        val addReminderLabel = context.getString(R.string.reminder_add_button_label)
+        val mondayLabel = context.getString(R.string.day_mon)
+        val deleteLabel = context.getString(R.string.reminder_delete_button_label)
+
+        composeRule.onNodeWithText(reminderCountText).assertIsDisplayed()
+        composeRule.onNodeWithText(addReminderLabel).performClick()
         composeRule.onAllNodes(isToggleable()).onFirst().performClick()
-        composeRule.onNodeWithText("월").performClick()
-        composeRule.onNodeWithText("삭제").performClick()
+        composeRule.onNodeWithText(mondayLabel).performClick()
+        composeRule.onNodeWithText(deleteLabel).performClick()
 
         assertTrue(addCalled)
         assertTrue(toggleCalled)
