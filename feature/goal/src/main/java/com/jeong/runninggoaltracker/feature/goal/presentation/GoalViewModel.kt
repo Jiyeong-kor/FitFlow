@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.feature.goal.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
+import com.jeong.runninggoaltracker.domain.model.formattedWeeklyGoalKm
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ValidateWeeklyGoalUseCase
@@ -13,6 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -41,16 +43,22 @@ class GoalViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(GoalInputState())
+    private val goalFlow = getRunningGoalUseCase()
 
-    val uiState: StateFlow<GoalUiState> = combine(
-        getRunningGoalUseCase(),
-        inputState
-    ) { goal, input ->
+    init {
+        viewModelScope.launch {
+            goalFlow.firstOrNull()?.let { goal ->
+                inputState.update { current ->
+                    current.copy(weeklyGoalInput = goal.formattedWeeklyGoalKm)
+                }
+            }
+        }
+    }
+
+    val uiState: StateFlow<GoalUiState> = combine(goalFlow, inputState) { goal, input ->
         GoalUiState(
             currentGoalKm = goal?.weeklyGoalKm,
-            weeklyGoalInput = input.weeklyGoalInput.ifEmpty {
-                goal?.weeklyGoalKm?.toString().orEmpty()
-            },
+            weeklyGoalInput = input.weeklyGoalInput,
             error = input.error
         )
     }.stateIn(
