@@ -45,6 +45,20 @@
 
 ---
 
+## 📱 기능 시연 (Key Features)
+
+| 주간 목표 변경 | 실시간 활동 인식 및 상태 변화 |
+| :---: | :---: |
+| <img src="RunningGoalTracker_주간목표변경.gif" width="300"/> | <img src="RunningGoalTracker_실시간활동인식및상태변화.gif" width="300"/> |
+| 운동량에 따른 목표 수정 | 걷기/달리기 실시간 감지 |
+
+| 알림 설정 | 푸시 알림 수신 |
+| :---: | :---: |
+| <img src="RunningGoalTracker_알림설정.gif" width="300"/> | <img src="RunningGoalTracker_알림.gif" width="300"/> |
+| 리마인더 요일 및 시간 설정 | 설정 시간 알림 제공 |
+
+---
+
 ## 프로젝트 구조 (Module Architecture)
 
 본 프로젝트는 Clean Architecture 원칙에 따라 각 계층의 역할을 분리한 멀티 모듈 구조로 설계되었습니다.
