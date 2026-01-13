@@ -30,8 +30,13 @@ sealed interface MainScreen {
         override val titleResId: Int = R.string.title_reminder
     }
 
+    data object MyPage : MainScreen {
+        override val route: MainNavigationRoute = MainNavigationRoute.MyPage
+        override val titleResId: Int = R.string.title_mypage
+    }
+
     companion object {
-        private val screenDescriptors: List<MainScreen> = listOf(Home, Record, Goal, Reminder)
+        private val screenDescriptors: List<MainScreen> = listOf(Home, Record, Goal, Reminder, MyPage)
         private val screenByRoute: Map<MainNavigationRoute, MainScreen> =
             screenDescriptors.associateBy { it.route }
 
