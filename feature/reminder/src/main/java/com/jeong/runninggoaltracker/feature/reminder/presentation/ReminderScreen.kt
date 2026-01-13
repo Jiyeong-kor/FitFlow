@@ -1,6 +1,8 @@
 package com.jeong.runninggoaltracker.feature.reminder.presentation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -10,24 +12,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Notifications
-import androidx.compose.material.icons.rounded.NotificationsOff
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
@@ -40,16 +36,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.reminder.R
-import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
-import com.jeong.runninggoaltracker.shared.designsystem.common.DaySelectionButton
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 
 @Composable
 fun ReminderRoute(
@@ -93,34 +94,52 @@ fun ReminderScreen(
     notificationPermissionRequester: NotificationPermissionRequester
 ) {
     val onAddReminderThrottled = rememberThrottleClick(onClick = onAddReminder)
+    val accentColor = appAccentColor()
+    val backgroundColor = appBackgroundColor()
+    val textPrimary = appTextPrimaryColor()
 
     LaunchedEffect(Unit) {
         notificationPermissionRequester.requestPermissionIfNeeded()
     }
 
-    Scaffold(
-        topBar = {
-            ReminderTopBar(reminderCount = state.reminders.size)
-        },
-        floatingActionButton = {
-            FloatingActionButton(
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+            .padding(horizontal = 24.dp)
+    ) {
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                stringResource(R.string.reminder_title_settings),
+                color = textPrimary,
+                fontSize = 20.sp,
+                fontWeight = FontWeight.Bold
+            )
+            IconButton(
                 onClick = onAddReminderThrottled,
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                shape = RoundedCornerShape(20.dp)
+                modifier = Modifier
+                    .background(accentColor, RoundedCornerShape(12.dp))
+                    .size(36.dp)
             ) {
                 Icon(
-                    Icons.Filled.Add, contentDescription = null,
-                    modifier = Modifier.size(30.dp)
+                    Icons.Default.Add,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(20.dp)
                 )
             }
         }
-    ) { paddingValues ->
+
+        Spacer(modifier = Modifier.height(24.dp))
+
         LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues),
-            contentPadding = PaddingValues(16.dp),
+            contentPadding = PaddingValues(bottom = 24.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             val list = state.reminders.filter { it.id != null }
@@ -152,46 +171,41 @@ private fun ReminderCard(
     timeFormatter: ReminderTimeFormatter,
     daysOfWeekLabelProvider: DaysOfWeekLabelProvider
 ) {
+    val accentColor = appAccentColor()
+    val surfaceColor = appSurfaceColor()
+    val textMuted = appTextMutedColor()
+    val textPrimary = appTextPrimaryColor()
     val showTimePicker = remember { mutableStateOf(false) }
     val id = reminder.id ?: return
     val daysOfWeek = daysOfWeekLabelProvider.labels()
     val onDeleteReminderThrottled = rememberThrottleClick(onClick = { onDeleteReminder(id) })
 
-    AppContentCard {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(4.dp)
-        ) {
+    AppSurfaceCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        containerColor = if (reminder.enabled) surfaceColor else Color.White.copy(alpha = 0.02f),
+        contentPadding = PaddingValues(20.dp)
+    ) {
+        Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Column(modifier = Modifier.throttleClick { showTimePicker.value = true }) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = if (reminder.enabled) Icons.Rounded.Notifications
-                            else Icons.Rounded.NotificationsOff,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = if (reminder.enabled) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.outline
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        ReminderPeriodText(hour = reminder.hour, timeFormatter = timeFormatter)
-                    }
                     Text(
-                        text = timeFormatter.formatTime(reminder.hour, reminder.minute),
-                        style = MaterialTheme.typography.displaySmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = (-1).sp
-                        ),
-                        color = if (reminder.enabled) MaterialTheme.colorScheme.onSurface
-                        else MaterialTheme.colorScheme.outline
+                        timeFormatter.periodLabel(reminder.hour),
+                        color = textMuted,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Text(
+                        timeFormatter.formatTime(reminder.hour, reminder.minute),
+                        color = textPrimary,
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Black
                     )
                 }
-
                 Switch(
                     checked = reminder.enabled,
                     onCheckedChange = { enabled ->
@@ -202,49 +216,36 @@ private fun ReminderCard(
                             return@Switch
                         }
                         onToggleReminder(id, enabled)
-                    }
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = accentColor,
+                        uncheckedThumbColor = Color.Gray,
+                        uncheckedTrackColor = Color.Transparent
+                    )
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 daysOfWeek.forEach { (dayInt, dayName) ->
                     val isSelected = reminder.days.contains(dayInt)
-                    DaySelectionButton(
-                        dayName = dayName,
-                        isSelected = isSelected,
-                        modifier = Modifier.size(40.dp),
-                        onClick = { onToggleDay(id, dayInt) },
-                        textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                        intervalMillis = 500L
-                    )
+                    DayBubble(dayName, isSelected && reminder.enabled) {
+                        onToggleDay(id, dayInt)
+                    }
                 }
             }
-
-            HorizontalDivider(
-                modifier = Modifier.padding(vertical = 12.dp),
-                thickness = 0.5.dp,
-                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f)
-            )
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.End
             ) {
-                IconButton(
-                    onClick = onDeleteReminderThrottled,
-                    colors = IconButtonDefaults.iconButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error
-                    )
-                ) {
+                IconButton(onClick = onDeleteReminderThrottled) {
                     Icon(
-                        Icons.Rounded.Delete,
-                        contentDescription = stringResource(R.string.reminder_delete_button_label),
-                        modifier = Modifier.size(20.dp)
+                        Icons.Default.Delete,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.error
                     )
                 }
             }
@@ -276,21 +277,24 @@ private fun ReminderCard(
 }
 
 @Composable
-private fun ReminderTopBar(reminderCount: Int) {
-    Column(modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp)) {
+private fun DayBubble(day: String, isSelected: Boolean, onClick: () -> Unit) {
+    val accentColor = appAccentColor()
+
+    Box(
+        modifier = Modifier
+            .size(32.dp)
+            .background(
+                color = if (isSelected) accentColor.copy(alpha = 0.2f) else Color.Transparent,
+                shape = RoundedCornerShape(8.dp)
+            )
+            .throttleClick { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
         Text(
-            text = stringResource(R.string.reminder_total_count, reminderCount),
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.outline
+            day,
+            color = if (isSelected) accentColor else Color.Gray.copy(alpha = 0.5f),
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold
         )
     }
-}
-
-@Composable
-private fun ReminderPeriodText(hour: Int, timeFormatter: ReminderTimeFormatter) {
-    Text(
-        text = timeFormatter.periodLabel(hour),
-        style = MaterialTheme.typography.labelMedium,
-        color = MaterialTheme.colorScheme.outline
-    )
 }

@@ -8,4 +8,11 @@
     <string name="error_enter_number">숫자를 입력해주세요.</string>
     <string name="error_enter_positive_value">0보다 큰 값을 입력해주세요.</string>
     <string name="goal_input">goal_input</string>
+    <string name="goal_title_weekly_distance">이번 주 목표 거리</string>
+    <string name="goal_unit_km">km</string>
+    <string name="goal_preset_section_title">추천 목표 프리셋</string>
+    <string name="goal_preset_light_walk">가벼운 산책 (5km)</string>
+    <string name="goal_preset_basic_fitness">기초 체력 (10km)</string>
+    <string name="goal_preset_health_maintain">건강 유지 (20km)</string>
+    <string name="goal_save_button">목표 저장하기</string>
 </resources>

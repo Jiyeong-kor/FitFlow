@@ -13,4 +13,19 @@
     <string name="button_add_view_record">기록 추가 / 보기</string>
     <string name="button_set_weekly_goal">주간 목표 설정</string>
     <string name="button_set_reminder">리마인더 설정</string>
+    <string name="home_section_weekly_manage">이번 주 관리</string>
+    <string name="home_action_reminder_settings">알림 설정</string>
+    <string name="home_section_recent_activity">최근 활동</string>
+    <string name="home_empty_recent_activity_format">최근 활동이 없습니다 · 현재 %s</string>
+    <string name="home_weekly_progress_title">주간 달성률</string>
+    <string name="home_weekly_progress_complete_format">%d%% 완료</string>
+    <string name="home_weekly_remaining_distance">남은 거리</string>
+    <string name="home_weekly_run_count">달린 횟수</string>
+    <string name="home_weekly_run_count_format">%d회</string>
+    <string name="home_distance_km_format">%.1fkm</string>
+    <string name="home_action_view_all">전체보기</string>
+    <string name="home_activity_distance_placeholder">-- km</string>
+    <string name="home_activity_time_placeholder">--</string>
+    <string name="home_activity_title_format">%1$s %2$s</string>
+    <string name="home_activity_subtitle_format">%1$s • %2$s</string>
 </resources>
