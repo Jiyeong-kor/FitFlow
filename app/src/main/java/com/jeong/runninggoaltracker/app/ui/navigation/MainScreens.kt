@@ -20,6 +20,11 @@ sealed interface MainScreen {
         override val titleResId: Int = R.string.title_record
     }
 
+    data object AiCoach : MainScreen {
+        override val route: MainNavigationRoute = MainNavigationRoute.AiCoach
+        override val titleResId: Int = R.string.title_ai_coach
+    }
+
     data object Goal : MainScreen {
         override val route: MainNavigationRoute = MainNavigationRoute.Goal
         override val titleResId: Int = R.string.title_goal
@@ -36,7 +41,8 @@ sealed interface MainScreen {
     }
 
     companion object {
-        private val screenDescriptors: List<MainScreen> = listOf(Home, Record, Goal, Reminder, MyPage)
+        private val screenDescriptors: List<MainScreen> =
+            listOf(Home, Record, AiCoach, Goal, Reminder, MyPage)
         private val screenByRoute: Map<MainNavigationRoute, MainScreen> =
             screenDescriptors.associateBy { it.route }
 

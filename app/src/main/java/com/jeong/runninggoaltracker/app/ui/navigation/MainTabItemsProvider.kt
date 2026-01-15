@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.app.ui.navigation
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
 import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -31,6 +32,7 @@ class DefaultMainTabItemsProvider @Inject constructor() : MainTabItemsProvider {
 fun BottomTabIcon.asImageVector(): ImageVector? = when (this) {
     BottomTabIcon.HOME -> Icons.Filled.Home
     BottomTabIcon.RECORD -> Icons.AutoMirrored.Filled.DirectionsRun
+    BottomTabIcon.AI_COACH -> Icons.Filled.FitnessCenter
     BottomTabIcon.REMINDER -> Icons.Filled.Notifications
     BottomTabIcon.MYPAGE -> Icons.Filled.AccountCircle
 }

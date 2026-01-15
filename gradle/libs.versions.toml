@@ -34,6 +34,10 @@ firebaseBom = "34.7.0"
 # Location
 playServicesLocation = "21.3.0"
 
+# Pose Detection
+cameraX = "1.5.2"
+mlkitPoseDetection = "18.0.0-beta5"
+
 # Test
 androidxTestRunner = "1.7.0"
 espressoCore = "3.7.0"
@@ -88,6 +92,13 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 
 # Location
 androidx-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+
+# Pose Detection
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraX" }
+androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraX" }
+androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraX" }
+androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraX" }
+mlkit-pose-detection = { group = "com.google.mlkit", name = "pose-detection", version.ref = "mlkitPoseDetection" }
 
 # Coroutines
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }

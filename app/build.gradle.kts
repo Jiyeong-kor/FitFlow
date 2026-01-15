@@ -59,6 +59,7 @@ dependencies {
     implementation(project(":feature:record"))
     implementation(project(":feature:reminder"))
     implementation(project(":feature:mypage"))
+    implementation(project(":feature:ai-coach"))
 
     // core / lifecycle / activity / viewmodel-compose
     implementation(libs.androidx.activity.compose)

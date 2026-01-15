@@ -1,0 +1,13 @@
+<resources>
+    <string name="smart_workout_title">AI 자세 코치</string>
+    <string name="smart_workout_close">닫기</string>
+    <string name="smart_workout_feedback_title">실시간 피드백</string>
+    <string name="smart_workout_feedback_good">좋은 자세입니다</string>
+    <string name="smart_workout_feedback_shallow">조금 더 내려가세요</string>
+    <string name="smart_workout_feedback_stand_tall">자세를 바르게 세워주세요</string>
+    <string name="smart_workout_feedback_unknown">자세를 인식 중입니다</string>
+    <string name="smart_workout_accuracy_label">정확도 %1$d%%</string>
+    <string name="smart_workout_exercise_squat">스쿼트</string>
+    <string name="smart_workout_exercise_lunge">런지</string>
+    <string name="smart_workout_exercise_push_up">푸시업</string>
+</resources>

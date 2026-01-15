@@ -21,6 +21,9 @@ sealed interface MainNavigationRoute : FeatureNavigationRoute {
     data object Record : MainNavigationRoute
 
     @Serializable
+    data object AiCoach : MainNavigationRoute
+
+    @Serializable
     data object Goal : MainNavigationRoute
 
     @Serializable

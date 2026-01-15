@@ -30,6 +30,6 @@ class MainTabItemsProviderInjectionTest {
         val viewModel = MainNavigationViewModel(mainTabItemsProvider)
         val tabItems = viewModel.tabItemsByTab
 
-        assertEquals(setOf(MainTab.RECORD), tabItems.keys)
+        assertEquals(setOf(MainTab.RECORD, MainTab.AI_COACH), tabItems.keys)
     }
 }
