@@ -2,7 +2,7 @@
 <resources>
 
     <dimen name="card_elevation">1dp</dimen>
-    <dimen name="card_corner_radius">16dp</dimen>
+    <dimen name="card_corner_radius">24dp</dimen>
     <dimen name="card_padding_large">16dp</dimen>
     <dimen name="card_spacing_small">8dp</dimen>
     <dimen name="spacing_xs">4dp</dimen>
@@ -11,5 +11,13 @@
     <dimen name="spacing_lg">16dp</dimen>
     <dimen name="spacing_xl">24dp</dimen>
     <dimen name="spacing_2xl">32dp</dimen>
+    <dimen name="spacing_3xl">40dp</dimen>
+    <dimen name="onboarding_corner_radius">28dp</dimen>
+    <dimen name="onboarding_icon_container_size">96dp</dimen>
+    <dimen name="onboarding_icon_size">48dp</dimen>
+    <dimen name="onboarding_card_elevation">2dp</dimen>
+    <dimen name="onboarding_tag_corner_radius">12dp</dimen>
+    <dimen name="onboarding_tag_padding_horizontal">8dp</dimen>
+    <dimen name="onboarding_tag_padding_vertical">4dp</dimen>
 
 </resources>

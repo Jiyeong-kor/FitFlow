@@ -52,6 +52,10 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.auth)
+    implementation(libs.kotlinx.coroutines.core)
+
     // Room
     implementation(libs.bundles.room)
     ksp(libs.androidx.room.compiler)

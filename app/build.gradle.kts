@@ -60,6 +60,7 @@ dependencies {
     implementation(project(":feature:reminder"))
     implementation(project(":feature:mypage"))
     implementation(project(":feature:ai-coach"))
+    implementation(project(":feature:auth"))
 
     // core / lifecycle / activity / viewmodel-compose
     implementation(libs.androidx.activity.compose)
@@ -79,6 +80,7 @@ dependencies {
 
     // Firebase
     implementation(libs.firebase.analytics)
+    implementation(libs.firebase.auth)
     implementation(platform(libs.firebase.bom))
 
     // unit test
