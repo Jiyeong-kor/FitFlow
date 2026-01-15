@@ -39,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -51,6 +52,8 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
+import java.util.Calendar
 
 @Composable
 fun ReminderRoute(
@@ -295,6 +298,56 @@ private fun DayBubble(day: String, isSelected: Boolean, onClick: () -> Unit) {
             color = if (isSelected) accentColor else Color.Gray.copy(alpha = 0.5f),
             fontSize = 12.sp,
             fontWeight = FontWeight.Bold
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ReminderScreenPreview() {
+    val state = ReminderListUiState(
+        reminders = listOf(
+            ReminderUiState(
+                id = 1,
+                hour = 6,
+                minute = 30,
+                enabled = true,
+                days = setOf(Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY)
+            ),
+            ReminderUiState(
+                id = 2,
+                hour = 20,
+                minute = 0,
+                enabled = false,
+                days = emptySet()
+            )
+        )
+    )
+    val messageHandler = remember {
+        object : UserMessageHandler {
+            override fun showMessage(message: UiMessage) = Unit
+        }
+    }
+    val notificationRequester = remember {
+        object : NotificationPermissionRequester {
+            override fun requestPermissionIfNeeded() = Unit
+        }
+    }
+    val timeFormatter = rememberReminderTimeFormatter()
+    val daysOfWeekLabelProvider = rememberDaysOfWeekLabelProvider()
+
+    RunningGoalTrackerTheme {
+        ReminderScreen(
+            state = state,
+            onAddReminder = {},
+            onDeleteReminder = {},
+            onToggleReminder = { _, _ -> },
+            onUpdateTime = { _, _, _ -> },
+            onToggleDay = { _, _ -> },
+            messageHandler = messageHandler,
+            timeFormatter = timeFormatter,
+            daysOfWeekLabelProvider = daysOfWeekLabelProvider,
+            notificationPermissionRequester = notificationRequester
         )
     }
 }

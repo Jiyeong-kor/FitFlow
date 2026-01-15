@@ -32,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -44,6 +45,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appOnAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import java.util.Locale
 
 @Composable
@@ -158,7 +160,10 @@ fun RecordScreen(
                 modifier = Modifier.size(220.dp),
                 shape = CircleShape,
                 color = accentColor.copy(alpha = 0.05f),
-                border = androidx.compose.foundation.BorderStroke(2.dp, accentColor.copy(alpha = 0.3f))
+                border = androidx.compose.foundation.BorderStroke(
+                    2.dp,
+                    accentColor.copy(alpha = 0.3f)
+                )
             ) {}
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -170,7 +175,12 @@ fun RecordScreen(
                     letterSpacing = 2.sp
                 )
                 Spacer(modifier = Modifier.height(8.dp))
-                Text(distanceValue, color = textPrimary, fontSize = 64.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    distanceValue,
+                    color = textPrimary,
+                    fontSize = 64.sp,
+                    fontWeight = FontWeight.Bold
+                )
                 Text(
                     stringResource(R.string.record_unit_kilometers),
                     color = textMuted,
@@ -248,7 +258,12 @@ private fun MetricItem(label: String, value: String, modifier: Modifier = Modifi
     ) {
         Text(label, color = appTextMutedColor(), fontSize = 11.sp, fontWeight = FontWeight.Bold)
         Spacer(modifier = Modifier.height(4.dp))
-        Text(value, color = appTextPrimaryColor(), fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
+        Text(
+            value,
+            color = appTextPrimaryColor(),
+            fontSize = 18.sp,
+            fontWeight = FontWeight.ExtraBold
+        )
     }
 }
 
@@ -290,4 +305,31 @@ private fun formatPace(
     val minutes = (secondsPerKm / 60).toInt()
     val seconds = (secondsPerKm % 60).toInt()
     return String.format(Locale.getDefault(), paceFormat, minutes, seconds)
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RecordScreenPreview() {
+    val uiState = RecordUiState(
+        activityLabel = "RUNNING",
+        isTracking = true,
+        distanceKm = 3.45,
+        elapsedMillis = 1_245_000,
+        permissionRequired = false
+    )
+
+    RunningGoalTrackerTheme {
+        RecordScreen(
+            uiState = uiState,
+            formatElapsedTime = { "00:20:45" },
+            onStartActivityRecognition = { _ -> },
+            onStopActivityRecognition = {},
+            onPermissionDenied = {},
+            onStartTracking = { _ -> },
+            onStopTracking = {},
+            onTrackingPermissionDenied = {},
+            onRequestActivityRecognitionPermission = {},
+            onRequestTrackingPermissions = {}
+        )
+    }
 }

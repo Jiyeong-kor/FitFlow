@@ -29,6 +29,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -39,6 +40,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import java.util.Locale
 
 @Composable
@@ -179,7 +181,10 @@ fun GoalScreen(
 }
 
 @Composable
-private fun GoalAdjustButton(icon: androidx.compose.ui.graphics.vector.ImageVector, onClick: () -> Unit) {
+private fun GoalAdjustButton(
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    onClick: () -> Unit
+) {
     val textPrimary = appTextPrimaryColor()
 
     Surface(
@@ -206,7 +211,10 @@ private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) 
             .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         color = if (isSelected) accentColor.copy(alpha = 0.1f) else Color.White.copy(alpha = 0.03f),
-        border = if (isSelected) androidx.compose.foundation.BorderStroke(1.dp, accentColor) else null
+        border = if (isSelected) androidx.compose.foundation.BorderStroke(
+            1.dp,
+            accentColor
+        ) else null
     ) {
         Text(
             label,
@@ -214,6 +222,24 @@ private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) 
             color = if (isSelected) accentColor else textPrimary,
             fontSize = 14.sp,
             fontWeight = FontWeight.Medium
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun GoalScreenPreview() {
+    val state = GoalUiState(
+        currentGoalKm = 15.0,
+        weeklyGoalInput = "15.0",
+        error = null
+    )
+
+    RunningGoalTrackerTheme {
+        GoalScreen(
+            state = state,
+            onGoalChange = {},
+            onSave = {}
         )
     }
 }

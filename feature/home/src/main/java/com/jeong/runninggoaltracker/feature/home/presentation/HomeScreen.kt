@@ -31,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -43,6 +44,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import kotlinx.coroutines.flow.Flow
 import androidx.compose.ui.res.stringResource
 import com.jeong.runninggoaltracker.feature.home.R
@@ -350,5 +352,42 @@ private fun SectionHeader(title: String, onViewAllClick: () -> Unit) {
                 fontWeight = FontWeight.Medium
             )
         }
+    }
+}
+
+private object PreviewDateFormatter : DateFormatter {
+    override fun formatToKoreanDate(timestamp: Long): String = "2024.03.01"
+
+    override fun formatToDistanceLabel(distanceKm: Double): String = "${distanceKm}km"
+
+    override fun formatElapsedTime(elapsedMillis: Long): String = "00:30:00"
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HomeScreenPreview() {
+    val uiState = HomeUiState(
+        weeklyGoalKm = 20.0,
+        totalThisWeekKm = 12.5,
+        recordCountThisWeek = 3,
+        progress = 0.62f
+    )
+    val activityState = ActivityRecognitionUiState(label = "RUNNING")
+    val activityLogs = listOf(
+        ActivityLogUiModel(time = 1_728_000_000_000, label = "RUNNING"),
+        ActivityLogUiModel(time = 1_727_900_000_000, label = "WALKING"),
+        ActivityLogUiModel(time = 1_727_800_000_000, label = "RUNNING")
+    )
+
+    RunningGoalTrackerTheme {
+        HomeScreen(
+            uiState = uiState,
+            activityState = activityState,
+            activityLogs = activityLogs,
+            dateFormatter = PreviewDateFormatter,
+            onRecordClick = {},
+            onGoalClick = {},
+            onReminderClick = {}
+        )
     }
 }
