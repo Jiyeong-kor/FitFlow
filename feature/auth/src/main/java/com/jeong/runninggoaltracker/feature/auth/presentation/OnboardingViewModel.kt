@@ -5,8 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeong.runninggoaltracker.domain.model.AuthError
+import com.jeong.runninggoaltracker.domain.model.AuthResult
+import com.jeong.runninggoaltracker.domain.usecase.CheckNicknameAvailabilityUseCase
+import com.jeong.runninggoaltracker.domain.usecase.ReserveNicknameAndCreateUserProfileUseCase
 import com.jeong.runninggoaltracker.domain.usecase.SignInAnonymouslyUseCase
-import com.jeong.runninggoaltracker.domain.usecase.UpdateNicknameUseCase
 import com.jeong.runninggoaltracker.domain.usecase.NicknameValidationResult
 import com.jeong.runninggoaltracker.domain.usecase.ValidateNicknameUseCase
 import com.jeong.runninggoaltracker.feature.auth.domain.CheckInternetUseCase
@@ -27,6 +30,7 @@ data class OnboardingUiState(
     val isLoading: Boolean = false,
     val isNicknameValid: Boolean = false,
     val nicknameValidationMessage: Int? = null,
+    val nicknameAvailabilityMessageResId: Int? = null,
     val errorMessageResId: Int? = null,
     val permissionErrorResId: Int? = null,
     val showNoInternetDialog: Boolean = false
@@ -35,9 +39,10 @@ data class OnboardingUiState(
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val signInAnonymouslyUseCase: SignInAnonymouslyUseCase,
-    private val updateNicknameUseCase: UpdateNicknameUseCase,
+    private val reserveNicknameAndCreateUserProfileUseCase: ReserveNicknameAndCreateUserProfileUseCase,
     private val validateNicknameUseCase: ValidateNicknameUseCase,
-    private val checkInternetUseCase: CheckInternetUseCase
+    private val checkInternetUseCase: CheckInternetUseCase,
+    private val checkNicknameAvailabilityUseCase: CheckNicknameAvailabilityUseCase
 ) : ViewModel() {
     var uiState by mutableStateOf(OnboardingUiState())
         private set
@@ -60,8 +65,37 @@ class OnboardingViewModel @Inject constructor(
             nickname = trimmed,
             isNicknameValid = validationUi.isValid,
             nicknameValidationMessage = validationUi.messageResId,
+            nicknameAvailabilityMessageResId = null,
             errorMessageResId = null
         )
+        if (!validationUi.isValid) {
+            return
+        }
+        val nicknameForCheck = trimmed
+        viewModelScope.launch {
+            val availabilityResult = checkNicknameAvailabilityUseCase(nicknameForCheck)
+            if (uiState.nickname != nicknameForCheck) {
+                return@launch
+            }
+            uiState = when (availabilityResult) {
+                is AuthResult.Success -> {
+                    if (availabilityResult.data) {
+                        uiState.copy(
+                            nicknameAvailabilityMessageResId = R.string.nickname_available,
+                            nicknameValidationMessage = null
+                        )
+                    } else {
+                        uiState.copy(
+                            nicknameAvailabilityMessageResId = null,
+                            nicknameValidationMessage = R.string.nickname_taken_error
+                        )
+                    }
+                }
+                is AuthResult.Failure -> {
+                    uiState.copy(nicknameAvailabilityMessageResId = null)
+                }
+            }
+        }
     }
 
     fun onContinueWithNickname() {
@@ -84,6 +118,7 @@ class OnboardingViewModel @Inject constructor(
                 isLoading = true,
                 errorMessageResId = null,
                 nicknameValidationMessage = null,
+                nicknameAvailabilityMessageResId = null,
                 showNoInternetDialog = false
             )
             val signInResult = signInAnonymouslyUseCase()
@@ -94,14 +129,23 @@ class OnboardingViewModel @Inject constructor(
                 )
                 return@launch
             }
-            val nicknameResult = updateNicknameUseCase(nickname)
-            uiState = if (nicknameResult.isSuccess) {
-                uiState.copy(isLoading = false, step = OnboardingStep.Success)
-            } else {
-                uiState.copy(
-                    isLoading = false,
-                    errorMessageResId = R.string.nickname_save_error
-                )
+            val nicknameResult = reserveNicknameAndCreateUserProfileUseCase(nickname)
+            uiState = when (nicknameResult) {
+                is AuthResult.Success -> uiState.copy(isLoading = false, step = OnboardingStep.Success)
+                is AuthResult.Failure -> {
+                    if (nicknameResult.error == AuthError.NicknameTaken) {
+                        uiState.copy(
+                            isLoading = false,
+                            isNicknameValid = false,
+                            nicknameValidationMessage = R.string.nickname_taken_error
+                        )
+                    } else {
+                        uiState.copy(
+                            isLoading = false,
+                            errorMessageResId = nicknameResult.error.toErrorMessageResId()
+                        )
+                    }
+                }
             }
         }
     }
@@ -139,6 +183,14 @@ class OnboardingViewModel @Inject constructor(
                 isValid = false,
                 messageResId = R.string.nickname_invalid_error
             )
+        }
+
+    private fun AuthError.toErrorMessageResId(): Int =
+        when (this) {
+            AuthError.NicknameTaken -> R.string.nickname_taken_error
+            AuthError.PermissionDenied -> R.string.auth_permission_denied_error
+            AuthError.NetworkError -> R.string.auth_network_error
+            AuthError.Unknown -> R.string.auth_unknown_error
         }
 }
 

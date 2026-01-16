@@ -13,6 +13,7 @@ import com.jeong.runninggoaltracker.data.repository.RunningReminderRepositoryImp
 import com.jeong.runninggoaltracker.data.util.AndroidDateFormatter
 import com.jeong.runninggoaltracker.data.util.SystemDateProvider
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
@@ -57,6 +58,10 @@ object DataProvidesModule {
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 }
 
 @Suppress("unused")

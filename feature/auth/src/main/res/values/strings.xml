@@ -22,13 +22,17 @@
     <string name="nickname_continue">완료</string>
     <string name="nickname_required_error">닉네임을 입력해 주세요.</string>
     <string name="nickname_invalid_error">2~10자의 한글/영문/숫자만 입력할 수 있어요.</string>
-    <string name="nickname_save_error">닉네임 저장에 실패했습니다. 다시 시도해 주세요.</string>
+    <string name="nickname_taken_error">이미 사용 중인 닉네임이에요. 다른 닉네임을 입력해 주세요.</string>
+    <string name="nickname_available">사용 가능한 닉네임이에요.</string>
     <string name="anonymous_sign_in_error">익명 로그인에 실패했습니다. 다시 시도해 주세요.</string>
+    <string name="auth_permission_denied_error">권한이 없어 요청을 처리할 수 없습니다. 다시 시도해 주세요.</string>
+    <string name="auth_network_error">네트워크 오류로 요청을 처리할 수 없습니다. 연결 상태를 확인해 주세요.</string>
+    <string name="auth_unknown_error">알 수 없는 오류가 발생했습니다. 다시 시도해 주세요.</string>
     <string name="no_internet_title">네트워크 연결 확인</string>
     <string name="no_internet_message">인터넷이 연결되어 있지 않습니다. 연결 상태를 확인하고 다시 시도해주세요.</string>
     <string name="no_internet_retry">다시 시도</string>
 
     <string name="success_title">준비 완료!</string>
     <string name="success_subtitle">이제 달리기를 시작할 수 있어요.</string>
-    <string name="success_continue">대시보드로 이동</string>
+    <string name="success_continue">시작!</string>
 </resources>

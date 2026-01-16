@@ -98,6 +98,13 @@ fun NicknameScreen(
                 color = MaterialTheme.colorScheme.error
             )
         }
+        if (uiState.nicknameAvailabilityMessageResId != null) {
+            Text(
+                text = stringResource(id = uiState.nicknameAvailabilityMessageResId),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.primary
+            )
+        }
         if (uiState.errorMessageResId != null) {
             Text(
                 text = stringResource(id = uiState.errorMessageResId),

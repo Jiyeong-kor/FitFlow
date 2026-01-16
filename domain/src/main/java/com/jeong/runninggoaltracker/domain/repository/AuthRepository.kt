@@ -1,6 +1,11 @@
 package com.jeong.runninggoaltracker.domain.repository
 
+import com.jeong.runninggoaltracker.domain.model.AuthResult
+
 interface AuthRepository {
     suspend fun signInAnonymously(): Result<Unit>
-    suspend fun updateNickname(nickname: String): Result<Unit>
+    suspend fun reserveNicknameAndCreateUserProfile(nickname: String): AuthResult<Unit>
+    suspend fun checkNicknameAvailability(nickname: String): AuthResult<Boolean>
+    suspend fun deleteAccountAndReleaseNickname(): AuthResult<Unit>
+    suspend fun upgradeAnonymousWithCustomToken(customToken: String): AuthResult<Unit>
 }
