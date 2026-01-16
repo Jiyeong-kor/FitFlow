@@ -43,6 +43,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
@@ -91,6 +93,7 @@ private fun MyPageContent(
             if (uiState.isAnonymous) {
                 AppSurfaceCard(contentPadding = PaddingValues(appSpacingLg())) {
                     Column(verticalArrangement = Arrangement.spacedBy(appSpacingMd())) {
+                        val upgradeAccountClick = rememberThrottleClick(onClick = {})
                         Text(
                             text = stringResource(id = R.string.mypage_anonymous_info_title),
                             style = MaterialTheme.typography.titleMedium
@@ -100,7 +103,7 @@ private fun MyPageContent(
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
-                        OutlinedButton(onClick = {}) {
+                        OutlinedButton(onClick = upgradeAccountClick) {
                             Text(text = stringResource(id = R.string.mypage_btn_upgrade_account))
                         }
                     }
@@ -124,6 +127,16 @@ private fun MyPageContent(
 @Composable
 private fun ProfileSection(name: String, level: String, isAnonymous: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        val displayName = if (name.isBlank()) {
+            stringResource(id = R.string.mypage_default_nickname)
+        } else {
+            name
+        }
+        val displayLevel = if (level.isBlank()) {
+            stringResource(id = R.string.mypage_default_level)
+        } else {
+            level
+        }
         Surface(
             modifier = Modifier.size(80.dp),
             shape = MaterialTheme.shapes.extraLarge,
@@ -141,7 +154,7 @@ private fun ProfileSection(name: String, level: String, isAnonymous: Boolean) {
             horizontalArrangement = Arrangement.spacedBy(appSpacingSm())
         ) {
             Text(
-                text = name,
+                text = displayName,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold
             )
@@ -167,7 +180,7 @@ private fun ProfileSection(name: String, level: String, isAnonymous: Boolean) {
             shape = MaterialTheme.shapes.small
         ) {
             Text(
-                text = level,
+                text = displayLevel,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
                 style = MaterialTheme.typography.labelSmall
             )
@@ -178,32 +191,33 @@ private fun ProfileSection(name: String, level: String, isAnonymous: Boolean) {
 @Composable
 private fun SummaryStats(uiState: MyPageUiState) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        StatItem(
-            modifier = Modifier.weight(1f),
-            label = "총 거리",
-            value = "${
-                String.format(
-                    Locale.getDefault(),
-                    "%.1f",
-                    uiState.summary?.totalThisWeekKm ?: 0.0
-                )
-            }km"
+        val distanceText = String.format(
+            Locale.getDefault(),
+            "%.1f",
+            uiState.summary?.totalThisWeekKm ?: 0.0
+        )
+        val progressText = String.format(
+            Locale.getDefault(),
+            "%.0f",
+            (uiState.summary?.progress ?: 0f) * 100
         )
         StatItem(
             modifier = Modifier.weight(1f),
-            label = "횟수",
-            value = "${uiState.summary?.recordCountThisWeek ?: 0}회"
+            label = stringResource(id = R.string.mypage_summary_distance_label),
+            value = stringResource(id = R.string.mypage_summary_distance_value, distanceText)
         )
         StatItem(
             modifier = Modifier.weight(1f),
-            label = "달성률",
-            value = "${
-                String.format(
-                    Locale.getDefault(),
-                    "%.0f",
-                    (uiState.summary?.progress ?: 0f) * 100
-                )
-            }%"
+            label = stringResource(id = R.string.mypage_summary_count_label),
+            value = stringResource(
+                id = R.string.mypage_summary_count_value,
+                uiState.summary?.recordCountThisWeek ?: 0
+            )
+        )
+        StatItem(
+            modifier = Modifier.weight(1f),
+            label = stringResource(id = R.string.mypage_summary_progress_label),
+            value = stringResource(id = R.string.mypage_summary_progress_value, progressText)
         )
     }
 }
@@ -231,12 +245,18 @@ private fun StatItem(modifier: Modifier, label: String, value: String) {
 
 @Composable
 private fun GoalProgressCard(uiState: MyPageUiState, onClick: () -> Unit) {
+    val throttledOnClick = rememberThrottleClick(onClick = onClick)
     AppContentCard(modifier = Modifier.fillMaxWidth()) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "주간 목표 달성률", fontWeight = FontWeight.Bold)
+                Text(
+                    text = stringResource(id = R.string.mypage_goal_progress_title),
+                    fontWeight = FontWeight.Bold
+                )
                 Spacer(Modifier.weight(1f))
-                TextButton(onClick = onClick) { Text("상세보기") }
+                TextButton(onClick = throttledOnClick) {
+                    Text(text = stringResource(id = R.string.mypage_goal_progress_detail))
+                }
             }
             LinearProgressIndicator(
                 progress = { uiState.summary?.progress ?: 0f },
@@ -258,12 +278,22 @@ private fun SettingsList(
 ) {
     AppContentCard(modifier = Modifier.fillMaxWidth()) {
         Column {
-            SettingItem(Icons.Default.Notifications, "알림 설정", "요일 및 시간 관리", onNavigateToReminder)
+            SettingItem(
+                icon = Icons.Default.Notifications,
+                title = stringResource(id = R.string.mypage_setting_notification_title),
+                subTitle = stringResource(id = R.string.mypage_setting_notification_desc),
+                onClick = onNavigateToReminder
+            )
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
-            SettingItem(Icons.Default.Edit, "러닝 목표 수정", "거리 및 횟수 변경", onNavigateToGoal)
+            SettingItem(
+                icon = Icons.Default.Edit,
+                title = stringResource(id = R.string.mypage_setting_goal_title),
+                subTitle = stringResource(id = R.string.mypage_setting_goal_desc),
+                onClick = onNavigateToGoal
+            )
             HorizontalDivider(
                 modifier = Modifier.padding(horizontal = 16.dp),
                 color = MaterialTheme.colorScheme.surfaceVariant
@@ -278,9 +308,12 @@ private fun SettingsList(
                         .padding(start = 16.dp)
                         .weight(1f)
                 ) {
-                    Text("활동 자동 인식", style = MaterialTheme.typography.bodyLarge)
                     Text(
-                        "자동으로 러닝을 감지합니다",
+                        text = stringResource(id = R.string.mypage_setting_activity_title),
+                        style = MaterialTheme.typography.bodyLarge
+                    )
+                    Text(
+                        text = stringResource(id = R.string.mypage_setting_activity_desc),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.outline
                     )
@@ -296,7 +329,7 @@ private fun SettingsList(
 
 @Composable
 private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onClick: () -> Unit) {
-    Surface(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+    Surface(modifier = Modifier.fillMaxWidth().throttleClick(onClick = onClick)) {
         Row(modifier = Modifier.padding(16.dp), verticalAlignment = Alignment.CenterVertically) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
             Column(modifier = Modifier.padding(start = 16.dp)) {
@@ -320,23 +353,9 @@ private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onCl
 @Preview(showBackground = true)
 @Composable
 private fun MyPageScreenPreview() {
-    val uiState = MyPageUiState(
-        isLoading = false,
-        summary = com.jeong.runninggoaltracker.domain.model.RunningSummary(
-            weeklyGoalKm = 15.0,
-            totalThisWeekKm = 9.5,
-            recordCountThisWeek = 3,
-            progress = 0.63f
-        ),
-        userNickname = "러너",
-        userLevel = "Active Runner",
-        isActivityRecognitionEnabled = true,
-        isAnonymous = true
-    )
-
     RunningGoalTrackerTheme {
         MyPageContent(
-            uiState = uiState,
+            uiState = MyPageUiState.preview(),
             onNavigateToGoal = {},
             onNavigateToReminder = {},
             onActivityToggle = {}

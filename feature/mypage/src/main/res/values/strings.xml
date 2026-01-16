@@ -4,4 +4,20 @@
     <string name="mypage_anonymous_info_title">계정 상태 안내</string>
     <string name="mypage_anonymous_info_desc">로그인 없이 간편하게 이용 중입니다. 기기 변경이나 앱 삭제 시 데이터 복구가 어려우니 소중한 기록을 위해 계정을 연결해보세요.</string>
     <string name="mypage_btn_upgrade_account">카카오로 데이터 연결하기</string>
+    <string name="mypage_default_nickname">러너</string>
+    <string name="mypage_default_level">기본 러너</string>
+    <string name="mypage_summary_distance_label">총 거리</string>
+    <string name="mypage_summary_distance_value">%1$skm</string>
+    <string name="mypage_summary_count_label">횟수</string>
+    <string name="mypage_summary_count_value">%1$d회</string>
+    <string name="mypage_summary_progress_label">달성률</string>
+    <string name="mypage_summary_progress_value">%1$s%%</string>
+    <string name="mypage_goal_progress_title">주간 목표 달성률</string>
+    <string name="mypage_goal_progress_detail">상세보기</string>
+    <string name="mypage_setting_notification_title">알림 설정</string>
+    <string name="mypage_setting_notification_desc">요일 및 시간 관리</string>
+    <string name="mypage_setting_goal_title">러닝 목표 수정</string>
+    <string name="mypage_setting_goal_desc">거리 및 횟수 변경</string>
+    <string name="mypage_setting_activity_title">활동 자동 인식</string>
+    <string name="mypage_setting_activity_desc">자동으로 러닝을 감지합니다</string>
 </resources>
