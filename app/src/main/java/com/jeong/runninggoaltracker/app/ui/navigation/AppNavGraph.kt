@@ -29,7 +29,9 @@ fun AppNavGraph(
     val isFirebaseInitialized = remember {
         FirebaseApp.getApps(context).isNotEmpty()
     }
-    val startDestination = if (isFirebaseInitialized && Firebase.auth.currentUser != null) {
+    val currentUser = if (isFirebaseInitialized) Firebase.auth.currentUser else null
+    val hasCompletedOnboarding = currentUser?.displayName?.isNotBlank() == true
+    val startDestination = if (hasCompletedOnboarding) {
         MainNavigationRoute.Main
     } else {
         AuthRoute.Onboarding
