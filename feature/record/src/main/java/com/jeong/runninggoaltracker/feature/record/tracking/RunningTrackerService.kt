@@ -18,6 +18,8 @@ import com.google.android.gms.location.Priority
 import android.content.pm.PackageManager
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
+import com.jeong.runninggoaltracker.feature.record.R
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -46,8 +48,8 @@ class RunningTrackerService : Service() {
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var locationCallback: LocationCallback? = null
-    private var startTimeMillis: Long = 0L
-    private var distanceMeters: Double = 0.0
+    private var startTimeMillis: Long? = null
+    private var distanceMeters: Double? = null
     private var lastLocation: Location? = null
     private var tracking: Boolean = false
     private var elapsedUpdateJob: Job? = null
@@ -62,9 +64,11 @@ class RunningTrackerService : Service() {
 
     @RequiresPermission(allOf = [Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION])
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        val actionStart = actionStart(this)
+        val actionStop = actionStop(this)
         when (intent?.action) {
-            ACTION_START -> startTracking()
-            ACTION_STOP -> stopTracking()
+            actionStart -> startTracking()
+            actionStop -> stopTracking()
         }
         return START_STICKY
     }
@@ -74,14 +78,17 @@ class RunningTrackerService : Service() {
         if (tracking) return
 
         tracking = true
-        distanceMeters = 0.0
+        distanceMeters = NumericResourceProvider.zeroDouble(this)
         lastLocation = null
         startTimeMillis = System.currentTimeMillis()
         stateUpdater.markTracking()
 
         startForeground(
             RunningNotificationDispatcher.NOTIFICATION_ID,
-            notificationDispatcher.createNotification(0.0, 0L)
+            notificationDispatcher.createNotification(
+                NumericResourceProvider.zeroDouble(this),
+                NumericResourceProvider.zeroLong(this)
+            )
         )
         startLocationUpdates()
         startElapsedUpdater()
@@ -95,13 +102,17 @@ class RunningTrackerService : Service() {
         tracking = false
         elapsedUpdateJob?.cancel()
         stopLocationUpdates()
-        val elapsed = System.currentTimeMillis() - startTimeMillis
-        val distanceKm = distanceMeters / METERS_IN_KM
+        val startMillis = startTimeMillis ?: NumericResourceProvider.zeroLong(this)
+        val elapsed = System.currentTimeMillis() - startMillis
+        val distanceKm =
+            (distanceMeters ?: NumericResourceProvider.zeroDouble(this)) / metersInKm()
         stateUpdater.stop()
 
         serviceScope.launch {
             val durationMinutes = TimeUnit.MILLISECONDS.toMinutes(elapsed).toInt()
-            if (distanceKm > 0 && durationMinutes > 0) {
+            val zeroInt = NumericResourceProvider.zeroInt(this@RunningTrackerService)
+            val zeroDouble = NumericResourceProvider.zeroDouble(this@RunningTrackerService)
+            if (distanceKm > zeroDouble && durationMinutes > zeroInt) {
                 addRunningRecordUseCase(
                     date = dateProvider.getToday(),
                     distanceKm = distanceKm,
@@ -126,18 +137,20 @@ class RunningTrackerService : Service() {
 
         val request = LocationRequest.Builder(
             Priority.PRIORITY_HIGH_ACCURACY,
-            UPDATE_INTERVAL_MILLIS
-        ).setMinUpdateIntervalMillis(UPDATE_INTERVAL_MILLIS)
-            .setMinUpdateDistanceMeters(MIN_DISTANCE_METERS)
+            updateIntervalMillis()
+        ).setMinUpdateIntervalMillis(updateIntervalMillis())
+            .setMinUpdateDistanceMeters(minDistanceMeters())
             .build()
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
                 val location = result.lastLocation ?: return
                 updateDistance(location)
-                val elapsed = System.currentTimeMillis() - startTimeMillis
-                stateUpdater.update(distanceMeters / METERS_IN_KM, elapsed)
-                notificationDispatcher.notifyProgress(distanceMeters / METERS_IN_KM, elapsed)
+                val startMillis = startTimeMillis ?: NumericResourceProvider.zeroLong(this@RunningTrackerService)
+                val elapsed = System.currentTimeMillis() - startMillis
+                val currentDistance = distanceMeters ?: NumericResourceProvider.zeroDouble(this@RunningTrackerService)
+                stateUpdater.update(currentDistance / metersInKm(), elapsed)
+                notificationDispatcher.notifyProgress(currentDistance / metersInKm(), elapsed)
             }
         }
 
@@ -157,17 +170,20 @@ class RunningTrackerService : Service() {
         elapsedUpdateJob?.cancel()
         elapsedUpdateJob = serviceScope.launch {
             while (tracking) {
-                val elapsed = System.currentTimeMillis() - startTimeMillis
-                stateUpdater.update(distanceMeters / METERS_IN_KM, elapsed)
-                notificationDispatcher.notifyProgress(distanceMeters / METERS_IN_KM, elapsed)
-                delay(ELAPSED_UPDATE_INTERVAL_MILLIS)
+                val startMillis = startTimeMillis ?: NumericResourceProvider.zeroLong(this@RunningTrackerService)
+                val elapsed = System.currentTimeMillis() - startMillis
+                val currentDistance = distanceMeters ?: NumericResourceProvider.zeroDouble(this@RunningTrackerService)
+                stateUpdater.update(currentDistance / metersInKm(), elapsed)
+                notificationDispatcher.notifyProgress(currentDistance / metersInKm(), elapsed)
+                delay(elapsedUpdateIntervalMillis())
             }
         }
     }
 
     private fun updateDistance(newLocation: Location) {
         lastLocation?.let { previous ->
-            distanceMeters += previous.distanceTo(newLocation).toDouble()
+            val currentDistance = distanceMeters ?: NumericResourceProvider.zeroDouble(this)
+            distanceMeters = currentDistance + previous.distanceTo(newLocation).toDouble()
         }
         lastLocation = newLocation
     }
@@ -180,18 +196,34 @@ class RunningTrackerService : Service() {
     }
 
     companion object {
-        const val ACTION_START = "com.jeong.runninggoaltracker.action.START_TRACKING"
-        const val ACTION_STOP = "com.jeong.runninggoaltracker.action.STOP_TRACKING"
+        fun actionStart(context: Context): String {
+            return context.getString(R.string.record_service_action_start)
+        }
 
-        private const val METERS_IN_KM = 1000.0
-        private const val UPDATE_INTERVAL_MILLIS = 2_000L
-        private const val ELAPSED_UPDATE_INTERVAL_MILLIS = 1_000L
-        private const val MIN_DISTANCE_METERS = 5f
+        fun actionStop(context: Context): String {
+            return context.getString(R.string.record_service_action_stop)
+        }
 
         fun createStopIntent(context: Context): Intent {
             return Intent(context, RunningTrackerService::class.java).apply {
-                action = ACTION_STOP
+                action = actionStop(context)
             }
         }
+    }
+
+    private fun metersInKm(): Double {
+        return NumericResourceProvider.metersInKm(this)
+    }
+
+    private fun updateIntervalMillis(): Long {
+        return NumericResourceProvider.updateIntervalMillis(this)
+    }
+
+    private fun elapsedUpdateIntervalMillis(): Long {
+        return NumericResourceProvider.elapsedUpdateIntervalMillis(this)
+    }
+
+    private fun minDistanceMeters(): Float {
+        return NumericResourceProvider.minDistanceMeters(this)
     }
 }

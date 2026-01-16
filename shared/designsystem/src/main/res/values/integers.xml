@@ -1,0 +1,7 @@
+<resources>
+    <integer name="numeric_zero">0</integer>
+    <integer name="record_meters_in_km">1000</integer>
+    <integer name="record_update_interval_millis">2000</integer>
+    <integer name="record_elapsed_update_interval_millis">1000</integer>
+    <integer name="record_min_distance_meters">5</integer>
+</resources>

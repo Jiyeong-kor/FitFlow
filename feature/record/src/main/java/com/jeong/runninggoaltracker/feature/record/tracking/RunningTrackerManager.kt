@@ -22,14 +22,14 @@ class RunningTrackerManager @Inject constructor(
         }
         stateUpdater.markTracking()
         val intent = Intent(context, RunningTrackerService::class.java).apply {
-            action = RunningTrackerService.ACTION_START
+            action = RunningTrackerService.actionStart(context)
         }
         ContextCompat.startForegroundService(context, intent)
     }
 
     override fun stopTracking() {
         val intent = Intent(context, RunningTrackerService::class.java).apply {
-            action = RunningTrackerService.ACTION_STOP
+            action = RunningTrackerService.actionStop(context)
         }
         ContextCompat.startForegroundService(context, intent)
     }
