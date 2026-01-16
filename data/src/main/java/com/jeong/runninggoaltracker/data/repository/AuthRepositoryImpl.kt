@@ -19,6 +19,8 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
+import kotlinx.coroutines.Dispatchers
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
@@ -99,23 +101,29 @@ class AuthRepositoryImpl @Inject constructor(
         val uid = user.uid
         return try {
             val userDocRef = firestore.collection(FirestorePaths.COLLECTION_USERS).document(uid)
-            val userSnapshot = userDocRef.get().awaitResult()
-            val normalizedNickname =
-                userSnapshot.getString(FirestoreFields.NORMALIZED_NICKNAME)
-                    ?: user.displayName?.let { NicknameNormalizer.normalize(it) }
-            val batch = firestore.batch()
-            normalizedNickname?.let { nickname ->
-                val usernameDocRef =
-                    firestore.collection(FirestorePaths.COLLECTION_USERNAMES).document(nickname)
-                val usernameSnapshot = usernameDocRef.get().awaitResult()
-                val usernameOwner = usernameSnapshot.getString(FirestoreFields.UID)
-                if (usernameSnapshot.exists() && usernameOwner == uid) {
-                    batch.delete(usernameDocRef)
+            firestore.runTransaction { transaction ->
+                val userSnapshot = transaction.get(userDocRef)
+                val normalizedNickname =
+                    userSnapshot.getString(FirestoreFields.NORMALIZED_NICKNAME)
+                        ?: userSnapshot.getString(FirestoreFields.NICKNAME)
+                            ?.let { NicknameNormalizer.normalize(it) }
+                        ?: user.displayName?.let { NicknameNormalizer.normalize(it) }
+                normalizedNickname?.let { nickname ->
+                    val usernameDocRef =
+                        firestore.collection(FirestorePaths.COLLECTION_USERNAMES).document(nickname)
+                    val usernameSnapshot = transaction.get(usernameDocRef)
+                    val usernameOwner = usernameSnapshot.getString(FirestoreFields.UID)
+                    if (usernameSnapshot.exists() && usernameOwner == uid) {
+                        transaction.delete(usernameDocRef)
+                    }
                 }
+                if (userSnapshot.exists()) {
+                    transaction.delete(userDocRef)
+                }
+            }.awaitResult()
+            withContext(Dispatchers.IO) {
+                runningDatabase.clearAllTables()
             }
-            batch.delete(userDocRef)
-            batch.commit().awaitResult()
-            runningDatabase.clearAllTables()
             user.delete().awaitResult()
             AuthResult.Success(Unit)
         } catch (error: Exception) {
