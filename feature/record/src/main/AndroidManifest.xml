@@ -10,7 +10,7 @@
             android:name=".tracking.RunningTrackerService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="location" />
+            android:foregroundServiceType="health|location" />
     </application>
 
 </manifest>

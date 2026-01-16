@@ -6,7 +6,7 @@
 
     <string name="button_stop_tracking">측정 종료</string>
     <string name="record_tracking_permission_required">위치/활동 권한이 필요합니다</string>
-    <string name="record_unit_kilometers">kilometers</string>
+    <string name="record_unit_kilometers">킬로미터</string>
     <string name="record_metric_time">시간</string>
     <string name="record_metric_pace">페이스</string>
     <string name="record_metric_calories">칼로리</string>
@@ -18,6 +18,7 @@
     <string name="record_calories_zero">0</string>
     <string name="record_notification_title">러닝 자동 측정 중</string>
     <string name="record_notification_content">%1$s km · %2$d분 경과</string>
+    <string name="record_notification_channel_id">running_tracker_channel</string>
     <string name="record_notification_channel_name">러닝 측정</string>
     <string name="record_notification_channel_description">러닝 거리와 시간을 자동으로 측정하기 위한 서비스 알림</string>
 </resources>

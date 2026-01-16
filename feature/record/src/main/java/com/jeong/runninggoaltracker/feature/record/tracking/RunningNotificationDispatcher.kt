@@ -27,17 +27,19 @@ class RunningNotificationDispatcher @Inject constructor(
 
     fun createNotification(distanceKm: Double, elapsedMillis: Long): Notification {
         val elapsedMinutes = TimeUnit.MILLISECONDS.toMinutes(elapsedMillis)
+        val channelId = context.getString(R.string.record_notification_channel_id)
         val content = context.getString(
             R.string.record_notification_content,
             String.format(Locale.getDefault(), "%.2f", distanceKm),
             elapsedMinutes
         )
 
-        return NotificationCompat.Builder(context, CHANNEL_ID)
+        return NotificationCompat.Builder(context, channelId)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(context.getString(R.string.record_notification_title))
             .setContentText(content)
             .setOngoing(true)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .addAction(
                 android.R.drawable.ic_media_pause,
                 context.getString(R.string.button_stop_tracking),
@@ -57,9 +59,9 @@ class RunningNotificationDispatcher @Inject constructor(
     fun ensureChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID,
+                context.getString(R.string.record_notification_channel_id),
                 context.getString(R.string.record_notification_channel_name),
-                NotificationManager.IMPORTANCE_LOW
+                NotificationManager.IMPORTANCE_HIGH
             ).apply {
                 description = context.getString(R.string.record_notification_channel_description)
             }
@@ -91,7 +93,6 @@ class RunningNotificationDispatcher @Inject constructor(
 
     companion object {
         const val NOTIFICATION_ID = 4001
-        const val CHANNEL_ID = "running_tracker_channel"
         private const val REQUEST_CODE_STOP = 4002
     }
 }
