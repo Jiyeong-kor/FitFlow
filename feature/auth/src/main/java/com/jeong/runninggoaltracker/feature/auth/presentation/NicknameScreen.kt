@@ -78,7 +78,7 @@ fun NicknameScreen(
                     value = uiState.nickname,
                     onValueChange = onNicknameChanged,
                     enabled = !uiState.isLoading,
-                    isError = uiState.nicknameValidationMessage != null,
+                    isError = uiState.nicknameValidationMessage != null || uiState.nicknameHintError,
                     leadingIcon = {
                         Icon(imageVector = Icons.Outlined.Person, contentDescription = null)
                     },
@@ -96,7 +96,11 @@ fun NicknameScreen(
                 Text(
                     text = stringResource(id = R.string.nickname_hint),
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    color = if (uiState.nicknameHintError) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    }
                 )
             }
         }

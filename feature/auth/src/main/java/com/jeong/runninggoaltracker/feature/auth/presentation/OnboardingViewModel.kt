@@ -31,6 +31,7 @@ data class OnboardingUiState(
     val isNicknameValid: Boolean = false,
     val nicknameValidationMessage: Int? = null,
     val nicknameAvailabilityMessageResId: Int? = null,
+    val nicknameHintError: Boolean = false,
     val errorMessageResId: Int? = null,
     val permissionErrorResId: Int? = null,
     val showNoInternetDialog: Boolean = false
@@ -59,43 +60,14 @@ class OnboardingViewModel @Inject constructor(
 
     fun onNicknameChanged(value: String) {
         val trimmed = value.take(MAX_NICKNAME_LENGTH)
-        val validationResult = validateNicknameUseCase(trimmed)
-        val validationUi = validationResult.toUiState()
         uiState = uiState.copy(
             nickname = trimmed,
-            isNicknameValid = validationUi.isValid,
-            nicknameValidationMessage = validationUi.messageResId,
+            isNicknameValid = trimmed.isNotBlank(),
+            nicknameValidationMessage = null,
             nicknameAvailabilityMessageResId = null,
+            nicknameHintError = false,
             errorMessageResId = null
         )
-        if (!validationUi.isValid) {
-            return
-        }
-        val nicknameForCheck = trimmed
-        viewModelScope.launch {
-            val availabilityResult = checkNicknameAvailabilityUseCase(nicknameForCheck)
-            if (uiState.nickname != nicknameForCheck) {
-                return@launch
-            }
-            uiState = when (availabilityResult) {
-                is AuthResult.Success -> {
-                    if (availabilityResult.data) {
-                        uiState.copy(
-                            nicknameAvailabilityMessageResId = R.string.nickname_available,
-                            nicknameValidationMessage = null
-                        )
-                    } else {
-                        uiState.copy(
-                            nicknameAvailabilityMessageResId = null,
-                            nicknameValidationMessage = R.string.nickname_taken_error
-                        )
-                    }
-                }
-                is AuthResult.Failure -> {
-                    uiState.copy(nicknameAvailabilityMessageResId = null)
-                }
-            }
-        }
     }
 
     fun onContinueWithNickname() {
@@ -105,7 +77,8 @@ class OnboardingViewModel @Inject constructor(
         if (!validationUi.isValid) {
             uiState = uiState.copy(
                 isNicknameValid = false,
-                nicknameValidationMessage = validationUi.messageResId
+                nicknameValidationMessage = validationUi.messageResId,
+                nicknameHintError = validationUi.showHintError
             )
             return
         }
@@ -119,8 +92,18 @@ class OnboardingViewModel @Inject constructor(
                 errorMessageResId = null,
                 nicknameValidationMessage = null,
                 nicknameAvailabilityMessageResId = null,
+                nicknameHintError = false,
                 showNoInternetDialog = false
             )
+            val availabilityResult = checkNicknameAvailabilityUseCase(nickname)
+            if (availabilityResult is AuthResult.Success && !availabilityResult.data) {
+                uiState = uiState.copy(
+                    isLoading = false,
+                    isNicknameValid = false,
+                    nicknameValidationMessage = R.string.nickname_taken_error
+                )
+                return@launch
+            }
             val signInResult = signInAnonymouslyUseCase()
             if (signInResult.isFailure) {
                 uiState = uiState.copy(
@@ -137,7 +120,8 @@ class OnboardingViewModel @Inject constructor(
                         uiState.copy(
                             isLoading = false,
                             isNicknameValid = false,
-                            nicknameValidationMessage = R.string.nickname_taken_error
+                            nicknameValidationMessage = R.string.nickname_taken_error,
+                            nicknameHintError = false
                         )
                     } else {
                         uiState.copy(
@@ -171,17 +155,20 @@ class OnboardingViewModel @Inject constructor(
         when (this) {
             is NicknameValidationResult.Valid -> NicknameValidationUiState(
                 isValid = true,
-                messageResId = null
+                messageResId = null,
+                showHintError = false
             )
 
             NicknameValidationResult.Error.EMPTY -> NicknameValidationUiState(
                 isValid = false,
-                messageResId = R.string.nickname_required_error
+                messageResId = R.string.nickname_required_error,
+                showHintError = false
             )
 
             NicknameValidationResult.Error.INVALID_FORMAT -> NicknameValidationUiState(
                 isValid = false,
-                messageResId = R.string.nickname_invalid_error
+                messageResId = null,
+                showHintError = true
             )
         }
 
@@ -196,5 +183,6 @@ class OnboardingViewModel @Inject constructor(
 
 private data class NicknameValidationUiState(
     val isValid: Boolean,
-    val messageResId: Int?
+    val messageResId: Int?,
+    val showHintError: Boolean
 )
