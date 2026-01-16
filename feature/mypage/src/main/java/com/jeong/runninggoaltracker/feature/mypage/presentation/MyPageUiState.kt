@@ -10,8 +10,8 @@ data class MyPageUiState(
     val goal: RunningGoal? = null,
     val isActivityRecognitionEnabled: Boolean = true,
     val isAnonymous: Boolean = false,
-    val userNickname: String = "",
-    val userLevel: String = ""
+    val userNickname: String? = null,
+    val userLevel: String? = null
 ) {
     companion object {
         fun preview(): MyPageUiState {

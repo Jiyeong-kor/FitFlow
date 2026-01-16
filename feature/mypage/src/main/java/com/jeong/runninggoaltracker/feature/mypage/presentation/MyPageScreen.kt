@@ -45,12 +45,13 @@ import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
+import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
+import com.jeong.runninggoaltracker.shared.designsystem.formatter.PercentageFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
 import com.jeong.runninggoaltracker.feature.mypage.R
-import java.util.Locale
 
 @Composable
 fun MyPageScreen(
@@ -125,14 +126,14 @@ private fun MyPageContent(
 }
 
 @Composable
-private fun ProfileSection(name: String, level: String, isAnonymous: Boolean) {
+private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-        val displayName = if (name.isBlank()) {
+        val displayName = if (name.isNullOrBlank()) {
             stringResource(id = R.string.mypage_default_nickname)
         } else {
             name
         }
-        val displayLevel = if (level.isBlank()) {
+        val displayLevel = if (level.isNullOrBlank()) {
             stringResource(id = R.string.mypage_default_level)
         } else {
             level
@@ -191,16 +192,8 @@ private fun ProfileSection(name: String, level: String, isAnonymous: Boolean) {
 @Composable
 private fun SummaryStats(uiState: MyPageUiState) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        val distanceText = String.format(
-            Locale.getDefault(),
-            "%.1f",
-            uiState.summary?.totalThisWeekKm ?: 0.0
-        )
-        val progressText = String.format(
-            Locale.getDefault(),
-            "%.0f",
-            (uiState.summary?.progress ?: 0f) * 100
-        )
+        val distanceText = DistanceFormatter.formatDistanceKm(uiState.summary?.totalThisWeekKm ?: 0.0)
+        val progressText = PercentageFormatter.formatProgress(uiState.summary?.progress ?: 0f)
         StatItem(
             modifier = Modifier.weight(1f),
             label = stringResource(id = R.string.mypage_summary_distance_label),
