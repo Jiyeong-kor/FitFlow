@@ -16,8 +16,8 @@ sealed interface WeeklyGoalValidationResult {
 
 class ValidateWeeklyGoalUseCase @Inject constructor() {
 
-    operator fun invoke(input: String): WeeklyGoalValidationResult {
-        val weeklyGoalKm = input.toDoubleOrNull()
+    operator fun invoke(input: Double?): WeeklyGoalValidationResult {
+        val weeklyGoalKm = input
             ?: return WeeklyGoalValidationResult.Error.INVALID_NUMBER
 
         return if (weeklyGoalKm > 0.0) {

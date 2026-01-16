@@ -1,7 +1,6 @@
 package com.jeong.runninggoaltracker.feature.goal.presentation
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,13 +34,14 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.compose.ui.res.stringResource
 import com.jeong.runninggoaltracker.feature.goal.R
+import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
-import java.util.Locale
 
 @Composable
 fun GoalRoute(
@@ -60,7 +60,7 @@ fun GoalRoute(
 @Composable
 fun GoalScreen(
     state: GoalUiState,
-    onGoalChange: (String) -> Unit,
+    onGoalChange: (Double) -> Unit,
     onSave: () -> Unit
 ) {
     val errorText = when (state.error) {
@@ -69,11 +69,20 @@ fun GoalScreen(
         null -> null
     }
 
-    val goalDistance = state.weeklyGoalInput.toDoubleOrNull()
+    val goalDistance = state.weeklyGoalKmInput
         ?: state.currentGoalKm
         ?: 0.0
+    val goalDistanceLabel = DistanceFormatter.formatDistanceKm(goalDistance)
 
     val onSaveThrottled = rememberThrottleClick(onClick = onSave)
+    val onDecreaseThrottled = rememberThrottleClick {
+        val nextValue = (goalDistance - 0.5).coerceAtLeast(0.0)
+        onGoalChange(nextValue)
+    }
+    val onIncreaseThrottled = rememberThrottleClick {
+        val nextValue = goalDistance + 0.5
+        onGoalChange(nextValue)
+    }
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
     val textPrimary = appTextPrimaryColor()
@@ -100,14 +109,14 @@ fun GoalScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            GoalAdjustButton(icon = Icons.Default.Remove) {
-                val nextValue = (goalDistance - 0.5).coerceAtLeast(0.0)
-                onGoalChange(String.format(Locale.getDefault(), "%.1f", nextValue))
-            }
+            GoalAdjustButton(
+                icon = Icons.Default.Remove,
+                onClick = onDecreaseThrottled
+            )
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 Text(
-                    text = String.format(Locale.getDefault(), "%.1f", goalDistance),
+                    text = goalDistanceLabel,
                     color = textPrimary,
                     fontSize = 64.sp,
                     fontWeight = FontWeight.Black
@@ -120,10 +129,10 @@ fun GoalScreen(
                 )
             }
 
-            GoalAdjustButton(icon = Icons.Default.Add) {
-                val nextValue = goalDistance + 0.5
-                onGoalChange(String.format(Locale.getDefault(), "%.1f", nextValue))
-            }
+            GoalAdjustButton(
+                icon = Icons.Default.Add,
+                onClick = onIncreaseThrottled
+            )
         }
 
         if (errorText != null) {
@@ -156,7 +165,7 @@ fun GoalScreen(
             )
             presets.forEach { (label, value) ->
                 PresetCard(label = label, isSelected = goalDistance == value) {
-                    onGoalChange(String.format(Locale.getDefault(), "%.1f", value))
+                    onGoalChange(value)
                 }
             }
         }
@@ -186,9 +195,10 @@ private fun GoalAdjustButton(
     onClick: () -> Unit
 ) {
     val textPrimary = appTextPrimaryColor()
+    val onClickThrottled = rememberThrottleClick(onClick = onClick)
 
     Surface(
-        onClick = onClick,
+        onClick = onClickThrottled,
         modifier = Modifier.size(48.dp),
         shape = CircleShape,
         color = Color.Transparent,
@@ -208,7 +218,7 @@ private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) 
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .throttleClick(onClick = onClick),
         shape = RoundedCornerShape(16.dp),
         color = if (isSelected) accentColor.copy(alpha = 0.1f) else Color.White.copy(alpha = 0.03f),
         border = if (isSelected) androidx.compose.foundation.BorderStroke(
@@ -231,14 +241,14 @@ private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) 
 private fun GoalScreenPreview() {
     val state = GoalUiState(
         currentGoalKm = 15.0,
-        weeklyGoalInput = "15.0",
+        weeklyGoalKmInput = 15.0,
         error = null
     )
 
     RunningGoalTrackerTheme {
         GoalScreen(
             state = state,
-            onGoalChange = {},
+            onGoalChange = { _ -> },
             onSave = {}
         )
     }

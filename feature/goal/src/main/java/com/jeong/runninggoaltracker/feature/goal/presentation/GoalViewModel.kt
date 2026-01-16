@@ -3,7 +3,6 @@ package com.jeong.runninggoaltracker.feature.goal.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
-import com.jeong.runninggoaltracker.domain.model.formattedWeeklyGoalKm
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.UpsertRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ValidateWeeklyGoalUseCase
@@ -21,7 +20,7 @@ import kotlinx.coroutines.launch
 
 data class GoalUiState(
     val currentGoalKm: Double? = null,
-    val weeklyGoalInput: String = "",
+    val weeklyGoalKmInput: Double? = null,
     val error: GoalInputError? = null
 )
 
@@ -31,7 +30,7 @@ enum class GoalInputError {
 }
 
 private data class GoalInputState(
-    val weeklyGoalInput: String = "",
+    val weeklyGoalKmInput: Double? = null,
     val error: GoalInputError? = null
 )
 
@@ -49,7 +48,7 @@ class GoalViewModel @Inject constructor(
         viewModelScope.launch {
             goalFlow.firstOrNull()?.let { goal ->
                 inputState.update { current ->
-                    current.copy(weeklyGoalInput = goal.formattedWeeklyGoalKm)
+                    current.copy(weeklyGoalKmInput = goal.weeklyGoalKm)
                 }
             }
         }
@@ -58,7 +57,7 @@ class GoalViewModel @Inject constructor(
     val uiState: StateFlow<GoalUiState> = combine(goalFlow, inputState) { goal, input ->
         GoalUiState(
             currentGoalKm = goal?.weeklyGoalKm,
-            weeklyGoalInput = input.weeklyGoalInput,
+            weeklyGoalKmInput = input.weeklyGoalKmInput,
             error = input.error
         )
     }.stateIn(
@@ -67,17 +66,17 @@ class GoalViewModel @Inject constructor(
         initialValue = GoalUiState()
     )
 
-    fun onWeeklyGoalChanged(value: String) {
+    fun onWeeklyGoalChanged(value: Double) {
         inputState.update { current ->
             current.copy(
-                weeklyGoalInput = value,
+                weeklyGoalKmInput = value,
                 error = null
             )
         }
     }
 
     fun saveGoal(onSuccess: () -> Unit) {
-        when (val result = validateWeeklyGoalUseCase(inputState.value.weeklyGoalInput)) {
+        when (val result = validateWeeklyGoalUseCase(inputState.value.weeklyGoalKmInput)) {
             WeeklyGoalValidationResult.Error.INVALID_NUMBER -> {
                 inputState.update { current ->
                     current.copy(error = GoalInputError.INVALID_NUMBER)
