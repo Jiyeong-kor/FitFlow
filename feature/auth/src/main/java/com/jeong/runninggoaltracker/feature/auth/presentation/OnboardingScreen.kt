@@ -412,3 +412,45 @@ private fun PermissionsScreenPreview() {
         )
     }
 }
+
+@Preview(showBackground = true)
+@Composable
+private fun PermissionRowPreview() {
+    RunningGoalTrackerTheme {
+        PermissionRow(
+            item = PermissionItem(
+                icon = Icons.Outlined.LocationOn,
+                title = stringResource(id = R.string.permission_location_title),
+                description = stringResource(id = R.string.permission_location_description),
+                isEssential = true
+            )
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun SuccessScreenPreview() {
+    RunningGoalTrackerTheme {
+        SuccessScreen(onContinue = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun HeaderIconPreview() {
+    RunningGoalTrackerTheme {
+        HeaderIcon()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun NoInternetDialogPreview() {
+    RunningGoalTrackerTheme {
+        NoInternetDialog(
+            onRetry = {},
+            onDismiss = {}
+        )
+    }
+}
