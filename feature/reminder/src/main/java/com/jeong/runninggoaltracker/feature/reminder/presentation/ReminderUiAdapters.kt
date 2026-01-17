@@ -19,8 +19,8 @@ private class ToastUserMessageHandler(
     private val context: Context
 ) : UserMessageHandler {
     override fun showMessage(message: UiMessage) {
-        val textToShow = message.text ?: message.messageResId?.let(context::getString) ?: return
-        Toast.makeText(context, textToShow, Toast.LENGTH_SHORT).show()
+        val messageResId = message.messageResId ?: return
+        Toast.makeText(context, context.getString(messageResId), Toast.LENGTH_SHORT).show()
     }
 }
 

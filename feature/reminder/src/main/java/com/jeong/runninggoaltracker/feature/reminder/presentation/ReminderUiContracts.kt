@@ -7,8 +7,7 @@ interface UserMessageHandler {
 }
 
 data class UiMessage(
-    val text: String? = null,
-    @param:StringRes val messageResId: Int? = null
+    @field:StringRes val messageResId: Int? = null
 )
 
 interface NotificationPermissionRequester {
