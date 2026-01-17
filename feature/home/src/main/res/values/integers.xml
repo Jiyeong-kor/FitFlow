@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <integer name="home_recent_activity_max_count">3</integer>
+    <integer name="home_percent_base">100</integer>
+    <integer name="home_alpha_progress_icon_tint_percent">40</integer>
+    <integer name="home_alpha_info_card_background_percent">3</integer>
+    <integer name="home_alpha_activity_row_background_percent">2</integer>
+    <integer name="home_alpha_activity_icon_container_percent">5</integer>
+    <integer name="home_alpha_activity_arrow_tint_percent">40</integer>
+</resources>

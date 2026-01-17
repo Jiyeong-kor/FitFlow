@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
@@ -55,6 +54,9 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColo
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import kotlinx.coroutines.flow.Flow
 import androidx.annotation.StringRes
+import androidx.annotation.IntegerRes
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import com.jeong.runninggoaltracker.feature.home.R
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
@@ -113,6 +115,11 @@ fun HomeScreen(
     val backgroundColor = appBackgroundColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
+    val recentActivityMaxCount = integerResource(id = R.integer.home_recent_activity_max_count)
+    val screenHorizontalPadding = dimensionResource(id = R.dimen.home_screen_padding_horizontal)
+    val listItemSpacing = dimensionResource(id = R.dimen.home_screen_list_spacing)
+    val screenPaddingTop = dimensionResource(id = R.dimen.home_screen_padding_top)
+    val screenPaddingBottom = dimensionResource(id = R.dimen.home_screen_padding_bottom)
 
     var isAnonymousBannerVisible by rememberSaveable { mutableStateOf(true) }
     val onRecordClickThrottled = rememberThrottleClick(onClick = onRecordClick)
@@ -121,7 +128,7 @@ fun HomeScreen(
     val onDismissBanner = rememberThrottleClick(onClick = { isAnonymousBannerVisible = false })
 
     val recentActivities = activityLogs
-        .takeLast(3)
+        .takeLast(recentActivityMaxCount)
         .reversed()
         .map { log ->
             ActivityItem(
@@ -136,9 +143,9 @@ fun HomeScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(horizontal = 20.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
-        contentPadding = PaddingValues(top = 16.dp, bottom = 32.dp)
+            .padding(horizontal = screenHorizontalPadding),
+        verticalArrangement = Arrangement.spacedBy(listItemSpacing),
+        contentPadding = PaddingValues(top = screenPaddingTop, bottom = screenPaddingBottom)
     ) {
         if (isAnonymousBannerVisible) {
             item {
@@ -197,7 +204,7 @@ fun HomeScreen(
                 Text(
                     stringResource(R.string.home_section_weekly_manage),
                     color = textPrimary,
-                    fontSize = 18.sp,
+                    fontSize = dimensionResource(id = R.dimen.home_section_title_text_size).value.sp,
                     fontWeight = FontWeight.Bold
                 )
                 TextButton(
@@ -206,7 +213,7 @@ fun HomeScreen(
                 ) {
                     Text(
                         stringResource(R.string.home_action_reminder_settings),
-                        fontSize = 14.sp,
+                        fontSize = dimensionResource(id = R.dimen.home_section_action_text_size).value.sp,
                         fontWeight = FontWeight.Medium
                     )
                 }
@@ -228,8 +235,10 @@ fun HomeScreen(
                         stringResource(activityState.labelResId)
                     ),
                     color = textMuted,
-                    fontSize = 14.sp,
-                    modifier = Modifier.padding(vertical = 8.dp)
+                    fontSize = dimensionResource(id = R.dimen.home_empty_text_size).value.sp,
+                    modifier = Modifier.padding(
+                        vertical = dimensionResource(id = R.dimen.home_empty_text_vertical_padding)
+                    )
                 )
             }
         } else {
@@ -251,14 +260,24 @@ private fun WeeklyProgressCard(
     val surfaceColor = appSurfaceColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
+    val cardCornerRadius = dimensionResource(id = R.dimen.home_weekly_card_corner_radius)
+    val cardPadding = dimensionResource(id = R.dimen.home_weekly_card_padding)
+    val titleTextSize = dimensionResource(id = R.dimen.home_weekly_title_text_size).value.sp
+    val progressTextSize = dimensionResource(id = R.dimen.home_weekly_progress_text_size).value.sp
+    val progressSpacerSmall = dimensionResource(id = R.dimen.home_weekly_progress_spacer_small)
+    val progressSpacerMedium = dimensionResource(id = R.dimen.home_weekly_progress_spacer_medium)
+    val progressSpacerLarge = dimensionResource(id = R.dimen.home_weekly_progress_spacer_large)
+    val progressIconSize = dimensionResource(id = R.dimen.home_weekly_progress_icon_size)
+    val infoItemSpacing = dimensionResource(id = R.dimen.home_weekly_info_item_spacing)
+    val percentBase = integerResource(id = R.integer.home_percent_base)
 
     AppSurfaceCard(
         modifier = Modifier
             .fillMaxWidth()
             .throttleClick(onClick = onClick),
-        shape = RoundedCornerShape(28.dp),
+        shape = RoundedCornerShape(cardCornerRadius),
         containerColor = surfaceColor,
-        contentPadding = PaddingValues(24.dp)
+        contentPadding = PaddingValues(cardPadding)
     ) {
         Column {
             Row(
@@ -269,34 +288,38 @@ private fun WeeklyProgressCard(
                     Text(
                         stringResource(R.string.home_weekly_progress_title),
                         color = textMuted,
-                        fontSize = 14.sp
+                        fontSize = titleTextSize
                     )
-                    Spacer(modifier = Modifier.height(4.dp))
+                    Spacer(modifier = Modifier.height(progressSpacerSmall))
                     Text(
                         stringResource(
                             R.string.home_weekly_progress_complete_format,
-                            (progress * 100).toInt()
+                            (progress * percentBase).toInt()
                         ),
                         color = textPrimary,
-                        fontSize = 28.sp,
+                        fontSize = progressTextSize,
                         fontWeight = FontWeight.ExtraBold
                     )
                 }
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.DirectionsRun,
                     contentDescription = null,
-                    tint = accentColor.copy(alpha = 0.4f),
-                    modifier = Modifier.size(32.dp)
+                    tint = accentColor.copy(
+                        alpha = alphaFromPercentResource(
+                            R.integer.home_alpha_progress_icon_tint_percent
+                        )
+                    ),
+                    modifier = Modifier.size(progressIconSize)
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(progressSpacerMedium))
 
             AppProgressBar(progress = progress)
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(progressSpacerLarge))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(infoItemSpacing)) {
                 InfoItem(
                     label = stringResource(R.string.home_weekly_remaining_distance),
                     value = stringResource(R.string.home_distance_km_format, remainingKm),
@@ -316,14 +339,25 @@ private fun WeeklyProgressCard(
 private fun InfoItem(label: String, value: String, modifier: Modifier = Modifier) {
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
+    val cardCornerRadius = dimensionResource(id = R.dimen.home_info_card_corner_radius)
+    val cardPadding = dimensionResource(id = R.dimen.home_info_card_padding)
+    val labelTextSize = dimensionResource(id = R.dimen.home_info_label_text_size).value.sp
+    val valueTextSize = dimensionResource(id = R.dimen.home_info_value_text_size).value.sp
 
     Column(
         modifier = modifier
-            .background(Color.White.copy(alpha = 0.03f), RoundedCornerShape(16.dp))
-            .padding(12.dp)
+            .background(
+                Color.White.copy(
+                    alpha = alphaFromPercentResource(
+                        R.integer.home_alpha_info_card_background_percent
+                    )
+                ),
+                RoundedCornerShape(cardCornerRadius)
+            )
+            .padding(cardPadding)
     ) {
-        Text(label, color = textMuted, fontSize = 11.sp, fontWeight = FontWeight.Medium)
-        Text(value, color = textPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(label, color = textMuted, fontSize = labelTextSize, fontWeight = FontWeight.Medium)
+        Text(value, color = textPrimary, fontSize = valueTextSize, fontWeight = FontWeight.Bold)
     }
 }
 
@@ -333,29 +367,52 @@ data class ActivityItem(val date: String, val dist: String, val time: String, va
 private fun RecentActivityRow(activity: ActivityItem) {
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
+    val rowCornerRadius = dimensionResource(id = R.dimen.home_activity_row_corner_radius)
+    val rowPadding = dimensionResource(id = R.dimen.home_activity_row_padding)
+    val iconContainerSize = dimensionResource(id = R.dimen.home_activity_icon_container_size)
+    val iconContainerCornerRadius =
+        dimensionResource(id = R.dimen.home_activity_icon_container_corner_radius)
+    val iconSize = dimensionResource(id = R.dimen.home_activity_icon_size)
+    val rowSpacerWidth = dimensionResource(id = R.dimen.home_activity_row_spacer_width)
+    val titleTextSize = dimensionResource(id = R.dimen.home_activity_title_text_size).value.sp
+    val subtitleTextSize = dimensionResource(id = R.dimen.home_activity_subtitle_text_size).value.sp
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White.copy(alpha = 0.02f), RoundedCornerShape(20.dp))
-            .padding(16.dp),
+            .background(
+                Color.White.copy(
+                    alpha = alphaFromPercentResource(
+                        R.integer.home_alpha_activity_row_background_percent
+                    )
+                ),
+                RoundedCornerShape(rowCornerRadius)
+            )
+            .padding(rowPadding),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Box(
             modifier = Modifier
-                .size(44.dp)
-                .background(Color.White.copy(alpha = 0.05f), RoundedCornerShape(12.dp)),
+                .size(iconContainerSize)
+                .background(
+                    Color.White.copy(
+                        alpha = alphaFromPercentResource(
+                            R.integer.home_alpha_activity_icon_container_percent
+                        )
+                    ),
+                    RoundedCornerShape(iconContainerCornerRadius)
+                ),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 Icons.AutoMirrored.Filled.DirectionsRun,
                 contentDescription = null,
                 tint = textMuted,
-                modifier = Modifier.size(20.dp)
+                modifier = Modifier.size(iconSize)
             )
         }
 
-        Spacer(modifier = Modifier.width(16.dp))
+        Spacer(modifier = Modifier.width(rowSpacerWidth))
 
         Column(modifier = Modifier.weight(1f)) {
             Text(
@@ -366,7 +423,7 @@ private fun RecentActivityRow(activity: ActivityItem) {
                 ),
                 color = textPrimary,
                 fontWeight = FontWeight.SemiBold,
-                fontSize = 16.sp
+                fontSize = titleTextSize
             )
             Text(
                 stringResource(
@@ -375,14 +432,18 @@ private fun RecentActivityRow(activity: ActivityItem) {
                     activity.time
                 ),
                 color = textMuted,
-                fontSize = 12.sp
+                fontSize = subtitleTextSize
             )
         }
 
         Icon(
             Icons.AutoMirrored.Filled.KeyboardArrowRight,
             contentDescription = null,
-            tint = Color.Gray.copy(alpha = 0.4f)
+            tint = Color.Gray.copy(
+                alpha = alphaFromPercentResource(
+                    R.integer.home_alpha_activity_arrow_tint_percent
+                )
+            )
         )
     }
 }
@@ -391,18 +452,20 @@ private fun RecentActivityRow(activity: ActivityItem) {
 private fun SectionHeader(title: String, onViewAllClick: () -> Unit) {
     val accentColor = appAccentColor()
     val textPrimary = appTextPrimaryColor()
+    val titleTextSize = dimensionResource(id = R.dimen.home_section_title_text_size).value.sp
+    val actionTextSize = dimensionResource(id = R.dimen.home_section_action_text_size).value.sp
 
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(title, color = textPrimary, fontSize = 18.sp, fontWeight = FontWeight.Bold)
+        Text(title, color = textPrimary, fontSize = titleTextSize, fontWeight = FontWeight.Bold)
         TextButton(onClick = onViewAllClick) {
             Text(
                 stringResource(R.string.home_action_view_all),
                 color = accentColor,
-                fontSize = 14.sp,
+                fontSize = actionTextSize,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -457,6 +520,11 @@ private fun dayOfWeekToResId(dayOfWeekValue: Int): Int = when (dayOfWeekValue) {
     6 -> R.string.home_day_of_week_sat
     else -> R.string.home_day_of_week_sun
 }
+
+@Composable
+private fun alphaFromPercentResource(@IntegerRes percentResId: Int): Float =
+    integerResource(id = percentResId).toFloat() /
+            integerResource(id = R.integer.home_percent_base).toFloat()
 
 
 private fun calendarDayOfWeekToResId(dayOfWeek: Int): Int = when (dayOfWeek) {
