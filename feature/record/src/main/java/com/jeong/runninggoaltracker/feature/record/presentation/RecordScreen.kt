@@ -431,25 +431,21 @@ private fun RecordScreenPreview() {
 
 @Preview(showBackground = true)
 @Composable
-private fun MetricItemPreview() {
-    RunningGoalTrackerTheme {
-        MetricItem(
-            label = "시간",
-            value = "00:45:12"
-        )
-    }
+private fun MetricItemPreview() = RunningGoalTrackerTheme {
+    MetricItem(
+        label = "시간",
+        value = "00:45:12"
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun RecordControlButtonPreview() {
-    RunningGoalTrackerTheme {
-        RecordControlButton(
-            label = "일시정지",
-            icon = Icons.Default.Pause,
-            containerColor = appAccentColor(),
-            contentColor = appOnAccentColor(),
-            onClick = {}
-        )
-    }
+private fun RecordControlButtonPreview() = RunningGoalTrackerTheme {
+    RecordControlButton(
+        label = "일시정지",
+        icon = Icons.Default.Pause,
+        containerColor = appAccentColor(),
+        contentColor = appOnAccentColor(),
+        onClick = {}
+    )
 }
