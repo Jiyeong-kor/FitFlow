@@ -27,15 +27,12 @@ object NotificationPermissionGate {
         context: Context,
         notificationId: Int,
         notification: Notification
-    ) {
-        NotificationManagerCompat.from(context).notify(notificationId, notification)
-    }
+    ) = NotificationManagerCompat.from(context).notify(notificationId, notification)
 
-    private fun canPostNotifications(context: Context): Boolean {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ContextCompat.checkSelfPermission(
-                context,
-                Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED
-    }
+    private fun canPostNotifications(context: Context): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
 }
