@@ -51,21 +51,22 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
 
     private fun getReadableActivity(
         activities: List<DetectedActivity>
-    ): ActivityRecognitionStatus {
+    ): ActivityRecognitionStatus =
+        activities
+            .map { it.type }
+            .toSet()
+            .let { types ->
+                when {
+                    DetectedActivity.RUNNING in types -> ActivityRecognitionStatus.Running
+                    DetectedActivity.WALKING in types ||
+                            DetectedActivity.ON_FOOT in types -> ActivityRecognitionStatus.Walking
 
-        val types: Set<Int> = activities.map { it.type }.toSet()
-
-        return when {
-            DetectedActivity.RUNNING in types -> ActivityRecognitionStatus.Running
-            DetectedActivity.WALKING in types ||
-                    DetectedActivity.ON_FOOT in types -> ActivityRecognitionStatus.Walking
-
-            DetectedActivity.ON_BICYCLE in types -> ActivityRecognitionStatus.OnBicycle
-            DetectedActivity.IN_VEHICLE in types -> ActivityRecognitionStatus.InVehicle
-            DetectedActivity.STILL in types -> ActivityRecognitionStatus.Still
-            else -> ActivityRecognitionStatus.Unknown
-        }
-    }
+                    DetectedActivity.ON_BICYCLE in types -> ActivityRecognitionStatus.OnBicycle
+                    DetectedActivity.IN_VEHICLE in types -> ActivityRecognitionStatus.InVehicle
+                    DetectedActivity.STILL in types -> ActivityRecognitionStatus.Still
+                    else -> ActivityRecognitionStatus.Unknown
+                }
+            }
 
     private fun getStateHolder(context: Context): ActivityRecognitionStateHolder {
         val entryPoint = EntryPointAccessors.fromApplication(
