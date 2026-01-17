@@ -37,11 +37,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.annotation.IntegerRes
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.reminder.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
@@ -100,6 +102,13 @@ fun ReminderScreen(
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
     val textPrimary = appTextPrimaryColor()
+    val paddingHorizontal = dimensionResource(id = R.dimen.reminder_padding_horizontal)
+    val spacingMd = dimensionResource(id = R.dimen.reminder_spacing_md)
+    val spacingLg = dimensionResource(id = R.dimen.reminder_spacing_lg)
+    val iconButtonSize = dimensionResource(id = R.dimen.reminder_icon_button_size)
+    val iconButtonCornerRadius = dimensionResource(id = R.dimen.reminder_icon_button_corner_radius)
+    val iconSize = dimensionResource(id = R.dimen.reminder_icon_size)
+    val titleTextSize = dimensionResource(id = R.dimen.reminder_text_title_size).value.sp
 
     LaunchedEffect(Unit) {
         notificationPermissionRequester.requestPermissionIfNeeded()
@@ -109,9 +118,9 @@ fun ReminderScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(horizontal = 24.dp)
+            .padding(horizontal = paddingHorizontal)
     ) {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(spacingMd))
 
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -121,29 +130,29 @@ fun ReminderScreen(
             Text(
                 stringResource(R.string.reminder_title_settings),
                 color = textPrimary,
-                fontSize = 20.sp,
+                fontSize = titleTextSize,
                 fontWeight = FontWeight.Bold
             )
             IconButton(
                 onClick = onAddReminderThrottled,
                 modifier = Modifier
-                    .background(accentColor, RoundedCornerShape(12.dp))
-                    .size(36.dp)
+                    .background(accentColor, RoundedCornerShape(iconButtonCornerRadius))
+                    .size(iconButtonSize)
             ) {
                 Icon(
                     Icons.Default.Add,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier.size(20.dp)
+                    modifier = Modifier.size(iconSize)
                 )
             }
         }
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(spacingLg))
 
         LazyColumn(
-            contentPadding = PaddingValues(bottom = 24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            contentPadding = PaddingValues(bottom = spacingLg),
+            verticalArrangement = Arrangement.spacedBy(spacingMd)
         ) {
             val list = state.reminders.filter { it.id != null }
             items(count = list.size, key = { index -> list[index].id!! }) { index ->
@@ -182,12 +191,19 @@ private fun ReminderCard(
     val id = reminder.id ?: return
     val daysOfWeek = daysOfWeekLabelProvider.labels()
     val onDeleteReminderThrottled = rememberThrottleClick(onClick = { onDeleteReminder(id) })
+    val cardCornerRadius = dimensionResource(id = R.dimen.reminder_card_corner_radius)
+    val cardContentPadding = dimensionResource(id = R.dimen.reminder_card_content_padding)
+    val spacingMd = dimensionResource(id = R.dimen.reminder_spacing_md)
+    val daySpacing = dimensionResource(id = R.dimen.reminder_spacing_sm)
+    val periodTextSize = dimensionResource(id = R.dimen.reminder_text_period_size).value.sp
+    val timeTextSize = dimensionResource(id = R.dimen.reminder_text_time_size).value.sp
+    val disabledSurfaceAlpha = alphaFromPercent(R.integer.reminder_alpha_disabled_surface_percent)
 
     AppSurfaceCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        containerColor = if (reminder.enabled) surfaceColor else Color.White.copy(alpha = 0.02f),
-        contentPadding = PaddingValues(20.dp)
+        shape = RoundedCornerShape(cardCornerRadius),
+        containerColor = if (reminder.enabled) surfaceColor else Color.White.copy(alpha = disabledSurfaceAlpha),
+        contentPadding = PaddingValues(cardContentPadding)
     ) {
         Column {
             Row(
@@ -199,13 +215,13 @@ private fun ReminderCard(
                     Text(
                         timeFormatter.periodLabel(reminder.hour),
                         color = textMuted,
-                        fontSize = 12.sp,
+                        fontSize = periodTextSize,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
                         timeFormatter.formatTime(reminder.hour, reminder.minute),
                         color = textPrimary,
-                        fontSize = 28.sp,
+                        fontSize = timeTextSize,
                         fontWeight = FontWeight.Black
                     )
                 }
@@ -229,9 +245,9 @@ private fun ReminderCard(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(spacingMd))
 
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Row(horizontalArrangement = Arrangement.spacedBy(daySpacing)) {
                 daysOfWeek.forEach { (dayInt, dayName) ->
                     val isSelected = reminder.days.contains(dayInt)
                     DayBubble(dayName, isSelected && reminder.enabled) {
@@ -282,24 +298,36 @@ private fun ReminderCard(
 @Composable
 private fun DayBubble(day: String, isSelected: Boolean, onClick: () -> Unit) {
     val accentColor = appAccentColor()
+    val bubbleSize = dimensionResource(id = R.dimen.reminder_day_bubble_size)
+    val bubbleCornerRadius = dimensionResource(id = R.dimen.reminder_day_bubble_corner_radius)
+    val dayTextSize = dimensionResource(id = R.dimen.reminder_text_day_size).value.sp
+    val selectedAlpha = alphaFromPercent(R.integer.reminder_alpha_selected_day_background_percent)
+    val unselectedTextAlpha = alphaFromPercent(R.integer.reminder_alpha_unselected_day_text_percent)
 
     Box(
         modifier = Modifier
-            .size(32.dp)
+            .size(bubbleSize)
             .background(
-                color = if (isSelected) accentColor.copy(alpha = 0.2f) else Color.Transparent,
-                shape = RoundedCornerShape(8.dp)
+                color = if (isSelected) accentColor.copy(alpha = selectedAlpha) else Color.Transparent,
+                shape = RoundedCornerShape(bubbleCornerRadius)
             )
             .throttleClick { onClick() },
         contentAlignment = Alignment.Center
     ) {
         Text(
             day,
-            color = if (isSelected) accentColor else Color.Gray.copy(alpha = 0.5f),
-            fontSize = 12.sp,
+            color = if (isSelected) accentColor else Color.Gray.copy(alpha = unselectedTextAlpha),
+            fontSize = dayTextSize,
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+@Composable
+private fun alphaFromPercent(@IntegerRes percentResId: Int): Float {
+    val percent = integerResource(id = percentResId).toFloat()
+    val divisor = integerResource(id = R.integer.reminder_percent_divisor).toFloat()
+    return percent / divisor
 }
 
 @Preview(showBackground = true)

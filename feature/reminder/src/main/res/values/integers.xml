@@ -1,0 +1,6 @@
+<resources>
+    <integer name="reminder_alpha_disabled_surface_percent">2</integer>
+    <integer name="reminder_alpha_selected_day_background_percent">20</integer>
+    <integer name="reminder_alpha_unselected_day_text_percent">50</integer>
+    <integer name="reminder_percent_divisor">100</integer>
+</resources>
