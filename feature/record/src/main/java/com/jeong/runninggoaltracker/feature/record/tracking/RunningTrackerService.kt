@@ -20,6 +20,7 @@ import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.record.contract.RunningTrackerServiceContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -80,6 +81,11 @@ class RunningTrackerService : Service() {
     )
     private fun startTracking() {
         if (tracking) return
+        if (!NotificationPermissionGate.canPostNotifications(this)) {
+            stateUpdater.markPermissionRequired()
+            stopSelf()
+            return
+        }
 
         tracking = true
         distanceMeters = NumericResourceProvider.zeroDouble(this)
