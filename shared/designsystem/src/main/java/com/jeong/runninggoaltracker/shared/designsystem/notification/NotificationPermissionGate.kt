@@ -16,13 +16,25 @@ object NotificationPermissionGate {
         context: Context,
         notificationId: Int,
         notification: Notification
-    ): Boolean = if (!canPostNotifications(context)) {
-        false
-    } else {
-        runCatching {
+    ): Boolean =
+        if (!canPostNotifications(context)) {
+            false
+        } else {
+            notifySafely(context, notificationId, notification)
+        }
+
+    @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
+    private fun notifySafely(
+        context: Context,
+        notificationId: Int,
+        notification: Notification
+    ): Boolean =
+        try {
             notifyBoundary(context, notificationId, notification)
-        }.isSuccess
-    }
+            true
+        } catch (_: SecurityException) {
+            false
+        }
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
     private fun notifyBoundary(
