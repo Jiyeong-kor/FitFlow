@@ -240,7 +240,7 @@ private fun ReminderCard(
             Row(horizontalArrangement = Arrangement.spacedBy(daySpacing)) {
                 daysOfWeek.forEach { (dayInt, dayName) ->
                     val isSelected = reminder.days.contains(dayInt)
-                    DayBubble(dayName, isSelected && reminder.enabled) {
+                    DayBubble(dayName, isSelected) {
                         onToggleDay(id, dayInt)
                     }
                 }
