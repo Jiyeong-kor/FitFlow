@@ -1,11 +1,15 @@
 package com.jeong.runninggoaltracker.shared.designsystem.theme
 
+import androidx.annotation.DimenRes
 import androidx.compose.material3.Typography
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.TextUnit
 import com.jeong.runninggoaltracker.shared.designsystem.R
 
 val Pretendard = FontFamily(
@@ -20,40 +24,40 @@ val Pretendard = FontFamily(
     Font(R.font.pretendard_black, FontWeight.Black)
 )
 
-val AppTypography = Typography(
-
+@Composable
+fun appTypography(): Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.Bold,
-        fontSize = 22.sp,
-        lineHeight = 28.sp
+        fontSize = textSize(R.dimen.text_size_title_large),
+        lineHeight = textSize(R.dimen.line_height_title_large)
     ),
-
     titleMedium = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.SemiBold,
-        fontSize = 18.sp,
-        lineHeight = 24.sp
+        fontSize = textSize(R.dimen.text_size_title_medium),
+        lineHeight = textSize(R.dimen.line_height_title_medium)
     ),
-
     bodyLarge = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
-        lineHeight = 22.sp
+        fontSize = textSize(R.dimen.text_size_body_large),
+        lineHeight = textSize(R.dimen.line_height_body_large)
     ),
-
     bodyMedium = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.Light,
-        fontSize = 14.sp,
-        lineHeight = 20.sp
+        fontSize = textSize(R.dimen.text_size_body_medium),
+        lineHeight = textSize(R.dimen.line_height_body_medium)
     ),
-
     labelSmall = TextStyle(
         fontFamily = Pretendard,
         fontWeight = FontWeight.Medium,
-        fontSize = 12.sp,
-        lineHeight = 16.sp
+        fontSize = textSize(R.dimen.text_size_label_small),
+        lineHeight = textSize(R.dimen.line_height_label_small)
     )
 )
+
+@Composable
+private fun textSize(@DimenRes resId: Int): TextUnit =
+    with(LocalDensity.current) { dimensionResource(id = resId).toSp() }
