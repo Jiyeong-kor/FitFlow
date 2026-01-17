@@ -1,5 +1,6 @@
 package com.jeong.runninggoaltracker.domain.usecase
 
+import com.jeong.runninggoaltracker.domain.contract.NicknameValidationContract
 import javax.inject.Inject
 
 sealed interface NicknameValidationResult {
@@ -12,7 +13,7 @@ sealed interface NicknameValidationResult {
 }
 
 class ValidateNicknameUseCase @Inject constructor() {
-    private val nicknameRegex = Regex("^[A-Za-z0-9가-힣]{2,10}$")
+    private val nicknameRegex = Regex(NicknameValidationContract.NICKNAME_REGEX_PATTERN)
 
     operator fun invoke(input: String): NicknameValidationResult {
         if (input.isBlank()) {
