@@ -8,6 +8,7 @@ import android.content.Context
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.jeong.runninggoaltracker.feature.record.R
+import com.jeong.runninggoaltracker.feature.record.contract.RecordNotificationContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
@@ -23,7 +24,7 @@ class RunningNotificationDispatcher @Inject constructor(
 
     fun createNotification(distanceKm: Double, elapsedMillis: Long): Notification {
         val elapsedMinutes = TimeUnit.MILLISECONDS.toMinutes(elapsedMillis)
-        val channelId = context.getString(R.string.record_notification_channel_id)
+        val channelId = RecordNotificationContract.NOTIFICATION_CHANNEL_ID
         val distanceFormatted = DistanceFormatter.formatDistanceKm(distanceKm)
         val content = context.getString(
             R.string.record_notification_content,
@@ -56,7 +57,7 @@ class RunningNotificationDispatcher @Inject constructor(
     fun ensureChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                context.getString(R.string.record_notification_channel_id),
+                RecordNotificationContract.NOTIFICATION_CHANNEL_ID,
                 context.getString(R.string.record_notification_channel_name),
                 NotificationManager.IMPORTANCE_HIGH
             ).apply {
