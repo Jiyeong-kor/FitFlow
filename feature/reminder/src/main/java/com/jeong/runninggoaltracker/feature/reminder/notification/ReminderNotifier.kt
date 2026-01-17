@@ -34,7 +34,6 @@ object ReminderNotifier {
         )
     }
 
-    private fun notificationId(context: Context): Int {
-        return NumericResourceProvider.reminderNotificationId(context)
-    }
+    private fun notificationId(context: Context): Int =
+        NumericResourceProvider.reminderNotificationId(context)
 }

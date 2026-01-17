@@ -79,11 +79,9 @@ class RunningNotificationDispatcher @Inject constructor(
         )
     }
 
-    private fun notificationId(): Int {
-        return NumericResourceProvider.recordNotificationId(context)
-    }
+    private fun notificationId(): Int =
+        NumericResourceProvider.recordNotificationId(context)
 
-    private fun stopRequestCode(): Int {
-        return NumericResourceProvider.recordStopRequestCode(context)
-    }
+    private fun stopRequestCode(): Int =
+        NumericResourceProvider.recordStopRequestCode(context)
 }
