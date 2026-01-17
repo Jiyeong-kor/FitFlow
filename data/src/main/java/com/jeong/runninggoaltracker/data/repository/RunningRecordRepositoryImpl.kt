@@ -13,13 +13,11 @@ class RunningRecordRepositoryImpl @Inject constructor(
     private val recordDao: RunningRecordDao
 ) : RunningRecordRepository {
 
-    override fun getAllRecords(): Flow<List<RunningRecord>> {
-        return recordDao.getAllRecords().map { records ->
+    override fun getAllRecords(): Flow<List<RunningRecord>> =
+        recordDao.getAllRecords().map { records ->
             records.map { it.toDomain() }
         }
-    }
 
-    override suspend fun addRecord(record: RunningRecord) {
+    override suspend fun addRecord(record: RunningRecord) =
         recordDao.insertRecord(record.toEntity())
-    }
 }

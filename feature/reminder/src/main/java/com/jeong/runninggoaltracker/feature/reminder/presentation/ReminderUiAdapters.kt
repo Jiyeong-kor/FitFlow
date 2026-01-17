@@ -33,9 +33,8 @@ private class ResourceReminderTimeFormatter(
         return String.format(timeFormat, displayHour, minute)
     }
 
-    override fun periodLabel(hour: Int): String {
-        return if (hour < 12) amLabel else pmLabel
-    }
+    override fun periodLabel(hour: Int): String =
+        if (hour < 12) amLabel else pmLabel
 }
 
 @Composable

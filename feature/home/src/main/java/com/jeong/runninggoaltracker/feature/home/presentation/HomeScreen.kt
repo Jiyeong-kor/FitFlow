@@ -428,8 +428,8 @@ private data class DateInfo(
     @field:StringRes val dayOfWeekResId: Int
 )
 
-private fun getDateInfo(timestamp: Long, context: android.content.Context): DateInfo {
-    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+private fun getDateInfo(timestamp: Long, context: android.content.Context): DateInfo =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
         val localDate = Instant.ofEpochMilli(timestamp)
             .atZone(ZoneId.systemDefault())
             .toLocalDate()
@@ -447,7 +447,6 @@ private fun getDateInfo(timestamp: Long, context: android.content.Context): Date
             dayOfWeekResId = calendarDayOfWeekToResId(calendar.get(Calendar.DAY_OF_WEEK))
         )
     }
-}
 
 private fun dayOfWeekToResId(dayOfWeekValue: Int): Int = when (dayOfWeekValue) {
     1 -> R.string.home_day_of_week_mon

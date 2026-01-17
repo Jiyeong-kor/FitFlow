@@ -24,13 +24,12 @@ class ActivityRecognitionManager @Inject constructor(
     private val client: ActivityRecognitionClient =
         ActivityRecognition.getClient(context)
 
-    private fun hasPermission(): Boolean {
-        return Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+    private fun hasPermission(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
                 ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.ACTIVITY_RECOGNITION
                 ) == PackageManager.PERMISSION_GRANTED
-    }
 
     private fun createPendingIntent(): PendingIntent {
         val intent = Intent(
@@ -103,11 +102,9 @@ class ActivityRecognitionManager @Inject constructor(
         activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
     }
 
-    private fun requestCode(): Int {
-        return NumericResourceProvider.activityRecognitionRequestCode(context)
-    }
+    private fun requestCode(): Int =
+        NumericResourceProvider.activityRecognitionRequestCode(context)
 
-    private fun intervalMillis(): Long {
-        return NumericResourceProvider.activityRecognitionIntervalMillis(context)
-    }
+    private fun intervalMillis(): Long =
+        NumericResourceProvider.activityRecognitionIntervalMillis(context)
 }

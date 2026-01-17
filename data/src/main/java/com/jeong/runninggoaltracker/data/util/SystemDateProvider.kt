@@ -39,8 +39,8 @@ class SystemDateProvider(private val context: Context) : DateProvider {
         }
     }
 
-    override fun getStartOfWeek(timestamp: Long): Long {
-        return Calendar.getInstance().apply {
+    override fun getStartOfWeek(timestamp: Long): Long =
+        Calendar.getInstance().apply {
             timeInMillis = timestamp
             firstDayOfWeek = Calendar.SUNDAY
             set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
@@ -49,5 +49,4 @@ class SystemDateProvider(private val context: Context) : DateProvider {
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
         }.timeInMillis
-    }
 }
