@@ -4,12 +4,13 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.jeong.runninggoaltracker.data.contract.RunningDatabaseContract
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface RunningRecordDao {
 
-    @Query("SELECT * FROM running_record ORDER BY date DESC")
+    @Query(RunningDatabaseContract.QUERY_GET_ALL_RECORDS)
     fun getAllRecords(): Flow<List<RunningRecordEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
