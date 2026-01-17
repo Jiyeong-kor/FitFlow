@@ -63,7 +63,7 @@ class RunningTrackerService : Service() {
     }
 
     @RequiresPermission(
-        allOf = [Manifest.permission.ACCESS_FINE_LOCATION,
+        anyOf = [Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION]
     )
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -75,7 +75,7 @@ class RunningTrackerService : Service() {
     }
 
     @RequiresPermission(
-        allOf = [Manifest.permission.ACCESS_FINE_LOCATION,
+        anyOf = [Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION]
     )
     private fun startTracking() {
@@ -132,11 +132,7 @@ class RunningTrackerService : Service() {
             Manifest.permission.ACCESS_COARSE_LOCATION]
     )
     private fun startLocationUpdates() {
-        if (ContextCompat.checkSelfPermission(
-                this,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
-        ) {
+        if (!hasLocationPermission()) {
             stateUpdater.markPermissionRequired()
             stopTracking()
             return
@@ -179,6 +175,16 @@ class RunningTrackerService : Service() {
         locationCallback?.let { fusedLocationClient.removeLocationUpdates(it) }
         locationCallback = null
     }
+
+    private fun hasLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(
+            this,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
 
     private fun startElapsedUpdater() {
         elapsedUpdateJob?.cancel()
