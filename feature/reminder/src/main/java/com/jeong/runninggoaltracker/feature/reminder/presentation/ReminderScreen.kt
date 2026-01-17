@@ -314,11 +314,9 @@ private fun DayBubble(day: String, isSelected: Boolean, onClick: () -> Unit) {
 }
 
 @Composable
-private fun alphaFromPercent(@IntegerRes percentResId: Int): Float {
-    val percent = integerResource(id = percentResId).toFloat()
-    val divisor = integerResource(id = R.integer.reminder_percent_divisor).toFloat()
-    return percent / divisor
-}
+private fun alphaFromPercent(@IntegerRes percentResId: Int): Float =
+    integerResource(id = percentResId).toFloat() /
+            integerResource(id = R.integer.reminder_percent_divisor).toFloat()
 
 @Preview(showBackground = true)
 @Composable
