@@ -3,7 +3,6 @@ package com.jeong.runninggoaltracker.feature.home.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
-import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -20,8 +19,7 @@ data class HomeUiState(
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    getRunningSummaryUseCase: GetRunningSummaryUseCase,
-    val dateFormatter: DateFormatter
+    getRunningSummaryUseCase: GetRunningSummaryUseCase
 ) : ViewModel() {
 
     val uiState: StateFlow<HomeUiState> =

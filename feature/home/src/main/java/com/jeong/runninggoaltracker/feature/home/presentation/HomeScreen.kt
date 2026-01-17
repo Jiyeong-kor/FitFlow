@@ -42,7 +42,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
-import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppProgressBar
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
@@ -58,14 +57,20 @@ import kotlinx.coroutines.flow.Flow
 import androidx.annotation.StringRes
 import androidx.compose.ui.res.stringResource
 import com.jeong.runninggoaltracker.feature.home.R
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import java.time.Instant
+import java.time.ZoneId
+import java.util.Calendar
+import androidx.compose.ui.platform.LocalContext
+import android.os.Build
 
 data class ActivityRecognitionUiState(
-    @get:StringRes val labelResId: Int = R.string.activity_unknown
+    @field:StringRes val labelResId: Int = R.string.activity_unknown
 )
 
 data class ActivityLogUiModel(
     val time: Long,
-    @get:StringRes val labelResId: Int
+    @field:StringRes val labelResId: Int
 )
 
 @Composable
@@ -85,7 +90,6 @@ fun HomeRoute(
         uiState = uiState,
         activityState = activityState,
         activityLogs = activityLogs,
-        dateFormatter = viewModel.dateFormatter,
         onRecordClick = onRecordClick,
         onGoalClick = onGoalClick,
         onReminderClick = onReminderClick
@@ -97,7 +101,6 @@ fun HomeScreen(
     uiState: HomeUiState,
     activityState: ActivityRecognitionUiState,
     activityLogs: List<ActivityLogUiModel>,
-    dateFormatter: DateFormatter,
     onRecordClick: () -> Unit,
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
@@ -122,7 +125,7 @@ fun HomeScreen(
         .reversed()
         .map { log ->
             ActivityItem(
-                date = dateFormatter.formatToKoreanDate(log.time),
+                date = formatActivityDateLabel(log.time),
                 dist = stringResource(R.string.home_activity_distance_placeholder),
                 time = stringResource(R.string.home_activity_time_placeholder),
                 type = stringResource(log.labelResId)
@@ -406,12 +409,65 @@ private fun SectionHeader(title: String, onViewAllClick: () -> Unit) {
     }
 }
 
-private object PreviewDateFormatter : DateFormatter {
-    override fun formatToKoreanDate(timestamp: Long): String = "2024.03.01"
+@Composable
+private fun formatActivityDateLabel(timestamp: Long): String {
+    val context = LocalContext.current
+    val dateInfo = getDateInfo(timestamp, context)
+    val dayLabel = stringResource(dateInfo.dayOfWeekResId)
+    return stringResource(
+        R.string.home_date_label_format,
+        dateInfo.month,
+        dateInfo.day,
+        dayLabel
+    )
+}
 
-    override fun formatToDistanceLabel(distanceKm: Double): String = "${distanceKm}km"
+private data class DateInfo(
+    val month: Int,
+    val day: Int,
+    @field:StringRes val dayOfWeekResId: Int
+)
 
-    override fun formatElapsedTime(elapsedMillis: Long): String = "00:30:00"
+private fun getDateInfo(timestamp: Long, context: android.content.Context): DateInfo {
+    return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val localDate = Instant.ofEpochMilli(timestamp)
+            .atZone(ZoneId.systemDefault())
+            .toLocalDate()
+        DateInfo(
+            month = localDate.monthValue,
+            day = localDate.dayOfMonth,
+            dayOfWeekResId = dayOfWeekToResId(localDate.dayOfWeek.value)
+        )
+    } else {
+        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
+        val monthOffset = NumericResourceProvider.oneInt(context)
+        DateInfo(
+            month = calendar.get(Calendar.MONTH) + monthOffset,
+            day = calendar.get(Calendar.DAY_OF_MONTH),
+            dayOfWeekResId = calendarDayOfWeekToResId(calendar.get(Calendar.DAY_OF_WEEK))
+        )
+    }
+}
+
+private fun dayOfWeekToResId(dayOfWeekValue: Int): Int = when (dayOfWeekValue) {
+    1 -> R.string.home_day_of_week_mon
+    2 -> R.string.home_day_of_week_tue
+    3 -> R.string.home_day_of_week_wed
+    4 -> R.string.home_day_of_week_thu
+    5 -> R.string.home_day_of_week_fri
+    6 -> R.string.home_day_of_week_sat
+    else -> R.string.home_day_of_week_sun
+}
+
+
+private fun calendarDayOfWeekToResId(dayOfWeek: Int): Int = when (dayOfWeek) {
+    Calendar.MONDAY -> R.string.home_day_of_week_mon
+    Calendar.TUESDAY -> R.string.home_day_of_week_tue
+    Calendar.WEDNESDAY -> R.string.home_day_of_week_wed
+    Calendar.THURSDAY -> R.string.home_day_of_week_thu
+    Calendar.FRIDAY -> R.string.home_day_of_week_fri
+    Calendar.SATURDAY -> R.string.home_day_of_week_sat
+    else -> R.string.home_day_of_week_sun
 }
 
 @Preview(showBackground = true)
@@ -435,7 +491,6 @@ private fun HomeScreenPreview() {
             uiState = uiState,
             activityState = activityState,
             activityLogs = activityLogs,
-            dateFormatter = PreviewDateFormatter,
             onRecordClick = {},
             onGoalClick = {},
             onReminderClick = {}

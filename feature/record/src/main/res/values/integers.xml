@@ -1,0 +1,3 @@
+<resources>
+    <integer name="record_seconds_per_minute">60</integer>
+</resources>

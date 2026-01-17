@@ -3,7 +3,6 @@ package com.jeong.runninggoaltracker.feature.record.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
-import com.jeong.runninggoaltracker.domain.util.DateFormatter
 import com.jeong.runninggoaltracker.feature.record.presentation.RecordUiState
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
@@ -18,7 +17,6 @@ import javax.inject.Inject
 
 @HiltViewModel
 class RecordViewModel @Inject constructor(
-    private val dateFormatter: DateFormatter,
     getRunningRecordsUseCase: GetRunningRecordsUseCase,
     private val activityRecognitionController: ActivityRecognitionController,
     activityRecognitionMonitor: ActivityRecognitionMonitor,
@@ -68,7 +66,4 @@ class RecordViewModel @Inject constructor(
     fun notifyTrackingPermissionDenied() {
         runningTrackerController.notifyPermissionDenied()
     }
-
-    fun formatElapsedTime(elapsedMillis: Long): String =
-        dateFormatter.formatElapsedTime(elapsedMillis)
 }

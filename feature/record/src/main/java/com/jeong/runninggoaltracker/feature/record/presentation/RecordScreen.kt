@@ -30,6 +30,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,7 +49,9 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import java.util.Locale
+import java.util.concurrent.TimeUnit
 
 @Composable
 fun RecordRoute(
@@ -59,7 +63,6 @@ fun RecordRoute(
 
     RecordScreen(
         uiState = uiState,
-        formatElapsedTime = viewModel::formatElapsedTime,
         onStartActivityRecognition = viewModel::startActivityRecognition,
         onStopActivityRecognition = viewModel::stopActivityRecognition,
         onPermissionDenied = viewModel::notifyPermissionDenied,
@@ -74,7 +77,6 @@ fun RecordRoute(
 @Composable
 fun RecordScreen(
     uiState: RecordUiState,
-    formatElapsedTime: (Long) -> String,
     onStartActivityRecognition: ((onPermissionRequired: () -> Unit) -> Unit),
     onStopActivityRecognition: () -> Unit,
     onPermissionDenied: () -> Unit,
@@ -85,6 +87,10 @@ fun RecordScreen(
     onRequestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
     val displayLabel = uiState.activityStatus.toRecordLabel()
+    val context = LocalContext.current
+    val zeroLong = NumericResourceProvider.zeroLong(context)
+    val zeroDouble = NumericResourceProvider.zeroDouble(context)
+    val secondsPerMinute = integerResource(R.integer.record_seconds_per_minute)
 
     val startActivityRecognitionWithPermission: () -> Unit = {
         onStartActivityRecognition {
@@ -125,7 +131,7 @@ fun RecordScreen(
         onStopTracking()
     })
 
-    val distanceValue = String.format(Locale.getDefault(), "%.2f", uiState.distanceKm)
+    val distanceValue = stringResource(R.string.record_distance_format, uiState.distanceKm)
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
     val surfaceColor = appSurfaceColor()
@@ -136,7 +142,10 @@ fun RecordScreen(
         distanceKm = uiState.distanceKm,
         elapsedMillis = uiState.elapsedMillis,
         paceZero = stringResource(R.string.record_pace_zero),
-        paceFormat = stringResource(R.string.record_pace_format)
+        paceFormat = stringResource(R.string.record_pace_format),
+        zeroDouble = zeroDouble,
+        zeroLong = zeroLong,
+        secondsPerMinute = secondsPerMinute
     )
 
     Column(
@@ -189,7 +198,7 @@ fun RecordScreen(
         ) {
             MetricItem(
                 label = stringResource(R.string.record_metric_time),
-                value = formatElapsedTime(uiState.elapsedMillis),
+                value = formatElapsedTimeLabel(uiState.elapsedMillis, zeroLong),
                 modifier = Modifier.weight(1f)
             )
             MetricItem(
@@ -317,15 +326,32 @@ private fun formatPace(
     distanceKm: Double,
     elapsedMillis: Long,
     paceZero: String,
-    paceFormat: String
+    paceFormat: String,
+    zeroDouble: Double,
+    zeroLong: Long,
+    secondsPerMinute: Int
 ): String {
-    if (distanceKm <= 0.0 || elapsedMillis <= 0L) {
+    if (distanceKm <= zeroDouble || elapsedMillis <= zeroLong) {
         return paceZero
     }
-    val secondsPerKm = elapsedMillis / 1000.0 / distanceKm
-    val minutes = (secondsPerKm / 60).toInt()
-    val seconds = (secondsPerKm % 60).toInt()
+    val totalSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMillis)
+    val secondsPerKm = totalSeconds.toDouble() / distanceKm
+    val minutes = (secondsPerKm / secondsPerMinute).toInt()
+    val seconds = (secondsPerKm % secondsPerMinute).toInt()
     return String.format(Locale.getDefault(), paceFormat, minutes, seconds)
+}
+
+@Composable
+private fun formatElapsedTimeLabel(elapsedMillis: Long, zeroLong: Long): String {
+    val totalSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMillis)
+    val hours = TimeUnit.SECONDS.toHours(totalSeconds)
+    val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) - TimeUnit.HOURS.toMinutes(hours)
+    val seconds = totalSeconds - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(totalSeconds))
+    return if (hours > zeroLong) {
+        stringResource(R.string.record_elapsed_time_hms_format, hours, minutes, seconds)
+    } else {
+        stringResource(R.string.record_elapsed_time_ms_format, minutes, seconds)
+    }
 }
 
 @Preview(showBackground = true)
@@ -342,7 +368,6 @@ private fun RecordScreenPreview() {
     RunningGoalTrackerTheme {
         RecordScreen(
             uiState = uiState,
-            formatElapsedTime = { "00:20:45" },
             onStartActivityRecognition = { _ -> },
             onStopActivityRecognition = {},
             onPermissionDenied = {},
