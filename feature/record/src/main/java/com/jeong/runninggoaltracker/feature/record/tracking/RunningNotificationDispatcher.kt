@@ -25,7 +25,7 @@ class RunningNotificationDispatcher @Inject constructor(
     fun createNotification(distanceKm: Double, elapsedMillis: Long): Notification {
         val elapsedMinutes = TimeUnit.MILLISECONDS.toMinutes(elapsedMillis)
         val channelId = RecordNotificationContract.NOTIFICATION_CHANNEL_ID
-        val distanceFormatted = DistanceFormatter.formatDistanceKm(distanceKm)
+        val distanceFormatted = DistanceFormatter.formatDistanceKm(context, distanceKm)
         val content = context.getString(
             R.string.record_notification_content,
             distanceFormatted,

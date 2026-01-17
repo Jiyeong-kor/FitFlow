@@ -7,13 +7,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 
+@Composable
 fun Modifier.throttleClick(
-    intervalMillis: Long = 500L,
+    intervalMillis: Long = throttleClickIntervalMillis(),
     onIgnored: () -> Unit = {},
     onClick: () -> Unit
 ): Modifier = composed {
@@ -22,12 +25,12 @@ fun Modifier.throttleClick(
 
     val eventFlow = remember {
         MutableSharedFlow<Unit>(
-            extraBufferCapacity = 1,
+            extraBufferCapacity = FLOW_BUFFER_CAPACITY,
             onBufferOverflow = BufferOverflow.DROP_OLDEST
         )
     }
 
-    val lastExecutionTime = remember { mutableLongStateOf(0L) }
+    val lastExecutionTime = remember { mutableLongStateOf(INITIAL_EXECUTION_TIME_MILLIS) }
 
     LaunchedEffect(Unit) {
         eventFlow.collect {
@@ -46,7 +49,7 @@ fun Modifier.throttleClick(
 
 @Composable
 fun rememberThrottleClick(
-    intervalMillis: Long = 500L,
+    intervalMillis: Long = throttleClickIntervalMillis(),
     onIgnored: () -> Unit = {},
     onClick: () -> Unit
 ): () -> Unit {
@@ -55,12 +58,12 @@ fun rememberThrottleClick(
 
     val eventFlow = remember {
         MutableSharedFlow<Unit>(
-            extraBufferCapacity = 1,
+            extraBufferCapacity = FLOW_BUFFER_CAPACITY,
             onBufferOverflow = BufferOverflow.DROP_OLDEST
         )
     }
 
-    val lastExecutionTime = remember { mutableLongStateOf(0L) }
+    val lastExecutionTime = remember { mutableLongStateOf(INITIAL_EXECUTION_TIME_MILLIS) }
 
     LaunchedEffect(Unit) {
         eventFlow.collect {
@@ -76,3 +79,12 @@ fun rememberThrottleClick(
 
     return remember(eventFlow) { { eventFlow.tryEmit(Unit) } }
 }
+
+@Composable
+private fun throttleClickIntervalMillis(): Long {
+    val context = LocalContext.current
+    return NumericResourceProvider.throttleClickIntervalMillis(context)
+}
+
+private const val FLOW_BUFFER_CAPACITY = 1
+private const val INITIAL_EXECUTION_TIME_MILLIS = 0L

@@ -11,23 +11,30 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
+import com.jeong.runninggoaltracker.shared.designsystem.R
 
 @Composable
 fun AppProgressBar(
     progress: Float,
     modifier: Modifier = Modifier,
-    height: Dp = 10.dp,
-    backgroundColor: Color = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = 0.7f),
+    height: Dp? = null,
+    backgroundColor: Color? = null,
     foregroundColor: Color = MaterialTheme.colorScheme.primary
 ) {
+    val resolvedHeight = height ?: dimensionResource(R.dimen.progress_bar_height)
+    val backgroundAlpha =
+        integerResource(R.integer.progress_bar_background_alpha_percent) / 100f
+    val resolvedBackgroundColor =
+        backgroundColor ?: MaterialTheme.colorScheme.surfaceContainer.copy(alpha = backgroundAlpha)
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(height)
-            .clip(RoundedCornerShape(height / 2))
-            .background(backgroundColor)
+            .height(resolvedHeight)
+            .clip(RoundedCornerShape(resolvedHeight / 2))
+            .background(resolvedBackgroundColor)
     ) {
         Box(
             modifier = Modifier

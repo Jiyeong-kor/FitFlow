@@ -20,19 +20,18 @@ fun AppTopBar(
     val colorScheme = MaterialTheme.colorScheme
     val typography = MaterialTheme.typography
 
-    val title = when {
-        titleResId != null -> stringResource(id = titleResId)
-        fallbackTitleResId != null -> stringResource(id = fallbackTitleResId)
-        else -> ""
-    }
+    val title = titleResId?.let { stringResource(id = it) }
+        ?: fallbackTitleResId?.let { stringResource(id = it) }
 
     CenterAlignedTopAppBar(
         modifier = modifier,
         title = {
-            Text(
-                text = title,
-                style = typography.titleMedium
-            )
+            if (title != null) {
+                Text(
+                    text = title,
+                    style = typography.titleMedium
+                )
+            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = colorScheme.surface,

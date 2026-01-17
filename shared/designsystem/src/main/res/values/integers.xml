@@ -16,4 +16,9 @@
     <integer name="reminder_request_code_minute_multiplier">10</integer>
     <integer name="reminder_day_of_week_min">1</integer>
     <integer name="reminder_day_of_week_max">7</integer>
+    <integer name="distance_fraction_digits">1</integer>
+    <integer name="percentage_fraction_digits">0</integer>
+    <integer name="percentage_scale">100</integer>
+    <integer name="progress_bar_background_alpha_percent">70</integer>
+    <integer name="throttle_click_interval_millis">500</integer>
 </resources>

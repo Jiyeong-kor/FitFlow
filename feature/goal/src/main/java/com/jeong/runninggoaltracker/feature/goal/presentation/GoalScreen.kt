@@ -27,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -72,7 +73,8 @@ fun GoalScreen(
     val goalDistance = state.weeklyGoalKmInput
         ?: state.currentGoalKm
         ?: 0.0
-    val goalDistanceLabel = DistanceFormatter.formatDistanceKm(goalDistance)
+    val context = LocalContext.current
+    val goalDistanceLabel = DistanceFormatter.formatDistanceKm(context, goalDistance)
 
     val onSaveThrottled = rememberThrottleClick(onClick = onSave)
     val onDecreaseThrottled = rememberThrottleClick {

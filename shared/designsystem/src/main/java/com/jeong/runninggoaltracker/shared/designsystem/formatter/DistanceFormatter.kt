@@ -1,13 +1,16 @@
 package com.jeong.runninggoaltracker.shared.designsystem.formatter
 
+import android.content.Context
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import java.text.NumberFormat
 
 object DistanceFormatter {
 
-    fun formatDistanceKm(distanceKm: Double): String {
+    fun formatDistanceKm(context: Context, distanceKm: Double): String {
         val formatter = NumberFormat.getNumberInstance()
-        formatter.minimumFractionDigits = 1
-        formatter.maximumFractionDigits = 1
+        val fractionDigits = NumericResourceProvider.distanceFractionDigits(context)
+        formatter.minimumFractionDigits = fractionDigits
+        formatter.maximumFractionDigits = fractionDigits
         return formatter.format(distanceKm)
     }
 }

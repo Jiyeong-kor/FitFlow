@@ -4,6 +4,7 @@
     <dimen name="card_elevation">1dp</dimen>
     <dimen name="card_corner_radius">24dp</dimen>
     <dimen name="card_padding_large">16dp</dimen>
+    <dimen name="app_surface_card_content_padding">20dp</dimen>
     <dimen name="card_spacing_small">8dp</dimen>
     <dimen name="spacing_xs">4dp</dimen>
     <dimen name="spacing_sm">8dp</dimen>
@@ -19,5 +20,7 @@
     <dimen name="onboarding_tag_corner_radius">12dp</dimen>
     <dimen name="onboarding_tag_padding_horizontal">8dp</dimen>
     <dimen name="onboarding_tag_padding_vertical">4dp</dimen>
+    <dimen name="progress_bar_height">10dp</dimen>
+    <dimen name="size_zero">0dp</dimen>
 
 </resources>

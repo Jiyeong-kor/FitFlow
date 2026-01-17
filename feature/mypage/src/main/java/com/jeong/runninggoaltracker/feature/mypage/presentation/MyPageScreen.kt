@@ -42,6 +42,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -281,9 +282,11 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
 @Composable
 private fun SummaryStats(uiState: MyPageUiState) {
     Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        val context = LocalContext.current
         val distanceText =
-            DistanceFormatter.formatDistanceKm(uiState.summary?.totalThisWeekKm ?: 0.0)
-        val progressText = PercentageFormatter.formatProgress(uiState.summary?.progress ?: 0f)
+            DistanceFormatter.formatDistanceKm(context, uiState.summary?.totalThisWeekKm ?: 0.0)
+        val progressText =
+            PercentageFormatter.formatProgress(context, uiState.summary?.progress ?: 0f)
         StatItem(
             modifier = Modifier.weight(1f),
             label = stringResource(id = R.string.mypage_summary_distance_label),

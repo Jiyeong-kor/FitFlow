@@ -83,4 +83,20 @@ object NumericResourceProvider {
     fun reminderDayOfWeekMax(context: Context): Int {
         return context.resources.getInteger(R.integer.reminder_day_of_week_max)
     }
+
+    fun distanceFractionDigits(context: Context): Int {
+        return context.resources.getInteger(R.integer.distance_fraction_digits)
+    }
+
+    fun percentageFractionDigits(context: Context): Int {
+        return context.resources.getInteger(R.integer.percentage_fraction_digits)
+    }
+
+    fun percentageScale(context: Context): Int {
+        return context.resources.getInteger(R.integer.percentage_scale)
+    }
+
+    fun throttleClickIntervalMillis(context: Context): Long {
+        return context.resources.getInteger(R.integer.throttle_click_interval_millis).toLong()
+    }
 }
