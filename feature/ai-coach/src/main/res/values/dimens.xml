@@ -1,0 +1,9 @@
+<resources>
+    <dimen name="smart_workout_rep_count_text_size">160sp</dimen>
+    <dimen name="smart_workout_feedback_title_text_size">12sp</dimen>
+    <dimen name="smart_workout_feedback_body_text_size">18sp</dimen>
+    <dimen name="smart_workout_accuracy_label_text_size">12sp</dimen>
+    <dimen name="smart_workout_chip_text_size">14sp</dimen>
+    <dimen name="smart_workout_skeleton_stroke_width">6dp</dimen>
+    <dimen name="smart_workout_skeleton_dot_radius">6dp</dimen>
+</resources>

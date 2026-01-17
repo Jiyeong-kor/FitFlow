@@ -14,20 +14,18 @@ data class MyPageUiState(
     val userLevel: String? = null
 ) {
     companion object {
-        fun preview(): MyPageUiState {
-            return MyPageUiState(
-                isLoading = false,
-                summary = RunningSummary(
-                    weeklyGoalKm = 15.0,
-                    totalThisWeekKm = 9.5,
-                    recordCountThisWeek = 3,
-                    progress = 0.63f
-                ),
-                userNickname = "러너",
-                userLevel = "Active Runner",
-                isActivityRecognitionEnabled = true,
-                isAnonymous = true
-            )
-        }
+        fun preview(): MyPageUiState = MyPageUiState(
+            isLoading = false,
+            summary = RunningSummary(
+                weeklyGoalKm = 15.0,
+                totalThisWeekKm = 9.5,
+                recordCountThisWeek = 3,
+                progress = 0.63f
+            ),
+            userNickname = "러너",
+            userLevel = "Active Runner",
+            isActivityRecognitionEnabled = true,
+            isAnonymous = true
+        )
     }
 }

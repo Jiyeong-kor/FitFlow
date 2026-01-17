@@ -30,11 +30,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -47,7 +50,9 @@ import com.jeong.runninggoaltracker.domain.model.PoseFrame
 import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
 import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
 import com.jeong.runninggoaltracker.feature.ai_coach.R
+import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacing2xl
@@ -86,17 +91,23 @@ fun SmartWorkoutScreen(
     val accentColor = appAccentColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
+    val repCountTextSize = dimensionResource(R.dimen.smart_workout_rep_count_text_size)
+    val feedbackTitleTextSize = dimensionResource(R.dimen.smart_workout_feedback_title_text_size)
+    val feedbackBodyTextSize = dimensionResource(R.dimen.smart_workout_feedback_body_text_size)
+    val accuracyLabelTextSize = dimensionResource(R.dimen.smart_workout_accuracy_label_text_size)
+    val accuracyMultiplier = integerResource(R.integer.smart_workout_accuracy_percent_multiplier)
+    val onBackClick = rememberThrottleClick(onClick = onBack)
     val containerColor by animateColorAsState(
         targetValue = if (uiState.isPerfectForm) {
             MaterialTheme.colorScheme.primaryContainer
         } else {
             appSurfaceColor()
         },
-        label = "feedback-card"
+        label = SmartWorkoutAnimationContract.FEEDBACK_CARD_ANIMATION_LABEL
     )
     val accuracyProgress by animateFloatAsState(
         targetValue = uiState.accuracy,
-        label = "accuracy-progress"
+        label = SmartWorkoutAnimationContract.ACCURACY_PROGRESS_ANIMATION_LABEL
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -122,7 +133,7 @@ fun SmartWorkoutScreen(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            IconButton(onClick = onBack) {
+            IconButton(onClick = onBackClick) {
                 Icon(
                     imageVector = Icons.Default.Close,
                     contentDescription = stringResource(R.string.smart_workout_close),
@@ -146,7 +157,7 @@ fun SmartWorkoutScreen(
             Text(
                 text = uiState.repCount.toString(),
                 color = textPrimary,
-                fontSize = 160.sp,
+                fontSize = repCountTextSize.value.sp,
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Black
             )
@@ -166,13 +177,13 @@ fun SmartWorkoutScreen(
                 Text(
                     text = stringResource(R.string.smart_workout_feedback_title),
                     color = textMuted,
-                    fontSize = 12.sp,
+                    fontSize = feedbackTitleTextSize.value.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = feedbackText(uiState.feedbackType),
                     color = textPrimary,
-                    fontSize = 18.sp,
+                    fontSize = feedbackBodyTextSize.value.sp,
                     fontWeight = FontWeight.SemiBold
                 )
                 LinearProgressIndicator(
@@ -182,9 +193,12 @@ fun SmartWorkoutScreen(
                     trackColor = MaterialTheme.colorScheme.surfaceVariant
                 )
                 Text(
-                    text = stringResource(R.string.smart_workout_accuracy_label, (accuracyProgress * 100).toInt()),
+                    text = stringResource(
+                        R.string.smart_workout_accuracy_label,
+                        (accuracyProgress * accuracyMultiplier).toInt()
+                    ),
                     color = textMuted,
-                    fontSize = 12.sp
+                    fontSize = accuracyLabelTextSize.value.sp
                 )
             }
         }
@@ -210,7 +224,7 @@ private fun ExerciseTypeChip(
             Text(
                 text = exerciseTypeLabel(exerciseType),
                 color = appTextPrimaryColor(),
-                fontSize = 14.sp,
+                fontSize = dimensionResource(R.dimen.smart_workout_chip_text_size).value.sp,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -260,6 +274,13 @@ private fun SkeletonOverlay(
     poseFrame: PoseFrame?,
     strokeColor: androidx.compose.ui.graphics.Color
 ) {
+    val density = LocalDensity.current
+    val skeletonStrokeWidthPx = with(density) {
+        dimensionResource(R.dimen.smart_workout_skeleton_stroke_width).toPx()
+    }
+    val skeletonDotRadiusPx = with(density) {
+        dimensionResource(R.dimen.smart_workout_skeleton_dot_radius).toPx()
+    }
     val connections = remember {
         listOf(
             PoseLandmarkType.LEFT_SHOULDER to PoseLandmarkType.RIGHT_SHOULDER,
@@ -285,7 +306,7 @@ private fun SkeletonOverlay(
                     color = strokeColor,
                     start = Offset(start.x * size.width, start.y * size.height),
                     end = Offset(end.x * size.width, end.y * size.height),
-                    strokeWidth = 6f,
+                    strokeWidth = skeletonStrokeWidthPx,
                     cap = StrokeCap.Round
                 )
             }
@@ -294,7 +315,7 @@ private fun SkeletonOverlay(
         points.values.forEach { landmark ->
             drawCircle(
                 color = strokeColor,
-                radius = 6f,
+                radius = skeletonDotRadiusPx,
                 center = Offset(landmark.x * size.width, landmark.y * size.height)
             )
         }

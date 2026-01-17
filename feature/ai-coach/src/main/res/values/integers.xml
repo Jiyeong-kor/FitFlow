@@ -1,0 +1,3 @@
+<resources>
+    <integer name="smart_workout_accuracy_percent_multiplier">100</integer>
+</resources>
