@@ -16,9 +16,7 @@ import com.jeong.runninggoaltracker.shared.navigation.MainTab
 
 @Composable
 fun MainContainerRoute(
-    activityRecognitionMonitor: ActivityRecognitionMonitor,
-    requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
-    requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
+    activityRecognitionMonitor: ActivityRecognitionMonitor
 ) {
     val viewModel = hiltViewModel<MainNavigationViewModel>()
     val navController = rememberNavController()
@@ -52,9 +50,7 @@ fun MainContainerRoute(
         ) {
             mainDestinations(
                 navController = navController,
-                activityRecognitionMonitor = activityRecognitionMonitor,
-                requestActivityRecognitionPermission = requestActivityRecognitionPermission,
-                requestTrackingPermissions = requestTrackingPermissions
+                activityRecognitionMonitor = activityRecognitionMonitor
             )
         }
     }

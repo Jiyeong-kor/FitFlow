@@ -44,10 +44,9 @@ class ActivityRecognitionManager @Inject constructor(
     }
 
     @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
-    override fun startUpdates(onPermissionRequired: () -> Unit) {
+    override fun startUpdates() {
         if (!hasPermission()) {
             activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
-            onPermissionRequired()
             return
         }
 
@@ -96,10 +95,6 @@ class ActivityRecognitionManager @Inject constructor(
         } catch (_: SecurityException) {
         }
         activityStateUpdater.update(ActivityRecognitionStatus.Stopped)
-    }
-
-    override fun notifyPermissionDenied() {
-        activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
     }
 
     private fun requestCode(): Int =

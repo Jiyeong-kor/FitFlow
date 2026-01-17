@@ -21,24 +21,18 @@ import com.jeong.runninggoaltracker.shared.navigation.navigateTo
 import kotlinx.coroutines.flow.map
 
 fun NavGraphBuilder.mainNavGraph(
-    activityRecognitionMonitor: ActivityRecognitionMonitor,
-    requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
-    requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
+    activityRecognitionMonitor: ActivityRecognitionMonitor
 ) {
     composable<MainNavigationRoute.Main> {
         MainContainerRoute(
-            activityRecognitionMonitor = activityRecognitionMonitor,
-            requestActivityRecognitionPermission = requestActivityRecognitionPermission,
-            requestTrackingPermissions = requestTrackingPermissions
+            activityRecognitionMonitor = activityRecognitionMonitor
         )
     }
 }
 
 internal fun NavGraphBuilder.mainDestinations(
     navController: NavHostController,
-    activityRecognitionMonitor: ActivityRecognitionMonitor,
-    requestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
-    requestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
+    activityRecognitionMonitor: ActivityRecognitionMonitor
 ) {
     composable<MainNavigationRoute.Home> { backStackEntry ->
         val viewModel: HomeViewModel = hiltViewModel(backStackEntry)
@@ -59,9 +53,7 @@ internal fun NavGraphBuilder.mainDestinations(
     composable<MainNavigationRoute.Record> { backStackEntry ->
         val viewModel: RecordViewModel = hiltViewModel(backStackEntry)
         RecordRoute(
-            viewModel = viewModel,
-            onRequestActivityRecognitionPermission = requestActivityRecognitionPermission,
-            onRequestTrackingPermissions = requestTrackingPermissions
+            viewModel = viewModel
         )
     }
 

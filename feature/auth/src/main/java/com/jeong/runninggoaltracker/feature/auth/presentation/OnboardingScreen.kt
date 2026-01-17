@@ -105,9 +105,9 @@ private fun buildOnboardingPermissions(): Array<String> =
 
 @Composable
 private fun PermissionsScreen(
-    modifier: Modifier = Modifier,
     permissionErrorResId: Int?,
-    onAgree: () -> Unit
+    onAgree: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val spacingSm =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_sm)
@@ -267,8 +267,8 @@ private fun PermissionRow(
 
 @Composable
 private fun SuccessScreen(
-    modifier: Modifier = Modifier,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val spacingLg =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_lg)

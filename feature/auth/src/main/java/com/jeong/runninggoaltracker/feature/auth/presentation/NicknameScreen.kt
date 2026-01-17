@@ -34,9 +34,9 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
 @Composable
 fun NicknameScreen(
     uiState: OnboardingUiState,
-    modifier: Modifier = Modifier,
     onNicknameChanged: (String) -> Unit,
-    onContinue: () -> Unit
+    onContinue: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     val spacingSm =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_sm)

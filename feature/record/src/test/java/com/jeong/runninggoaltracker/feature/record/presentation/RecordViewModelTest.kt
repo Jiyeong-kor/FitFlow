@@ -57,13 +57,11 @@ class RecordViewModelTest {
 
     @Test
     fun `활동 인식 제어 요청을 위임한다`() = runTest {
-        viewModel.startActivityRecognition { activityController.permissionRequested = true }
+        viewModel.startActivityRecognition()
         viewModel.stopActivityRecognition()
-        viewModel.notifyPermissionDenied()
 
         assertTrue(activityController.started)
         assertTrue(activityController.stopped)
-        assertTrue(activityController.permissionRequested)
     }
 
     @Test
@@ -86,13 +84,11 @@ class RecordViewModelTest {
 
     @Test
     fun `러닝 트래킹 제어 요청을 위임한다`() = runTest {
-        viewModel.startTracking { runningTrackerController.permissionRequested = true }
+        viewModel.startTracking()
         viewModel.stopTracking()
-        viewModel.notifyTrackingPermissionDenied()
 
         assertTrue(runningTrackerController.started)
         assertTrue(runningTrackerController.stopped)
-        assertTrue(runningTrackerController.permissionRequested)
     }
 
     private class FakeRunningRecordRepository : RunningRecordRepository {
@@ -108,19 +104,13 @@ class RecordViewModelTest {
     private class FakeActivityRecognitionController : ActivityRecognitionController {
         var started = false
         var stopped = false
-        var permissionRequested = false
 
-        override fun startUpdates(onPermissionRequired: () -> Unit) {
+        override fun startUpdates() {
             started = true
-            onPermissionRequired()
         }
 
         override fun stopUpdates() {
             stopped = true
-        }
-
-        override fun notifyPermissionDenied() {
-            permissionRequested = true
         }
     }
 
@@ -143,19 +133,13 @@ class RecordViewModelTest {
     private class FakeRunningTrackerController : RunningTrackerController {
         var started = false
         var stopped = false
-        var permissionRequested = false
 
-        override fun startTracking(onPermissionRequired: () -> Unit) {
+        override fun startTracking() {
             started = true
-            onPermissionRequired()
         }
 
         override fun stopTracking() {
             stopped = true
-        }
-
-        override fun notifyPermissionDenied() {
-            permissionRequested = true
         }
     }
 

@@ -15,10 +15,9 @@ class RunningTrackerManager @Inject constructor(
     private val stateUpdater: RunningTrackerStateUpdater
 ) : RunningTrackerController {
 
-    override fun startTracking(onPermissionRequired: () -> Unit) {
+    override fun startTracking() {
         if (!hasLocationPermission()) {
             stateUpdater.markPermissionRequired()
-            onPermissionRequired()
             return
         }
         stateUpdater.markTracking()
@@ -33,10 +32,6 @@ class RunningTrackerManager @Inject constructor(
             action = RunningTrackerServiceContract.ACTION_STOP
         }
         context.startService(intent)
-    }
-
-    override fun notifyPermissionDenied() {
-        stateUpdater.markPermissionRequired()
     }
 
     private fun hasLocationPermission(): Boolean =

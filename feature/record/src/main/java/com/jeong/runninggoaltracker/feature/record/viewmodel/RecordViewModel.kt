@@ -43,27 +43,11 @@ class RecordViewModel @Inject constructor(
         initialValue = RecordUiState()
     )
 
-    fun startActivityRecognition(onPermissionRequired: () -> Unit) {
-        activityRecognitionController.startUpdates(onPermissionRequired)
-    }
+    fun startActivityRecognition() = activityRecognitionController.startUpdates()
 
-    fun stopActivityRecognition() {
-        activityRecognitionController.stopUpdates()
-    }
+    fun stopActivityRecognition() = activityRecognitionController.stopUpdates()
 
-    fun notifyPermissionDenied() {
-        activityRecognitionController.notifyPermissionDenied()
-    }
+    fun startTracking() = runningTrackerController.startTracking()
 
-    fun startTracking(onPermissionRequired: () -> Unit) {
-        runningTrackerController.startTracking(onPermissionRequired)
-    }
-
-    fun stopTracking() {
-        runningTrackerController.stopTracking()
-    }
-
-    fun notifyTrackingPermissionDenied() {
-        runningTrackerController.notifyPermissionDenied()
-    }
+    fun stopTracking() = runningTrackerController.stopTracking()
 }

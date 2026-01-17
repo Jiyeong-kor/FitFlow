@@ -56,8 +56,6 @@ import java.util.concurrent.TimeUnit
 
 @Composable
 fun RecordRoute(
-    onRequestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit,
-    onRequestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
     viewModel: RecordViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
@@ -66,26 +64,18 @@ fun RecordRoute(
         uiState = uiState,
         onStartActivityRecognition = viewModel::startActivityRecognition,
         onStopActivityRecognition = viewModel::stopActivityRecognition,
-        onPermissionDenied = viewModel::notifyPermissionDenied,
         onStartTracking = viewModel::startTracking,
-        onStopTracking = viewModel::stopTracking,
-        onTrackingPermissionDenied = viewModel::notifyTrackingPermissionDenied,
-        onRequestActivityRecognitionPermission = onRequestActivityRecognitionPermission,
-        onRequestTrackingPermissions = onRequestTrackingPermissions
+        onStopTracking = viewModel::stopTracking
     )
 }
 
 @Composable
 fun RecordScreen(
     uiState: RecordUiState,
-    onStartActivityRecognition: ((onPermissionRequired: () -> Unit) -> Unit),
+    onStartActivityRecognition: () -> Unit,
     onStopActivityRecognition: () -> Unit,
-    onPermissionDenied: () -> Unit,
-    onStartTracking: ((onPermissionRequired: () -> Unit) -> Unit),
+    onStartTracking: () -> Unit,
     onStopTracking: () -> Unit,
-    onTrackingPermissionDenied: () -> Unit,
-    onRequestActivityRecognitionPermission: (onResult: (Boolean) -> Unit) -> Unit,
-    onRequestTrackingPermissions: (onResult: (Boolean) -> Unit) -> Unit
 ) {
     val displayLabel = uiState.activityStatus.toRecordLabel()
     val context = LocalContext.current
@@ -99,37 +89,13 @@ fun RecordScreen(
     val accentAlphaStrong = integerResource(R.integer.record_accent_alpha_strong).toFloat() /
             alphaDenominator.toFloat()
 
-    val startActivityRecognitionWithPermission: () -> Unit = {
-        onStartActivityRecognition {
-            onRequestActivityRecognitionPermission { granted ->
-                if (granted) {
-                    onStartActivityRecognition {}
-                } else {
-                    onPermissionDenied()
-                }
-            }
-        }
-    }
-
-    val startTrackingWithPermission: () -> Unit = {
-        onStartTracking {
-            onRequestTrackingPermissions { granted ->
-                if (granted) {
-                    onStartTracking {}
-                } else {
-                    onTrackingPermissionDenied()
-                }
-            }
-        }
-    }
-
     val onPauseClick = rememberThrottleClick(onClick = {
         if (uiState.isTracking) {
             onStopActivityRecognition()
             onStopTracking()
         } else {
-            startActivityRecognitionWithPermission()
-            startTrackingWithPermission()
+            onStartActivityRecognition()
+            onStartTracking()
         }
     })
 
@@ -417,14 +383,10 @@ private fun RecordScreenPreview() {
     RunningGoalTrackerTheme {
         RecordScreen(
             uiState = uiState,
-            onStartActivityRecognition = { _ -> },
+            onStartActivityRecognition = {},
             onStopActivityRecognition = {},
-            onPermissionDenied = {},
-            onStartTracking = { _ -> },
-            onStopTracking = {},
-            onTrackingPermissionDenied = {},
-            onRequestActivityRecognitionPermission = {},
-            onRequestTrackingPermissions = {}
+            onStartTracking = {},
+            onStopTracking = {}
         )
     }
 }
