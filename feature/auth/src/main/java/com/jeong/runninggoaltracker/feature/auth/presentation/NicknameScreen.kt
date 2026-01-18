@@ -162,4 +162,6 @@ private fun NicknameScreenPreview() = RunningGoalTrackerTheme {
     )
 }
 
-private fun previewUiState(): OnboardingUiState = OnboardingUiState(nickname = "러너")
+@Composable
+private fun previewUiState(): OnboardingUiState =
+    OnboardingUiState(nickname = stringResource(id = R.string.nickname_preview_value))

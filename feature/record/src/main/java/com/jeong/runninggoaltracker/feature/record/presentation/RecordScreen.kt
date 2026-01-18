@@ -414,8 +414,12 @@ private fun RecordControlButtonPreview() = RunningGoalTrackerTheme {
     )
 }
 
-private fun previewMetricLabel(): String = "시간"
+@Composable
+private fun previewMetricLabel(): String = stringResource(id = R.string.record_preview_metric_label)
 
-private fun previewMetricValue(): String = "00:45:12"
+@Composable
+private fun previewMetricValue(): String = stringResource(id = R.string.record_preview_metric_value)
 
-private fun previewControlLabel(): String = "일시정지"
+@Composable
+private fun previewControlLabel(): String =
+    stringResource(id = R.string.record_preview_control_label)
