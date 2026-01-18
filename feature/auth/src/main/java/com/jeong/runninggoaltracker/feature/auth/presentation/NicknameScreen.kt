@@ -154,8 +154,10 @@ fun NicknameScreen(
 @Composable
 private fun NicknameScreenPreview() = RunningGoalTrackerTheme {
     NicknameScreen(
-        uiState = OnboardingUiState(nickname = "러너"),
+        uiState = previewUiState(),
         onNicknameChanged = {},
         onContinue = {}
     )
 }
+
+private fun previewUiState(): OnboardingUiState = OnboardingUiState(nickname = "러너")
