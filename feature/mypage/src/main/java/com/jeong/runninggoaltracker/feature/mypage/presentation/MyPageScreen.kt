@@ -432,7 +432,10 @@ private fun SettingsList(
                 }
                 Switch(
                     checked = uiState.isActivityRecognitionEnabled,
-                    onCheckedChange = onActivityToggle
+                    onCheckedChange = null,
+                    modifier = Modifier.throttleClick {
+                        onActivityToggle(!uiState.isActivityRecognitionEnabled)
+                    }
                 )
             }
             HorizontalDivider(

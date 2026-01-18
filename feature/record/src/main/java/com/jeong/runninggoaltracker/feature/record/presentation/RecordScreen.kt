@@ -274,8 +274,9 @@ private fun RecordControlButton(
     modifier: Modifier = Modifier,
     onClick: () -> Unit
 ) {
+    val onClickThrottled = rememberThrottleClick(onClick = onClick)
     Button(
-        onClick = onClick,
+        onClick = onClickThrottled,
         modifier = modifier.height(dimensionResource(R.dimen.record_control_button_height)),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,

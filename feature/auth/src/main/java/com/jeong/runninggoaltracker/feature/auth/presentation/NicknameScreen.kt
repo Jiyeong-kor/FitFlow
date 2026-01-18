@@ -28,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
 
@@ -125,10 +126,11 @@ fun NicknameScreen(
                 color = MaterialTheme.colorScheme.error
             )
         }
+        val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
         Spacer(modifier = Modifier.height(spacingSm))
         Button(
             modifier = Modifier.fillMaxWidth(),
-            onClick = onContinue,
+            onClick = onContinueThrottled,
             enabled = uiState.isNicknameValid && !uiState.isLoading,
             contentPadding = PaddingValues(vertical = spacingLg)
         ) {

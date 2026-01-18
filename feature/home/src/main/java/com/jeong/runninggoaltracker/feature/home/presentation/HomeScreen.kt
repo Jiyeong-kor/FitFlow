@@ -454,6 +454,7 @@ private fun SectionHeader(title: String, onViewAllClick: () -> Unit) {
     val textPrimary = appTextPrimaryColor()
     val titleTextSize = dimensionResource(id = R.dimen.home_section_title_text_size).value.sp
     val actionTextSize = dimensionResource(id = R.dimen.home_section_action_text_size).value.sp
+    val onViewAllClickThrottled = rememberThrottleClick(onClick = onViewAllClick)
 
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -461,7 +462,7 @@ private fun SectionHeader(title: String, onViewAllClick: () -> Unit) {
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(title, color = textPrimary, fontSize = titleTextSize, fontWeight = FontWeight.Bold)
-        TextButton(onClick = onViewAllClick) {
+        TextButton(onClick = onViewAllClickThrottled) {
             Text(
                 stringResource(R.string.home_action_view_all),
                 color = accentColor,
