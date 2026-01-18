@@ -51,9 +51,8 @@ class RecordViewModelTest {
     }
 
     @After
-    fun tearDown() {
+    fun tearDown() =
         Dispatchers.resetMain()
-    }
 
     @Test
     fun `활동 인식 제어 요청을 위임한다`() = runTest {
@@ -96,22 +95,19 @@ class RecordViewModelTest {
 
         override fun getAllRecords(): Flow<List<RunningRecord>> = records
 
-        override suspend fun addRecord(record: RunningRecord) {
-            records.value += record
-        }
+        override suspend fun addRecord(record: RunningRecord) =
+            run { records.value += record }
     }
 
     private class FakeActivityRecognitionController : ActivityRecognitionController {
         var started = false
         var stopped = false
 
-        override fun startUpdates() {
-            started = true
-        }
+        override fun startUpdates() =
+            run { started = true }
 
-        override fun stopUpdates() {
-            stopped = true
-        }
+        override fun stopUpdates() =
+            run { stopped = true }
     }
 
     private class FakeActivityRecognitionMonitor : ActivityRecognitionMonitor {
@@ -125,22 +121,19 @@ class RecordViewModelTest {
         private val _state = MutableStateFlow(RunningTrackerState())
         override val trackerState: StateFlow<RunningTrackerState> = _state
 
-        fun update(state: RunningTrackerState) {
-            _state.value = state
-        }
+        fun update(state: RunningTrackerState) =
+            run { _state.value = state }
     }
 
     private class FakeRunningTrackerController : RunningTrackerController {
         var started = false
         var stopped = false
 
-        override fun startTracking() {
-            started = true
-        }
+        override fun startTracking() =
+            run { started = true }
 
-        override fun stopTracking() {
-            stopped = true
-        }
+        override fun stopTracking() =
+            run { stopped = true }
     }
 
 }

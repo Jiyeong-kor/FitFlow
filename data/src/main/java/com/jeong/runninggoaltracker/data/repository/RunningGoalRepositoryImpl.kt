@@ -15,7 +15,6 @@ class RunningGoalRepositoryImpl @Inject constructor(
 
     override fun getGoal(): Flow<RunningGoal?> = goalDao.getGoal().map { it?.toDomain() }
 
-    override suspend fun upsertGoal(goal: RunningGoal) {
+    override suspend fun upsertGoal(goal: RunningGoal) =
         goalDao.upsertGoal(goal.toEntity())
-    }
 }

@@ -27,8 +27,7 @@ class DeleteRunningReminderUseCaseTest {
 
         override suspend fun upsertReminder(reminder: RunningReminder) = Unit
 
-        override suspend fun deleteReminder(reminderId: Int) {
-            deletedId = reminderId
-        }
+        override suspend fun deleteReminder(reminderId: Int) =
+            run { deletedId = reminderId }
     }
 }

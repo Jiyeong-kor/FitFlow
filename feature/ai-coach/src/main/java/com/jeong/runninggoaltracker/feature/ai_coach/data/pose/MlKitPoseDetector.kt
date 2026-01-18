@@ -42,9 +42,8 @@ class MlKitPoseDetector(
             }
     }
 
-    override fun clear() {
+    override fun clear() =
         poseDetector.close()
-    }
 }
 
 private fun Pose.toPoseFrame(imageWidth: Int, imageHeight: Int): PoseFrame {

@@ -18,11 +18,9 @@ class RunningReminderRepositoryImpl @Inject constructor(
             reminders.map { it.toDomain() }
         }
 
-    override suspend fun upsertReminder(reminder: RunningReminder) {
+    override suspend fun upsertReminder(reminder: RunningReminder) =
         reminderDao.upsertReminder(reminder.toEntity())
-    }
 
-    override suspend fun deleteReminder(reminderId: Int) {
+    override suspend fun deleteReminder(reminderId: Int) =
         reminderDao.deleteReminder(reminderId)
-    }
 }
