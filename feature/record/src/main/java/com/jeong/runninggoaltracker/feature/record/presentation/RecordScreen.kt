@@ -357,18 +357,19 @@ private fun formatPace(
 }
 
 @Composable
-private fun formatElapsedTimeLabel(elapsedMillis: Long, zeroLong: Long): String {
-    val totalSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMillis)
-    val hours = TimeUnit.SECONDS.toHours(totalSeconds)
-    val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) - TimeUnit.HOURS.toMinutes(hours)
-    val seconds =
-        totalSeconds - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(totalSeconds))
-    return if (hours > zeroLong) {
-        stringResource(R.string.record_elapsed_time_hms_format, hours, minutes, seconds)
-    } else {
-        stringResource(R.string.record_elapsed_time_ms_format, minutes, seconds)
+private fun formatElapsedTimeLabel(elapsedMillis: Long, zeroLong: Long): String =
+    run {
+        val totalSeconds = TimeUnit.MILLISECONDS.toSeconds(elapsedMillis)
+        val hours = TimeUnit.SECONDS.toHours(totalSeconds)
+        val minutes = TimeUnit.SECONDS.toMinutes(totalSeconds) - TimeUnit.HOURS.toMinutes(hours)
+        val seconds =
+            totalSeconds - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(totalSeconds))
+        if (hours > zeroLong) {
+            stringResource(R.string.record_elapsed_time_hms_format, hours, minutes, seconds)
+        } else {
+            stringResource(R.string.record_elapsed_time_ms_format, minutes, seconds)
+        }
     }
-}
 
 @Preview(showBackground = true)
 @Composable
