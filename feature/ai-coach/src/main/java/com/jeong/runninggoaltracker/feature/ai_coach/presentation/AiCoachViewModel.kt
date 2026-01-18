@@ -36,7 +36,9 @@ class AiCoachViewModel @Inject constructor(
                         feedbackType = analysis.feedback.type,
                         accuracy = analysis.feedback.accuracy,
                         isPerfectForm = analysis.feedback.isPerfectForm,
-                        poseFrame = frame
+                        poseFrame = frame,
+                        frameMetrics = analysis.frameMetrics,
+                        repSummary = analysis.repSummary
                     )
                 }
             }
