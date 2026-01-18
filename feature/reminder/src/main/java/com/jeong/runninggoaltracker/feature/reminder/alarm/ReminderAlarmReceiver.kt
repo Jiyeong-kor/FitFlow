@@ -1,17 +1,13 @@
 package com.jeong.runninggoaltracker.feature.reminder.alarm
 
-import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.core.content.ContextCompat
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderAlarmContract
 import com.jeong.runninggoaltracker.feature.reminder.notification.ReminderNotifier
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -22,7 +18,7 @@ class ReminderAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val payload = intent.toAlarmPayload(context)
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !context.hasPostNotificationsPermission()) {
+        if (!NotificationPermissionGate.canPostNotifications(context)) {
             return
         }
 
@@ -65,13 +61,6 @@ private fun Intent.toAlarmPayload(context: Context): AlarmPayload {
         dayOfWeekRaw = getIntExtra(ReminderAlarmContract.EXTRA_DAY_OF_WEEK, zeroInt)
     )
 }
-
-@RequiresApi(Build.VERSION_CODES.TIRAMISU)
-private fun Context.hasPostNotificationsPermission(): Boolean =
-    ContextCompat.checkSelfPermission(
-        this,
-        Manifest.permission.POST_NOTIFICATIONS
-    ) == PackageManager.PERMISSION_GRANTED
 
 private fun Intent.toRunningReminderOrNull(context: Context): RunningReminder? {
     val zeroInt = NumericResourceProvider.zeroInt(context)
