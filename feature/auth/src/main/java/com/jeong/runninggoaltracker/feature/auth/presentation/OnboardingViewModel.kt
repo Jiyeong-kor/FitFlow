@@ -59,10 +59,9 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun onNicknameChanged(value: String) {
-        val trimmed = value.take(MAX_NICKNAME_LENGTH)
         uiState = uiState.copy(
-            nickname = trimmed,
-            isNicknameValid = trimmed.isNotBlank(),
+            nickname = value,
+            isNicknameValid = value.isNotBlank(),
             nicknameValidationMessage = null,
             nicknameAvailabilityMessageResId = null,
             nicknameHintError = false,
@@ -114,7 +113,11 @@ class OnboardingViewModel @Inject constructor(
             }
             val nicknameResult = reserveNicknameAndCreateUserProfileUseCase(nickname)
             uiState = when (nicknameResult) {
-                is AuthResult.Success -> uiState.copy(isLoading = false, step = OnboardingStep.Success)
+                is AuthResult.Success -> uiState.copy(
+                    isLoading = false,
+                    step = OnboardingStep.Success
+                )
+
                 is AuthResult.Failure -> {
                     if (nicknameResult.error == AuthError.NicknameTaken) {
                         uiState.copy(
@@ -145,10 +148,6 @@ class OnboardingViewModel @Inject constructor(
 
     fun onDismissNoInternetDialog() {
         uiState = uiState.copy(showNoInternetDialog = false)
-    }
-
-    companion object {
-        private const val MAX_NICKNAME_LENGTH = 10
     }
 
     private fun NicknameValidationResult.toUiState(): NicknameValidationUiState =
