@@ -45,8 +45,9 @@ fun AppTopBar(
 
 @Preview(showBackground = true)
 @Composable
-fun AppTopBarPreview() = RunningGoalTrackerTheme {
-    AppTopBar(
-        titleResId = R.string.designsystem_app_top_bar_preview_title
-    )
-}
+fun AppTopBarPreview() =
+    RunningGoalTrackerTheme {
+        AppTopBar(
+            titleResId = R.string.designsystem_app_top_bar_preview_title
+        )
+    }
