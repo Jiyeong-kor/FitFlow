@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.core.app.NotificationCompat
 import com.jeong.runninggoaltracker.feature.reminder.R
 import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderNotificationContract
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 
 object ReminderNotifier {
@@ -29,11 +28,8 @@ object ReminderNotifier {
 
         NotificationPermissionGate.notifyIfAllowed(
             context,
-            notificationId(context),
+            ReminderNotificationContract.NOTIFICATION_ID,
             notification
         )
     }
-
-    private fun notificationId(context: Context): Int =
-        NumericResourceProvider.reminderNotificationId(context)
 }

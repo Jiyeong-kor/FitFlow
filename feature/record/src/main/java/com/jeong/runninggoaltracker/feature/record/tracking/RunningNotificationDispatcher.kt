@@ -9,7 +9,6 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.feature.record.contract.RecordNotificationContract
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -78,9 +77,7 @@ class RunningNotificationDispatcher @Inject constructor(
         )
     }
 
-    private fun notificationId(): Int =
-        NumericResourceProvider.recordNotificationId(context)
+    private fun notificationId(): Int = RecordNotificationContract.NOTIFICATION_ID
 
-    private fun stopRequestCode(): Int =
-        NumericResourceProvider.recordStopRequestCode(context)
+    private fun stopRequestCode(): Int = RecordNotificationContract.STOP_REQUEST_CODE
 }

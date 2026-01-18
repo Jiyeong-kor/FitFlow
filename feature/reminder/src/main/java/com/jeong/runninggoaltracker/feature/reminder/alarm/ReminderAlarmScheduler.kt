@@ -22,10 +22,10 @@ class ReminderAlarmScheduler @Inject constructor(
         context.getSystemService(AlarmManager::class.java)
 
     private fun getUniqueRequestCode(id: Int, hour: Int, minute: Int, dayOfWeek: Int): Int {
-        val base = NumericResourceProvider.reminderRequestCodeBase(context)
-        val idMultiplier = NumericResourceProvider.reminderRequestCodeIdMultiplier(context)
-        val hourMultiplier = NumericResourceProvider.reminderRequestCodeHourMultiplier(context)
-        val minuteMultiplier = NumericResourceProvider.reminderRequestCodeMinuteMultiplier(context)
+        val base = ReminderAlarmContract.REQUEST_CODE_BASE
+        val idMultiplier = ReminderAlarmContract.REQUEST_CODE_ID_MULTIPLIER
+        val hourMultiplier = ReminderAlarmContract.REQUEST_CODE_HOUR_MULTIPLIER
+        val minuteMultiplier = ReminderAlarmContract.REQUEST_CODE_MINUTE_MULTIPLIER
 
         return base + id * idMultiplier + hour * hourMultiplier + minute * minuteMultiplier + dayOfWeek
     }

@@ -97,8 +97,7 @@ class ActivityRecognitionManager @Inject constructor(
         activityStateUpdater.update(ActivityRecognitionStatus.Stopped)
     }
 
-    private fun requestCode(): Int =
-        NumericResourceProvider.activityRecognitionRequestCode(context)
+    private fun requestCode(): Int = ActivityRecognitionContract.REQUEST_CODE
 
     private fun intervalMillis(): Long =
         NumericResourceProvider.activityRecognitionIntervalMillis(context)

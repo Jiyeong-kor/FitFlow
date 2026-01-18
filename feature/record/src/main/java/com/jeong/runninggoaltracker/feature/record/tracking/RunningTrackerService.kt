@@ -19,6 +19,7 @@ import android.content.pm.PackageManager
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.record.contract.RunningTrackerServiceContract
+import com.jeong.runninggoaltracker.feature.record.contract.RecordNotificationContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 import dagger.hilt.android.AndroidEntryPoint
@@ -94,7 +95,7 @@ class RunningTrackerService : Service() {
         stateUpdater.markTracking()
 
         startForeground(
-            NumericResourceProvider.recordNotificationId(this),
+            RecordNotificationContract.NOTIFICATION_ID,
             notificationDispatcher.createNotification(
                 NumericResourceProvider.zeroDouble(this),
                 NumericResourceProvider.zeroLong(this)
