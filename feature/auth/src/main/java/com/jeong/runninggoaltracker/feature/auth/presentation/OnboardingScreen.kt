@@ -1,7 +1,11 @@
 package com.jeong.runninggoaltracker.feature.auth.presentation
 
 import android.Manifest
+import android.app.Activity
+import android.content.Intent
 import android.os.Build
+import android.provider.Settings
+import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
@@ -37,14 +41,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.annotation.StringRes
+import androidx.core.app.ActivityCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.auth.R
+import com.jeong.runninggoaltracker.feature.auth.contract.PermissionSettingsContract
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
@@ -57,19 +64,48 @@ fun OnboardingScreen(
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
     val uiState = viewModel.uiState.collectAsState().value
+    val context = LocalContext.current
+    val activity = context as? Activity
     val permissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestMultiplePermissions()
     ) { results ->
-        viewModel.onPermissionsResult(results.values.all { it })
+        val allGranted = results.values.all { it }
+        val permanentlyDenied =
+            if (allGranted) {
+                false
+            } else {
+                activity?.let { currentActivity ->
+                    results.any { (permission, granted) ->
+                        !granted &&
+                                !ActivityCompat.shouldShowRequestPermissionRationale(
+                                    currentActivity,
+                                    permission
+                                )
+                    }
+                } ?: false
+            }
+        viewModel.onPermissionsResult(allGranted, permanentlyDenied)
     }
 
     val permissionList = remember { buildOnboardingPermissions() }
+    val openSettingsThrottled = rememberThrottleClick {
+        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+            data = Uri.fromParts(
+                PermissionSettingsContract.PACKAGE_URI_SCHEME,
+                context.packageName,
+                null
+            )
+        }
+        context.startActivity(intent)
+    }
 
     when (uiState.step) {
         OnboardingStep.Permissions -> PermissionsScreen(
             modifier = modifier,
             permissionErrorResId = uiState.permissionErrorResId,
-            onAgree = { permissionLauncher.launch(permissionList) }
+            showSettingsAction = uiState.isPermissionPermanentlyDenied,
+            onAgree = { permissionLauncher.launch(permissionList) },
+            onOpenSettings = openSettingsThrottled
         )
 
         OnboardingStep.Nickname -> NicknameScreen(
@@ -108,7 +144,9 @@ private fun buildOnboardingPermissions(): Array<String> =
 @Composable
 private fun PermissionsScreen(
     @StringRes permissionErrorResId: Int?,
+    showSettingsAction: Boolean,
     onAgree: () -> Unit,
+    onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacingSm =
@@ -122,6 +160,7 @@ private fun PermissionsScreen(
     val spacing2xl =
         dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_2xl)
     val onAgreeThrottled = rememberThrottleClick(onClick = onAgree)
+    val onOpenSettingsThrottled = rememberThrottleClick(onClick = onOpenSettings)
 
     val permissions = listOf(
         PermissionItem(
@@ -200,6 +239,19 @@ private fun PermissionsScreen(
                 text = stringResource(id = R.string.permission_agree),
                 style = MaterialTheme.typography.titleMedium
             )
+        }
+        if (showSettingsAction) {
+            Spacer(modifier = Modifier.height(spacingMd))
+            Button(
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onOpenSettingsThrottled,
+                contentPadding = PaddingValues(vertical = spacingLg)
+            ) {
+                Text(
+                    text = stringResource(id = R.string.permission_open_settings),
+                    style = MaterialTheme.typography.titleMedium
+                )
+            }
         }
     }
 }
@@ -410,7 +462,9 @@ private fun PermissionsScreenPreview() =
     RunningGoalTrackerTheme {
         PermissionsScreen(
             permissionErrorResId = null,
-            onAgree = {}
+            showSettingsAction = false,
+            onAgree = {},
+            onOpenSettings = {}
         )
     }
 

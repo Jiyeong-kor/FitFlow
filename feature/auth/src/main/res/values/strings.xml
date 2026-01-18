@@ -5,6 +5,8 @@
     <string name="permission_agree">동의하고 계속</string>
     <string name="permission_essential">필수</string>
     <string name="permission_required_error">필수 권한이 필요합니다. 권한을 허용해 주세요.</string>
+    <string name="permission_settings_required_error">필수 권한이 거부되었습니다. 설정에서 권한을 허용해 주세요.</string>
+    <string name="permission_open_settings">설정으로 이동</string>
 
     <string name="permission_activity_title">활동 인식</string>
     <string name="permission_activity_description">달리기 시작과 종료를 자동으로 감지해 기록을 정확하게 남기기 위해 필요합니다.</string>

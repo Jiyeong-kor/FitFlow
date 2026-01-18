@@ -35,6 +35,7 @@ data class OnboardingUiState(
     val nicknameHintError: Boolean = false,
     @field:StringRes val errorMessageResId: Int? = null,
     @field:StringRes val permissionErrorResId: Int? = null,
+    val isPermissionPermanentlyDenied: Boolean = false,
     val showNoInternetDialog: Boolean = false
 )
 
@@ -49,13 +50,22 @@ class OnboardingViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState
 
-    fun onPermissionsResult(granted: Boolean) {
+    fun onPermissionsResult(granted: Boolean, isPermanentlyDenied: Boolean) {
         _uiState.update { currentState ->
             if (granted) {
-                currentState.copy(step = OnboardingStep.Nickname, permissionErrorResId = null)
+                currentState.copy(
+                    step = OnboardingStep.Nickname,
+                    permissionErrorResId = null,
+                    isPermissionPermanentlyDenied = false
+                )
             } else {
                 currentState.copy(
-                    permissionErrorResId = R.string.permission_required_error
+                    permissionErrorResId = if (isPermanentlyDenied) {
+                        R.string.permission_settings_required_error
+                    } else {
+                        R.string.permission_required_error
+                    },
+                    isPermissionPermanentlyDenied = isPermanentlyDenied
                 )
             }
         }
