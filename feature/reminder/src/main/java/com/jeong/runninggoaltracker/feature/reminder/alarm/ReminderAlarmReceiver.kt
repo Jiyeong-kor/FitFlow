@@ -7,7 +7,6 @@ import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderAlarmContract
 import com.jeong.runninggoaltracker.feature.reminder.notification.ReminderNotifier
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
-import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -17,10 +16,6 @@ class ReminderAlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val payload = intent.toAlarmPayload(context)
-
-        if (!NotificationPermissionGate.canPostNotifications(context)) {
-            return
-        }
 
         ReminderNotifier.showNow(context, payload.hour, payload.minute)
 
