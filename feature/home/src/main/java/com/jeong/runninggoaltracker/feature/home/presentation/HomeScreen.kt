@@ -59,6 +59,7 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import com.jeong.runninggoaltracker.feature.home.R
+import com.jeong.runninggoaltracker.feature.home.contract.HomeDateTimeContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import java.time.Instant
 import java.time.ZoneId
@@ -107,9 +108,10 @@ fun HomeScreen(
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
 ) {
-    val weeklyGoalKm = uiState.weeklyGoalKm ?: 0.0
+    val zeroDouble = integerResource(id = R.integer.home_numeric_zero).toDouble()
+    val weeklyGoalKm = uiState.weeklyGoalKm ?: zeroDouble
     val totalThisWeekKm = uiState.totalThisWeekKm
-    val remainingKm = (weeklyGoalKm - totalThisWeekKm).coerceAtLeast(0.0).toFloat()
+    val remainingKm = (weeklyGoalKm - totalThisWeekKm).coerceAtLeast(zeroDouble).toFloat()
     val progress = uiState.progress
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
@@ -162,7 +164,7 @@ fun HomeScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Column(
-                            modifier = Modifier.weight(1f),
+                            modifier = Modifier.weight(integerResource(id = R.integer.home_weight_one).toFloat()),
                             verticalArrangement = Arrangement.spacedBy(appSpacingSm())
                         ) {
                             Text(
@@ -324,12 +326,12 @@ private fun WeeklyProgressCard(
                 InfoItem(
                     label = stringResource(R.string.home_weekly_remaining_distance),
                     value = stringResource(R.string.home_distance_km_format, remainingKm),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(integerResource(id = R.integer.home_weight_one).toFloat())
                 )
                 InfoItem(
                     label = stringResource(R.string.home_weekly_run_count),
                     value = stringResource(R.string.home_weekly_run_count_format, count),
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(integerResource(id = R.integer.home_weight_one).toFloat())
                 )
             }
         }
@@ -415,7 +417,7 @@ private fun RecentActivityRow(activity: ActivityItem) {
 
         Spacer(modifier = Modifier.width(rowSpacerWidth))
 
-        Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(integerResource(id = R.integer.home_weight_one).toFloat())) {
             Text(
                 stringResource(
                     R.string.home_activity_title_format,
@@ -514,12 +516,12 @@ private fun getDateInfo(timestamp: Long, context: android.content.Context): Date
     }
 
 private fun dayOfWeekToResId(dayOfWeekValue: Int): Int = when (dayOfWeekValue) {
-    1 -> R.string.home_day_of_week_mon
-    2 -> R.string.home_day_of_week_tue
-    3 -> R.string.home_day_of_week_wed
-    4 -> R.string.home_day_of_week_thu
-    5 -> R.string.home_day_of_week_fri
-    6 -> R.string.home_day_of_week_sat
+    HomeDateTimeContract.DAY_OF_WEEK_MON -> R.string.home_day_of_week_mon
+    HomeDateTimeContract.DAY_OF_WEEK_TUE -> R.string.home_day_of_week_tue
+    HomeDateTimeContract.DAY_OF_WEEK_WED -> R.string.home_day_of_week_wed
+    HomeDateTimeContract.DAY_OF_WEEK_THU -> R.string.home_day_of_week_thu
+    HomeDateTimeContract.DAY_OF_WEEK_FRI -> R.string.home_day_of_week_fri
+    HomeDateTimeContract.DAY_OF_WEEK_SAT -> R.string.home_day_of_week_sat
     else -> R.string.home_day_of_week_sun
 }
 
