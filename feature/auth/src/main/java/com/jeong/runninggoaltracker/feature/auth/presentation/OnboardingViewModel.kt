@@ -54,7 +54,7 @@ class OnboardingViewModel @Inject constructor(
     private val _effects = MutableSharedFlow<OnboardingEffect>()
     val effects: SharedFlow<OnboardingEffect> = _effects
 
-    fun onPermissionsResult(granted: Boolean, isPermanentlyDenied: Boolean) {
+    fun onPermissionsResult(granted: Boolean, isPermanentlyDenied: Boolean) =
         _uiState.update { currentState ->
             if (granted) {
                 currentState.copy(
@@ -73,15 +73,13 @@ class OnboardingViewModel @Inject constructor(
                 )
             }
         }
-    }
 
-    fun onOpenSettings() {
+    fun onOpenSettings() =
         viewModelScope.launch {
             _effects.emit(OnboardingEffect.OpenSettings)
         }
-    }
 
-    fun onNicknameChanged(value: String) {
+    fun onNicknameChanged(value: String) =
         _uiState.update { currentState ->
             currentState.copy(
                 nickname = value,
@@ -92,7 +90,6 @@ class OnboardingViewModel @Inject constructor(
                 errorMessageResId = null
             )
         }
-    }
 
     fun onContinueWithNickname() {
         val nickname = _uiState.value.nickname
@@ -187,11 +184,10 @@ class OnboardingViewModel @Inject constructor(
         onContinueWithNickname()
     }
 
-    fun onDismissNoInternetDialog() {
+    fun onDismissNoInternetDialog() =
         _uiState.update { currentState ->
             currentState.copy(showNoInternetDialog = false)
         }
-    }
 
     private fun NicknameValidationResult.toUiState(): NicknameValidationUiState =
         when (this) {
