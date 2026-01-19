@@ -2,7 +2,7 @@
     <string name="smart_workout_title">AI 자세 코치</string>
     <string name="smart_workout_close">닫기</string>
     <string name="smart_workout_feedback_title">실시간 피드백</string>
-    <string name="smart_workout_feedback_good">자세 좋아요</string>
+    <string name="smart_workout_feedback_good">자세 좋아요!</string>
     <string name="smart_workout_feedback_forward_lean">상체를 덜 숙이세요</string>
     <string name="smart_workout_feedback_heel_rise">뒤꿈치를 바닥에 붙이세요</string>
     <string name="smart_workout_feedback_knee_forward">무릎을 과하게 내밀지 마세요</string>
@@ -32,6 +32,11 @@
     <string name="smart_workout_debug_down_frames_count">다운 연속 %1$d프레임</string>
     <string name="smart_workout_debug_left_confidence">왼쪽 신뢰도 합 %.2f</string>
     <string name="smart_workout_debug_right_confidence">오른쪽 신뢰도 합 %.2f</string>
+    <string name="smart_workout_debug_attempt_active">시도 진행 %1$s</string>
+    <string name="smart_workout_debug_depth_reached">깊이 도달 %1$s</string>
+    <string name="smart_workout_debug_attempt_knee_min">시도 최소 무릎 각도 %.1f°</string>
+    <string name="smart_workout_debug_full_body_visible">전신 인식 %1$s</string>
+    <string name="smart_workout_debug_invisible_duration">전신 미인식 %.1f초</string>
     <string name="smart_workout_debug_rotation">회전 각도 %1$d°</string>
     <string name="smart_workout_debug_front_camera">전면 카메라 %1$s</string>
     <string name="smart_workout_debug_mirroring">미러링 %1$s</string>

@@ -32,6 +32,7 @@ class ProcessPoseUseCase @Inject constructor() {
                     accuracy = SQUAT_FLOAT_ZERO,
                     isPerfectForm = false
                 ),
+                feedbackEvent = null,
                 frameMetrics = null,
                 repSummary = null,
                 warningEvent = null,

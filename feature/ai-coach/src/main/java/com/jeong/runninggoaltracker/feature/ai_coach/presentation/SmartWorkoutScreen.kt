@@ -61,6 +61,7 @@ import com.jeong.runninggoaltracker.domain.model.SquatPhase
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_TWO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_MILLIS_PER_SECOND
 import com.jeong.runninggoaltracker.feature.ai_coach.R
 import com.jeong.runninggoaltracker.feature.ai_coach.BuildConfig
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
@@ -266,6 +267,23 @@ fun SmartWorkoutScreen(
                 } else {
                     stringResource(R.string.smart_workout_reliable_false)
                 }
+                val attemptActiveText = if (metrics.attemptActive) {
+                    stringResource(R.string.smart_workout_debug_on)
+                } else {
+                    stringResource(R.string.smart_workout_debug_off)
+                }
+                val depthReachedText = if (metrics.depthReached) {
+                    stringResource(R.string.smart_workout_debug_on)
+                } else {
+                    stringResource(R.string.smart_workout_debug_off)
+                }
+                val fullBodyVisibleText = if (metrics.fullBodyVisible) {
+                    stringResource(R.string.smart_workout_debug_on)
+                } else {
+                    stringResource(R.string.smart_workout_debug_off)
+                }
+                val invisibleDurationSec =
+                    metrics.fullBodyInvisibleDurationMs.toFloat() / SQUAT_MILLIS_PER_SECOND
                 val frontCameraText = if (metrics.isFrontCamera) {
                     stringResource(R.string.smart_workout_debug_on)
                 } else {
@@ -446,6 +464,46 @@ fun SmartWorkoutScreen(
                         text = stringResource(
                             R.string.smart_workout_debug_right_confidence,
                             metrics.rightConfidenceSum
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_attempt_active,
+                            attemptActiveText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_depth_reached,
+                            depthReachedText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_attempt_knee_min,
+                            metrics.attemptMinKneeAngle
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_full_body_visible,
+                            fullBodyVisibleText
+                        ),
+                        color = textMuted,
+                        fontSize = accuracyLabelTextSize.value.sp
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.smart_workout_debug_invisible_duration,
+                            invisibleDurationSec
                         ),
                         color = textMuted,
                         fontSize = accuracyLabelTextSize.value.sp
