@@ -1,10 +1,8 @@
 package com.jeong.runninggoaltracker.feature.auth.presentation
 
-import android.Manifest
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -52,6 +50,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.auth.R
+import com.jeong.runninggoaltracker.feature.auth.contract.OnboardingPermissionContract
 import com.jeong.runninggoaltracker.feature.auth.contract.PermissionSettingsContract
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
@@ -88,7 +87,7 @@ fun OnboardingScreen(
         viewModel.onPermissionsResult(allGranted, permanentlyDenied)
     }
 
-    val permissionList = remember { buildOnboardingPermissions() }
+    val permissionList = remember { OnboardingPermissionContract.requiredPermissions() }
     val openSettingsThrottled = rememberThrottleClick {
         viewModel.onOpenSettings()
     }
@@ -139,18 +138,6 @@ fun OnboardingScreen(
         )
     }
 }
-
-private fun buildOnboardingPermissions(): Array<String> =
-    buildList {
-        add(Manifest.permission.ACCESS_FINE_LOCATION)
-        add(Manifest.permission.CAMERA)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            add(Manifest.permission.ACTIVITY_RECOGNITION)
-        }
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            add(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }.toTypedArray()
 
 @Composable
 private fun PermissionsScreen(
