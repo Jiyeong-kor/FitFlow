@@ -88,8 +88,10 @@ class RunningTrackerService : Service() {
             return
         }
 
+        val zeroDouble = NumericResourceProvider.zeroDouble(this)
+        val zeroLong = NumericResourceProvider.zeroLong(this)
         tracking = true
-        distanceMeters = NumericResourceProvider.zeroDouble(this)
+        distanceMeters = zeroDouble
         lastLocation = null
         startTimeMillis = System.currentTimeMillis()
         stateUpdater.markTracking()
@@ -97,8 +99,8 @@ class RunningTrackerService : Service() {
         startForeground(
             RecordNotificationContract.NOTIFICATION_ID,
             notificationDispatcher.createNotification(
-                NumericResourceProvider.zeroDouble(this),
-                NumericResourceProvider.zeroLong(this)
+                zeroDouble,
+                zeroLong
             )
         )
         startLocationUpdates()
