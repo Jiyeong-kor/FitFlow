@@ -50,16 +50,11 @@ internal fun NavGraphBuilder.mainDestinations(
 
     composable<MainNavigationRoute.Record> { backStackEntry ->
         val viewModel: RecordViewModel = hiltViewModel(backStackEntry)
-        RecordRoute(
-            viewModel = viewModel,
-            onBack = { navController.popBackStack() }
-        )
+        RecordRoute(viewModel = viewModel)
     }
 
     composable<MainNavigationRoute.AiCoach> {
-        SmartWorkoutRoute(
-            onBack = { navController.popBackStack() }
-        )
+        SmartWorkoutRoute(onBack = { navController.popBackStack() })
     }
 
     composable<MainNavigationRoute.Goal> { backStackEntry ->
