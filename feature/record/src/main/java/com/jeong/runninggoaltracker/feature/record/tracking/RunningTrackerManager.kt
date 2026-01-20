@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import androidx.core.content.ContextCompat
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
 import com.jeong.runninggoaltracker.feature.record.contract.RunningTrackerServiceContract
+import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
@@ -16,7 +17,7 @@ class RunningTrackerManager @Inject constructor(
 ) : RunningTrackerController {
 
     override fun startTracking() {
-        if (!hasLocationPermission()) {
+        if (!hasLocationPermission() || !NotificationPermissionGate.canPostNotifications(context)) {
             stateUpdater.markPermissionRequired()
             return
         }
