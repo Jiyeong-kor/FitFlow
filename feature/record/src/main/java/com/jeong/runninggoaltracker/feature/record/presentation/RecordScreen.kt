@@ -1,5 +1,6 @@
 package com.jeong.runninggoaltracker.feature.record.presentation
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,9 +54,12 @@ import java.util.Locale
 
 @Composable
 fun RecordRoute(
+    onBack: () -> Unit,
     viewModel: RecordViewModel = hiltViewModel()
 ) {
     val uiState by viewModel.uiState.collectAsState()
+
+    BackHandler(onBack = onBack)
 
     RecordScreen(
         uiState = uiState,

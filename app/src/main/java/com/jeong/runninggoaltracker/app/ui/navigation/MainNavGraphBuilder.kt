@@ -51,7 +51,8 @@ internal fun NavGraphBuilder.mainDestinations(
     composable<MainNavigationRoute.Record> { backStackEntry ->
         val viewModel: RecordViewModel = hiltViewModel(backStackEntry)
         RecordRoute(
-            viewModel = viewModel
+            viewModel = viewModel,
+            onBack = { navController.popBackStack() }
         )
     }
 
