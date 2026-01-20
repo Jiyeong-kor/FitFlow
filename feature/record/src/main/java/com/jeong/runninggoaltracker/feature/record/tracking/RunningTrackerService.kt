@@ -1,6 +1,7 @@
 package com.jeong.runninggoaltracker.feature.record.tracking
 
 import android.Manifest
+import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
@@ -90,19 +91,17 @@ class RunningTrackerService : Service() {
 
         val zeroDouble = NumericResourceProvider.zeroDouble(this)
         val zeroLong = NumericResourceProvider.zeroLong(this)
-        tracking = true
         distanceMeters = zeroDouble
         lastLocation = null
         startTimeMillis = System.currentTimeMillis()
+        val notification = notificationDispatcher.createNotification(zeroDouble, zeroLong)
+        if (!startForegroundSafely(notification)) {
+            stateUpdater.markPermissionRequired()
+            stopSelf()
+            return
+        }
+        tracking = true
         stateUpdater.markTracking()
-
-        startForeground(
-            RecordNotificationContract.NOTIFICATION_ID,
-            notificationDispatcher.createNotification(
-                zeroDouble,
-                zeroLong
-            )
-        )
         startLocationUpdates()
         startElapsedUpdater()
     }
@@ -255,4 +254,15 @@ class RunningTrackerService : Service() {
 
     private fun minDistanceMeters(): Float = NumericResourceProvider
         .minDistanceMeters(this)
+
+    private fun startForegroundSafely(notification: Notification): Boolean =
+        try {
+            startForeground(
+                RecordNotificationContract.NOTIFICATION_ID,
+                notification
+            )
+            true
+        } catch (_: SecurityException) {
+            false
+        }
 }
