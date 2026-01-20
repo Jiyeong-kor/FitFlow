@@ -22,12 +22,10 @@ import kotlinx.coroutines.flow.map
 
 fun NavGraphBuilder.mainNavGraph(
     activityRecognitionMonitor: ActivityRecognitionMonitor
-) {
-    composable<MainNavigationRoute.Main> {
-        MainContainerRoute(
-            activityRecognitionMonitor = activityRecognitionMonitor
-        )
-    }
+) = composable<MainNavigationRoute.Main> {
+    MainContainerRoute(
+        activityRecognitionMonitor = activityRecognitionMonitor
+    )
 }
 
 internal fun NavGraphBuilder.mainDestinations(

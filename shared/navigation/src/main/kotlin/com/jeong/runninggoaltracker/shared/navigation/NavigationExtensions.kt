@@ -13,15 +13,11 @@ import androidx.navigation.compose.composable
 fun NavHostController.navigateTo(
     route: NavigationRoute,
     builder: NavOptionsBuilder.() -> Unit = {},
-) {
-    navigate(route, builder)
-}
+) = navigate(route, builder)
 
 inline fun <reified T : NavigationRoute> NavGraphBuilder.composable(
     noinline content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit,
-) {
-    composable<T>(content = content)
-}
+) = composable<T>(content = content)
 
 inline fun <reified T : NavigationRoute> NavDestination?.isRouteInHierarchy(): Boolean =
     this?.hierarchy?.any { destination ->
