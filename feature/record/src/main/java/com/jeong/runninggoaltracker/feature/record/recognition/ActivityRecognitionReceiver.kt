@@ -6,6 +6,7 @@ import android.content.Intent
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
+import com.jeong.runninggoaltracker.feature.record.contract.ActivityRecognitionContract
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
 
@@ -87,12 +88,11 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
 
 private object ActivitySmoother {
 
-    private const val WINDOW_SIZE = 3
     private val buffer: ArrayDeque<ActivityRecognitionStatus> = ArrayDeque()
 
     fun push(status: ActivityRecognitionStatus): ActivityRecognitionStatus {
         buffer.addLast(status)
-        if (buffer.size > WINDOW_SIZE) {
+        if (buffer.size > ActivityRecognitionContract.ACTIVITY_SMOOTHING_WINDOW_SIZE) {
             buffer.removeFirst()
         }
 
