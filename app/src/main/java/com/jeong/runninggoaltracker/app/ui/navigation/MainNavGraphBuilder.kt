@@ -42,9 +42,9 @@ internal fun NavGraphBuilder.mainDestinations(
             activityLogsFlow = activityRecognitionMonitor.activityLogs.map { entries ->
                 entries.map { it.toUiModel() }
             },
-            onRecordClick = { navController.navigateTo(MainNavigationRoute.Record) },
-            onGoalClick = { navController.navigateTo(MainNavigationRoute.Goal) },
-            onReminderClick = { navController.navigateTo(MainNavigationRoute.Reminder) }
+            onNavigateToRecord = { navController.navigateTo(MainNavigationRoute.Record) },
+            onNavigateToGoal = { navController.navigateTo(MainNavigationRoute.Goal) },
+            onNavigateToReminder = { navController.navigateTo(MainNavigationRoute.Reminder) }
         )
     }
 

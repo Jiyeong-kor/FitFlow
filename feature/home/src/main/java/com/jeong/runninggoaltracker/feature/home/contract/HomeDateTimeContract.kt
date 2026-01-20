@@ -7,4 +7,6 @@ object HomeDateTimeContract {
     const val DAY_OF_WEEK_THU = 4
     const val DAY_OF_WEEK_FRI = 5
     const val DAY_OF_WEEK_SAT = 6
+    const val DAY_OF_WEEK_SUN = 7
+    const val MONTH_OFFSET = 1
 }

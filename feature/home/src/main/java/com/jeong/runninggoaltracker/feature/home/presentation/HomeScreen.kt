@@ -29,6 +29,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -39,11 +40,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.annotation.IntegerRes
+import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
+import androidx.compose.ui.res.stringResource
+import com.jeong.runninggoaltracker.feature.home.R
+import com.jeong.runninggoaltracker.feature.home.contract.HomeDateTimeContract
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppProgressBar
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
-import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
+import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
@@ -51,96 +59,68 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
-import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import kotlinx.coroutines.flow.Flow
-import androidx.annotation.StringRes
-import androidx.annotation.IntegerRes
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.integerResource
-import androidx.compose.ui.res.stringResource
-import com.jeong.runninggoaltracker.feature.home.R
-import com.jeong.runninggoaltracker.feature.home.contract.HomeDateTimeContract
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
-import java.time.Instant
-import java.time.ZoneId
-import java.util.Calendar
-import androidx.compose.ui.platform.LocalContext
-import android.os.Build
-
-data class ActivityRecognitionUiState(
-    @field:StringRes val labelResId: Int? = null
-)
-
-data class ActivityLogUiModel(
-    val time: Long,
-    @field:StringRes val labelResId: Int
-)
 
 @Composable
 fun HomeRoute(
     viewModel: HomeViewModel = hiltViewModel(),
     activityStateFlow: Flow<ActivityRecognitionUiState>,
     activityLogsFlow: Flow<List<ActivityLogUiModel>>,
-    onRecordClick: () -> Unit,
-    onGoalClick: () -> Unit,
-    onReminderClick: () -> Unit
+    onNavigateToRecord: () -> Unit,
+    onNavigateToGoal: () -> Unit,
+    onNavigateToReminder: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
-    val activityState by activityStateFlow.collectAsState(initial = ActivityRecognitionUiState())
-    val activityLogs by activityLogsFlow.collectAsState(initial = emptyList())
+    val recentActivityMaxCount = integerResource(id = R.integer.home_recent_activity_max_count)
+
+    LaunchedEffect(activityStateFlow, activityLogsFlow, recentActivityMaxCount) {
+        viewModel.bindActivityFlows(
+            activityStateFlow = activityStateFlow,
+            activityLogsFlow = activityLogsFlow,
+            recentActivityMaxCount = recentActivityMaxCount
+        )
+    }
+
+    LaunchedEffect(viewModel) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                HomeUiEffect.NavigateToRecord -> onNavigateToRecord()
+                HomeUiEffect.NavigateToGoal -> onNavigateToGoal()
+                HomeUiEffect.NavigateToReminder -> onNavigateToReminder()
+            }
+        }
+    }
 
     HomeScreen(
         uiState = uiState,
-        activityState = activityState,
-        activityLogs = activityLogs,
-        onRecordClick = onRecordClick,
-        onGoalClick = onGoalClick,
-        onReminderClick = onReminderClick
+        onRecordClick = viewModel::onRecordClick,
+        onGoalClick = viewModel::onGoalClick,
+        onReminderClick = viewModel::onReminderClick
     )
 }
 
 @Composable
 fun HomeScreen(
     uiState: HomeUiState,
-    activityState: ActivityRecognitionUiState,
-    activityLogs: List<ActivityLogUiModel>,
     onRecordClick: () -> Unit,
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
 ) {
-    val zeroDouble = integerResource(id = R.integer.home_numeric_zero).toDouble()
-    val weeklyGoalKm = uiState.weeklyGoalKm ?: zeroDouble
-    val totalThisWeekKm = uiState.totalThisWeekKm
-    val remainingKm = (weeklyGoalKm - totalThisWeekKm).coerceAtLeast(zeroDouble).toFloat()
-    val progress = uiState.progress
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
-    val recentActivityMaxCount = integerResource(id = R.integer.home_recent_activity_max_count)
     val screenHorizontalPadding = dimensionResource(id = R.dimen.home_screen_padding_horizontal)
     val listItemSpacing = dimensionResource(id = R.dimen.home_screen_list_spacing)
     val screenPaddingTop = dimensionResource(id = R.dimen.home_screen_padding_top)
     val screenPaddingBottom = dimensionResource(id = R.dimen.home_screen_padding_bottom)
-    val activityLabelResId = activityState.labelResId ?: R.string.activity_unknown
+    val activityLabelResId = uiState.activityLabelResId ?: R.string.activity_unknown
 
     var isAnonymousBannerVisible by rememberSaveable { mutableStateOf(true) }
     val onRecordClickThrottled = rememberThrottleClick(onClick = onRecordClick)
     val onGoalClickThrottled = rememberThrottleClick(onClick = onGoalClick)
     val onReminderClickThrottled = rememberThrottleClick(onClick = onReminderClick)
     val onDismissBanner = rememberThrottleClick(onClick = { isAnonymousBannerVisible = false })
-
-    val recentActivities = activityLogs
-        .takeLast(recentActivityMaxCount)
-        .reversed()
-        .map { log ->
-            ActivityItem(
-                date = formatActivityDateLabel(log.time),
-                dist = stringResource(R.string.home_activity_distance_placeholder),
-                time = stringResource(R.string.home_activity_time_placeholder),
-                type = stringResource(log.labelResId)
-            )
-        }
 
     LazyColumn(
         modifier = Modifier
@@ -191,8 +171,8 @@ fun HomeScreen(
         }
         item {
             WeeklyProgressCard(
-                progress = progress,
-                remainingKm = remainingKm,
+                progress = uiState.progress,
+                remainingKm = uiState.remainingKm,
                 count = uiState.recordCountThisWeek,
                 onClick = onGoalClickThrottled
             )
@@ -230,7 +210,7 @@ fun HomeScreen(
             )
         }
 
-        if (recentActivities.isEmpty()) {
+        if (uiState.recentActivities.isEmpty()) {
             item {
                 Text(
                     stringResource(
@@ -245,7 +225,7 @@ fun HomeScreen(
                 )
             }
         } else {
-            items(recentActivities) { activity ->
+            items(uiState.recentActivities) { activity ->
                 RecentActivityRow(activity)
             }
         }
@@ -364,10 +344,8 @@ private fun InfoItem(label: String, value: String, modifier: Modifier = Modifier
     }
 }
 
-data class ActivityItem(val date: String, val dist: String, val time: String, val type: String)
-
 @Composable
-private fun RecentActivityRow(activity: ActivityItem) {
+private fun RecentActivityRow(activity: HomeRecentActivityUiModel) {
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
     val rowCornerRadius = dimensionResource(id = R.dimen.home_activity_row_corner_radius)
@@ -379,6 +357,13 @@ private fun RecentActivityRow(activity: ActivityItem) {
     val rowSpacerWidth = dimensionResource(id = R.dimen.home_activity_row_spacer_width)
     val titleTextSize = dimensionResource(id = R.dimen.home_activity_title_text_size).value.sp
     val subtitleTextSize = dimensionResource(id = R.dimen.home_activity_subtitle_text_size).value.sp
+    val dateLabel = formatActivityDateLabel(
+        month = activity.month,
+        day = activity.day,
+        dayOfWeek = activity.dayOfWeek
+    )
+    val distanceLabel = stringResource(R.string.home_activity_distance_placeholder)
+    val timeLabel = stringResource(R.string.home_activity_time_placeholder)
 
     Row(
         modifier = Modifier
@@ -421,8 +406,8 @@ private fun RecentActivityRow(activity: ActivityItem) {
             Text(
                 stringResource(
                     R.string.home_activity_title_format,
-                    activity.dist,
-                    activity.type
+                    distanceLabel,
+                    stringResource(activity.typeResId)
                 ),
                 color = textPrimary,
                 fontWeight = FontWeight.SemiBold,
@@ -431,8 +416,8 @@ private fun RecentActivityRow(activity: ActivityItem) {
             Text(
                 stringResource(
                     R.string.home_activity_subtitle_format,
-                    activity.date,
-                    activity.time
+                    dateLabel,
+                    timeLabel
                 ),
                 color = textMuted,
                 fontSize = subtitleTextSize
@@ -477,69 +462,29 @@ private fun SectionHeader(title: String, onViewAllClick: () -> Unit) {
 }
 
 @Composable
-private fun formatActivityDateLabel(timestamp: Long): String {
-    val context = LocalContext.current
-    val dateInfo = getDateInfo(timestamp, context)
-    val dayLabel = stringResource(dateInfo.dayOfWeekResId)
-    return stringResource(
+private fun formatActivityDateLabel(month: Int, day: Int, dayOfWeek: Int): String =
+    stringResource(
         R.string.home_date_label_format,
-        dateInfo.month,
-        dateInfo.day,
-        dayLabel
+        month,
+        day,
+        stringResource(dayOfWeekToResId(dayOfWeek))
     )
-}
 
-private data class DateInfo(
-    val month: Int,
-    val day: Int,
-    @field:StringRes val dayOfWeekResId: Int
-)
-
-private fun getDateInfo(timestamp: Long, context: android.content.Context): DateInfo =
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val localDate = Instant.ofEpochMilli(timestamp)
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate()
-        DateInfo(
-            month = localDate.monthValue,
-            day = localDate.dayOfMonth,
-            dayOfWeekResId = dayOfWeekToResId(localDate.dayOfWeek.value)
-        )
-    } else {
-        val calendar = Calendar.getInstance().apply { timeInMillis = timestamp }
-        val monthOffset = NumericResourceProvider.oneInt(context)
-        DateInfo(
-            month = calendar.get(Calendar.MONTH) + monthOffset,
-            day = calendar.get(Calendar.DAY_OF_MONTH),
-            dayOfWeekResId = calendarDayOfWeekToResId(calendar.get(Calendar.DAY_OF_WEEK))
-        )
+private fun dayOfWeekToResId(dayOfWeekValue: Int): Int =
+    when (dayOfWeekValue) {
+        HomeDateTimeContract.DAY_OF_WEEK_MON -> R.string.home_day_of_week_mon
+        HomeDateTimeContract.DAY_OF_WEEK_TUE -> R.string.home_day_of_week_tue
+        HomeDateTimeContract.DAY_OF_WEEK_WED -> R.string.home_day_of_week_wed
+        HomeDateTimeContract.DAY_OF_WEEK_THU -> R.string.home_day_of_week_thu
+        HomeDateTimeContract.DAY_OF_WEEK_FRI -> R.string.home_day_of_week_fri
+        HomeDateTimeContract.DAY_OF_WEEK_SAT -> R.string.home_day_of_week_sat
+        else -> R.string.home_day_of_week_sun
     }
-
-private fun dayOfWeekToResId(dayOfWeekValue: Int): Int = when (dayOfWeekValue) {
-    HomeDateTimeContract.DAY_OF_WEEK_MON -> R.string.home_day_of_week_mon
-    HomeDateTimeContract.DAY_OF_WEEK_TUE -> R.string.home_day_of_week_tue
-    HomeDateTimeContract.DAY_OF_WEEK_WED -> R.string.home_day_of_week_wed
-    HomeDateTimeContract.DAY_OF_WEEK_THU -> R.string.home_day_of_week_thu
-    HomeDateTimeContract.DAY_OF_WEEK_FRI -> R.string.home_day_of_week_fri
-    HomeDateTimeContract.DAY_OF_WEEK_SAT -> R.string.home_day_of_week_sat
-    else -> R.string.home_day_of_week_sun
-}
 
 @Composable
 private fun alphaFromPercentResource(@IntegerRes percentResId: Int): Float =
     integerResource(id = percentResId).toFloat() /
             integerResource(id = R.integer.home_percent_base).toFloat()
-
-
-private fun calendarDayOfWeekToResId(dayOfWeek: Int): Int = when (dayOfWeek) {
-    Calendar.MONDAY -> R.string.home_day_of_week_mon
-    Calendar.TUESDAY -> R.string.home_day_of_week_tue
-    Calendar.WEDNESDAY -> R.string.home_day_of_week_wed
-    Calendar.THURSDAY -> R.string.home_day_of_week_thu
-    Calendar.FRIDAY -> R.string.home_day_of_week_fri
-    Calendar.SATURDAY -> R.string.home_day_of_week_sat
-    else -> R.string.home_day_of_week_sun
-}
 
 @Preview(showBackground = true)
 @Composable
@@ -547,21 +492,31 @@ private fun HomeScreenPreview() {
     val uiState = HomeUiState(
         weeklyGoalKm = 20.0,
         totalThisWeekKm = 12.5,
+        remainingKm = 7.5f,
         recordCountThisWeek = 3,
-        progress = 0.62f
-    )
-    val activityState = ActivityRecognitionUiState(labelResId = R.string.activity_running)
-    val activityLogs = listOf(
-        ActivityLogUiModel(time = 1_728_000_000_000, labelResId = R.string.activity_running),
-        ActivityLogUiModel(time = 1_727_900_000_000, labelResId = R.string.activity_walking),
-        ActivityLogUiModel(time = 1_727_800_000_000, labelResId = R.string.activity_running)
+        progress = 0.62f,
+        activityLabelResId = R.string.activity_running,
+        recentActivities = listOf(
+            HomeRecentActivityUiModel(
+                timestamp = 1_728_000_000_000,
+                month = 10,
+                day = 12,
+                dayOfWeek = HomeDateTimeContract.DAY_OF_WEEK_MON,
+                typeResId = R.string.activity_running
+            ),
+            HomeRecentActivityUiModel(
+                timestamp = 1_727_900_000_000,
+                month = 10,
+                day = 11,
+                dayOfWeek = HomeDateTimeContract.DAY_OF_WEEK_SUN,
+                typeResId = R.string.activity_walking
+            )
+        )
     )
 
     RunningGoalTrackerTheme {
         HomeScreen(
             uiState = uiState,
-            activityState = activityState,
-            activityLogs = activityLogs,
             onRecordClick = {},
             onGoalClick = {},
             onReminderClick = {}
