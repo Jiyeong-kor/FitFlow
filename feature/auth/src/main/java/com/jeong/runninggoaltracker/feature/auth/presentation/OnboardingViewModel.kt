@@ -74,10 +74,14 @@ class OnboardingViewModel @Inject constructor(
             }
         }
 
-    fun onOpenSettings() =
+    fun onOpenSettings() {
+        if (!_uiState.value.isPermissionPermanentlyDenied) {
+            return
+        }
         viewModelScope.launch {
             _effects.emit(OnboardingEffect.OpenSettings)
         }
+    }
 
     fun onNicknameChanged(value: String) =
         _uiState.update { currentState ->
