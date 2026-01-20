@@ -7,6 +7,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.jeong.runninggoaltracker.feature.reminder.R
+import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderTimeContract
 
 private class ToastUserMessageHandler(
     private val context: Context
@@ -29,12 +30,17 @@ private class ResourceReminderTimeFormatter(
     private val timeFormat: String
 ) : ReminderTimeFormatter {
     override fun formatTime(hour: Int, minute: Int): String {
-        val displayHour = if (hour % 12 == 0) 12 else hour % 12
+        val displayHour =
+            if (hour % ReminderTimeContract.HOUR_CYCLE == ReminderTimeContract.HOUR_REMAINDER_ZERO) {
+                ReminderTimeContract.HOUR_CYCLE
+            } else {
+                hour % ReminderTimeContract.HOUR_CYCLE
+            }
         return String.format(timeFormat, displayHour, minute)
     }
 
     override fun periodLabel(hour: Int): String =
-        if (hour < 12) amLabel else pmLabel
+        if (hour < ReminderTimeContract.HOUR_CYCLE) amLabel else pmLabel
 }
 
 @Composable
