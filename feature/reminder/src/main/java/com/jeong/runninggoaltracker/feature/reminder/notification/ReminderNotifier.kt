@@ -9,27 +9,26 @@ import com.jeong.runninggoaltracker.shared.designsystem.notification.Notificatio
 object ReminderNotifier {
 
     fun showNow(context: Context, hour: Int, minute: Int) {
-        val text = context.getString(
-            R.string.reminder_notification_text_format,
-            hour,
-            minute
-        )
-
-        val notification = NotificationCompat.Builder(
-            context,
-            ReminderNotificationContract.NOTIFICATION_CHANNEL_ID
-        )
-            .setSmallIcon(android.R.drawable.ic_dialog_info)
-            .setContentTitle(context.getString(R.string.reminder_notification_title))
-            .setContentText(text)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-            .setAutoCancel(true)
-            .build()
-
         NotificationPermissionGate.notifyIfAllowed(
             context,
-            ReminderNotificationContract.NOTIFICATION_ID,
-            notification
-        )
+            ReminderNotificationContract.NOTIFICATION_ID
+        ) {
+            val text = context.getString(
+                R.string.reminder_notification_text_format,
+                hour,
+                minute
+            )
+
+            NotificationCompat.Builder(
+                context,
+                ReminderNotificationContract.NOTIFICATION_CHANNEL_ID
+            )
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(context.getString(R.string.reminder_notification_title))
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setAutoCancel(true)
+                .build()
+        }
     }
 }

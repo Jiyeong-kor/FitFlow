@@ -15,13 +15,13 @@ object NotificationPermissionGate {
     fun notifyIfAllowed(
         context: Context,
         notificationId: Int,
-        notification: Notification
+        notificationProvider: () -> Notification
     ): Boolean =
         if (!canPostNotifications(context)) {
             false
         } else {
             try {
-                notifyBoundary(context, notificationId, notification)
+                notifyBoundary(context, notificationId, notificationProvider())
                 true
             } catch (_: SecurityException) {
                 false
