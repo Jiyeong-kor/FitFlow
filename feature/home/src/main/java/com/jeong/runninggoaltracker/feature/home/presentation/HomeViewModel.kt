@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
+import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.home.R
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_ZERO_DOUBLE
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_ZERO_INT
@@ -24,7 +25,7 @@ import kotlin.math.roundToInt
 
 data class HomeUiState(
     val periodState: PeriodState = PeriodState.DAILY,
-    val selectedDateState: SelectedDateState = SelectedDateState(System.currentTimeMillis()),
+    val selectedDateState: SelectedDateState,
     val summary: HomeSummaryUiState = HomeSummaryUiState(),
     val activityLogs: List<HomeWorkoutLogUiModel> = emptyList()
 )
@@ -38,12 +39,13 @@ sealed interface HomeUiEffect {
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     getRunningSummaryUseCase: GetRunningSummaryUseCase,
-    getRunningRecordsUseCase: GetRunningRecordsUseCase
+    getRunningRecordsUseCase: GetRunningRecordsUseCase,
+    dateProvider: DateProvider
 ) : ViewModel() {
 
     private val periodState = MutableStateFlow(PeriodState.DAILY)
     private val selectedDateState = MutableStateFlow(
-        SelectedDateState(dateMillis = startOfDayMillis(System.currentTimeMillis()))
+        SelectedDateState(dateMillis = startOfDayMillis(dateProvider.getToday()))
     )
 
     private val _effect = MutableSharedFlow<HomeUiEffect>()
@@ -75,7 +77,9 @@ class HomeViewModel @Inject constructor(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = HomeUiState()
+            initialValue = HomeUiState(
+                selectedDateState = SelectedDateState(dateMillis = startOfDayMillis(dateProvider.getToday()))
+            )
         )
 
     fun onPeriodSelected(period: PeriodState) {

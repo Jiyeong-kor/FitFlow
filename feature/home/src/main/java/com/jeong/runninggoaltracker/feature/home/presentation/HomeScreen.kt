@@ -814,6 +814,7 @@ private fun yearMonthFromMillis(dateMillis: Long): YearMonthState {
 private fun HomeScreenPreview() {
     val uiState = HomeUiState(
         periodState = PeriodState.WEEKLY,
+        selectedDateState = SelectedDateState(dateMillis = System.currentTimeMillis()),
         summary = HomeSummaryUiState(
             totalDistanceKm = 12.5,
             totalCalories = 740,
