@@ -10,17 +10,20 @@ import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
 import com.jeong.runninggoaltracker.domain.model.RepCount
 import com.jeong.runninggoaltracker.domain.usecase.lunge.LungeAnalyzer
 import com.jeong.runninggoaltracker.domain.usecase.squat.SquatAnalyzer
-import javax.inject.Inject
 
 interface ExerciseAnalyzer {
     fun analyze(frame: PoseFrame): PoseAnalysisResult
 }
 
-class ProcessPoseUseCase @Inject constructor() {
+class ProcessPoseUseCase(
+    lungeAnalyzer: LungeAnalyzer,
+    squatAnalyzer: SquatAnalyzer,
+    pushUpAnalyzer: ExerciseAnalyzer
+) {
     private val analyzers: Map<ExerciseType, ExerciseAnalyzer> = mapOf(
-        ExerciseType.SQUAT to SquatAnalyzer(),
-        ExerciseType.LUNGE to LungeAnalyzer(),
-        ExerciseType.PUSH_UP to SquatAnalyzer()
+        ExerciseType.SQUAT to squatAnalyzer,
+        ExerciseType.LUNGE to lungeAnalyzer,
+        ExerciseType.PUSH_UP to pushUpAnalyzer
     )
 
     fun analyze(frame: PoseFrame, exerciseType: ExerciseType): PoseAnalysisResult =
@@ -34,6 +37,7 @@ class ProcessPoseUseCase @Inject constructor() {
                     isPerfectForm = false
                 ),
                 feedbackEvent = null,
+                feedbackEventKey = null,
                 frameMetrics = null,
                 repSummary = null,
                 lungeRepSummary = null,

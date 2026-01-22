@@ -87,6 +87,7 @@ class SquatAnalyzer(
                     isPerfectForm = false
                 ),
                 feedbackEvent = fullBodyState.feedbackEvent,
+                feedbackEventKey = null,
                 frameMetrics = null,
                 repSummary = null,
                 lungeRepSummary = null,
@@ -191,6 +192,7 @@ class SquatAnalyzer(
                 isPerfectForm = isPerfectForm
             ),
             feedbackEvent = feedbackEvent,
+            feedbackEventKey = null,
             frameMetrics = frameMetrics,
             repSummary = feedbackResult.repSummary,
             lungeRepSummary = null,

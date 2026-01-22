@@ -64,7 +64,7 @@ class AiCoachViewModel @Inject constructor(
                 val feedbackTypeForUi = analysis.feedbackEvent?.let { feedbackType ->
                     if (handleSpeechFeedback(
                             feedbackType = feedbackType,
-                            feedbackKeys = analysis.feedbackKeys,
+                            feedbackEventKey = analysis.feedbackEventKey,
                             exerciseType = _uiState.value.exerciseType,
                             timestampMs = frame.timestampMs
                         )
@@ -74,6 +74,11 @@ class AiCoachViewModel @Inject constructor(
                         null
                     }
                 }
+                val feedbackResId = FeedbackStringMapper.feedbackResId(
+                    exerciseType = _uiState.value.exerciseType,
+                    feedbackType = feedbackTypeForUi ?: analysis.feedback.type,
+                    feedbackKey = analysis.feedbackEventKey
+                )
                 analysis.frameMetrics?.let { metrics ->
                     metrics.transition?.let { transition ->
                         logTransition(transition, metrics)
@@ -87,12 +92,20 @@ class AiCoachViewModel @Inject constructor(
                     current.copy(
                         repCount = analysis.repCount.value,
                         feedbackType = feedbackTypeForUi ?: current.feedbackType,
-                        feedbackKeys = analysis.feedbackKeys,
+                        feedbackKeys = listOfNotNull(analysis.feedbackEventKey),
+                        feedbackResId = feedbackResId,
                         accuracy = analysis.feedback.accuracy,
                         isPerfectForm = analysis.feedback.isPerfectForm,
                         poseFrame = frame,
                         frameMetrics = analysis.frameMetrics,
-                        repSummary = analysis.repSummary
+                        repSummary = analysis.repSummary,
+                        lungeDebugInfo = analysis.lungeDebugInfo,
+                        lastLungeRepSnapshot = updateLungeSnapshot(
+                            analysis = analysis,
+                            exerciseType = _uiState.value.exerciseType,
+                            timestampMs = frame.timestampMs,
+                            current = current.lastLungeRepSnapshot
+                        )
                     )
                 }
             }
@@ -130,29 +143,72 @@ class AiCoachViewModel @Inject constructor(
 
     private fun handleSpeechFeedback(
         feedbackType: PostureFeedbackType,
-        feedbackKeys: List<String>,
+        feedbackEventKey: String?,
         exerciseType: ExerciseType,
         timestampMs: Long
     ): Boolean {
+        if (feedbackEventKey == null) {
+            return false
+        }
         val lastType = lastSpokenType
-        val key = feedbackKeys.firstOrNull()
+        val key = feedbackEventKey
         val isChanged = lastType != feedbackType || lastSpokenKey != key
         val elapsedMs = timestampMs - lastSpokenTimestampMs
         val shouldEmit = isChanged || elapsedMs >= speechCooldownMs
         if (shouldEmit) {
+            val feedbackResId = FeedbackStringMapper.feedbackResId(
+                exerciseType = exerciseType,
+                feedbackType = feedbackType,
+                feedbackKey = feedbackEventKey
+            )
             _speechEvents.tryEmit(
                 SmartWorkoutSpeechEvent(
                     feedbackType = feedbackType,
-                    feedbackKeys = feedbackKeys,
+                    feedbackResId = feedbackResId,
                     exerciseType = exerciseType
                 )
             )
             lastSpokenType = feedbackType
             lastSpokenKey = key
             lastSpokenTimestampMs = timestampMs
-            logFeedbackEvent(feedbackType, timestampMs)
+            logFeedbackEvent(feedbackType, key, timestampMs)
         }
         return shouldEmit
+    }
+
+    private fun updateLungeSnapshot(
+        analysis: com.jeong.runninggoaltracker.domain.model.PoseAnalysisResult,
+        exerciseType: ExerciseType,
+        timestampMs: Long,
+        current: LungeRepSnapshot?
+    ): LungeRepSnapshot? {
+        if (exerciseType != ExerciseType.LUNGE || !analysis.repCount.isIncremented) {
+            return current
+        }
+        val summary = analysis.lungeRepSummary
+        val debugInfo = analysis.lungeDebugInfo
+        val feedbackKeys = summary?.feedbackKeys ?: emptyList()
+        val goodFormReason = when {
+            summary == null -> LungeGoodFormReason.NO_SUMMARY
+            feedbackKeys.isNotEmpty() -> LungeGoodFormReason.FEEDBACK_KEYS_PRESENT
+            else -> LungeGoodFormReason.GOOD_FORM
+        }
+        return LungeRepSnapshot(
+            timestampMs = timestampMs,
+            activeSide = debugInfo?.activeSide,
+            countingSide = debugInfo?.countingSide,
+            feedbackType = analysis.feedbackEvent,
+            feedbackEventKey = analysis.feedbackEventKey,
+            feedbackKeys = feedbackKeys,
+            overallScore = summary?.overallScore,
+            frontKneeMinAngle = summary?.frontKneeMinAngle,
+            backKneeMinAngle = summary?.backKneeMinAngle,
+            maxTorsoLeanAngle = summary?.maxTorsoLeanAngle,
+            stabilityStdDev = summary?.stabilityStdDev,
+            maxKneeForwardRatio = summary?.maxKneeForwardRatio,
+            maxKneeCollapseRatio = summary?.maxKneeCollapseRatio,
+            goodFormReason = goodFormReason
+        )
     }
 
     private fun logTransition(
@@ -375,6 +431,7 @@ class AiCoachViewModel @Inject constructor(
 
     private fun logFeedbackEvent(
         feedbackType: PostureFeedbackType,
+        feedbackKey: String,
         timestampMs: Long
     ): Unit = SmartWorkoutLogger.logDebug {
         buildString {
@@ -383,6 +440,10 @@ class AiCoachViewModel @Inject constructor(
             append(SmartWorkoutLogContract.KEY_FEEDBACK)
             append(SmartWorkoutLogContract.LOG_ASSIGN)
             append(feedbackType.name)
+            append(SmartWorkoutLogContract.LOG_SEPARATOR)
+            append(SmartWorkoutLogContract.KEY_VALUE)
+            append(SmartWorkoutLogContract.LOG_ASSIGN)
+            append(feedbackKey)
             append(SmartWorkoutLogContract.LOG_SEPARATOR)
             append(SmartWorkoutLogContract.KEY_TIMESTAMP)
             append(SmartWorkoutLogContract.LOG_ASSIGN)

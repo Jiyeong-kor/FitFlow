@@ -10,8 +10,14 @@ class LungeLeadLegSelector(
     private val history = ArrayDeque<PoseSide>()
     private var lastSelection: PoseSide? = null
 
-    fun update(metrics: LungeRawMetrics?): PoseSide? {
-        val currentSelection = metrics?.let { leadLeg(it) } ?: return lastSelection
+    fun update(
+        metrics: LungeRawMetrics?,
+        leftKneeAngle: Float?,
+        rightKneeAngle: Float?
+    ): PoseSide? {
+        val currentSelection = metrics?.let {
+            leadLeg(it.leftKneeAngle, it.rightKneeAngle)
+        } ?: leadLeg(leftKneeAngle, rightKneeAngle) ?: return lastSelection
         history.addLast(currentSelection)
         if (history.size > windowSize) {
             history.removeFirst()
@@ -27,15 +33,17 @@ class LungeLeadLegSelector(
         return selected
     }
 
-    private fun leadLeg(metrics: LungeRawMetrics): PoseSide {
-        val leftKnee = metrics.leftKneeAngle
-        val rightKnee = metrics.rightKneeAngle
-        return if (leftKnee < rightKnee) {
-            PoseSide.LEFT
-        } else if (rightKnee < leftKnee) {
-            PoseSide.RIGHT
-        } else {
-            lastSelection ?: PoseSide.LEFT
-        }
+    private fun leadLeg(leftKneeAngle: Float?, rightKneeAngle: Float?): PoseSide? = when {
+        leftKneeAngle == null && rightKneeAngle == null -> null
+        rightKneeAngle == null -> PoseSide.LEFT
+        leftKneeAngle == null -> PoseSide.RIGHT
+        leftKneeAngle < rightKneeAngle -> PoseSide.LEFT
+        rightKneeAngle < leftKneeAngle -> PoseSide.RIGHT
+        else -> lastSelection
+    }
+
+    fun reset() {
+        history.clear()
+        lastSelection = null
     }
 }

@@ -3,7 +3,6 @@ package com.jeong.runninggoaltracker.feature.ai_coach.presentation
 import android.content.Context
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
-import androidx.camera.core.Preview as CameraPreview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.animateColorAsState
@@ -46,33 +45,24 @@ import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_TWO
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_MILLIS_PER_SECOND
 import com.jeong.runninggoaltracker.domain.model.ExerciseType
 import com.jeong.runninggoaltracker.domain.model.PoseFrame
 import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
 import com.jeong.runninggoaltracker.domain.model.PoseSide
-import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
 import com.jeong.runninggoaltracker.domain.model.SquatPhase
-import com.jeong.runninggoaltracker.domain.contract.LUNGE_DEPTH_TOO_DEEP_FRONT
-import com.jeong.runninggoaltracker.domain.contract.LUNGE_DEPTH_TOO_SHALLOW_BACK
-import com.jeong.runninggoaltracker.domain.contract.LUNGE_DEPTH_TOO_SHALLOW_FRONT
-import com.jeong.runninggoaltracker.domain.contract.LUNGE_KNEE_COLLAPSE_INWARD
-import com.jeong.runninggoaltracker.domain.contract.LUNGE_KNEE_TOO_FORWARD
-import com.jeong.runninggoaltracker.domain.contract.LUNGE_TORSO_TOO_LEAN_FORWARD
-import com.jeong.runninggoaltracker.domain.contract.LUNGE_UNSTABLE
-import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_TWO
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_MILLIS_PER_SECOND
-import com.jeong.runninggoaltracker.feature.ai_coach.R
 import com.jeong.runninggoaltracker.feature.ai_coach.BuildConfig
+import com.jeong.runninggoaltracker.feature.ai_coach.R
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutLogContract
+import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -85,9 +75,11 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingXl
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
-import kotlin.coroutines.resume
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlin.coroutines.resume
 import kotlin.math.max
+import androidx.camera.core.Preview as CameraPreview
+import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 
 @Composable
 fun SmartWorkoutRoute(
@@ -106,13 +98,7 @@ fun SmartWorkoutRoute(
 
     LaunchedEffect(viewModel, ttsController) {
         viewModel.speechEvents.collect { event ->
-            val text = latestContext.getString(
-                feedbackTextResId(
-                    exerciseType = event.exerciseType,
-                    feedbackType = event.feedbackType,
-                    feedbackKeys = event.feedbackKeys
-                )
-            )
+            val text = latestContext.getString(event.feedbackResId)
             ttsController.speak(text)
         }
     }
@@ -265,6 +251,17 @@ fun SmartWorkoutScreen(
         }
 
         if (BuildConfig.DEBUG && uiState.isDebugOverlayVisible) {
+            LungeDebugOverlay(
+                debugInfo = uiState.lungeDebugInfo,
+                snapshot = uiState.lastLungeRepSnapshot,
+                frameMetrics = uiState.frameMetrics,
+                modifier = Modifier
+                    .align(Alignment.TopStart)
+                    .padding(
+                        horizontal = appSpacingLg(),
+                        vertical = appSpacingLg()
+                    )
+            )
             uiState.frameMetrics?.let { metrics ->
                 val phaseText = when (metrics.phase) {
                     SquatPhase.UP -> stringResource(R.string.smart_workout_phase_up)
@@ -587,11 +584,7 @@ fun SmartWorkoutScreen(
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
-                    text = feedbackText(
-                        exerciseType = uiState.exerciseType,
-                        feedbackType = uiState.feedbackType,
-                        feedbackKeys = uiState.feedbackKeys
-                    ),
+                    text = stringResource(uiState.feedbackResId),
                     color = textPrimary,
                     fontSize = feedbackBodyTextSize.value.sp,
                     fontWeight = FontWeight.SemiBold
@@ -790,47 +783,6 @@ private fun SkeletonOverlay(
             )
         }
     }
-}
-
-@Composable
-private fun feedbackText(
-    exerciseType: ExerciseType,
-    feedbackType: PostureFeedbackType,
-    feedbackKeys: List<String>
-): String =
-    stringResource(feedbackTextResId(exerciseType, feedbackType, feedbackKeys))
-
-private fun feedbackTextResId(
-    exerciseType: ExerciseType,
-    feedbackType: PostureFeedbackType,
-    feedbackKeys: List<String>
-): Int =
-    if (exerciseType == ExerciseType.LUNGE && feedbackKeys.isNotEmpty()) {
-        lungeFeedbackTextResId(feedbackKeys.first())
-    } else {
-        postureFeedbackTextResId(feedbackType)
-    }
-
-private fun postureFeedbackTextResId(type: PostureFeedbackType): Int = when (type) {
-    PostureFeedbackType.GOOD_FORM -> R.string.smart_workout_feedback_good
-    PostureFeedbackType.EXCESS_FORWARD_LEAN -> R.string.smart_workout_feedback_forward_lean
-    PostureFeedbackType.HEEL_RISE -> R.string.smart_workout_feedback_heel_rise
-    PostureFeedbackType.KNEE_FORWARD -> R.string.smart_workout_feedback_knee_forward
-    PostureFeedbackType.TOO_SHALLOW -> R.string.smart_workout_feedback_shallow
-    PostureFeedbackType.STAND_TALL -> R.string.smart_workout_feedback_stand_tall
-    PostureFeedbackType.NOT_IN_FRAME -> R.string.smart_workout_feedback_not_in_frame
-    PostureFeedbackType.UNKNOWN -> R.string.smart_workout_feedback_unknown
-}
-
-private fun lungeFeedbackTextResId(key: String): Int = when (key) {
-    LUNGE_DEPTH_TOO_SHALLOW_FRONT -> R.string.smart_workout_feedback_lunge_shallow_front
-    LUNGE_DEPTH_TOO_DEEP_FRONT -> R.string.smart_workout_feedback_lunge_deep_front
-    LUNGE_DEPTH_TOO_SHALLOW_BACK -> R.string.smart_workout_feedback_lunge_shallow_back
-    LUNGE_KNEE_TOO_FORWARD -> R.string.smart_workout_feedback_lunge_knee_forward
-    LUNGE_TORSO_TOO_LEAN_FORWARD -> R.string.smart_workout_feedback_lunge_torso_lean
-    LUNGE_KNEE_COLLAPSE_INWARD -> R.string.smart_workout_feedback_lunge_knee_collapse
-    LUNGE_UNSTABLE -> R.string.smart_workout_feedback_lunge_unstable
-    else -> R.string.smart_workout_feedback_unknown
 }
 
 @Composable
