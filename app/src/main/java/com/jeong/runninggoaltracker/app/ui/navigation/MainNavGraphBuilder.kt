@@ -18,7 +18,6 @@ import com.jeong.runninggoaltracker.feature.reminder.presentation.ReminderViewMo
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.composable
 import com.jeong.runninggoaltracker.shared.navigation.navigateTo
-import kotlinx.coroutines.flow.map
 
 fun NavGraphBuilder.mainNavGraph(
     activityRecognitionMonitor: ActivityRecognitionMonitor
@@ -36,12 +35,6 @@ internal fun NavGraphBuilder.mainDestinations(
         val viewModel: HomeViewModel = hiltViewModel(backStackEntry)
         HomeRoute(
             viewModel = viewModel,
-            activityStateFlow = activityRecognitionMonitor.activityState.map { state ->
-                state.toUiState()
-            },
-            activityLogsFlow = activityRecognitionMonitor.activityLogs.map { entries ->
-                entries.map { it.toUiModel() }
-            },
             onNavigateToRecord = { navController.navigateTo(MainNavigationRoute.Record) },
             onNavigateToGoal = { navController.navigateTo(MainNavigationRoute.Goal) },
             onNavigateToReminder = { navController.navigateTo(MainNavigationRoute.Reminder) }

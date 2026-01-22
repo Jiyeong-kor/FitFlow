@@ -11,10 +11,39 @@ data class ActivityLogUiModel(
     @field:StringRes val labelResId: Int
 )
 
-data class HomeRecentActivityUiModel(
+enum class PeriodState {
+    DAILY,
+    WEEKLY,
+    MONTHLY
+}
+
+data class SelectedDateState(
+    val dateMillis: Long
+)
+
+enum class HomeWorkoutType {
+    RUNNING,
+    SQUAT
+}
+
+data class HomeWorkoutLogUiModel(
+    val id: Long,
     val timestamp: Long,
-    val month: Int,
-    val day: Int,
-    val dayOfWeek: Int,
-    @field:StringRes val typeResId: Int
+    val distanceKm: Double,
+    val durationMinutes: Int,
+    val type: HomeWorkoutType,
+    @field:StringRes val typeLabelResId: Int
+)
+
+data class HomeSummaryUiState(
+    val totalDistanceKm: Double = 0.0,
+    val totalCalories: Int = 0,
+    val totalDurationMinutes: Int = 0,
+    val averagePace: HomePaceUiState = HomePaceUiState()
+)
+
+data class HomePaceUiState(
+    val minutes: Int = 0,
+    val seconds: Int = 0,
+    val isAvailable: Boolean = false
 )
