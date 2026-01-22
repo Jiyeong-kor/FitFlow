@@ -50,10 +50,10 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.home.R
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION_LABEL
@@ -452,7 +452,7 @@ private fun ActivityLogRow(
     ) {
         Box(
             modifier = Modifier
-                .size(40.dp)
+                .size(dimensionResource(R.dimen.home_activity_log_icon_size))
                 .background(surfaceColor, CircleShape),
             contentAlignment = Alignment.Center
         ) {
@@ -553,6 +553,8 @@ private fun CalendarBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
+        val calendarGridHeight = dimensionResource(R.dimen.home_calendar_grid_height)
+        val calendarDaySize = dimensionResource(R.dimen.home_calendar_day_size)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -610,17 +612,17 @@ private fun CalendarBottomSheet(
                 columns = GridCells.Fixed(7),
                 horizontalArrangement = Arrangement.spacedBy(appSpacingSm()),
                 verticalArrangement = Arrangement.spacedBy(appSpacingSm()),
-                modifier = Modifier.height(280.dp),
+                modifier = Modifier.height(calendarGridHeight),
                 userScrollEnabled = false
             ) {
                 items(calendarDays) { day ->
                     if (day == null) {
-                        Spacer(modifier = Modifier.size(32.dp))
+                        Spacer(modifier = Modifier.size(calendarDaySize))
                     } else {
                         val isSelected = day.isSameDay(selectedDateMillis)
                         Box(
                             modifier = Modifier
-                                .size(32.dp)
+                                .size(calendarDaySize)
                                 .background(
                                     color = if (isSelected) accentColor else appSurfaceColor(),
                                     shape = CircleShape
