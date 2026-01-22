@@ -51,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
+import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -397,9 +398,14 @@ private fun SummaryMetricItem(
     accentColor: androidx.compose.ui.graphics.Color,
     textPrimary: androidx.compose.ui.graphics.Color
 ) {
+    val summaryMetricBackgroundAlpha = summaryMetricBackgroundAlpha()
+
     Column(
         modifier = Modifier
-            .background(accentColor.copy(alpha = 0.1f), RoundedCornerShape(appSpacingSm()))
+            .background(
+                accentColor.copy(alpha = summaryMetricBackgroundAlpha),
+                RoundedCornerShape(appSpacingSm())
+            )
             .padding(horizontal = appSpacingMd(), vertical = appSpacingSm()),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -417,6 +423,11 @@ private fun SummaryMetricItem(
         )
     }
 }
+
+@Composable
+private fun summaryMetricBackgroundAlpha(): Float =
+    integerResource(R.integer.home_alpha_summary_metric_background_percent).toFloat() /
+            integerResource(R.integer.home_percent_base).toFloat()
 
 @Composable
 private fun ActivityLogRow(
