@@ -56,8 +56,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.home.R
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION_LABEL
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
@@ -127,6 +129,7 @@ fun HomeScreen(
     val onRecordClickThrottled = rememberThrottleClick(onClick = onRecordClick)
     val onGoalClickThrottled = rememberThrottleClick(onClick = onGoalClick)
     val onReminderClickThrottled = rememberThrottleClick(onClick = onReminderClick)
+    val onCalendarClickThrottled = rememberThrottleClick(onClick = { isCalendarVisible = true })
 
     if (isCalendarVisible) {
         CalendarBottomSheet(
@@ -160,7 +163,7 @@ fun HomeScreen(
                         onPeriodSelected = onPeriodSelected,
                         modifier = Modifier.weight(1f)
                     )
-                    IconButton(onClick = { isCalendarVisible = true }) {
+                    IconButton(onClick = onCalendarClickThrottled) {
                         Icon(
                             imageVector = Icons.Default.CalendarMonth,
                             contentDescription = stringResource(R.string.home_action_select_date),
@@ -178,7 +181,10 @@ fun HomeScreen(
         }
 
         item {
-            AnimatedContent(targetState = uiState.summary, label = "summary") { summary ->
+            AnimatedContent(
+                targetState = uiState.summary,
+                label = HOME_SUMMARY_ANIMATION_LABEL
+            ) { summary ->
                 SummaryCard(
                     summary = summary,
                     accentColor = accentColor,
@@ -272,10 +278,12 @@ private fun PeriodSegmentedTabs(
     )
     SingleChoiceSegmentedButtonRow(modifier = modifier) {
         options.forEachIndexed { index, (period, labelResId) ->
+            val onPeriodSelectedThrottled =
+                rememberThrottleClick(onClick = { onPeriodSelected(period) })
             SegmentedButton(
                 shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
                 selected = selectedPeriod == period,
-                onClick = { onPeriodSelected(period) }
+                onClick = onPeriodSelectedThrottled
             ) {
                 Text(text = stringResource(labelResId))
             }
@@ -292,12 +300,14 @@ private fun DateNavigator(
 ) {
     val label = periodLabel(periodState, selectedDateMillis)
     val textPrimary = appTextPrimaryColor()
+    val onPreviousClickThrottled = rememberThrottleClick(onClick = onNavigatePreviousPeriod)
+    val onNextClickThrottled = rememberThrottleClick(onClick = onNavigateNextPeriod)
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        IconButton(onClick = onNavigatePreviousPeriod) {
+        IconButton(onClick = onPreviousClickThrottled) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.home_action_previous_period),
@@ -310,7 +320,7 @@ private fun DateNavigator(
             style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.SemiBold
         )
-        IconButton(onClick = onNavigateNextPeriod) {
+        IconButton(onClick = onNextClickThrottled) {
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                 contentDescription = stringResource(R.string.home_action_next_period),
@@ -524,6 +534,20 @@ private fun CalendarBottomSheet(
     var visibleYear by rememberSaveable { mutableIntStateOf(initialMonth.year) }
     var visibleMonth by rememberSaveable { mutableIntStateOf(initialMonth.month) }
     val visibleState = YearMonthState(year = visibleYear, month = visibleMonth)
+    val onPreviousMonthClickThrottled = rememberThrottleClick(
+        onClick = {
+            val shifted = visibleState.copy(monthOffset = -1)
+            visibleYear = shifted.year
+            visibleMonth = shifted.month
+        }
+    )
+    val onNextMonthClickThrottled = rememberThrottleClick(
+        onClick = {
+            val shifted = visibleState.copy(monthOffset = 1)
+            visibleYear = shifted.year
+            visibleMonth = shifted.month
+        }
+    )
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -541,11 +565,7 @@ private fun CalendarBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = {
-                        val shifted = visibleState.copy(monthOffset = -1)
-                        visibleYear = shifted.year
-                        visibleMonth = shifted.month
-                    }
+                    onClick = onPreviousMonthClickThrottled
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
@@ -554,17 +574,13 @@ private fun CalendarBottomSheet(
                     )
                 }
                 Text(
-                    text = visibleState.label,
+                    text = yearMonthLabel(visibleState),
                     color = textPrimary,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
                 )
                 IconButton(
-                    onClick = {
-                        val shifted = visibleState.copy(monthOffset = 1)
-                        visibleYear = shifted.year
-                        visibleMonth = shifted.month
-                    }
+                    onClick = onNextMonthClickThrottled
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowForward,
@@ -609,7 +625,9 @@ private fun CalendarBottomSheet(
                                     color = if (isSelected) accentColor else appSurfaceColor(),
                                     shape = CircleShape
                                 )
-                                .clickable { onDateSelected(day.timestampMillis) },
+                                .throttleClick(
+                                    onClick = { onDateSelected(day.timestampMillis) }
+                                ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
@@ -628,9 +646,12 @@ private fun CalendarBottomSheet(
 @Composable
 private fun periodLabel(periodState: PeriodState, selectedDateMillis: Long): String {
     val locale = Locale.getDefault()
-    val dayFormatter = remember { SimpleDateFormat("MMM d, yyyy", locale) }
-    val monthFormatter = remember { SimpleDateFormat("MMMM yyyy", locale) }
-    val rangeFormatter = remember { SimpleDateFormat("MMM d", locale) }
+    val dayPattern = stringResource(R.string.home_date_format_day)
+    val monthPattern = stringResource(R.string.home_date_format_month)
+    val rangePattern = stringResource(R.string.home_date_format_range)
+    val dayFormatter = remember(dayPattern, locale) { SimpleDateFormat(dayPattern, locale) }
+    val monthFormatter = remember(monthPattern, locale) { SimpleDateFormat(monthPattern, locale) }
+    val rangeFormatter = remember(rangePattern, locale) { SimpleDateFormat(rangePattern, locale) }
     return when (periodState) {
         PeriodState.DAILY -> stringResource(
             R.string.home_period_daily_format,
@@ -654,19 +675,31 @@ private fun periodLabel(periodState: PeriodState, selectedDateMillis: Long): Str
 }
 
 @Composable
-private fun paceLabel(pace: HomePaceUiState): String {
-    return if (pace.isAvailable) {
+private fun paceLabel(pace: HomePaceUiState): String =
+    if (pace.isAvailable) {
         stringResource(R.string.home_pace_format, pace.minutes, pace.seconds)
     } else {
         stringResource(R.string.home_pace_placeholder)
     }
-}
 
 @Composable
 private fun activityDateLabel(timestampMillis: Long): String {
     val locale = Locale.getDefault()
-    val formatter = remember { SimpleDateFormat("MMM d", locale) }
+    val rangePattern = stringResource(R.string.home_date_format_range)
+    val formatter = remember(rangePattern, locale) { SimpleDateFormat(rangePattern, locale) }
     return formatter.format(timestampMillis)
+}
+
+@Composable
+private fun yearMonthLabel(state: YearMonthState): String {
+    val locale = Locale.getDefault()
+    val monthPattern = stringResource(R.string.home_date_format_month)
+    val formatter = remember(monthPattern, locale) { SimpleDateFormat(monthPattern, locale) }
+    val calendar = Calendar.getInstance().apply {
+        set(Calendar.YEAR, state.year)
+        set(Calendar.MONTH, state.month)
+    }
+    return formatter.format(calendar.timeInMillis)
 }
 
 private fun weekRange(selectedDateMillis: Long): Pair<Long, Long> {
@@ -699,15 +732,6 @@ private data class YearMonthState(
     val year: Int,
     val month: Int
 ) {
-    val label: String
-        get() {
-            val calendar = Calendar.getInstance().apply {
-                set(Calendar.YEAR, year)
-                set(Calendar.MONTH, month)
-            }
-            return SimpleDateFormat("MMMM yyyy", Locale.getDefault()).format(calendar.timeInMillis)
-        }
-
     fun buildCalendarDays(): List<CalendarDay?> {
         val calendar = Calendar.getInstance().apply {
             set(Calendar.YEAR, year)

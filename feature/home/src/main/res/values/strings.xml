@@ -21,6 +21,9 @@
     <string name="home_period_daily_format">%1$s</string>
     <string name="home_period_weekly_range_format">%1$s - %2$s</string>
     <string name="home_period_monthly_format">%1$s</string>
+    <string name="home_date_format_day">yyyy년 M월 d일</string>
+    <string name="home_date_format_month">yyyy년 M월</string>
+    <string name="home_date_format_range">M월 d일</string>
     <string name="home_summary_title">총 거리</string>
     <string name="home_distance_value_format">%.1f</string>
     <string name="home_distance_unit_label">KM</string>
