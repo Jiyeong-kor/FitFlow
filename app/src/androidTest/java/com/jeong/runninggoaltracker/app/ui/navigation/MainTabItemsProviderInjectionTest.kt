@@ -28,7 +28,7 @@ class MainTabItemsProviderInjectionTest {
         hiltRule.inject()
 
         val viewModel = MainNavigationViewModel(mainTabItemsProvider)
-        val tabItems = viewModel.tabItemsByTab
+        val tabItems = viewModel.tabItemsByTab.value
 
         assertEquals(setOf(MainTab.RECORD, MainTab.AI_COACH), tabItems.keys)
     }
