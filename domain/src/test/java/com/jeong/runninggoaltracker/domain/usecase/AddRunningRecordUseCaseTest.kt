@@ -2,7 +2,6 @@ package com.jeong.runninggoaltracker.domain.usecase
 
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
-import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.runBlocking
@@ -16,17 +15,17 @@ class AddRunningRecordUseCaseTest {
 
     @Test
     fun `제공된 값으로 리포지토리에 위임`() = runBlocking {
-        val date = LocalDate.of(2024, 6, 1)
+        val dateMillis = 1_717_209_600_000L
 
         useCase(
-            date = date,
+            date = dateMillis,
             distanceKm = 7.5,
             durationMinutes = 42
         )
 
         assertEquals(1, repository.added.size)
         val record = repository.added.first()
-        assertEquals(date, record.date)
+        assertEquals(dateMillis, record.date)
         assertEquals(7.5, record.distanceKm, 0.0)
         assertEquals(42, record.durationMinutes)
     }
