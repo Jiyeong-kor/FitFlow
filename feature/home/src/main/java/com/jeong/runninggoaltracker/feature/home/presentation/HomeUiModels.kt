@@ -23,13 +23,15 @@ data class SelectedDateState(
 
 enum class HomeWorkoutType {
     RUNNING,
-    SQUAT
+    SQUAT,
+    LUNGE
 }
 
 data class HomeWorkoutLogUiModel(
     val id: Long,
     val timestamp: Long,
     val distanceKm: Double,
+    val repCount: Int,
     val durationMinutes: Int,
     val type: HomeWorkoutType,
     @field:StringRes val typeLabelResId: Int

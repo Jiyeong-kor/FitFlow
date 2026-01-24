@@ -69,6 +69,7 @@ class HomeViewModel @Inject constructor(
                         id = record.id,
                         timestamp = record.date,
                         distanceKm = record.distanceKm,
+                        repCount = 0,
                         durationMinutes = record.durationMinutes,
                         type = HomeWorkoutType.RUNNING,
                         typeLabelResId = R.string.activity_running

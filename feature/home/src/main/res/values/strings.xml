@@ -42,6 +42,9 @@
     <string name="home_goal_summary_description">주간 목표를 확인하고 조정하세요.</string>
     <string name="home_goal_summary_value">현재 주간 목표 %1$s km</string>
     <string name="home_activity_squat">스쿼트</string>
+    <string name="home_activity_lunge">런지</string>
+    <string name="home_activity_count_format">%d회</string>
+    <string name="home_count_placeholder">-- 회</string>
     <string name="home_section_weekly_manage">이번 주 관리</string>
     <string name="home_action_reminder_settings">알림 설정</string>
     <string name="home_section_recent_activity">최근 활동</string>

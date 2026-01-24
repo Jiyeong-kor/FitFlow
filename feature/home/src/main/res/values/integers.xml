@@ -22,6 +22,7 @@
     <integer name="home_preview_activity_first_duration_minutes">32</integer>
     <integer name="home_preview_activity_second_id">2</integer>
     <integer name="home_preview_activity_second_distance_tenths">0</integer>
+    <integer name="home_preview_activity_second_count">18</integer>
     <integer name="home_preview_activity_second_duration_minutes">20</integer>
     <integer name="home_preview_day_millis">86400000</integer>
 </resources>

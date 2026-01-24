@@ -17,16 +17,17 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.automirrored.filled.DirectionsRun
+import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -449,12 +450,25 @@ private fun ActivityLogRow(
     val icon = when (activity.type) {
         HomeWorkoutType.RUNNING -> Icons.AutoMirrored.Filled.DirectionsRun
         HomeWorkoutType.SQUAT -> Icons.Default.FitnessCenter
+        HomeWorkoutType.LUNGE -> Icons.AutoMirrored.Filled.DirectionsWalk
     }
     val dateLabel = activityDateLabel(activity.timestamp)
-    val distanceLabel = if (activity.distanceKm > 0) {
-        stringResource(R.string.home_distance_km_format, activity.distanceKm)
-    } else {
-        stringResource(R.string.home_distance_placeholder)
+    val distanceLabel = when (activity.type) {
+        HomeWorkoutType.RUNNING -> if (activity.distanceKm > 0) {
+            stringResource(R.string.home_distance_km_format, activity.distanceKm)
+        } else {
+            stringResource(R.string.home_distance_placeholder)
+        }
+
+        HomeWorkoutType.SQUAT,
+        HomeWorkoutType.LUNGE -> if (activity.repCount > 0) {
+            stringResource(
+                R.string.home_activity_count_format,
+                activity.repCount
+            )
+        } else {
+            stringResource(R.string.home_count_placeholder)
+        }
     }
     val durationLabel = if (activity.durationMinutes > 0) {
         stringResource(R.string.home_duration_min_format, activity.durationMinutes)
@@ -829,9 +843,7 @@ private fun HomeScreenPreview() {
     val firstActivityDistance =
         integerResource(R.integer.home_preview_activity_first_distance_tenths)
             .toDouble() / distanceScale
-    val secondActivityDistance =
-        integerResource(R.integer.home_preview_activity_second_distance_tenths)
-            .toDouble() / distanceScale
+    val secondActivityCount = integerResource(R.integer.home_preview_activity_second_count)
     val dayMillis = integerResource(R.integer.home_preview_day_millis).toLong()
     val uiState = HomeUiState(
         periodState = PeriodState.WEEKLY,
@@ -851,6 +863,7 @@ private fun HomeScreenPreview() {
                 id = integerResource(R.integer.home_preview_activity_first_id).toLong(),
                 timestamp = System.currentTimeMillis(),
                 distanceKm = firstActivityDistance,
+                repCount = 0,
                 durationMinutes = integerResource(
                     R.integer.home_preview_activity_first_duration_minutes
                 ),
@@ -860,7 +873,8 @@ private fun HomeScreenPreview() {
             HomeWorkoutLogUiModel(
                 id = integerResource(R.integer.home_preview_activity_second_id).toLong(),
                 timestamp = System.currentTimeMillis() - dayMillis,
-                distanceKm = secondActivityDistance,
+                distanceKm = secondActivityCount.toDouble(),
+                repCount = secondActivityCount,
                 durationMinutes = integerResource(
                     R.integer.home_preview_activity_second_duration_minutes
                 ),
