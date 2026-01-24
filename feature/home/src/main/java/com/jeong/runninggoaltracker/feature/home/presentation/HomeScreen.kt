@@ -50,6 +50,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
@@ -61,6 +62,7 @@ import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
+import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
@@ -118,6 +120,7 @@ fun HomeScreen(
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
     val surfaceColor = appSurfaceColor()
@@ -126,6 +129,10 @@ fun HomeScreen(
     val weightOne = integerResource(R.integer.home_weight_one).toFloat()
     val horizontalPadding = appSpacingLg()
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val goalDescription = uiState.weeklyGoalKm?.let { goalKm ->
+        val formattedDistance = DistanceFormatter.formatDistanceKm(context, goalKm)
+        stringResource(R.string.home_goal_summary_value, formattedDistance)
+    } ?: stringResource(R.string.home_goal_summary_description)
 
     var isCalendarVisible by rememberSaveable { mutableStateOf(false) }
     val onRecordClickThrottled = rememberThrottleClick(onClick = onRecordClick)
@@ -256,7 +263,7 @@ fun HomeScreen(
                         style = MaterialTheme.typography.bodySmall
                     )
                     Text(
-                        text = stringResource(R.string.home_goal_summary_description),
+                        text = goalDescription,
                         color = textPrimary,
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.Medium

@@ -27,7 +27,8 @@ data class HomeUiState(
     val periodState: PeriodState = PeriodState.DAILY,
     val selectedDateState: SelectedDateState,
     val summary: HomeSummaryUiState = HomeSummaryUiState(),
-    val activityLogs: List<HomeWorkoutLogUiModel> = emptyList()
+    val activityLogs: List<HomeWorkoutLogUiModel> = emptyList(),
+    val weeklyGoalKm: Double? = null
 )
 
 sealed interface HomeUiEffect {
@@ -57,7 +58,7 @@ class HomeViewModel @Inject constructor(
             getRunningRecordsUseCase(),
             periodState,
             selectedDateState
-        ) { _, records, period, selectedDate ->
+        ) { summary, records, period, selectedDate ->
             val filteredRecords = records.filterByPeriod(period, selectedDate.dateMillis)
             HomeUiState(
                 periodState = period,
@@ -72,7 +73,8 @@ class HomeViewModel @Inject constructor(
                         type = HomeWorkoutType.RUNNING,
                         typeLabelResId = R.string.activity_running
                     )
-                }
+                },
+                weeklyGoalKm = summary.weeklyGoalKm
             )
         }.stateIn(
             scope = viewModelScope,

@@ -40,6 +40,7 @@
     <string name="home_empty_activity_log">선택한 기간에 기록이 없습니다.</string>
     <string name="home_goal_summary_title">목표 관리</string>
     <string name="home_goal_summary_description">주간 목표를 확인하고 조정하세요.</string>
+    <string name="home_goal_summary_value">현재 주간 목표 %1$s km</string>
     <string name="home_activity_squat">스쿼트</string>
     <string name="home_section_weekly_manage">이번 주 관리</string>
     <string name="home_action_reminder_settings">알림 설정</string>
