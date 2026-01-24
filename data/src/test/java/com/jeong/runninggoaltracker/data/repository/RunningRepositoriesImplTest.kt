@@ -1,7 +1,5 @@
 package com.jeong.runninggoaltracker.data.repository
 
-import android.os.Build
-import androidx.test.filters.SdkSuppress
 import com.jeong.runninggoaltracker.data.local.RunningGoalDao
 import com.jeong.runninggoaltracker.data.local.RunningGoalEntity
 import com.jeong.runninggoaltracker.data.local.RunningRecordEntity
@@ -11,8 +9,6 @@ import com.jeong.runninggoaltracker.data.local.RunningReminderEntity
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
-import java.time.DayOfWeek
-import java.time.LocalDate
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -21,7 +17,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
-@SdkSuppress(minSdkVersion = Build.VERSION_CODES.O)
 class RunningRepositoriesImplTest {
 
     private val fakeDaos = FakeRunningDaos()
@@ -31,11 +26,11 @@ class RunningRepositoriesImplTest {
 
     @Test
     fun `record repository exposes mapped records and inserts entities`() = runBlocking {
-        val recordDate = LocalDate.of(2024, 6, 1)
+        val recordDate = 1717200000000L
         fakeDaos.records.value = listOf(
             RunningRecordEntity(
                 id = 1L,
-                date = recordDate.toString(),
+                date = recordDate,
                 distanceKm = 4.2,
                 durationMinutes = 25
             )
@@ -49,7 +44,7 @@ class RunningRepositoriesImplTest {
 
         val newRecord = RunningRecord(
             id = 2L,
-            date = LocalDate.of(2024, 6, 2),
+            date = 1717286400000L,
             distanceKm = 10.0,
             durationMinutes = 50
         )
@@ -59,7 +54,7 @@ class RunningRepositoriesImplTest {
         assertEquals(
             RunningRecordEntity(
                 id = 2L,
-                date = "2024-06-02",
+                date = 1717286400000L,
                 distanceKm = 10.0,
                 durationMinutes = 50
             ),
@@ -89,7 +84,7 @@ class RunningRepositoriesImplTest {
                 hour = 6,
                 minute = 45,
                 enabled = true,
-                days = "1,5"
+                days = setOf(1, 5)
             )
         )
 
@@ -97,28 +92,30 @@ class RunningRepositoriesImplTest {
 
         assertEquals(1, reminders.size)
         val reminder = reminders.first()
-        assertEquals(setOf(DayOfWeek.MONDAY, DayOfWeek.FRIDAY), reminder.days)
+        assertEquals(setOf(1, 5), reminder.days)
 
         val newReminder = RunningReminder(
             id = 4,
             hour = 7,
             minute = 15,
             enabled = true,
-            days = setOf(DayOfWeek.TUESDAY)
+            days = setOf(2)
         )
 
         reminderRepository.upsertReminder(newReminder)
         reminderRepository.deleteReminder(3)
 
-        assertTrue(fakeDaos.upsertedReminders.contains(
-            RunningReminderEntity(
-                id = 4,
-                hour = 7,
-                minute = 15,
-                enabled = true,
-                days = "2"
+        assertTrue(
+            fakeDaos.upsertedReminders.contains(
+                RunningReminderEntity(
+                    id = 4,
+                    hour = 7,
+                    minute = 15,
+                    enabled = true,
+                    days = setOf(2)
+                )
             )
-        ))
+        )
         assertEquals(listOf(3), fakeDaos.deletedReminderIds)
         assertTrue(fakeDaos.reminders.value.none { it.id == 3 })
     }
