@@ -818,12 +818,13 @@ private data class CalendarDay(
     val dayOfMonth: Int,
     val timestampMillis: Long
 ) {
-    fun isSameDay(otherMillis: Long): Boolean {
-        val calendar = Calendar.getInstance().apply { timeInMillis = timestampMillis }
-        val other = Calendar.getInstance().apply { timeInMillis = otherMillis }
-        return calendar.get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
-                calendar.get(Calendar.DAY_OF_YEAR) == other.get(Calendar.DAY_OF_YEAR)
-    }
+    fun isSameDay(otherMillis: Long): Boolean =
+        Calendar.getInstance().apply { timeInMillis = timestampMillis }
+            .let { calendar ->
+                val other = Calendar.getInstance().apply { timeInMillis = otherMillis }
+                calendar.get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
+                        calendar.get(Calendar.DAY_OF_YEAR) == other.get(Calendar.DAY_OF_YEAR)
+            }
 }
 
 private fun yearMonthFromMillis(dateMillis: Long): YearMonthState {
