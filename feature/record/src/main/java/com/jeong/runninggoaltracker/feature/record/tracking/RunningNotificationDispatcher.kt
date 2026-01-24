@@ -36,6 +36,7 @@ class RunningNotificationDispatcher @Inject constructor(
             .setContentTitle(context.getString(R.string.record_notification_title))
             .setContentText(content)
             .setOngoing(true)
+            .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .addAction(
                 android.R.drawable.ic_media_pause,
