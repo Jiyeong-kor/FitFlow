@@ -50,6 +50,8 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_TWO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
@@ -93,6 +95,13 @@ fun SmartWorkoutRoute(
     val ttsController = remember { SmartWorkoutTtsController(context) }
     val cooldownMs = integerResource(R.integer.smart_workout_feedback_cooldown_ms).toLong()
     val latestContext by rememberUpdatedState(LocalContext.current)
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    val onBackClick = remember(onBack, viewModel) {
+        {
+            viewModel.persistWorkoutRepCount()
+            onBack()
+        }
+    }
 
     LaunchedEffect(cooldownMs) {
         viewModel.updateSpeechCooldown(cooldownMs)
@@ -111,10 +120,23 @@ fun SmartWorkoutRoute(
         }
     }
 
+    DisposableEffect(lifecycleOwner, viewModel) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_STOP) {
+                viewModel.persistWorkoutRepCount()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            viewModel.persistWorkoutRepCount()
+        }
+    }
+
     SmartWorkoutScreen(
         uiState = uiState,
         imageAnalyzer = viewModel.imageAnalyzer,
-        onBack = onBack,
+        onBack = onBackClick,
         onToggleDebugOverlay = viewModel::toggleDebugOverlay,
         onExerciseTypeChange = viewModel::updateExerciseType
     )

@@ -10,12 +10,15 @@ import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
 import com.jeong.runninggoaltracker.domain.model.PostureWarningEvent
 import com.jeong.runninggoaltracker.domain.model.SquatFrameMetrics
 import com.jeong.runninggoaltracker.domain.model.SquatPhaseTransition
+import com.jeong.runninggoaltracker.domain.usecase.AddWorkoutRecordUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ProcessPoseUseCase
+import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutLogContract
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutSpeechContract
 import com.jeong.runninggoaltracker.feature.ai_coach.data.pose.PoseDetector
 import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,7 +33,9 @@ import javax.inject.Inject
 @HiltViewModel
 class AiCoachViewModel @Inject constructor(
     private val poseDetector: PoseDetector,
-    private val processPoseUseCase: ProcessPoseUseCase
+    private val processPoseUseCase: ProcessPoseUseCase,
+    private val addWorkoutRecordUseCase: AddWorkoutRecordUseCase,
+    private val dateProvider: DateProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SmartWorkoutUiState())
@@ -47,6 +52,7 @@ class AiCoachViewModel @Inject constructor(
     private var lastAttemptActive: Boolean? = null
     private var lastDepthReached: Boolean? = null
     private var lastFullBodyVisible: Boolean? = null
+    private var lastSavedSnapshot: WorkoutSaveSnapshot? = null
 
     val imageAnalyzer: ImageAnalysis.Analyzer
         get() = poseDetector.imageAnalyzer
@@ -157,7 +163,33 @@ class AiCoachViewModel @Inject constructor(
         lastSpokenKey = null
     }
 
+    fun persistWorkoutRepCount() {
+        val repCount = _uiState.value.repCount
+        if (repCount <= SQUAT_INT_ZERO) {
+            return
+        }
+        val exerciseType = _uiState.value.exerciseType
+        val date = dateProvider.getToday()
+        val snapshot = WorkoutSaveSnapshot(
+            date = date,
+            exerciseType = exerciseType,
+            repCount = repCount
+        )
+        if (snapshot == lastSavedSnapshot) {
+            return
+        }
+        lastSavedSnapshot = snapshot
+        viewModelScope.launch {
+            addWorkoutRecordUseCase(
+                date = date,
+                exerciseType = exerciseType,
+                repCount = repCount
+            )
+        }
+    }
+
     override fun onCleared() {
+        persistWorkoutRepCount()
         poseDetector.clear()
         super.onCleared()
     }
@@ -492,3 +524,9 @@ class AiCoachViewModel @Inject constructor(
         }
     }
 }
+
+private data class WorkoutSaveSnapshot(
+    val date: Long,
+    val exerciseType: ExerciseType,
+    val repCount: Int
+)

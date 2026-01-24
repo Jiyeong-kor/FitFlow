@@ -6,10 +6,12 @@ import com.jeong.runninggoaltracker.data.local.RunningDatabaseFactory
 import com.jeong.runninggoaltracker.data.local.RunningGoalDao
 import com.jeong.runninggoaltracker.data.local.RunningRecordDao
 import com.jeong.runninggoaltracker.data.local.RunningReminderDao
+import com.jeong.runninggoaltracker.data.local.WorkoutRecordDao
 import com.jeong.runninggoaltracker.data.repository.AuthRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningGoalRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningReminderRepositoryImpl
+import com.jeong.runninggoaltracker.data.repository.WorkoutRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.util.SystemDateProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
@@ -17,6 +19,7 @@ import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
+import com.jeong.runninggoaltracker.domain.repository.WorkoutRecordRepository
 import com.jeong.runninggoaltracker.domain.usecase.RunningSummaryCalculator
 import com.jeong.runninggoaltracker.domain.usecase.WeeklySummaryCalculator
 import com.jeong.runninggoaltracker.domain.util.DateProvider
@@ -47,6 +50,9 @@ object DataProvidesModule {
 
     @Provides
     fun provideRunningReminderDao(db: RunningDatabase): RunningReminderDao = db.runningReminderDao()
+
+    @Provides
+    fun provideWorkoutRecordDao(db: RunningDatabase): WorkoutRecordDao = db.workoutRecordDao()
 
     @Provides
     @Singleton
@@ -81,6 +87,10 @@ abstract class DataBindsModule {
     @Binds
     @Singleton
     abstract fun bindRunningReminderRepository(impl: RunningReminderRepositoryImpl): RunningReminderRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWorkoutRecordRepository(impl: WorkoutRecordRepositoryImpl): WorkoutRecordRepository
 
     @Binds
     @Singleton
