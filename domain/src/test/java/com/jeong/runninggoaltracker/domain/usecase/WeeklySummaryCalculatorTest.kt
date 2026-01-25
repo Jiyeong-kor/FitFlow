@@ -49,4 +49,19 @@ class WeeklySummaryCalculatorTest {
         assertEquals(1, summary.recordCountThisWeek)
         assertEquals(0f, summary.progress, 0.0001f)
     }
+
+    @Test
+    fun calculateCapsProgressWhenTotalExceedsGoal() {
+        val goal = RunningGoal(weeklyGoalKm = 5.0)
+        val records = listOf(
+            RunningRecord(id = 1L, date = 1200L, distanceKm = 4.0, durationMinutes = 30),
+            RunningRecord(id = 2L, date = 1300L, distanceKm = 4.0, durationMinutes = 35)
+        )
+
+        val summary = calculator.calculate(goal, records, todayMillis = 1600L)
+
+        assertEquals(1.0f, summary.progress, 0.0001f)
+        assertEquals(8.0, summary.totalThisWeekKm, 0.0)
+        assertEquals(2, summary.recordCountThisWeek)
+    }
 }
