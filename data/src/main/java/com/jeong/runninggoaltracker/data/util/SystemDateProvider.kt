@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
+import com.jeong.runninggoaltracker.domain.contract.DateTimeContract
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -42,7 +43,7 @@ class SystemDateProvider(private val context: Context) : DateProvider {
     override fun getStartOfWeek(timestamp: Long): Long =
         Calendar.getInstance().apply {
             timeInMillis = timestamp
-            firstDayOfWeek = Calendar.SUNDAY
+            firstDayOfWeek = DateTimeContract.WEEK_START_DAY
             set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)

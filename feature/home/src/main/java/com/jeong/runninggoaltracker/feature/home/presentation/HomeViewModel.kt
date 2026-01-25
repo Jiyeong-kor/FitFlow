@@ -2,6 +2,7 @@ package com.jeong.runninggoaltracker.feature.home.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeong.runninggoaltracker.domain.contract.DateTimeContract
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
@@ -172,7 +173,7 @@ class HomeViewModel @Inject constructor(
     private fun dateRangeForWeek(selectedDateMillis: Long): Pair<Long, Long> {
         val calendar = Calendar.getInstance().apply {
             timeInMillis = selectedDateMillis
-            firstDayOfWeek = Calendar.SUNDAY
+            firstDayOfWeek = DateTimeContract.WEEK_START_DAY
             set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
             set(Calendar.HOUR_OF_DAY, 0)
             set(Calendar.MINUTE, 0)

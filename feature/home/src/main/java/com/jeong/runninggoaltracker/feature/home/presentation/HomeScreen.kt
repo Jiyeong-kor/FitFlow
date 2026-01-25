@@ -58,6 +58,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.jeong.runninggoaltracker.domain.contract.DateTimeContract
 import com.jeong.runninggoaltracker.feature.home.R
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION_LABEL
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
@@ -743,7 +744,7 @@ private fun yearMonthLabel(state: YearMonthState): String {
 private fun weekRange(selectedDateMillis: Long): Pair<Long, Long> {
     val calendar = Calendar.getInstance().apply {
         timeInMillis = selectedDateMillis
-        firstDayOfWeek = Calendar.SUNDAY
+        firstDayOfWeek = DateTimeContract.WEEK_START_DAY
         set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
         set(Calendar.HOUR_OF_DAY, 0)
         set(Calendar.MINUTE, 0)
@@ -782,7 +783,8 @@ private data class YearMonthState(
         }
         val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
         val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-        val offset = (firstDayOfWeek - Calendar.SUNDAY).let { if (it < 0) it + 7 else it }
+        val offset =
+            (firstDayOfWeek - DateTimeContract.WEEK_START_DAY).let { if (it < 0) it + 7 else it }
         val totalCells = offset + daysInMonth
         return buildList {
             repeat(offset) { add(null) }
