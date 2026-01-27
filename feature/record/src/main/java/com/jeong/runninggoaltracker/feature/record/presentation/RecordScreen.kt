@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
+import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -213,13 +214,19 @@ fun RecordScreen(
             horizontalArrangement =
                 Arrangement.spacedBy(dimensionResource(R.dimen.record_metric_spacing))
         ) {
+            val startPauseIcon = if (uiState.isTracking) {
+                Icons.Default.Pause
+            } else {
+                Icons.Default.PlayArrow
+            }
+
             RecordControlButton(
                 label = if (uiState.isTracking) {
                     stringResource(R.string.record_action_pause)
                 } else {
                     stringResource(R.string.record_action_start)
                 },
-                icon = Icons.Default.Pause,
+                icon = startPauseIcon,
                 containerColor = if (uiState.isTracking) surfaceColor else accentColor,
                 contentColor = if (uiState.isTracking) textPrimary else onAccent,
                 modifier = Modifier.weight(fullWeight),
