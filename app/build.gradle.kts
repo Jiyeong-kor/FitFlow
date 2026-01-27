@@ -96,4 +96,5 @@ dependencies {
 
     // Debug
     debugImplementation(libs.bundles.androidx.compose.debug)
+    debugImplementation(libs.leakcanary.android)
 }

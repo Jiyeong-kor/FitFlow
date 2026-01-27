@@ -45,6 +45,7 @@ junit = "4.13.2"
 junitVersion = "1.3.0"
 uiToolingPreview = "1.10.0"
 uiTooling = "1.10.0"
+leakcanary = "2.14"
 
 
 [libraries]
@@ -118,6 +119,7 @@ androidx-test-runner = { group = "androidx.test", name = "runner", version.ref =
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "uiToolingPreview" }
 androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "uiTooling" }
+leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
 
 
 [plugins]
