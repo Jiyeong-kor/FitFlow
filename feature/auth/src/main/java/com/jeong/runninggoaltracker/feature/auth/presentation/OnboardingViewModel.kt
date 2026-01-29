@@ -57,7 +57,8 @@ class OnboardingViewModel @Inject constructor(
     val uiState: StateFlow<OnboardingUiState> = _uiState
     private val _effects = MutableSharedFlow<OnboardingEffect>()
     val effects: SharedFlow<OnboardingEffect> = _effects
-    val isPrivacyAccepted = MutableStateFlow(false)
+    private val _isPrivacyAccepted = MutableStateFlow(false)
+    val isPrivacyAccepted: StateFlow<Boolean> = _isPrivacyAccepted
 
     fun onPermissionsResult(granted: Boolean, isPermanentlyDenied: Boolean) =
         _uiState.update { currentState ->
@@ -199,7 +200,7 @@ class OnboardingViewModel @Inject constructor(
         }
 
     fun onPrivacyAcceptedChanged(isAccepted: Boolean) {
-        isPrivacyAccepted.value = isAccepted
+        _isPrivacyAccepted.value = isAccepted
     }
 
     fun onKakaoLoginClicked() {
