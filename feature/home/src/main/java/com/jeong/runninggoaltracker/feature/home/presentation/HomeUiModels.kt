@@ -11,12 +11,6 @@ data class ActivityLogUiModel(
     @field:StringRes val labelResId: Int
 )
 
-enum class PeriodState {
-    DAILY,
-    WEEKLY,
-    MONTHLY
-}
-
 data class SelectedDateState(
     val dateMillis: Long
 )

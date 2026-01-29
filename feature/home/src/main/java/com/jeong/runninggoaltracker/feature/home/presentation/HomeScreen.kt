@@ -65,6 +65,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.domain.contract.DateTimeContract
+import com.jeong.runninggoaltracker.domain.model.PeriodState
 import com.jeong.runninggoaltracker.feature.home.R
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION_LABEL
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
