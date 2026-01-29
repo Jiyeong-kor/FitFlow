@@ -6,11 +6,13 @@ import androidx.compose.runtime.Composable
 fun MyPageRoute(
     viewModel: MyPageViewModel,
     onNavigateToGoal: () -> Unit,
-    onNavigateToReminder: () -> Unit
+    onNavigateToReminder: () -> Unit,
+    onNavigateToPrivacyPolicy: () -> Unit
 ) {
     MyPageScreen(
         viewModel = viewModel,
         onNavigateToGoal = onNavigateToGoal,
-        onNavigateToReminder = onNavigateToReminder
+        onNavigateToReminder = onNavigateToReminder,
+        onNavigateToPrivacyPolicy = onNavigateToPrivacyPolicy
     )
 }

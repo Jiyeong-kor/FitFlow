@@ -28,20 +28,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.LinkAnnotation
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.auth.R
-import com.jeong.runninggoaltracker.feature.auth.contract.PrivacyPolicyContract
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -55,6 +49,7 @@ fun NicknameScreen(
     onPrivacyAcceptedChange: (Boolean) -> Unit,
     onContinue: () -> Unit,
     onKakaoLogin: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val spacingXs =
@@ -72,24 +67,8 @@ fun NicknameScreen(
     val kakaoButtonHeight = dimensionResource(id = R.dimen.kakao_login_button_height)
     val kakaoButtonCornerRadius = dimensionResource(id = R.dimen.kakao_login_button_corner_radius)
     val kakaoLoginButtonText = stringResource(id = R.string.kakao_login_button_text)
-    val uriHandler = LocalUriHandler.current
     val privacyPolicyLabel = stringResource(id = R.string.privacy_policy_agreement_link)
-    val privacyPolicyLink = LinkAnnotation.Url(PrivacyPolicyContract.PRIVACY_POLICY_URL) {
-        uriHandler.openUri(PrivacyPolicyContract.PRIVACY_POLICY_URL)
-    }
-    val privacyPolicyText = buildAnnotatedString {
-        pushLink(privacyPolicyLink)
-        pushStyle(
-            SpanStyle(
-                color = MaterialTheme.colorScheme.primary,
-                textDecoration = TextDecoration.Underline
-            )
-        )
-        append(privacyPolicyLabel)
-        pop()
-        pop()
-        append(stringResource(id = R.string.privacy_policy_agreement_suffix))
-    }
+    val privacyPolicySuffix = stringResource(id = R.string.privacy_policy_agreement_suffix)
     val privacyPolicyAccessibilityLabel =
         stringResource(id = R.string.privacy_policy_agreement_full)
 
@@ -182,16 +161,29 @@ fun NicknameScreen(
                     contentDescription = privacyPolicyAccessibilityLabel
                 }
             )
-            Text(
-                text = privacyPolicyText,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    color = MaterialTheme.colorScheme.onSurface
-                ),
-                modifier = Modifier
-                    .semantics {
-                        contentDescription = privacyPolicyAccessibilityLabel
-                    }
-            )
+            Row(
+                modifier = Modifier.semantics(mergeDescendants = true) {
+                    contentDescription = privacyPolicyAccessibilityLabel
+                }
+            ) {
+                Text(
+                    text = privacyPolicyLabel,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.primary
+                    ),
+                    modifier = Modifier.clickable(
+                        enabled = !uiState.isLoading,
+                        role = Role.Button,
+                        onClick = onPrivacyPolicyClick
+                    )
+                )
+                Text(
+                    text = privacyPolicySuffix,
+                    style = MaterialTheme.typography.bodyMedium.copy(
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                )
+            }
         }
         val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
         val onKakaoLoginThrottled = rememberThrottleClick(onClick = onKakaoLogin)
@@ -252,7 +244,8 @@ private fun NicknameScreenPreview() = RunningGoalTrackerTheme {
         onNicknameChanged = {},
         onPrivacyAcceptedChange = {},
         onContinue = {},
-        onKakaoLogin = {}
+        onKakaoLogin = {},
+        onPrivacyPolicyClick = {}
     )
 }
 

@@ -20,6 +20,10 @@ val debugKeyAlias: String =
 val kakaoNativeAppKey: String =
     localProperties.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""
 
+val privacyPolicyUrl: String =
+    providers.gradleProperty("PRIVACY_POLICY_URL").orNull
+        ?: error("gradle.properties에 PRIVACY_POLICY_URL이 없습니다.")
+
 
 plugins {
     alias(libs.plugins.android.application)
@@ -55,6 +59,7 @@ android {
         testInstrumentationRunner = "com.jeong.runninggoaltracker.app.HiltTestRunner"
 
         defaultConfig.manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
+        buildConfigField("String", "PRIVACY_POLICY_URL", "\"$privacyPolicyUrl\"")
     }
 
     buildTypes {
@@ -75,6 +80,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

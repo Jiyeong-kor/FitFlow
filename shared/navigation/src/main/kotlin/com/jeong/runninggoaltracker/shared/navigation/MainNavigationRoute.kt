@@ -31,4 +31,7 @@ sealed interface MainNavigationRoute : FeatureNavigationRoute {
 
     @Serializable
     data object MyPage : MainNavigationRoute
+
+    @Serializable
+    data object PrivacyPolicy : MainNavigationRoute
 }

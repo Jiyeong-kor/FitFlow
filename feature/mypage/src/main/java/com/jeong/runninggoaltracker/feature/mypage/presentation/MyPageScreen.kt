@@ -17,6 +17,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Description
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
@@ -70,7 +71,8 @@ import com.jeong.runninggoaltracker.feature.mypage.R
 fun MyPageScreen(
     viewModel: MyPageViewModel,
     onNavigateToGoal: () -> Unit,
-    onNavigateToReminder: () -> Unit
+    onNavigateToReminder: () -> Unit,
+    onNavigateToPrivacyPolicy: () -> Unit
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val deleteAccountState by viewModel.deleteAccountState.collectAsState()
@@ -79,6 +81,7 @@ fun MyPageScreen(
         uiState = uiState,
         onNavigateToGoal = onNavigateToGoal,
         onNavigateToReminder = onNavigateToReminder,
+        onNavigateToPrivacyPolicy = onNavigateToPrivacyPolicy,
         onActivityToggle = viewModel::toggleActivityRecognition,
         onDeleteAccount = viewModel::deleteAccount,
         deleteAccountState = deleteAccountState,
@@ -91,6 +94,7 @@ private fun MyPageContent(
     uiState: MyPageUiState,
     onNavigateToGoal: () -> Unit,
     onNavigateToReminder: () -> Unit,
+    onNavigateToPrivacyPolicy: () -> Unit,
     onActivityToggle: (Boolean) -> Unit,
     onDeleteAccount: () -> Unit,
     deleteAccountState: DeleteAccountUiState,
@@ -216,6 +220,7 @@ private fun MyPageContent(
                 uiState = uiState,
                 onNavigateToReminder = onNavigateToReminder,
                 onNavigateToGoal = onNavigateToGoal,
+                onNavigateToPrivacyPolicy = onNavigateToPrivacyPolicy,
                 onActivityToggle = onActivityToggle,
                 onDeleteAccount = openDeleteDialog
             )
@@ -385,6 +390,7 @@ private fun SettingsList(
     uiState: MyPageUiState,
     onNavigateToReminder: () -> Unit,
     onNavigateToGoal: () -> Unit,
+    onNavigateToPrivacyPolicy: () -> Unit,
     onActivityToggle: (Boolean) -> Unit,
     onDeleteAccount: () -> Unit
 ) {
@@ -408,6 +414,18 @@ private fun SettingsList(
                 title = stringResource(id = R.string.mypage_setting_goal_title),
                 subTitle = stringResource(id = R.string.mypage_setting_goal_desc),
                 onClick = onNavigateToGoal
+            )
+            HorizontalDivider(
+                modifier = Modifier.padding(
+                    horizontal = dimensionResource(id = R.dimen.mypage_divider_horizontal_padding)
+                ),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            )
+            SettingItem(
+                icon = Icons.Default.Description,
+                title = stringResource(id = R.string.mypage_setting_privacy_policy_title),
+                subTitle = stringResource(id = R.string.mypage_setting_privacy_policy_desc),
+                onClick = onNavigateToPrivacyPolicy
             )
             HorizontalDivider(
                 modifier = Modifier.padding(
@@ -523,6 +541,7 @@ private fun MyPageScreenPreview() =
             ),
             onNavigateToGoal = {},
             onNavigateToReminder = {},
+            onNavigateToPrivacyPolicy = {},
             onActivityToggle = {},
             onDeleteAccount = {},
             deleteAccountState = DeleteAccountUiState.Idle,

@@ -71,7 +71,10 @@ internal fun NavGraphBuilder.mainDestinations(
         MyPageRoute(
             viewModel = viewModel,
             onNavigateToGoal = { navController.navigateTo(MainNavigationRoute.Goal) },
-            onNavigateToReminder = { navController.navigateTo(MainNavigationRoute.Reminder) }
+            onNavigateToReminder = { navController.navigateTo(MainNavigationRoute.Reminder) },
+            onNavigateToPrivacyPolicy = {
+                navController.navigateTo(MainNavigationRoute.PrivacyPolicy)
+            }
         )
     }
 }

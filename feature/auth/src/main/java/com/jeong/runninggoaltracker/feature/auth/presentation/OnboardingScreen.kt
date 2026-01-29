@@ -60,6 +60,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTracker
 @Composable
 fun OnboardingScreen(
     onComplete: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
     modifier: Modifier = Modifier,
     viewModel: OnboardingViewModel = hiltViewModel()
 ) {
@@ -147,7 +148,8 @@ fun OnboardingScreen(
             onNicknameChanged = viewModel::onNicknameChanged,
             onPrivacyAcceptedChange = viewModel::onPrivacyAcceptedChanged,
             onContinue = viewModel::onContinueWithNickname,
-            onKakaoLogin = viewModel::onKakaoLoginClicked
+            onKakaoLogin = viewModel::onKakaoLoginClicked,
+            onPrivacyPolicyClick = onPrivacyPolicyClick
         )
 
         OnboardingStep.Success -> SuccessScreen(

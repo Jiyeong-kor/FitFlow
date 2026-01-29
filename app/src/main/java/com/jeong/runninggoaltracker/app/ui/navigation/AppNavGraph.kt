@@ -1,17 +1,18 @@
 package com.jeong.runninggoaltracker.app.ui.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
+import com.jeong.runninggoaltracker.app.ui.privacy.PrivacyPolicyScreen
 import com.jeong.runninggoaltracker.feature.auth.presentation.OnboardingScreen
 import com.jeong.runninggoaltracker.shared.navigation.AuthRoute
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.composable
 import com.jeong.runninggoaltracker.shared.navigation.navigateTo
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 
 @Composable
 fun AppNavGraph(
@@ -33,8 +34,14 @@ fun AppNavGraph(
                     navController.navigateTo(MainNavigationRoute.Main) {
                         popUpTo(AuthRoute.Onboarding) { inclusive = true }
                     }
+                },
+                onPrivacyPolicyClick = {
+                    navController.navigateTo(MainNavigationRoute.PrivacyPolicy)
                 }
             )
+        }
+        composable<MainNavigationRoute.PrivacyPolicy> {
+            PrivacyPolicyScreen(onBack = { navController.popBackStack() })
         }
         mainNavGraph(
         )
