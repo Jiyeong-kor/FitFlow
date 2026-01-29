@@ -354,11 +354,16 @@ private fun ActivityRecognitionStatus.toRecordLabel(): String =
 @Preview(showBackground = true)
 @Composable
 private fun RecordScreenPreview() {
+    val distanceScale =
+        integerResource(R.integer.record_preview_distance_scale_hundredths).toDouble()
+    val previewDistance =
+        integerResource(R.integer.record_preview_distance_hundredths).toDouble() / distanceScale
+    val previewElapsedMillis = integerResource(R.integer.record_preview_elapsed_millis).toLong()
     val uiState = RecordUiState(
         activityStatus = ActivityRecognitionStatus.Running,
         isTracking = true,
-        distanceKm = 3.45,
-        elapsedMillis = 1_245_000,
+        distanceKm = previewDistance,
+        elapsedMillis = previewElapsedMillis,
         permissionRequired = false
     )
 

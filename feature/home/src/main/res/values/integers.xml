@@ -25,4 +25,5 @@
     <integer name="home_preview_activity_second_count">18</integer>
     <integer name="home_preview_activity_second_duration_minutes">20</integer>
     <integer name="home_preview_day_millis">86400000</integer>
+    <integer name="home_preview_epoch_days">20000</integer>
 </resources>

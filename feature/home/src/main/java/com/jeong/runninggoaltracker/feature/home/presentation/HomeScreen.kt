@@ -880,9 +880,11 @@ private fun HomeScreenPreview() {
             .toDouble() / distanceScale
     val secondActivityCount = integerResource(R.integer.home_preview_activity_second_count)
     val dayMillis = integerResource(R.integer.home_preview_day_millis).toLong()
+    val epochDays = integerResource(R.integer.home_preview_epoch_days).toLong()
+    val baseMillis = epochDays * dayMillis
     val uiState = HomeUiState(
         periodState = PeriodState.WEEKLY,
-        selectedDateState = SelectedDateState(dateMillis = System.currentTimeMillis()),
+        selectedDateState = SelectedDateState(dateMillis = baseMillis),
         summary = HomeSummaryUiState(
             totalDistanceKm = totalDistance,
             totalCalories = integerResource(R.integer.home_preview_total_calories),
@@ -896,7 +898,7 @@ private fun HomeScreenPreview() {
         activityLogs = listOf(
             HomeWorkoutLogUiModel(
                 id = integerResource(R.integer.home_preview_activity_first_id).toLong(),
-                timestamp = System.currentTimeMillis(),
+                timestamp = baseMillis,
                 distanceKm = firstActivityDistance,
                 repCount = 0,
                 durationMinutes = integerResource(
@@ -907,7 +909,7 @@ private fun HomeScreenPreview() {
             ),
             HomeWorkoutLogUiModel(
                 id = integerResource(R.integer.home_preview_activity_second_id).toLong(),
-                timestamp = System.currentTimeMillis() - dayMillis,
+                timestamp = baseMillis - dayMillis,
                 distanceKm = secondActivityCount.toDouble(),
                 repCount = secondActivityCount,
                 durationMinutes = integerResource(

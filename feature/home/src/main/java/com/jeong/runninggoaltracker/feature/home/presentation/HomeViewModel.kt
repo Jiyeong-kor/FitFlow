@@ -181,7 +181,7 @@ class HomeViewModel @Inject constructor(
             set(Calendar.MILLISECOND, 0)
         }
         val start = calendar.timeInMillis
-        calendar.add(Calendar.DAY_OF_YEAR, HOME_DAYS_PER_WEEK)
+        calendar.add(Calendar.DAY_OF_YEAR, DateTimeContract.DAYS_IN_WEEK)
         val end = calendar.timeInMillis
         return start to end
     }
@@ -234,4 +234,3 @@ class HomeViewModel @Inject constructor(
 private const val HOME_CALORIES_PER_KM = 60
 private const val HOME_SECONDS_PER_MINUTE = 60
 private const val HOME_MILLIS_PER_DAY = 24L * 60L * 60L * 1000L
-private const val HOME_DAYS_PER_WEEK = 7

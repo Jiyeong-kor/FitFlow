@@ -4,4 +4,7 @@
     <integer name="record_accent_alpha_strong">30</integer>
     <integer name="record_metric_background_alpha">3</integer>
     <integer name="record_weight_full">1</integer>
+    <integer name="record_preview_distance_scale_hundredths">100</integer>
+    <integer name="record_preview_distance_hundredths">345</integer>
+    <integer name="record_preview_elapsed_millis">1245000</integer>
 </resources>

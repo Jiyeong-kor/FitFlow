@@ -309,9 +309,12 @@ private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) 
 @Preview(showBackground = true)
 @Composable
 private fun GoalScreenPreview() {
+    val previewScale = integerResource(R.integer.goal_preview_weekly_goal_scale_tenths).toDouble()
+    val previewGoalKm =
+        integerResource(R.integer.goal_preview_weekly_goal_tenths).toDouble() / previewScale
     val state = GoalUiState(
-        currentGoalKm = 15.0,
-        weeklyGoalKmInput = 15.0,
+        currentGoalKm = previewGoalKm,
+        weeklyGoalKmInput = previewGoalKm,
         error = null
     )
 
