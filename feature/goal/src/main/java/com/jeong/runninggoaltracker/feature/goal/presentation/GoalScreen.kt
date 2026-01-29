@@ -247,7 +247,9 @@ private fun GoalAdjustButton(
 
     Surface(
         onClick = onClickThrottled,
-        modifier = Modifier.size(buttonSize),
+        modifier = Modifier
+            .size(buttonSize)
+            .semantics { role = Role.Button },
         shape = CircleShape,
         color = Color.Transparent,
         border = androidx.compose.foundation.BorderStroke(
