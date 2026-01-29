@@ -48,7 +48,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import androidx.annotation.IntegerRes
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.reminder.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
@@ -63,7 +62,7 @@ import java.util.Calendar
 
 @Composable
 fun ReminderRoute(
-    viewModel: ReminderViewModel = hiltViewModel()
+    viewModel: ReminderViewModel
 ) {
     val state by viewModel.uiState.collectAsState()
     val userMessageHandler = rememberUserMessageHandler()

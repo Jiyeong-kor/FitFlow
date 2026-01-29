@@ -35,11 +35,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -69,23 +64,28 @@ import com.jeong.runninggoaltracker.feature.mypage.R
 
 @Composable
 fun MyPageScreen(
-    viewModel: MyPageViewModel,
+    uiState: MyPageUiState,
+    deleteAccountState: DeleteAccountUiState,
     onNavigateToGoal: () -> Unit,
     onNavigateToReminder: () -> Unit,
-    onNavigateToPrivacyPolicy: () -> Unit
+    onNavigateToPrivacyPolicy: () -> Unit,
+    onActivityToggle: (Boolean) -> Unit,
+    onDeleteAccountClick: () -> Unit,
+    onDeleteAccountConfirm: () -> Unit,
+    onDeleteAccountDialogDismiss: () -> Unit,
+    onDeleteAccountStateConsumed: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val deleteAccountState by viewModel.deleteAccountState.collectAsState()
-
     MyPageContent(
         uiState = uiState,
         onNavigateToGoal = onNavigateToGoal,
         onNavigateToReminder = onNavigateToReminder,
         onNavigateToPrivacyPolicy = onNavigateToPrivacyPolicy,
-        onActivityToggle = viewModel::toggleActivityRecognition,
-        onDeleteAccount = viewModel::deleteAccount,
         deleteAccountState = deleteAccountState,
-        onDeleteAccountStateConsumed = viewModel::resetDeleteAccountState
+        onActivityToggle = onActivityToggle,
+        onDeleteAccountClick = onDeleteAccountClick,
+        onDeleteAccountConfirm = onDeleteAccountConfirm,
+        onDeleteAccountDialogDismiss = onDeleteAccountDialogDismiss,
+        onDeleteAccountStateConsumed = onDeleteAccountStateConsumed
     )
 }
 
@@ -96,21 +96,21 @@ private fun MyPageContent(
     onNavigateToReminder: () -> Unit,
     onNavigateToPrivacyPolicy: () -> Unit,
     onActivityToggle: (Boolean) -> Unit,
-    onDeleteAccount: () -> Unit,
     deleteAccountState: DeleteAccountUiState,
+    onDeleteAccountClick: () -> Unit,
+    onDeleteAccountConfirm: () -> Unit,
+    onDeleteAccountDialogDismiss: () -> Unit,
     onDeleteAccountStateConsumed: () -> Unit
 ) {
-    var isDeleteDialogVisible by rememberSaveable { mutableStateOf(false) }
-    val openDeleteDialog = rememberThrottleClick(onClick = { isDeleteDialogVisible = true })
-    val closeDeleteDialog = rememberThrottleClick(onClick = { isDeleteDialogVisible = false })
+    val openDeleteDialog = rememberThrottleClick(onClick = onDeleteAccountClick)
+    val closeDeleteDialog = rememberThrottleClick(onClick = onDeleteAccountDialogDismiss)
     val confirmDeleteDialog = rememberThrottleClick(
         onClick = {
-            isDeleteDialogVisible = false
-            onDeleteAccount()
+            onDeleteAccountConfirm()
         }
     )
 
-    if (isDeleteDialogVisible) {
+    if (uiState.isDeleteDialogVisible) {
         AlertDialog(
             onDismissRequest = closeDeleteDialog,
             title = { Text(text = stringResource(id = R.string.mypage_delete_account_confirm_title)) },
@@ -543,7 +543,9 @@ private fun MyPageScreenPreview() =
             onNavigateToReminder = {},
             onNavigateToPrivacyPolicy = {},
             onActivityToggle = {},
-            onDeleteAccount = {},
+            onDeleteAccountClick = {},
+            onDeleteAccountConfirm = {},
+            onDeleteAccountDialogDismiss = {},
             deleteAccountState = DeleteAccountUiState.Idle,
             onDeleteAccountStateConsumed = {}
         )

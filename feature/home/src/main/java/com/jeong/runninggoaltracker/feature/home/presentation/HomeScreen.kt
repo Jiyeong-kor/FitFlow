@@ -46,7 +46,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -63,7 +62,6 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.domain.contract.DateTimeContract
 import com.jeong.runninggoaltracker.domain.model.PeriodState
 import com.jeong.runninggoaltracker.feature.home.R
@@ -91,7 +89,7 @@ fun HomeRoute(
     onNavigateToRecord: () -> Unit,
     onNavigateToGoal: () -> Unit,
     onNavigateToReminder: () -> Unit,
-    viewModel: HomeViewModel = hiltViewModel()
+    viewModel: HomeViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -111,6 +109,8 @@ fun HomeRoute(
         onNavigatePreviousPeriod = viewModel::onNavigatePreviousPeriod,
         onNavigateNextPeriod = viewModel::onNavigateNextPeriod,
         onDateSelected = viewModel::onDateSelected,
+        onCalendarOpen = viewModel::onCalendarOpen,
+        onCalendarDismiss = viewModel::onCalendarDismiss,
         onRecordClick = viewModel::onRecordClick,
         onGoalClick = viewModel::onGoalClick,
         onReminderClick = viewModel::onReminderClick
@@ -125,6 +125,8 @@ fun HomeScreen(
     onNavigatePreviousPeriod: () -> Unit,
     onNavigateNextPeriod: () -> Unit,
     onDateSelected: (Long) -> Unit,
+    onCalendarOpen: () -> Unit,
+    onCalendarDismiss: () -> Unit,
     onRecordClick: () -> Unit,
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
@@ -144,20 +146,19 @@ fun HomeScreen(
         stringResource(R.string.home_goal_summary_value, formattedDistance)
     } ?: stringResource(R.string.home_goal_summary_description)
 
-    var isCalendarVisible by rememberSaveable { mutableStateOf(false) }
     val onRecordClickThrottled = rememberThrottleClick(onClick = onRecordClick)
     val onGoalClickThrottled = rememberThrottleClick(onClick = onGoalClick)
     val onReminderClickThrottled = rememberThrottleClick(onClick = onReminderClick)
-    val onCalendarClickThrottled = rememberThrottleClick(onClick = { isCalendarVisible = true })
+    val onCalendarClickThrottled = rememberThrottleClick(onClick = onCalendarOpen)
 
-    if (isCalendarVisible) {
+    if (uiState.isCalendarVisible) {
         CalendarBottomSheet(
             selectedDateMillis = uiState.selectedDateState.dateMillis,
             onDateSelected = {
                 onDateSelected(it)
-                isCalendarVisible = false
+                onCalendarDismiss()
             },
-            onDismiss = { isCalendarVisible = false },
+            onDismiss = onCalendarDismiss,
             sheetState = sheetState
         )
     }
@@ -514,7 +515,7 @@ private fun ActivityLogRow(
                 text = stringResource(
                     R.string.home_activity_title_format,
                     distanceLabel,
-                    stringResource(activity.typeLabelResId)
+                    stringResource(activityTypeLabelRes(activity.type))
                 ),
                 color = textPrimary,
                 style = MaterialTheme.typography.bodyMedium,
@@ -532,6 +533,14 @@ private fun ActivityLogRow(
         }
     }
 }
+
+@StringRes
+private fun activityTypeLabelRes(type: HomeWorkoutType): Int =
+    when (type) {
+        HomeWorkoutType.RUNNING -> R.string.activity_running
+        HomeWorkoutType.SQUAT -> R.string.home_activity_squat
+        HomeWorkoutType.LUNGE -> R.string.home_activity_lunge
+    }
 
 @Composable
 private fun SectionHeader(
@@ -905,8 +914,7 @@ private fun HomeScreenPreview() {
                 durationMinutes = integerResource(
                     R.integer.home_preview_activity_first_duration_minutes
                 ),
-                type = HomeWorkoutType.RUNNING,
-                typeLabelResId = R.string.activity_running
+                type = HomeWorkoutType.RUNNING
             ),
             HomeWorkoutLogUiModel(
                 id = integerResource(R.integer.home_preview_activity_second_id).toLong(),
@@ -916,8 +924,7 @@ private fun HomeScreenPreview() {
                 durationMinutes = integerResource(
                     R.integer.home_preview_activity_second_duration_minutes
                 ),
-                type = HomeWorkoutType.SQUAT,
-                typeLabelResId = R.string.home_activity_squat
+                type = HomeWorkoutType.SQUAT
             )
         )
     )
@@ -929,6 +936,8 @@ private fun HomeScreenPreview() {
             onNavigatePreviousPeriod = {},
             onNavigateNextPeriod = {},
             onDateSelected = {},
+            onCalendarOpen = {},
+            onCalendarDismiss = {},
             onRecordClick = {},
             onGoalClick = {},
             onReminderClick = {}

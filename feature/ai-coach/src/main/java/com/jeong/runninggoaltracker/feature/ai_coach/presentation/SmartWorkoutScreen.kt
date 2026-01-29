@@ -54,7 +54,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
@@ -91,7 +90,7 @@ import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 @Composable
 fun SmartWorkoutRoute(
     onBack: () -> Unit,
-    viewModel: AiCoachViewModel = hiltViewModel()
+    viewModel: AiCoachViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val context = LocalContext.current

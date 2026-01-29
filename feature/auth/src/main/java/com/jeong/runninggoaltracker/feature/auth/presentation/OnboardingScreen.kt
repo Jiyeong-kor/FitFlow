@@ -36,6 +36,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -48,7 +49,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.feature.auth.contract.OnboardingPermissionContract
 import com.jeong.runninggoaltracker.feature.auth.contract.PermissionSettingsContract
@@ -58,14 +58,14 @@ import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrott
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 
 @Composable
-fun OnboardingScreen(
+fun OnboardingRoute(
     onComplete: () -> Unit,
     onPrivacyPolicyClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    viewModel: OnboardingViewModel = hiltViewModel()
+    viewModel: OnboardingViewModel,
+    modifier: Modifier = Modifier
 ) {
-    val uiState = viewModel.uiState.collectAsState().value
-    val isPrivacyAccepted = viewModel.isPrivacyAccepted.collectAsState().value
+    val uiState by viewModel.uiState.collectAsState()
+    val isPrivacyAccepted by viewModel.isPrivacyAccepted.collectAsState()
     val context = LocalContext.current
     val activity = context as? Activity
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -109,9 +109,6 @@ fun OnboardingScreen(
     }
 
     val permissionList = remember { OnboardingPermissionContract.requiredPermissions() }
-    val openSettingsThrottled = rememberThrottleClick {
-        viewModel.onOpenSettings()
-    }
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
@@ -132,12 +129,49 @@ fun OnboardingScreen(
         }
     }
 
+    OnboardingScreen(
+        uiState = uiState,
+        isPrivacyAccepted = isPrivacyAccepted,
+        onRequestPermissions = { permissionLauncher.launch(permissionList) },
+        onOpenSettings = viewModel::onOpenSettings,
+        onNicknameChanged = viewModel::onNicknameChanged,
+        onPrivacyAcceptedChange = viewModel::onPrivacyAcceptedChanged,
+        onContinue = viewModel::onContinueWithNickname,
+        onKakaoLogin = viewModel::onKakaoLoginClicked,
+        onPrivacyPolicyClick = onPrivacyPolicyClick,
+        onRetryInternet = viewModel::onRetryInternet,
+        onDismissNoInternetDialog = viewModel::onDismissNoInternetDialog,
+        onComplete = onComplete,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun OnboardingScreen(
+    uiState: OnboardingUiState,
+    isPrivacyAccepted: Boolean,
+    onRequestPermissions: () -> Unit,
+    onOpenSettings: () -> Unit,
+    onNicknameChanged: (String) -> Unit,
+    onPrivacyAcceptedChange: (Boolean) -> Unit,
+    onContinue: () -> Unit,
+    onKakaoLogin: () -> Unit,
+    onPrivacyPolicyClick: () -> Unit,
+    onRetryInternet: () -> Unit,
+    onDismissNoInternetDialog: () -> Unit,
+    onComplete: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val openSettingsThrottled = rememberThrottleClick {
+        onOpenSettings()
+    }
+
     when (uiState.step) {
         OnboardingStep.Permissions -> PermissionsScreen(
             modifier = modifier,
             permissionErrorResId = uiState.permissionErrorResId,
             showSettingsAction = uiState.isPermissionPermanentlyDenied,
-            onAgree = { permissionLauncher.launch(permissionList) },
+            onAgree = onRequestPermissions,
             onOpenSettings = openSettingsThrottled
         )
 
@@ -145,10 +179,10 @@ fun OnboardingScreen(
             modifier = modifier,
             uiState = uiState,
             isPrivacyAccepted = isPrivacyAccepted,
-            onNicknameChanged = viewModel::onNicknameChanged,
-            onPrivacyAcceptedChange = viewModel::onPrivacyAcceptedChanged,
-            onContinue = viewModel::onContinueWithNickname,
-            onKakaoLogin = viewModel::onKakaoLoginClicked,
+            onNicknameChanged = onNicknameChanged,
+            onPrivacyAcceptedChange = onPrivacyAcceptedChange,
+            onContinue = onContinue,
+            onKakaoLogin = onKakaoLogin,
             onPrivacyPolicyClick = onPrivacyPolicyClick
         )
 
@@ -160,8 +194,8 @@ fun OnboardingScreen(
 
     if (uiState.showNoInternetDialog) {
         NoInternetDialog(
-            onRetry = viewModel::onRetryInternet,
-            onDismiss = viewModel::onDismissNoInternetDialog
+            onRetry = onRetryInternet,
+            onDismiss = onDismissNoInternetDialog
         )
     }
 }

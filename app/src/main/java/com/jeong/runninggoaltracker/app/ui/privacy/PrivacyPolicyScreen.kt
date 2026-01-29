@@ -18,11 +18,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -36,15 +34,36 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
 
 @Composable
-fun PrivacyPolicyScreen(
+fun PrivacyPolicyRoute(
     onBack: () -> Unit,
+    viewModel: PrivacyPolicyViewModel,
+    modifier: Modifier = Modifier
+) {
+    val uiState = viewModel.uiState.collectAsState().value
+    PrivacyPolicyScreen(
+        uiState = uiState,
+        onBack = onBack,
+        onRetry = viewModel::onRetry,
+        onLoadStarted = viewModel::onLoadStarted,
+        onLoadFinished = viewModel::onLoadFinished,
+        onLoadError = viewModel::onLoadError,
+        onReloadHandled = viewModel::onReloadHandled,
+        modifier = modifier
+    )
+}
+
+@Composable
+fun PrivacyPolicyScreen(
+    uiState: PrivacyPolicyUiState,
+    onBack: () -> Unit,
+    onRetry: () -> Unit,
+    onLoadStarted: () -> Unit,
+    onLoadFinished: () -> Unit,
+    onLoadError: () -> Unit,
+    onReloadHandled: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val url = BuildConfig.PRIVACY_POLICY_URL
-    var hasError by remember { mutableStateOf(false) }
-    var isLoading by remember { mutableStateOf(true) }
-    var reloadKey by remember { mutableIntStateOf(0) }
-    var lastReloadKey by remember { mutableIntStateOf(0) }
     val webViewHolder = remember { mutableStateOf<WebView?>(null) }
     val webViewDescription = stringResource(id = R.string.privacy_policy_webview_description)
     val errorMessage = stringResource(id = R.string.privacy_policy_load_error)
@@ -86,26 +105,24 @@ fun PrivacyPolicyScreen(
                 .fillMaxSize()
                 .padding(padding)
         ) {
-            if (hasError) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(appSpacingLg()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
-                ) {
-                    Text(text = errorMessage)
-                    Button(
-                        modifier = Modifier.padding(top = appSpacingMd()),
-                        onClick = {
-                            hasError = false
-                            isLoading = true
-                            reloadKey += 1
-                        }
-                    ) {
-                        Text(text = retryLabel)
-                    }
+    if (uiState.hasError) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(appSpacingLg()),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(text = errorMessage)
+            Button(
+                modifier = Modifier.padding(top = appSpacingMd()),
+                onClick = {
+                    onRetry()
                 }
+            ) {
+                Text(text = retryLabel)
+            }
+        }
             } else {
                 AndroidView(
                     modifier = Modifier
@@ -121,12 +138,11 @@ fun PrivacyPolicyScreen(
                                     url: String?,
                                     favicon: android.graphics.Bitmap?
                                 ) {
-                                    hasError = false
-                                    isLoading = true
+                                    onLoadStarted()
                                 }
 
                                 override fun onPageFinished(view: WebView?, url: String?) {
-                                    isLoading = false
+                                    onLoadFinished()
                                 }
 
                                 override fun onReceivedError(
@@ -135,8 +151,7 @@ fun PrivacyPolicyScreen(
                                     error: WebResourceError?
                                 ) {
                                     if (request?.isForMainFrame != false) {
-                                        hasError = true
-                                        isLoading = false
+                                        onLoadError()
                                     }
                                 }
 
@@ -146,8 +161,7 @@ fun PrivacyPolicyScreen(
                                     errorResponse: WebResourceResponse?
                                 ) {
                                     if (request?.isForMainFrame != false) {
-                                        hasError = true
-                                        isLoading = false
+                                        onLoadError()
                                     }
                                 }
                             }
@@ -155,8 +169,8 @@ fun PrivacyPolicyScreen(
                         }
                     },
                     update = { webView ->
-                        if (reloadKey != lastReloadKey) {
-                            lastReloadKey = reloadKey
+                        if (uiState.reloadToken != uiState.lastHandledReloadToken) {
+                            onReloadHandled()
                             webView.loadUrl(url)
                         } else if (webView.url != url) {
                             webView.loadUrl(url)
@@ -165,7 +179,7 @@ fun PrivacyPolicyScreen(
                 )
             }
 
-            if (isLoading && !hasError) {
+            if (uiState.isLoading && !uiState.hasError) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center

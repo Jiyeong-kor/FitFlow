@@ -38,7 +38,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
@@ -54,7 +53,7 @@ import java.util.Locale
 
 @Composable
 fun RecordRoute(
-    viewModel: RecordViewModel = hiltViewModel()
+    viewModel: RecordViewModel
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

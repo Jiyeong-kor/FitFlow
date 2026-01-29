@@ -27,8 +27,7 @@ data class HomeWorkoutLogUiModel(
     val distanceKm: Double,
     val repCount: Int,
     val durationMinutes: Int,
-    val type: HomeWorkoutType,
-    @field:StringRes val typeLabelResId: Int
+    val type: HomeWorkoutType
 )
 
 data class HomeSummaryUiState(

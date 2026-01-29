@@ -8,7 +8,6 @@ import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodDateCalculator
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodSummaryCalculator
-import com.jeong.runninggoaltracker.feature.home.R
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,6 +22,7 @@ import javax.inject.Inject
 data class HomeUiState(
     val periodState: PeriodState = PeriodState.DAILY,
     val selectedDateState: SelectedDateState,
+    val isCalendarVisible: Boolean = false,
     val summary: HomeSummaryUiState = HomeSummaryUiState(),
     val activityLogs: List<HomeWorkoutLogUiModel> = emptyList(),
     val weeklyGoalKm: Double? = null
@@ -47,6 +47,7 @@ class HomeViewModel @Inject constructor(
     private val selectedDateState = MutableStateFlow(
         SelectedDateState(dateMillis = periodDateCalculator.startOfDayMillis(dateProvider.getToday()))
     )
+    private val calendarVisibility = MutableStateFlow(false)
 
     private val _effect = MutableSharedFlow<HomeUiEffect>()
     val effect = _effect.asSharedFlow()
@@ -56,8 +57,9 @@ class HomeViewModel @Inject constructor(
             getRunningSummaryUseCase(),
             getRunningRecordsUseCase(),
             periodState,
-            selectedDateState
-        ) { summary, records, period, selectedDate ->
+            selectedDateState,
+            calendarVisibility
+        ) { summary, records, period, selectedDate, isCalendarVisible ->
             val filteredRecords = periodDateCalculator.filterByPeriod(
                 records = records,
                 period = period,
@@ -67,6 +69,7 @@ class HomeViewModel @Inject constructor(
             HomeUiState(
                 periodState = period,
                 selectedDateState = selectedDate,
+                isCalendarVisible = isCalendarVisible,
                 summary = periodSummary.toUiState(),
                 activityLogs = filteredRecords.map { record ->
                     HomeWorkoutLogUiModel(
@@ -75,8 +78,7 @@ class HomeViewModel @Inject constructor(
                         distanceKm = record.distanceKm,
                         repCount = 0,
                         durationMinutes = record.durationMinutes,
-                        type = HomeWorkoutType.RUNNING,
-                        typeLabelResId = R.string.activity_running
+                        type = HomeWorkoutType.RUNNING
                     )
                 },
                 weeklyGoalKm = summary.weeklyGoalKm
@@ -87,7 +89,8 @@ class HomeViewModel @Inject constructor(
             initialValue = HomeUiState(
                 selectedDateState = SelectedDateState(
                     dateMillis = periodDateCalculator.startOfDayMillis(dateProvider.getToday())
-                )
+                ),
+                isCalendarVisible = false
             )
         )
 
@@ -120,6 +123,15 @@ class HomeViewModel @Inject constructor(
         selectedDateState.value = SelectedDateState(
             dateMillis = periodDateCalculator.startOfDayMillis(dateMillis)
         )
+        calendarVisibility.value = false
+    }
+
+    fun onCalendarOpen() {
+        calendarVisibility.value = true
+    }
+
+    fun onCalendarDismiss() {
+        calendarVisibility.value = false
     }
 
     fun onRecordClick() = emitEffect(HomeUiEffect.NavigateToRecord)

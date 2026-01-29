@@ -1,6 +1,8 @@
 package com.jeong.runninggoaltracker.feature.mypage.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 
 @Composable
 fun MyPageRoute(
@@ -9,10 +11,19 @@ fun MyPageRoute(
     onNavigateToReminder: () -> Unit,
     onNavigateToPrivacyPolicy: () -> Unit
 ) {
+    val uiState by viewModel.uiState.collectAsState()
+    val deleteAccountState by viewModel.deleteAccountState.collectAsState()
+
     MyPageScreen(
-        viewModel = viewModel,
+        uiState = uiState,
+        deleteAccountState = deleteAccountState,
         onNavigateToGoal = onNavigateToGoal,
         onNavigateToReminder = onNavigateToReminder,
-        onNavigateToPrivacyPolicy = onNavigateToPrivacyPolicy
+        onNavigateToPrivacyPolicy = onNavigateToPrivacyPolicy,
+        onActivityToggle = viewModel::toggleActivityRecognition,
+        onDeleteAccountClick = viewModel::showDeleteAccountDialog,
+        onDeleteAccountConfirm = viewModel::confirmDeleteAccount,
+        onDeleteAccountDialogDismiss = viewModel::dismissDeleteAccountDialog,
+        onDeleteAccountStateConsumed = viewModel::resetDeleteAccountState
     )
 }

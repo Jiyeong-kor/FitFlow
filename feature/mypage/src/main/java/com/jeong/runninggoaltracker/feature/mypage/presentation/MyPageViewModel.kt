@@ -60,7 +60,20 @@ class MyPageViewModel @Inject constructor(
     fun toggleActivityRecognition(enabled: Boolean) =
         _uiState.update { it.copy(isActivityRecognitionEnabled = enabled) }
 
-    fun deleteAccount() {
+    fun showDeleteAccountDialog() {
+        _uiState.update { it.copy(isDeleteDialogVisible = true) }
+    }
+
+    fun dismissDeleteAccountDialog() {
+        _uiState.update { it.copy(isDeleteDialogVisible = false) }
+    }
+
+    fun confirmDeleteAccount() {
+        _uiState.update { it.copy(isDeleteDialogVisible = false) }
+        deleteAccount()
+    }
+
+    private fun deleteAccount() {
         viewModelScope.launch {
             if (_deleteAccountState.value is DeleteAccountUiState.Loading) {
                 return@launch

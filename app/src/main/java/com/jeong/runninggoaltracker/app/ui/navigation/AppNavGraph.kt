@@ -7,8 +7,10 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
-import com.jeong.runninggoaltracker.app.ui.privacy.PrivacyPolicyScreen
-import com.jeong.runninggoaltracker.feature.auth.presentation.OnboardingScreen
+import com.jeong.runninggoaltracker.app.ui.privacy.PrivacyPolicyRoute
+import com.jeong.runninggoaltracker.app.ui.privacy.PrivacyPolicyViewModel
+import com.jeong.runninggoaltracker.feature.auth.presentation.OnboardingRoute
+import com.jeong.runninggoaltracker.feature.auth.presentation.OnboardingViewModel
 import com.jeong.runninggoaltracker.shared.navigation.AuthRoute
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.composable
@@ -28,8 +30,10 @@ fun AppNavGraph(
         startDestination = startDestination,
         modifier = modifier
     ) {
-        composable<AuthRoute.Onboarding> {
-            OnboardingScreen(
+        composable<AuthRoute.Onboarding> { backStackEntry ->
+            val viewModel: OnboardingViewModel = hiltViewModel(backStackEntry)
+            OnboardingRoute(
+                viewModel = viewModel,
                 onComplete = {
                     navController.navigateTo(MainNavigationRoute.Main) {
                         popUpTo(AuthRoute.Onboarding) { inclusive = true }
@@ -40,8 +44,12 @@ fun AppNavGraph(
                 }
             )
         }
-        composable<MainNavigationRoute.PrivacyPolicy> {
-            PrivacyPolicyScreen(onBack = { navController.popBackStack() })
+        composable<MainNavigationRoute.PrivacyPolicy> { backStackEntry ->
+            val viewModel: PrivacyPolicyViewModel = hiltViewModel(backStackEntry)
+            PrivacyPolicyRoute(
+                onBack = { navController.popBackStack() },
+                viewModel = viewModel
+            )
         }
         mainNavGraph(
         )

@@ -11,5 +11,6 @@ data class MyPageUiState(
     val isActivityRecognitionEnabled: Boolean = true,
     val isAnonymous: Boolean = false,
     val userNickname: String? = null,
-    val userLevel: String? = null
+    val userLevel: String? = null,
+    val isDeleteDialogVisible: Boolean = false
 )
