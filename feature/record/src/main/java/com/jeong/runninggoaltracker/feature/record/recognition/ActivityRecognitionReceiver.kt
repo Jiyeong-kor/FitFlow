@@ -6,7 +6,6 @@ import android.content.Intent
 import com.google.android.gms.location.ActivityRecognitionResult
 import com.google.android.gms.location.DetectedActivity
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
-import com.jeong.runninggoaltracker.feature.record.contract.ActivityRecognitionContract
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import dagger.hilt.android.EntryPointAccessors
 import dagger.hilt.components.SingletonComponent
@@ -40,13 +39,13 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
                 rawStatus
             }
 
-        val smoothStatus = ActivitySmoother.push(statusForSmoothing)
+        val smoothStatus = getSmoother(context).push(statusForSmoothing)
 
         getStateUpdater(context).update(
             status = smoothStatus
         )
 
-        ActivityLogHolder.add(
+        getLogStore(context).add(
             status = smoothStatus,
             timestamp = getDateProvider(context).getToday()
         )
@@ -81,6 +80,22 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
 
     private fun getStateUpdater(context: Context): ActivityStateUpdater = getStateHolder(context)
 
+    private fun getLogStore(context: Context): ActivityLogStore {
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ActivityRecognitionEntryPoint::class.java
+        )
+        return entryPoint.activityLogStore()
+    }
+
+    private fun getSmoother(context: Context): ActivitySmoother {
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            ActivityRecognitionEntryPoint::class.java
+        )
+        return entryPoint.activitySmoother()
+    }
+
     private fun getDateProvider(context: Context): DateProvider {
         val entryPoint = EntryPointAccessors.fromApplication(
             context.applicationContext,
@@ -93,21 +108,8 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
     @dagger.hilt.InstallIn(SingletonComponent::class)
     interface ActivityRecognitionEntryPoint {
         fun activityRecognitionStateHolder(): ActivityRecognitionStateHolder
+        fun activityLogStore(): ActivityLogStore
+        fun activitySmoother(): ActivitySmoother
         fun dateProvider(): DateProvider
-    }
-}
-
-private object ActivitySmoother {
-
-    private val buffer: ArrayDeque<ActivityRecognitionStatus> = ArrayDeque()
-
-    fun push(status: ActivityRecognitionStatus): ActivityRecognitionStatus {
-        buffer.addLast(status)
-        if (buffer.size > ActivityRecognitionContract.ACTIVITY_SMOOTHING_WINDOW_SIZE) {
-            buffer.removeFirst()
-        }
-
-        val counted = buffer.groupingBy { it }.eachCount()
-        return counted.maxByOrNull { it.value }?.key ?: status
     }
 }

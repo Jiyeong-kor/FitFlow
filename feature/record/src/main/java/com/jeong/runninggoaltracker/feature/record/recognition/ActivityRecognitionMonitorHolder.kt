@@ -9,11 +9,12 @@ import kotlinx.coroutines.flow.StateFlow
 
 @Singleton
 class ActivityRecognitionMonitorHolder @Inject constructor(
-    private val stateHolder: ActivityRecognitionStateHolder
+    private val stateHolder: ActivityRecognitionStateHolder,
+    private val logStore: ActivityLogStore
 ) : ActivityRecognitionMonitor {
     override val activityState: StateFlow<ActivityState>
         get() = stateHolder.state
 
     override val activityLogs: StateFlow<List<ActivityLogEntry>>
-        get() = ActivityLogHolder.logs
+        get() = logStore.logs
 }

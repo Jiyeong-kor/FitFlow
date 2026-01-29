@@ -3,10 +3,13 @@ package com.jeong.runninggoaltracker.feature.record.recognition
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityLogEntry
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import com.jeong.runninggoaltracker.feature.record.contract.ActivityRecognitionContract
+import javax.inject.Inject
+import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 
-object ActivityLogHolder {
+@Singleton
+class ActivityLogStore @Inject constructor() {
 
     private val _logs = MutableStateFlow<List<ActivityLogEntry>>(emptyList())
     val logs: StateFlow<List<ActivityLogEntry>> = _logs
