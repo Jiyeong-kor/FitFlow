@@ -42,15 +42,22 @@ kotlin {
 }
 
 dependencies {
-    // Compose
+    // Compose (BOM + bundles)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)
+
+    // AndroidX core & lifecycle
     implementation(libs.androidx.core.ktx)
-    // Compose (debug)
+    implementation(libs.bundles.androidx.lifecycle.compose)
+
+    // Debug
     debugImplementation(libs.bundles.androidx.compose.debug)
-    // Test
+
+    // Test (unit)
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
+
+    // Test (android)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.test.runner)
 }

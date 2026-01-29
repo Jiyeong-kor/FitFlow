@@ -104,37 +104,40 @@ dependencies {
     implementation(project(":feature:ai-coach"))
     implementation(project(":feature:auth"))
 
-    // Core / lifecycle / activity / viewmodel-compose
+    // AndroidX core & lifecycle
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
-    implementation(libs.androidx.navigation.compose)
+    implementation(libs.bundles.androidx.lifecycle.compose)
+
+    // Kakao SDK
     implementation(libs.kakao.sdk.user)
 
-    // Hilt
+    // DI (Hilt)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
-    // Compose UI
-    implementation(libs.bundles.androidx.compose)
+    // Compose (BOM + bundles)
     implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.bundles.androidx.compose)
 
     // Firebase
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
     implementation(libs.firebase.auth)
-    implementation(platform(libs.firebase.bom))
 
-    // Unit test
+    // Test (unit)
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
 
-    // Android test
-    androidTestImplementation(libs.bundles.androidx.compose.test)
+    // Test (android)
     androidTestImplementation(libs.bundles.androidx.test)
     androidTestImplementation(libs.hilt.android.testing)
+
+    // Compose test (android)
     androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.bundles.androidx.compose.test)
     kspAndroidTest(libs.dagger.hilt.compiler)
 
     // Debug

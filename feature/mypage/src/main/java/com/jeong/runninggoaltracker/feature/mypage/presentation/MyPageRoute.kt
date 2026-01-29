@@ -1,8 +1,8 @@
 package com.jeong.runninggoaltracker.feature.mypage.presentation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun MyPageRoute(
@@ -11,8 +11,8 @@ fun MyPageRoute(
     onNavigateToReminder: () -> Unit,
     onNavigateToPrivacyPolicy: () -> Unit
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val deleteAccountState by viewModel.deleteAccountState.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val deleteAccountState by viewModel.deleteAccountState.collectAsStateWithLifecycle()
 
     MyPageScreen(
         uiState = uiState,

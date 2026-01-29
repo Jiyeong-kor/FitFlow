@@ -35,9 +35,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -49,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.feature.auth.contract.OnboardingPermissionContract
 import com.jeong.runninggoaltracker.feature.auth.contract.PermissionSettingsContract
@@ -64,8 +63,8 @@ fun OnboardingRoute(
     viewModel: OnboardingViewModel,
     modifier: Modifier = Modifier
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val isPrivacyAccepted by viewModel.isPrivacyAccepted.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isPrivacyAccepted by viewModel.isPrivacyAccepted.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val activity = context as? Activity
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -108,7 +107,7 @@ fun OnboardingRoute(
         viewModel.onPermissionsResult(allGranted, permanentlyDenied)
     }
 
-    val permissionList = remember { OnboardingPermissionContract.requiredPermissions() }
+    val permissionList = OnboardingPermissionContract.requiredPermissions()
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->

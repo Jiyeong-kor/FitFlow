@@ -18,9 +18,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -39,7 +39,7 @@ fun PrivacyPolicyRoute(
     viewModel: PrivacyPolicyViewModel,
     modifier: Modifier = Modifier
 ) {
-    val uiState = viewModel.uiState.collectAsState().value
+    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
     PrivacyPolicyScreen(
         uiState = uiState,
         onBack = onBack,
@@ -64,11 +64,87 @@ fun PrivacyPolicyScreen(
     modifier: Modifier = Modifier
 ) {
     val url = BuildConfig.PRIVACY_POLICY_URL
-    val webViewHolder = remember { mutableStateOf<WebView?>(null) }
     val webViewDescription = stringResource(id = R.string.privacy_policy_webview_description)
     val errorMessage = stringResource(id = R.string.privacy_policy_load_error)
     val retryLabel = stringResource(id = R.string.privacy_policy_retry)
     val loadingDescription = stringResource(id = R.string.privacy_policy_loading)
+
+    Scaffold(
+        modifier = modifier,
+        topBar = {
+            AppTopBar(
+                titleResId = R.string.privacy_policy_title,
+                fallbackTitleResId = R.string.privacy_policy_title,
+                onBack = onBack
+            )
+        }
+    ) { padding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+        ) {
+            if (uiState.hasError) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(appSpacingLg()),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(text = errorMessage)
+                    Button(
+                        modifier = Modifier.padding(top = appSpacingMd()),
+                        onClick = {
+                            onRetry()
+                        }
+                    ) {
+                        Text(text = retryLabel)
+                    }
+                }
+            } else {
+                PrivacyPolicyWebView(
+                    url = url,
+                    uiState = uiState,
+                    onBack = onBack,
+                    onLoadStarted = onLoadStarted,
+                    onLoadFinished = onLoadFinished,
+                    onLoadError = onLoadError,
+                    onReloadHandled = onReloadHandled,
+                    webViewDescription = webViewDescription,
+                    modifier = Modifier.fillMaxSize()
+                )
+            }
+
+            if (uiState.isLoading && !uiState.hasError) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.semantics {
+                            contentDescription = loadingDescription
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun PrivacyPolicyWebView(
+    url: String,
+    uiState: PrivacyPolicyUiState,
+    onBack: () -> Unit,
+    onLoadStarted: () -> Unit,
+    onLoadFinished: () -> Unit,
+    onLoadError: () -> Unit,
+    onReloadHandled: () -> Unit,
+    webViewDescription: String,
+    modifier: Modifier = Modifier
+) {
+    val webViewHolder = remember { mutableStateOf<WebView?>(null) }
 
     BackHandler {
         val webView = webViewHolder.value
@@ -90,107 +166,55 @@ fun PrivacyPolicyScreen(
         }
     }
 
-    Scaffold(
-        modifier = modifier,
-        topBar = {
-            AppTopBar(
-                titleResId = R.string.privacy_policy_title,
-                fallbackTitleResId = R.string.privacy_policy_title,
-                onBack = onBack
-            )
-        }
-    ) { padding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-        ) {
-    if (uiState.hasError) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(appSpacingLg()),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(text = errorMessage)
-            Button(
-                modifier = Modifier.padding(top = appSpacingMd()),
-                onClick = {
-                    onRetry()
-                }
-            ) {
-                Text(text = retryLabel)
-            }
-        }
-            } else {
-                AndroidView(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .semantics { contentDescription = webViewDescription },
-                    factory = { context ->
-                        WebView(context).apply {
-                            webViewHolder.value = this
-                            settings.javaScriptEnabled = false
-                            webViewClient = object : WebViewClient() {
-                                override fun onPageStarted(
-                                    view: WebView?,
-                                    url: String?,
-                                    favicon: android.graphics.Bitmap?
-                                ) {
-                                    onLoadStarted()
-                                }
+    AndroidView(
+        modifier = modifier.semantics { contentDescription = webViewDescription },
+        factory = { context ->
+            WebView(context).apply {
+                webViewHolder.value = this
+                settings.javaScriptEnabled = false
+                webViewClient = object : WebViewClient() {
+                    override fun onPageStarted(
+                        view: WebView?,
+                        url: String?,
+                        favicon: android.graphics.Bitmap?
+                    ) {
+                        onLoadStarted()
+                    }
 
-                                override fun onPageFinished(view: WebView?, url: String?) {
-                                    onLoadFinished()
-                                }
+                    override fun onPageFinished(view: WebView?, url: String?) {
+                        onLoadFinished()
+                    }
 
-                                override fun onReceivedError(
-                                    view: WebView?,
-                                    request: WebResourceRequest?,
-                                    error: WebResourceError?
-                                ) {
-                                    if (request?.isForMainFrame != false) {
-                                        onLoadError()
-                                    }
-                                }
-
-                                override fun onReceivedHttpError(
-                                    view: WebView?,
-                                    request: WebResourceRequest?,
-                                    errorResponse: WebResourceResponse?
-                                ) {
-                                    if (request?.isForMainFrame != false) {
-                                        onLoadError()
-                                    }
-                                }
-                            }
-                            loadUrl(url)
-                        }
-                    },
-                    update = { webView ->
-                        if (uiState.reloadToken != uiState.lastHandledReloadToken) {
-                            onReloadHandled()
-                            webView.loadUrl(url)
-                        } else if (webView.url != url) {
-                            webView.loadUrl(url)
+                    override fun onReceivedError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        error: WebResourceError?
+                    ) {
+                        if (request?.isForMainFrame != false) {
+                            onLoadError()
                         }
                     }
-                )
-            }
 
-            if (uiState.isLoading && !uiState.hasError) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.semantics {
-                            contentDescription = loadingDescription
+                    override fun onReceivedHttpError(
+                        view: WebView?,
+                        request: WebResourceRequest?,
+                        errorResponse: WebResourceResponse?
+                    ) {
+                        if (request?.isForMainFrame != false) {
+                            onLoadError()
                         }
-                    )
+                    }
                 }
+                loadUrl(url)
+            }
+        },
+        update = { webView ->
+            if (uiState.reloadToken != uiState.lastHandledReloadToken) {
+                onReloadHandled()
+                webView.loadUrl(url)
+            } else if (webView.url != url) {
+                webView.loadUrl(url)
             }
         }
-    }
+    )
 }

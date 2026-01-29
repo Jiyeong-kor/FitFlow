@@ -43,26 +43,38 @@ kotlin {
 }
 
 dependencies {
+    // Project modules
     implementation(project(":domain"))
     implementation(project(":shared:designsystem"))
+    implementation(project(":shared:navigation"))
 
+    // AndroidX core & lifecycle
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.bundles.androidx.lifecycle.compose)
+
+    // Compose (BOM + bundles)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
+    // DI (Hilt)
     implementation(libs.androidx.hilt.navigation.compose)
-
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.bundles.androidx.compose.test)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-    debugImplementation(libs.androidx.compose.ui.tooling)
+    // Test (unit)
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
+
+    // Test (android)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+
+    // Compose test (android)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.bundles.androidx.compose.test)
+    debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    // Debug
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }

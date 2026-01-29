@@ -29,10 +29,10 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -64,18 +64,38 @@ import java.util.Calendar
 fun ReminderRoute(
     viewModel: ReminderViewModel
 ) {
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
+
+    ReminderContent(
+        state = state,
+        onAddReminder = viewModel::addReminder,
+        onDeleteReminder = viewModel::deleteReminder,
+        onToggleReminder = viewModel::updateEnabled,
+        onUpdateTime = viewModel::updateTime,
+        onToggleDay = viewModel::toggleDay
+    )
+}
+
+@Composable
+private fun ReminderContent(
+    state: ReminderListUiState,
+    onAddReminder: () -> Unit,
+    onDeleteReminder: (Int) -> Unit,
+    onToggleReminder: (Int, Boolean) -> Unit,
+    onUpdateTime: (Int, Int, Int) -> Unit,
+    onToggleDay: (Int, Int) -> Unit
+) {
     val userMessageHandler = rememberUserMessageHandler()
     val timeFormatter = rememberReminderTimeFormatter()
     val daysOfWeekLabelProvider = rememberDaysOfWeekLabelProvider()
 
     ReminderScreen(
         state = state,
-        onAddReminder = viewModel::addReminder,
-        onDeleteReminder = viewModel::deleteReminder,
-        onToggleReminder = viewModel::updateEnabled,
-        onUpdateTime = viewModel::updateTime,
-        onToggleDay = viewModel::toggleDay,
+        onAddReminder = onAddReminder,
+        onDeleteReminder = onDeleteReminder,
+        onToggleReminder = onToggleReminder,
+        onUpdateTime = onUpdateTime,
+        onToggleDay = onToggleDay,
         messageHandler = userMessageHandler,
         timeFormatter = timeFormatter,
         daysOfWeekLabelProvider = daysOfWeekLabelProvider

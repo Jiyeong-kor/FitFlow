@@ -25,7 +25,7 @@ class AppNavGraphViewModel @Inject constructor() : ViewModel() {
 
     private fun startDestination(): NavigationRoute =
         if (Firebase.auth.currentUser?.displayName?.isNotBlank() == true) {
-            MainNavigationRoute.Main
+            MainNavigationRoute.Home
         } else {
             AuthRoute.Onboarding
         }

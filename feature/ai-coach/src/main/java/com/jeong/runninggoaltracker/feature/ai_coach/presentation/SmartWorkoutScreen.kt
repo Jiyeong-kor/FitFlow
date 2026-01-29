@@ -29,11 +29,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -92,39 +92,19 @@ fun SmartWorkoutRoute(
     onBack: () -> Unit,
     viewModel: AiCoachViewModel
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val context = LocalContext.current
-    val ttsController = remember { SmartWorkoutTtsController(context) }
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val cooldownMs = integerResource(R.integer.smart_workout_feedback_cooldown_ms).toLong()
-    val latestContext by rememberUpdatedState(LocalContext.current)
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-    val onBackClick = remember(onBack, viewModel) {
-        {
-            viewModel.persistWorkoutRepCount()
-            onBack()
-        }
+    val onBackClick = {
+        viewModel.persistWorkoutRepCount()
+        onBack()
     }
 
-    LaunchedEffect(cooldownMs) {
-        viewModel.updateSpeechCooldown(cooldownMs)
-    }
-
-    LaunchedEffect(uiState.repCount, viewModel) {
-        viewModel.logUiRepCount(uiState.repCount)
-    }
-
-    LaunchedEffect(viewModel, ttsController) {
-        viewModel.speechEvents.collect { event ->
-            val text = latestContext.getString(event.feedbackResId)
-            ttsController.speak(text)
-        }
-    }
-
-    DisposableEffect(ttsController) {
-        onDispose {
-            ttsController.shutdown()
-        }
-    }
+    SmartWorkoutEffectHandler(
+        viewModel = viewModel,
+        cooldownMs = cooldownMs,
+        repCount = uiState.repCount
+    )
 
     DisposableEffect(lifecycleOwner, viewModel) {
         val observer = LifecycleEventObserver { _, event ->
@@ -146,6 +126,38 @@ fun SmartWorkoutRoute(
         onToggleDebugOverlay = viewModel::toggleDebugOverlay,
         onExerciseTypeChange = viewModel::updateExerciseType
     )
+}
+
+@Composable
+private fun SmartWorkoutEffectHandler(
+    viewModel: AiCoachViewModel,
+    cooldownMs: Long,
+    repCount: Int
+) {
+    val context = LocalContext.current
+    val latestContext by rememberUpdatedState(context)
+    val ttsController = remember { SmartWorkoutTtsController(context) }
+
+    LaunchedEffect(cooldownMs) {
+        viewModel.updateSpeechCooldown(cooldownMs)
+    }
+
+    LaunchedEffect(repCount, viewModel) {
+        viewModel.logUiRepCount(repCount)
+    }
+
+    LaunchedEffect(viewModel, ttsController) {
+        viewModel.speechEvents.collect { event ->
+            val text = latestContext.getString(event.feedbackResId)
+            ttsController.speak(text)
+        }
+    }
+
+    DisposableEffect(ttsController) {
+        onDispose {
+            ttsController.shutdown()
+        }
+    }
 }
 
 @Composable
