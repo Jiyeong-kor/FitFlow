@@ -7,6 +7,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 
 @Singleton
 class ActivityLogStore @Inject constructor() {
@@ -15,11 +16,14 @@ class ActivityLogStore @Inject constructor() {
     val logs: StateFlow<List<ActivityLogEntry>> = _logs
 
     fun add(status: ActivityRecognitionStatus, timestamp: Long) {
-        val current = _logs.value
-        if (current.firstOrNull()?.status == status) return
-
         val newEntry = ActivityLogEntry(time = timestamp, status = status)
-        _logs.value =
-            (listOf(newEntry) + current).take(ActivityRecognitionContract.ACTIVITY_LOG_MAX_SIZE)
+        _logs.update { current ->
+            if (current.firstOrNull()?.status == status) {
+                current
+            } else {
+                (listOf(newEntry) + current)
+                    .take(ActivityRecognitionContract.ACTIVITY_LOG_MAX_SIZE)
+            }
+        }
     }
 }
