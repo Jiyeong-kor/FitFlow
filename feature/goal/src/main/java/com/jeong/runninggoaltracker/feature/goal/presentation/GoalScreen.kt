@@ -23,10 +23,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.dimensionResource
@@ -53,6 +55,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
+import java.text.NumberFormat
 
 @Composable
 fun GoalRoute(
@@ -84,9 +87,13 @@ fun GoalScreen(
         ?: state.currentGoalKm
         ?: GOAL_MIN_KM
     val context = LocalContext.current
-    val goalDistanceLabel = DistanceFormatter.formatDistanceKm(
-        goalDistance,
-        NumericResourceProvider.distanceFractionDigits(context)
+    val locale = LocalConfiguration.current.locales[0]
+    val distanceFormatter = remember(locale) {
+        DistanceFormatter(localeProvider = { locale }, numberFormatFactory = NumberFormat::getNumberInstance)
+    }
+    val goalDistanceLabel = distanceFormatter.formatDistanceKm(
+        distanceKm = goalDistance,
+        fractionDigits = NumericResourceProvider.distanceFractionDigits(context)
     )
 
     val onSaveThrottled = rememberThrottleClick(onClick = onSave)

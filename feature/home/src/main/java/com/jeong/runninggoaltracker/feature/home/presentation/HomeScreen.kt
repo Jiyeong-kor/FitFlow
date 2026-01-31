@@ -51,6 +51,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
@@ -81,6 +82,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
+import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -133,6 +135,10 @@ fun HomeScreen(
     onReminderClick: () -> Unit
 ) {
     val context = LocalContext.current
+    val locale = LocalConfiguration.current.locales[0]
+    val distanceFormatter = remember(locale) {
+        DistanceFormatter(localeProvider = { locale }, numberFormatFactory = NumberFormat::getNumberInstance)
+    }
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
     val surfaceColor = appSurfaceColor()
@@ -143,9 +149,9 @@ fun HomeScreen(
     val minTouchTarget = dimensionResource(R.dimen.home_touch_target_min)
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val goalDescription = uiState.weeklyGoalKm?.let { goalKm ->
-        val formattedDistance = DistanceFormatter.formatDistanceKm(
-            goalKm,
-            NumericResourceProvider.distanceFractionDigits(context)
+        val formattedDistance = distanceFormatter.formatDistanceKm(
+            distanceKm = goalKm,
+            fractionDigits = NumericResourceProvider.distanceFractionDigits(context)
         )
         stringResource(R.string.home_goal_summary_value, formattedDistance)
     } ?: stringResource(R.string.home_goal_summary_description)

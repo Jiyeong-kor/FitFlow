@@ -35,9 +35,11 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
@@ -58,6 +60,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.PercentageFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
+import java.text.NumberFormat
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
@@ -302,6 +305,7 @@ private fun SummaryStats(uiState: MyPageUiState) {
     val zeroDouble = zeroInt.toDouble()
     val zeroFloat = zeroInt.toFloat()
     val weightOne = integerResource(id = R.integer.mypage_weight_one).toFloat()
+    val locale = LocalConfiguration.current.locales[0]
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(
@@ -309,19 +313,25 @@ private fun SummaryStats(uiState: MyPageUiState) {
         )
     ) {
         val context = LocalContext.current
+        val distanceFormatter = remember(locale) {
+            DistanceFormatter(localeProvider = { locale }, numberFormatFactory = NumberFormat::getNumberInstance)
+        }
+        val percentageFormatter = remember(locale) {
+            PercentageFormatter(localeProvider = { locale }, numberFormatFactory = NumberFormat::getNumberInstance)
+        }
         val distanceFractionDigits = NumericResourceProvider.distanceFractionDigits(context)
         val percentageFractionDigits = NumericResourceProvider.percentageFractionDigits(context)
         val percentageScale = NumericResourceProvider.percentageScale(context)
         val distanceText =
-            DistanceFormatter.formatDistanceKm(
-                uiState.summary?.totalThisWeekKm ?: zeroDouble,
-                distanceFractionDigits
+            distanceFormatter.formatDistanceKm(
+                distanceKm = uiState.summary?.totalThisWeekKm ?: zeroDouble,
+                fractionDigits = distanceFractionDigits
             )
         val progressText =
-            PercentageFormatter.formatProgress(
-                uiState.summary?.progress ?: zeroFloat,
-                percentageFractionDigits,
-                percentageScale
+            percentageFormatter.formatProgress(
+                progress = uiState.summary?.progress ?: zeroFloat,
+                fractionDigits = percentageFractionDigits,
+                percentScale = percentageScale
             )
         StatItem(
             modifier = Modifier.weight(weightOne),

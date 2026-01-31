@@ -16,18 +16,23 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
+import java.text.NumberFormat
 
 @Singleton
 class RunningNotificationDispatcher @Inject constructor(
     @param:ApplicationContext private val context: Context,
 ) {
+    private val distanceFormatter = DistanceFormatter(
+        localeProvider = { context.resources.configuration.locales[0] },
+        numberFormatFactory = NumberFormat::getNumberInstance
+    )
 
     fun createNotification(distanceKm: Double, elapsedMillis: Long): Notification {
         val elapsedMinutes = TimeUnit.MILLISECONDS.toMinutes(elapsedMillis)
         val channelId = RecordNotificationContract.NOTIFICATION_CHANNEL_ID
-        val distanceFormatted = DistanceFormatter.formatDistanceKm(
-            distanceKm,
-            NumericResourceProvider.distanceFractionDigits(context)
+        val distanceFormatted = distanceFormatter.formatDistanceKm(
+            distanceKm = distanceKm,
+            fractionDigits = NumericResourceProvider.distanceFractionDigits(context)
         )
         val content = context.getString(
             R.string.record_notification_content,
