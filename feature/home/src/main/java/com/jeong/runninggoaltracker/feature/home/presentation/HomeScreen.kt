@@ -67,6 +67,7 @@ import com.jeong.runninggoaltracker.domain.model.PeriodState
 import com.jeong.runninggoaltracker.feature.home.R
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION_LABEL
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
@@ -142,7 +143,10 @@ fun HomeScreen(
     val minTouchTarget = dimensionResource(R.dimen.home_touch_target_min)
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val goalDescription = uiState.weeklyGoalKm?.let { goalKm ->
-        val formattedDistance = DistanceFormatter.formatDistanceKm(context, goalKm)
+        val formattedDistance = DistanceFormatter.formatDistanceKm(
+            goalKm,
+            NumericResourceProvider.distanceFractionDigits(context)
+        )
         stringResource(R.string.home_goal_summary_value, formattedDistance)
     } ?: stringResource(R.string.home_goal_summary_description)
 

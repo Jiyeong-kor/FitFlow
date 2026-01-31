@@ -44,6 +44,7 @@ import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_PRESET_BASIC_FITN
 import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_PRESET_HEALTH_MAINTAIN_KM
 import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_PRESET_LIGHT_WALK_KM
 import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_STEP_KM
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
@@ -83,7 +84,10 @@ fun GoalScreen(
         ?: state.currentGoalKm
         ?: GOAL_MIN_KM
     val context = LocalContext.current
-    val goalDistanceLabel = DistanceFormatter.formatDistanceKm(context, goalDistance)
+    val goalDistanceLabel = DistanceFormatter.formatDistanceKm(
+        goalDistance,
+        NumericResourceProvider.distanceFractionDigits(context)
+    )
 
     val onSaveThrottled = rememberThrottleClick(onClick = onSave)
     val onDecreaseThrottled = rememberThrottleClick {

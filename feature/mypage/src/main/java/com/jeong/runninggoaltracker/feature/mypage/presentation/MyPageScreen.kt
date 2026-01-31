@@ -52,6 +52,7 @@ import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
@@ -308,13 +309,20 @@ private fun SummaryStats(uiState: MyPageUiState) {
         )
     ) {
         val context = LocalContext.current
+        val distanceFractionDigits = NumericResourceProvider.distanceFractionDigits(context)
+        val percentageFractionDigits = NumericResourceProvider.percentageFractionDigits(context)
+        val percentageScale = NumericResourceProvider.percentageScale(context)
         val distanceText =
             DistanceFormatter.formatDistanceKm(
-                context,
-                uiState.summary?.totalThisWeekKm ?: zeroDouble
+                uiState.summary?.totalThisWeekKm ?: zeroDouble,
+                distanceFractionDigits
             )
         val progressText =
-            PercentageFormatter.formatProgress(context, uiState.summary?.progress ?: zeroFloat)
+            PercentageFormatter.formatProgress(
+                uiState.summary?.progress ?: zeroFloat,
+                percentageFractionDigits,
+                percentageScale
+            )
         StatItem(
             modifier = Modifier.weight(weightOne),
             label = stringResource(id = R.string.mypage_summary_distance_label),
