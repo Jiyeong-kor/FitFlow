@@ -1,0 +1,45 @@
+package com.jeong.runninggoaltracker.feature.home.presentation
+
+import com.jeong.runninggoaltracker.domain.model.PeriodState
+import com.jeong.runninggoaltracker.domain.model.RunningRecord
+import com.jeong.runninggoaltracker.domain.model.RunningSummary
+import com.jeong.runninggoaltracker.domain.util.RunningPeriodDateCalculator
+import com.jeong.runninggoaltracker.domain.util.RunningPeriodSummaryCalculator
+import javax.inject.Inject
+
+class HomeUiStateMapper @Inject constructor(
+    private val periodDateCalculator: RunningPeriodDateCalculator,
+    private val periodSummaryCalculator: RunningPeriodSummaryCalculator
+) {
+    fun map(
+        summary: RunningSummary,
+        records: List<RunningRecord>,
+        period: PeriodState,
+        selectedDateState: SelectedDateState,
+        isCalendarVisible: Boolean
+    ): HomeUiState {
+        val filteredRecords = periodDateCalculator.filterByPeriod(
+            records = records,
+            period = period,
+            selectedDateMillis = selectedDateState.dateMillis
+        )
+        val periodSummary = periodSummaryCalculator.calculate(filteredRecords)
+        return HomeUiState(
+            periodState = period,
+            selectedDateState = selectedDateState,
+            isCalendarVisible = isCalendarVisible,
+            summary = periodSummary.toUiState(),
+            activityLogs = filteredRecords.map { record ->
+                HomeWorkoutLogUiModel(
+                    id = record.id,
+                    timestamp = record.date,
+                    distanceKm = record.distanceKm,
+                    repCount = 0,
+                    durationMinutes = record.durationMinutes,
+                    type = HomeWorkoutType.RUNNING
+                )
+            },
+            weeklyGoalKm = summary.weeklyGoalKm
+        )
+    }
+}

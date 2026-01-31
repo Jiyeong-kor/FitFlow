@@ -7,7 +7,6 @@ import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodDateCalculator
-import com.jeong.runninggoaltracker.domain.util.RunningPeriodSummaryCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,7 +39,7 @@ class HomeViewModel @Inject constructor(
     getRunningRecordsUseCase: GetRunningRecordsUseCase,
     dateProvider: DateProvider,
     private val periodDateCalculator: RunningPeriodDateCalculator,
-    private val periodSummaryCalculator: RunningPeriodSummaryCalculator
+    private val uiStateMapper: HomeUiStateMapper
 ) : ViewModel() {
 
     private val periodState = MutableStateFlow(PeriodState.DAILY)
@@ -60,28 +59,12 @@ class HomeViewModel @Inject constructor(
             selectedDateState,
             calendarVisibility
         ) { summary, records, period, selectedDate, isCalendarVisible ->
-            val filteredRecords = periodDateCalculator.filterByPeriod(
+            uiStateMapper.map(
+                summary = summary,
                 records = records,
                 period = period,
-                selectedDateMillis = selectedDate.dateMillis
-            )
-            val periodSummary = periodSummaryCalculator.calculate(filteredRecords)
-            HomeUiState(
-                periodState = period,
                 selectedDateState = selectedDate,
-                isCalendarVisible = isCalendarVisible,
-                summary = periodSummary.toUiState(),
-                activityLogs = filteredRecords.map { record ->
-                    HomeWorkoutLogUiModel(
-                        id = record.id,
-                        timestamp = record.date,
-                        distanceKm = record.distanceKm,
-                        repCount = 0,
-                        durationMinutes = record.durationMinutes,
-                        type = HomeWorkoutType.RUNNING
-                    )
-                },
-                weeklyGoalKm = summary.weeklyGoalKm
+                isCalendarVisible = isCalendarVisible
             )
         }.stateIn(
             scope = viewModelScope,
