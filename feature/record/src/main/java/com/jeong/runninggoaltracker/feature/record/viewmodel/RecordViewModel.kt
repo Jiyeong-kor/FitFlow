@@ -3,9 +3,8 @@ package com.jeong.runninggoaltracker.feature.record.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
-import com.jeong.runninggoaltracker.domain.util.RunningMetricsCalculator
 import com.jeong.runninggoaltracker.feature.record.presentation.RecordUiState
-import com.jeong.runninggoaltracker.feature.record.presentation.toUiState
+import com.jeong.runninggoaltracker.feature.record.presentation.RecordUiStateMapper
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
@@ -24,7 +23,7 @@ class RecordViewModel @Inject constructor(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     private val runningTrackerController: RunningTrackerController,
     runningTrackerMonitor: RunningTrackerMonitor,
-    private val metricsCalculator: RunningMetricsCalculator
+    private val uiStateMapper: RecordUiStateMapper
 ) : ViewModel() {
 
     val uiState: StateFlow<RecordUiState> = combine(
@@ -32,18 +31,7 @@ class RecordViewModel @Inject constructor(
         activityRecognitionMonitor.activityState,
         runningTrackerMonitor.trackerState
     ) { records, activity, tracker ->
-        val elapsedTime = metricsCalculator.calculateElapsedTime(tracker.elapsedMillis)
-        val pace = metricsCalculator.calculatePace(tracker.distanceKm, tracker.elapsedMillis)
-        RecordUiState(
-            records = records,
-            activityStatus = activity.status,
-            isTracking = tracker.isTracking,
-            distanceKm = tracker.distanceKm,
-            elapsedMillis = tracker.elapsedMillis,
-            elapsedTime = elapsedTime.toUiState(),
-            pace = pace.toUiState(),
-            permissionRequired = tracker.permissionRequired
-        )
+        uiStateMapper.map(records, activity, tracker)
     }.stateIn(
         scope = viewModelScope,
         started = SharingStarted.Eagerly,
