@@ -4,15 +4,10 @@ import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.AuthError
-import com.jeong.runninggoaltracker.domain.model.AuthResult
-import com.jeong.runninggoaltracker.domain.usecase.CheckNicknameAvailabilityUseCase
-import com.jeong.runninggoaltracker.domain.usecase.ReserveNicknameAndCreateUserProfileUseCase
-import com.jeong.runninggoaltracker.domain.usecase.SignInAnonymouslyUseCase
 import com.jeong.runninggoaltracker.domain.usecase.NicknameValidationResult
-import com.jeong.runninggoaltracker.domain.usecase.SignInWithKakaoUseCase
-import com.jeong.runninggoaltracker.domain.usecase.UpgradeAnonymousWithCustomTokenUseCase
-import com.jeong.runninggoaltracker.domain.usecase.ValidateNicknameUseCase
-import com.jeong.runninggoaltracker.feature.auth.domain.CheckInternetUseCase
+import com.jeong.runninggoaltracker.feature.auth.domain.OnboardingFailure
+import com.jeong.runninggoaltracker.feature.auth.domain.OnboardingResult
+import com.jeong.runninggoaltracker.feature.auth.domain.OnboardingWorkflow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -45,13 +40,7 @@ data class OnboardingUiState(
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
-    private val signInAnonymouslyUseCase: SignInAnonymouslyUseCase,
-    private val reserveNicknameAndCreateUserProfileUseCase: ReserveNicknameAndCreateUserProfileUseCase,
-    private val validateNicknameUseCase: ValidateNicknameUseCase,
-    private val checkInternetUseCase: CheckInternetUseCase,
-    private val checkNicknameAvailabilityUseCase: CheckNicknameAvailabilityUseCase,
-    private val signInWithKakaoUseCase: SignInWithKakaoUseCase,
-    private val upgradeAnonymousWithCustomTokenUseCase: UpgradeAnonymousWithCustomTokenUseCase
+    private val onboardingWorkflow: OnboardingWorkflow
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState
@@ -103,24 +92,6 @@ class OnboardingViewModel @Inject constructor(
 
     fun onContinueWithNickname() {
         val nickname = _uiState.value.nickname
-        val validationResult = validateNicknameUseCase(nickname)
-        val validationUi = validationResult.toUiState()
-        if (!validationUi.isValid) {
-            _uiState.update { currentState ->
-                currentState.copy(
-                    isNicknameValid = false,
-                    nicknameValidationMessage = validationUi.messageResId,
-                    nicknameHintError = validationUi.showHintError
-                )
-            }
-            return
-        }
-        if (!checkInternetUseCase()) {
-            _uiState.update { currentState ->
-                currentState.copy(showNoInternetDialog = true)
-            }
-            return
-        }
         viewModelScope.launch {
             _uiState.update { currentState ->
                 currentState.copy(
@@ -132,62 +103,14 @@ class OnboardingViewModel @Inject constructor(
                     showNoInternetDialog = false
                 )
             }
-            val availabilityResult = checkNicknameAvailabilityUseCase(nickname)
-            if (availabilityResult is AuthResult.Success && !availabilityResult.data) {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isLoading = false,
-                        isNicknameValid = false,
-                        nicknameValidationMessage = R.string.nickname_taken_error
-                    )
-                }
-                return@launch
-            }
-            val signInResult = signInAnonymouslyUseCase()
-            if (signInResult.isFailure) {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isLoading = false,
-                        errorMessageResId = R.string.anonymous_sign_in_error
-                    )
-                }
-                return@launch
-            }
-            val nicknameResult = reserveNicknameAndCreateUserProfileUseCase(nickname)
+            val result = onboardingWorkflow.continueWithNickname(nickname)
             _uiState.update { currentState ->
-                when (nicknameResult) {
-                    is AuthResult.Success -> currentState.copy(
-                        isLoading = false,
-                        step = OnboardingStep.Success
-                    )
-
-                    is AuthResult.Failure -> {
-                        if (nicknameResult.error == AuthError.NicknameTaken) {
-                            currentState.copy(
-                                isLoading = false,
-                                isNicknameValid = false,
-                                nicknameValidationMessage = R.string.nickname_taken_error,
-                                nicknameHintError = false
-                            )
-                        } else {
-                            currentState.copy(
-                                isLoading = false,
-                                errorMessageResId = nicknameResult.error.toErrorMessageResId()
-                            )
-                        }
-                    }
-                }
+                reduceContinueResult(currentState, result)
             }
         }
     }
 
     fun onRetryInternet() {
-        if (!checkInternetUseCase()) {
-            _uiState.update { currentState ->
-                currentState.copy(showNoInternetDialog = true)
-            }
-            return
-        }
         _uiState.update { currentState ->
             currentState.copy(showNoInternetDialog = false)
         }
@@ -204,12 +127,6 @@ class OnboardingViewModel @Inject constructor(
     }
 
     fun onKakaoLoginClicked() {
-        if (!checkInternetUseCase()) {
-            _uiState.update { currentState ->
-                currentState.copy(showNoInternetDialog = true)
-            }
-            return
-        }
         viewModelScope.launch {
             _uiState.update { currentState ->
                 currentState.copy(
@@ -221,30 +138,9 @@ class OnboardingViewModel @Inject constructor(
                     showNoInternetDialog = false
                 )
             }
-            val signInResult = signInWithKakaoUseCase()
-            val accessToken = signInResult.getOrNull()
-            if (signInResult.isFailure || accessToken.isNullOrBlank()) {
-                _uiState.update { currentState ->
-                    currentState.copy(
-                        isLoading = false,
-                        errorMessageResId = R.string.kakao_login_error
-                    )
-                }
-                return@launch
-            }
-            val upgradeResult = upgradeAnonymousWithCustomTokenUseCase(accessToken)
+            val result = onboardingWorkflow.loginWithKakao()
             _uiState.update { currentState ->
-                when (upgradeResult) {
-                    is AuthResult.Success -> currentState.copy(
-                        isLoading = false,
-                        step = OnboardingStep.Success
-                    )
-
-                    is AuthResult.Failure -> currentState.copy(
-                        isLoading = false,
-                        errorMessageResId = upgradeResult.error.toErrorMessageResId()
-                    )
-                }
+                reduceLoginResult(currentState, result)
             }
         }
     }
@@ -277,6 +173,95 @@ class OnboardingViewModel @Inject constructor(
             AuthError.NetworkError -> R.string.auth_network_error
             AuthError.Unknown -> R.string.auth_unknown_error
         }
+
+    private fun reduceContinueResult(
+        currentState: OnboardingUiState,
+        result: OnboardingResult
+    ): OnboardingUiState = when (result) {
+        is OnboardingResult.Success -> currentState.copy(
+            isLoading = false,
+            step = OnboardingStep.Success
+        )
+
+        is OnboardingResult.ValidationFailed -> {
+            val validationUi = result.result.toUiState()
+            currentState.copy(
+                isLoading = false,
+                isNicknameValid = false,
+                nicknameValidationMessage = validationUi.messageResId,
+                nicknameHintError = validationUi.showHintError
+            )
+        }
+
+        is OnboardingResult.NoInternet -> currentState.copy(
+            isLoading = false,
+            showNoInternetDialog = true
+        )
+
+        is OnboardingResult.Failure -> when (val reason = result.reason) {
+            is OnboardingFailure.AnonymousSignIn -> currentState.copy(
+                isLoading = false,
+                errorMessageResId = R.string.anonymous_sign_in_error
+            )
+
+            is OnboardingFailure.KakaoLogin -> currentState.copy(
+                isLoading = false,
+                errorMessageResId = R.string.kakao_login_error
+            )
+
+            is OnboardingFailure.Auth -> {
+                if (reason.error == AuthError.NicknameTaken) {
+                    currentState.copy(
+                        isLoading = false,
+                        isNicknameValid = false,
+                        nicknameValidationMessage = R.string.nickname_taken_error,
+                        nicknameHintError = false
+                    )
+                } else {
+                    currentState.copy(
+                        isLoading = false,
+                        errorMessageResId = reason.error.toErrorMessageResId()
+                    )
+                }
+            }
+        }
+    }
+
+    private fun reduceLoginResult(
+        currentState: OnboardingUiState,
+        result: OnboardingResult
+    ): OnboardingUiState = when (result) {
+        is OnboardingResult.Success -> currentState.copy(
+            isLoading = false,
+            step = OnboardingStep.Success
+        )
+
+        is OnboardingResult.NoInternet -> currentState.copy(
+            isLoading = false,
+            showNoInternetDialog = true
+        )
+
+        is OnboardingResult.ValidationFailed -> currentState.copy(
+            isLoading = false
+        )
+
+        is OnboardingResult.Failure -> when (val reason = result.reason) {
+            is OnboardingFailure.KakaoLogin -> currentState.copy(
+                isLoading = false,
+                errorMessageResId = R.string.kakao_login_error
+            )
+
+            is OnboardingFailure.AnonymousSignIn -> currentState.copy(
+                isLoading = false,
+                errorMessageResId = R.string.anonymous_sign_in_error
+            )
+
+            is OnboardingFailure.Auth -> currentState.copy(
+                isLoading = false,
+                errorMessageResId = reason.error.toErrorMessageResId()
+            )
+        }
+    }
 }
 
 private data class NicknameValidationUiState(

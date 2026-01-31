@@ -47,6 +47,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":shared:designsystem"))
     implementation(project(":shared:navigation"))
+    implementation(project(":shared:network"))
 
     // AndroidX core & lifecycle
     implementation(libs.androidx.core.ktx)
