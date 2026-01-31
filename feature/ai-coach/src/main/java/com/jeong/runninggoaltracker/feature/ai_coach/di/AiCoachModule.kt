@@ -7,7 +7,13 @@ import com.jeong.runninggoaltracker.domain.usecase.lunge.LungeAnalyzer
 import com.jeong.runninggoaltracker.domain.usecase.squat.SquatAnalyzer
 import com.jeong.runninggoaltracker.feature.ai_coach.data.pose.MlKitPoseDetector
 import com.jeong.runninggoaltracker.feature.ai_coach.data.pose.PoseDetector
+import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutAnalyticsLogger
+import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogFormatter
 import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
+import com.jeong.runninggoaltracker.feature.ai_coach.logging.WorkoutAnalyticsLogger
+import com.jeong.runninggoaltracker.feature.ai_coach.processing.PoseFrameProcessor
+import com.jeong.runninggoaltracker.feature.ai_coach.speech.DefaultSpeechCoordinator
+import com.jeong.runninggoaltracker.feature.ai_coach.speech.SpeechCoordinator
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -53,4 +59,32 @@ object AiCoachModule {
             squatAnalyzer = squatAnalyzer,
             pushUpAnalyzer = squatAnalyzer
         )
+
+    @Provides
+    @ViewModelScoped
+    fun provideSpeechCoordinator(): SpeechCoordinator = DefaultSpeechCoordinator()
+
+    @Provides
+    @ViewModelScoped
+    fun provideLogFormatter(): SmartWorkoutLogFormatter = SmartWorkoutLogFormatter()
+
+    @Provides
+    @ViewModelScoped
+    fun provideAnalyticsLogger(
+        formatter: SmartWorkoutLogFormatter
+    ): WorkoutAnalyticsLogger = SmartWorkoutAnalyticsLogger(formatter)
+
+    @Provides
+    @ViewModelScoped
+    fun providePoseFrameProcessor(
+        poseDetector: PoseDetector,
+        processPoseUseCase: ProcessPoseUseCase,
+        speechCoordinator: SpeechCoordinator,
+        analyticsLogger: WorkoutAnalyticsLogger
+    ): PoseFrameProcessor = PoseFrameProcessor(
+        poseDetector = poseDetector,
+        processPoseUseCase = processPoseUseCase,
+        speechCoordinator = speechCoordinator,
+        analyticsLogger = analyticsLogger
+    )
 }

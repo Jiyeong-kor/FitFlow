@@ -7,18 +7,13 @@ import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ZERO
 import com.jeong.runninggoaltracker.domain.model.ExerciseType
 import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
-import com.jeong.runninggoaltracker.domain.model.PostureWarningEvent
-import com.jeong.runninggoaltracker.domain.model.SquatFrameMetrics
-import com.jeong.runninggoaltracker.domain.model.SquatPhaseTransition
-import com.jeong.runninggoaltracker.domain.usecase.AddWorkoutRecordUseCase
-import com.jeong.runninggoaltracker.domain.usecase.ProcessPoseUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutLogContract
-import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutSpeechContract
-import com.jeong.runninggoaltracker.feature.ai_coach.data.pose.PoseDetector
-import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
+import com.jeong.runninggoaltracker.feature.ai_coach.domain.WorkoutRecordSaver
+import com.jeong.runninggoaltracker.feature.ai_coach.logging.WorkoutAnalyticsLogger
+import com.jeong.runninggoaltracker.feature.ai_coach.processing.PoseFrameProcessor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -28,13 +23,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @HiltViewModel
 class AiCoachViewModel @Inject constructor(
-    private val poseDetector: PoseDetector,
-    private val processPoseUseCase: ProcessPoseUseCase,
-    private val addWorkoutRecordUseCase: AddWorkoutRecordUseCase,
+    private val poseFrameProcessor: PoseFrameProcessor,
+    private val workoutRecordSaver: WorkoutRecordSaver,
+    private val analyticsLogger: WorkoutAnalyticsLogger,
     private val dateProvider: DateProvider
 ) : ViewModel() {
 
@@ -45,91 +40,25 @@ class AiCoachViewModel @Inject constructor(
         onBufferOverflow = BufferOverflow.DROP_OLDEST
     )
     val speechEvents = _speechEvents.asSharedFlow()
-    private var lastSpokenType: PostureFeedbackType? = null
-    private var lastSpokenKey: String? = null
-    private var lastSpokenTimestampMs: Long = SmartWorkoutSpeechContract.DEFAULT_COOLDOWN_MS
-    private var speechCooldownMs: Long = SmartWorkoutSpeechContract.DEFAULT_COOLDOWN_MS
-    private var lastAttemptActive: Boolean? = null
-    private var lastDepthReached: Boolean? = null
-    private var lastFullBodyVisible: Boolean? = null
-    private var lastSavedSnapshot: WorkoutSaveSnapshot? = null
 
     val imageAnalyzer: ImageAnalysis.Analyzer
-        get() = poseDetector.imageAnalyzer
+        get() = poseFrameProcessor.imageAnalyzer
 
     init {
-        poseDetector.poseFrames
-            .onEach { frame ->
-                val analysis = processPoseUseCase.analyze(frame, _uiState.value.exerciseType)
-                if (analysis.skippedLowConfidence) {
-                    logSkippedFrame(frame.timestampMs)
+        poseFrameProcessor.results(_uiState)
+            .onEach { result ->
+                result.speechEvent?.let { event ->
+                    _speechEvents.tryEmit(event)
                 }
-                if (analysis.repCount.isIncremented) {
-                    logRepCountUpdate(
-                        source = SmartWorkoutLogContract.SOURCE_ANALYZER,
-                        repCount = analysis.repCount.value,
-                        timestampMs = frame.timestampMs
-                    )
-                }
-                val exerciseType = _uiState.value.exerciseType
-                val speechFeedbackResId = analysis.feedbackEvent?.let { feedbackType ->
-                    handleSpeechFeedback(
-                        feedbackType = feedbackType,
-                        feedbackEventKey = analysis.feedbackEventKey,
-                        exerciseType = exerciseType,
-                        timestampMs = frame.timestampMs
-                    )
-                }
-                val feedbackTypeForUi = if (speechFeedbackResId != null) {
-                    analysis.feedbackEvent
-                } else {
-                    null
-                }
-                analysis.frameMetrics?.let { metrics ->
-                    metrics.transition?.let { transition ->
-                        logTransition(transition, metrics)
-                    }
-                    logMetricsState(metrics, frame.timestampMs)
-                }
-                analysis.warningEvent?.let { event ->
-                    logWarningEvent(event)
-                }
-                _uiState.update { current ->
-                    current.copy(
-                        repCount = analysis.repCount.value,
-                        feedbackType = feedbackTypeForUi ?: current.feedbackType,
-                        feedbackKeys = listOfNotNull(analysis.feedbackEventKey),
-                        feedbackResId = if (exerciseType == ExerciseType.LUNGE) {
-                            speechFeedbackResId ?: current.feedbackResId
-                        } else {
-                            FeedbackStringMapper.feedbackResId(
-                                exerciseType = exerciseType,
-                                feedbackType = feedbackTypeForUi ?: analysis.feedback.type,
-                                feedbackKey = analysis.feedbackEventKey
-                            )
-                        },
-                        accuracy = analysis.feedback.accuracy,
-                        isPerfectForm = analysis.feedback.isPerfectForm,
-                        poseFrame = frame,
-                        frameMetrics = analysis.frameMetrics,
-                        repSummary = analysis.repSummary,
-                        lungeDebugInfo = analysis.lungeDebugInfo,
-                        lastLungeRepSnapshot = updateLungeSnapshot(
-                            analysis = analysis,
-                            exerciseType = _uiState.value.exerciseType,
-                            timestampMs = frame.timestampMs,
-                            current = current.lastLungeRepSnapshot
-                        )
-                    )
-                }
+                _uiState.value = result.uiState
             }
             .launchIn(viewModelScope)
     }
 
-    fun updateSpeechCooldown(cooldownMs: Long) = Unit.also { speechCooldownMs = cooldownMs }
+    fun updateSpeechCooldown(cooldownMs: Long) = poseFrameProcessor.updateSpeechCooldown(cooldownMs)
 
     fun logUiRepCount(repCount: Int) =
-        logRepCountUpdate(
+        analyticsLogger.logRepCountUpdate(
             source = SmartWorkoutLogContract.SOURCE_UI,
             repCount = repCount,
             timestampMs = dateProvider.getToday()
@@ -138,7 +67,7 @@ class AiCoachViewModel @Inject constructor(
     fun toggleDebugOverlay() {
         _uiState.update { current ->
             val nextMode = if (current.overlayMode == DebugOverlayMode.OFF) {
-                overlayModeFor(current.exerciseType)
+                poseFrameProcessor.overlayModeFor(current.exerciseType)
             } else {
                 DebugOverlayMode.OFF
             }
@@ -161,379 +90,25 @@ class AiCoachViewModel @Inject constructor(
                     overlayMode = if (current.overlayMode == DebugOverlayMode.OFF) {
                         current.overlayMode
                     } else {
-                        overlayModeFor(exerciseType)
+                        poseFrameProcessor.overlayModeFor(exerciseType)
                     }
                 )
             }
         }
-        lastSpokenType = null
-        lastSpokenKey = null
+        poseFrameProcessor.resetSpeechState()
     }
 
     fun persistWorkoutRepCount() {
         val repCount = _uiState.value.repCount
-        if (repCount <= SQUAT_INT_ZERO) {
-            return
-        }
         val exerciseType = _uiState.value.exerciseType
-        val date = dateProvider.getToday()
-        val snapshot = WorkoutSaveSnapshot(
-            date = date,
-            exerciseType = exerciseType,
-            repCount = repCount
-        )
-        if (snapshot == lastSavedSnapshot) {
-            return
-        }
-        lastSavedSnapshot = snapshot
         viewModelScope.launch {
-            addWorkoutRecordUseCase(
-                date = date,
-                exerciseType = exerciseType,
-                repCount = repCount
-            )
+            workoutRecordSaver.persistIfNeeded(exerciseType = exerciseType, repCount = repCount)
         }
     }
 
     override fun onCleared() {
         persistWorkoutRepCount()
-        poseDetector.clear()
+        poseFrameProcessor.clear()
         super.onCleared()
     }
-
-    private fun handleSpeechFeedback(
-        feedbackType: PostureFeedbackType,
-        feedbackEventKey: String?,
-        exerciseType: ExerciseType,
-        timestampMs: Long
-    ): Int? {
-        if (feedbackEventKey == null) {
-            return null
-        }
-        val lastType = lastSpokenType
-        val key = feedbackEventKey
-        val isChanged = lastType != feedbackType || lastSpokenKey != key
-        val elapsedMs = timestampMs - lastSpokenTimestampMs
-        val shouldEmit = if (exerciseType == ExerciseType.LUNGE && !isChanged) {
-            elapsedMs >= speechCooldownMs
-        } else {
-            isChanged || elapsedMs >= speechCooldownMs
-        }
-        if (shouldEmit) {
-            val feedbackResId = FeedbackStringMapper.feedbackResId(
-                exerciseType = exerciseType,
-                feedbackType = feedbackType,
-                feedbackKey = feedbackEventKey
-            )
-            _speechEvents.tryEmit(
-                SmartWorkoutSpeechEvent(
-                    feedbackType = feedbackType,
-                    feedbackResId = feedbackResId,
-                    exerciseType = exerciseType
-                )
-            )
-            lastSpokenType = feedbackType
-            lastSpokenKey = key
-            lastSpokenTimestampMs = timestampMs
-            logFeedbackEvent(feedbackType, key, timestampMs)
-            return feedbackResId
-        }
-        return null
-    }
-
-    private fun updateLungeSnapshot(
-        analysis: com.jeong.runninggoaltracker.domain.model.PoseAnalysisResult,
-        exerciseType: ExerciseType,
-        timestampMs: Long,
-        current: LungeRepSnapshot?
-    ): LungeRepSnapshot? {
-        if (exerciseType != ExerciseType.LUNGE || !analysis.repCount.isIncremented) {
-            return current
-        }
-        val summary = analysis.lungeRepSummary
-        val debugInfo = analysis.lungeDebugInfo
-        val feedbackKeys = summary?.feedbackKeys ?: emptyList()
-        val goodFormReason = when {
-            summary == null -> LungeGoodFormReason.NO_SUMMARY
-            feedbackKeys.isNotEmpty() -> LungeGoodFormReason.FEEDBACK_KEYS_PRESENT
-            else -> LungeGoodFormReason.GOOD_FORM
-        }
-        return LungeRepSnapshot(
-            timestampMs = timestampMs,
-            activeSide = debugInfo?.activeSide,
-            countingSide = debugInfo?.countingSide,
-            feedbackType = analysis.feedbackEvent,
-            feedbackEventKey = analysis.feedbackEventKey,
-            feedbackKeys = feedbackKeys,
-            overallScore = summary?.overallScore,
-            frontKneeMinAngle = summary?.frontKneeMinAngle,
-            backKneeMinAngle = summary?.backKneeMinAngle,
-            maxTorsoLeanAngle = summary?.maxTorsoLeanAngle,
-            stabilityStdDev = summary?.stabilityStdDev,
-            maxKneeForwardRatio = summary?.maxKneeForwardRatio,
-            maxKneeCollapseRatio = summary?.maxKneeCollapseRatio,
-            goodFormReason = goodFormReason
-        )
-    }
-
-    private fun overlayModeFor(exerciseType: ExerciseType): DebugOverlayMode = when (exerciseType) {
-        ExerciseType.LUNGE -> DebugOverlayMode.LUNGE
-        else -> DebugOverlayMode.GENERAL
-    }
-
-    private fun logTransition(
-        transition: SquatPhaseTransition,
-        frameMetrics: SquatFrameMetrics
-    ): Unit = SmartWorkoutLogger.logDebug {
-        buildString {
-            append(SmartWorkoutLogContract.TRANSITION_PREFIX)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_FROM)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(transition.from.name)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TO)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(transition.to.name)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(transition.timestampMs)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_REASON)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(transition.reason)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_SIDE)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(frameMetrics.side.name)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_PHASE)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(frameMetrics.phase.name)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_KNEE)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(frameMetrics.kneeAngleEma)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TRUNK_TILT)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(frameMetrics.trunkTiltVerticalAngleEma)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TRUNK_TO_THIGH)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(frameMetrics.trunkToThighAngleEma)
-        }
-    }
-
-    private fun logRepCountUpdate(source: String, repCount: Int, timestampMs: Long): Unit =
-        SmartWorkoutLogger.logDebug {
-            buildString {
-                append(SmartWorkoutLogContract.EVENT_REP_COUNT)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_SOURCE)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(source)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(timestampMs)
-                append(SmartWorkoutLogContract.LOG_SEPARATOR)
-                append(SmartWorkoutLogContract.KEY_REP_COUNT)
-                append(SmartWorkoutLogContract.LOG_ASSIGN)
-                append(repCount)
-            }
-        }
-
-    private fun logWarningEvent(event: PostureWarningEvent): Unit = SmartWorkoutLogger.logDebug {
-        buildString {
-            append(SmartWorkoutLogContract.EVENT_WARNING)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_FEEDBACK)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(event.feedbackType.name)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_METRIC)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(event.metric.name)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_VALUE)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(event.value)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_THRESHOLD)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(event.threshold)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_OPERATOR)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(event.operator.name)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_STATE)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(event.phase.name)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(event.timestampMs)
-        }
-    }
-
-    private fun logMetricsState(
-        metrics: SquatFrameMetrics,
-        timestampMs: Long
-    ): Unit = Unit.also {
-        val attemptActive = metrics.attemptActive
-        val previousAttempt = lastAttemptActive
-        if (previousAttempt == null) {
-            if (attemptActive) {
-                logAttemptStart(metrics, timestampMs)
-            }
-        } else if (previousAttempt != attemptActive) {
-            if (attemptActive) {
-                logAttemptStart(metrics, timestampMs)
-            } else {
-                logAttemptEnd(metrics, timestampMs)
-            }
-        }
-        lastAttemptActive = attemptActive
-        val depthReached = metrics.depthReached
-        val previousDepthReached = lastDepthReached
-        if (depthReached && previousDepthReached != true) {
-            logDepthReached(metrics, timestampMs)
-        }
-        lastDepthReached = depthReached
-        val fullBodyVisible = metrics.fullBodyVisible
-        val previousFullBodyVisible = lastFullBodyVisible
-        if (previousFullBodyVisible == null || previousFullBodyVisible != fullBodyVisible) {
-            logFullBodyVisibility(metrics, timestampMs)
-        }
-        lastFullBodyVisible = fullBodyVisible
-    }
-
-    private fun logAttemptStart(
-        metrics: SquatFrameMetrics,
-        timestampMs: Long
-    ): Unit = SmartWorkoutLogger.logDebug {
-        buildString {
-            append(SmartWorkoutLogContract.EVENT_ATTEMPT_START)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(timestampMs)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_ATTEMPT_ACTIVE)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(metrics.attemptActive)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_KNEE_MIN)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(metrics.attemptMinKneeAngle)
-        }
-    }
-
-    private fun logAttemptEnd(
-        metrics: SquatFrameMetrics,
-        timestampMs: Long
-    ): Unit = SmartWorkoutLogger.logDebug {
-        buildString {
-            append(SmartWorkoutLogContract.EVENT_ATTEMPT_END)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(timestampMs)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_ATTEMPT_ACTIVE)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(metrics.attemptActive)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_DEPTH_REACHED)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(metrics.depthReached)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_KNEE_MIN)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(metrics.attemptMinKneeAngle)
-        }
-    }
-
-    private fun logDepthReached(
-        metrics: SquatFrameMetrics,
-        timestampMs: Long
-    ): Unit = SmartWorkoutLogger.logDebug {
-        buildString {
-            append(SmartWorkoutLogContract.EVENT_DEPTH_REACHED)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(timestampMs)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_DEPTH_REACHED)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(metrics.depthReached)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_KNEE_MIN)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(metrics.attemptMinKneeAngle)
-        }
-    }
-
-    private fun logFullBodyVisibility(
-        metrics: SquatFrameMetrics,
-        timestampMs: Long
-    ): Unit = SmartWorkoutLogger.logDebug {
-        buildString {
-            append(SmartWorkoutLogContract.EVENT_FULL_BODY_VISIBILITY)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(timestampMs)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_FULL_BODY_VISIBLE)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(metrics.fullBodyVisible)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_INVISIBLE_DURATION)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(metrics.fullBodyInvisibleDurationMs)
-        }
-    }
-
-    private fun logFeedbackEvent(
-        feedbackType: PostureFeedbackType,
-        feedbackKey: String,
-        timestampMs: Long
-    ): Unit = SmartWorkoutLogger.logDebug {
-        buildString {
-            append(SmartWorkoutLogContract.EVENT_FEEDBACK_EMIT)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_FEEDBACK)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(feedbackType.name)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_VALUE)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(feedbackKey)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(timestampMs)
-        }
-    }
-
-    private fun logSkippedFrame(timestampMs: Long): Unit = SmartWorkoutLogger.logDebug {
-        buildString {
-            append(SmartWorkoutLogContract.EVENT_FRAME_SKIP)
-            append(SmartWorkoutLogContract.LOG_SEPARATOR)
-            append(SmartWorkoutLogContract.KEY_TIMESTAMP)
-            append(SmartWorkoutLogContract.LOG_ASSIGN)
-            append(timestampMs)
-        }
-    }
 }
-
-private data class WorkoutSaveSnapshot(
-    val date: Long,
-    val exerciseType: ExerciseType,
-    val repCount: Int
-)
