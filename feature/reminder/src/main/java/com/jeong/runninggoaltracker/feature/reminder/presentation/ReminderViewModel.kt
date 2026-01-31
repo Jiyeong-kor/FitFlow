@@ -6,7 +6,9 @@ import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.domain.usecase.CreateDefaultReminderUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
+import com.jeong.runninggoaltracker.domain.util.RunningReminderValidator
 import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderSchedulingInteractor
+import com.jeong.runninggoaltracker.feature.reminder.contract.REMINDER_STATE_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -32,17 +34,17 @@ class ReminderViewModel @Inject constructor(
     getRunningRemindersUseCase: GetRunningRemindersUseCase,
     private val createDefaultReminderUseCase: CreateDefaultReminderUseCase,
     private val toggleReminderDayUseCase: ToggleReminderDayUseCase,
-    private val reminderSchedulingInteractor: ReminderSchedulingInteractor
+    private val reminderSchedulingInteractor: ReminderSchedulingInteractor,
+    private val reminderUiStateMapper: ReminderUiStateMapper,
+    private val reminderValidator: RunningReminderValidator
 ) : ViewModel() {
 
     val uiState: StateFlow<ReminderListUiState> =
         getRunningRemindersUseCase()
-            .map { reminders ->
-                ReminderListUiState(reminders.mapNotNull { it.toUiStateOrNull() })
-            }
+            .map { reminders -> reminderUiStateMapper.toListUiState(reminders) }
             .stateIn(
                 scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(5_000),
+                started = SharingStarted.WhileSubscribed(REMINDER_STATE_TIMEOUT_MS),
                 initialValue = ReminderListUiState()
             )
 
@@ -57,7 +59,9 @@ class ReminderViewModel @Inject constructor(
     }
 
     fun deleteReminder(id: Int) {
-        val currentReminder = uiState.value.reminders.find { it.id == id }?.toDomain() ?: return
+        val currentReminder = uiState.value.reminders.find { it.id == id }?.let {
+            reminderUiStateMapper.toDomain(it)
+        } ?: return
 
         viewModelScope.launch {
             reminderSchedulingInteractor.deleteReminder(currentReminder)
@@ -78,9 +82,9 @@ class ReminderViewModel @Inject constructor(
         update: (RunningReminder) -> RunningReminder
     ) {
         val currentReminderUiState = uiState.value.reminders.find { it.id == id } ?: return
-        val currentRunningReminder = currentReminderUiState.toDomain()
+        val currentRunningReminder = reminderUiStateMapper.toDomain(currentReminderUiState)
 
-        val updatedReminder = update(currentRunningReminder).validateEnabledDays()
+        val updatedReminder = reminderValidator.normalizeEnabledDays(update(currentRunningReminder))
         if (updatedReminder == currentRunningReminder) return
 
         viewModelScope.launch {
@@ -90,31 +94,4 @@ class ReminderViewModel @Inject constructor(
             )
         }
     }
-
-    private fun RunningReminder.validateEnabledDays(): RunningReminder =
-        if (enabled && days.isEmpty()) {
-            copy(enabled = false)
-        } else {
-            this
-        }
 }
-
-private fun RunningReminder.toUiStateOrNull(): ReminderUiState? {
-    val reminderId = id ?: return null
-    return ReminderUiState(
-        id = reminderId,
-        hour = hour,
-        minute = minute,
-        enabled = enabled,
-        days = days
-    )
-}
-
-private fun ReminderUiState.toDomain(): RunningReminder =
-    RunningReminder(
-        id = id,
-        hour = hour,
-        minute = minute,
-        enabled = enabled,
-        days = days
-    )
