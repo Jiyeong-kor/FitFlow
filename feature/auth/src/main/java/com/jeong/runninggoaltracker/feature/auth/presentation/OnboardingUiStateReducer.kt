@@ -144,6 +144,13 @@ class OnboardingUiStateReducer @Inject constructor() {
         }
     }
 
+    fun openSettingsEffects(currentState: OnboardingUiState): List<OnboardingEffect> =
+        if (currentState.isPermissionPermanentlyDenied) {
+            listOf(OnboardingEffect.OpenSettings)
+        } else {
+            emptyList()
+        }
+
     private fun NicknameValidationResult.toUiState(): NicknameValidationUiState =
         when (this) {
             is NicknameValidationResult.Valid -> NicknameValidationUiState(

@@ -55,11 +55,10 @@ class OnboardingViewModel @Inject constructor(
         }
 
     fun onOpenSettings() {
-        if (!_uiState.value.isPermissionPermanentlyDenied) {
-            return
-        }
         viewModelScope.launch {
-            _effects.emit(OnboardingEffect.OpenSettings)
+            uiStateReducer.openSettingsEffects(_uiState.value).forEach { effect ->
+                _effects.emit(effect)
+            }
         }
     }
 

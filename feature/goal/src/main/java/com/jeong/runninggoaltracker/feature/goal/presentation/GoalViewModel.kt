@@ -30,7 +30,7 @@ enum class GoalInputError {
     NON_POSITIVE
 }
 
-private data class GoalInputState(
+internal data class GoalInputState(
     val weeklyGoalKmInput: Double? = null,
     val error: GoalInputError? = null
 )
@@ -38,8 +38,7 @@ private data class GoalInputState(
 @HiltViewModel
 class GoalViewModel @Inject constructor(
     getRunningGoalUseCase: GetRunningGoalUseCase,
-    private val upsertRunningGoalUseCase: UpsertRunningGoalUseCase,
-    private val validateWeeklyGoalUseCase: ValidateWeeklyGoalUseCase
+    private val goalSaveHandler: GoalSaveHandler
 ) : ViewModel() {
 
     private val inputState = MutableStateFlow(GoalInputState())
@@ -77,28 +76,30 @@ class GoalViewModel @Inject constructor(
     }
 
     fun saveGoal(onSuccess: () -> Unit) {
-        when (val result = validateWeeklyGoalUseCase(inputState.value.weeklyGoalKmInput)) {
-            WeeklyGoalValidationResult.Error.INVALID_NUMBER -> {
-                inputState.update { current ->
-                    current.copy(error = GoalInputError.INVALID_NUMBER)
-                }
-            }
-
-            WeeklyGoalValidationResult.Error.NON_POSITIVE -> {
-                inputState.update { current ->
-                    current.copy(error = GoalInputError.NON_POSITIVE)
-                }
-            }
-
-            is WeeklyGoalValidationResult.Valid -> {
-                viewModelScope.launch {
-                    upsertRunningGoalUseCase(RunningGoal(weeklyGoalKm = result.weeklyGoalKm))
-                    inputState.update { current ->
-                        current.copy(error = null)
-                    }
-                    onSuccess()
-                }
-            }
+        viewModelScope.launch {
+            val updatedState = goalSaveHandler.saveGoal(inputState.value, onSuccess)
+            inputState.value = updatedState
         }
     }
+}
+
+class GoalSaveHandler @Inject constructor(
+    private val upsertRunningGoalUseCase: UpsertRunningGoalUseCase,
+    private val validateWeeklyGoalUseCase: ValidateWeeklyGoalUseCase
+) {
+    internal suspend fun saveGoal(
+        currentState: GoalInputState,
+        onSuccess: () -> Unit
+    ): GoalInputState =
+        when (val result = validateWeeklyGoalUseCase(currentState.weeklyGoalKmInput)) {
+            WeeklyGoalValidationResult.Error.INVALID_NUMBER ->
+                currentState.copy(error = GoalInputError.INVALID_NUMBER)
+            WeeklyGoalValidationResult.Error.NON_POSITIVE ->
+                currentState.copy(error = GoalInputError.NON_POSITIVE)
+            is WeeklyGoalValidationResult.Valid -> {
+                upsertRunningGoalUseCase(RunningGoal(weeklyGoalKm = result.weeklyGoalKm))
+                onSuccess()
+                currentState.copy(error = null)
+            }
+        }
 }

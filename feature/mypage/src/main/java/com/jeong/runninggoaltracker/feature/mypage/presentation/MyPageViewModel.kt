@@ -2,7 +2,6 @@ package com.jeong.runninggoaltracker.feature.mypage.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.jeong.runninggoaltracker.domain.usecase.DeleteAccountUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningGoalUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ObserveIsAnonymousUseCase
@@ -22,7 +21,7 @@ class MyPageViewModel @Inject constructor(
     private val getRunningGoalUseCase: GetRunningGoalUseCase,
     private val observeIsAnonymousUseCase: ObserveIsAnonymousUseCase,
     private val observeUserNicknameUseCase: ObserveUserNicknameUseCase,
-    private val deleteAccountUseCase: DeleteAccountUseCase
+    private val deleteAccountHandler: DeleteAccountHandler
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MyPageUiState())
@@ -75,22 +74,34 @@ class MyPageViewModel @Inject constructor(
 
     private fun deleteAccount() {
         viewModelScope.launch {
-            if (_deleteAccountState.value is DeleteAccountUiState.Loading) {
-                return@launch
-            }
-            _deleteAccountState.value = DeleteAccountUiState.Loading
-            when (val result = deleteAccountUseCase()) {
-                is com.jeong.runninggoaltracker.domain.model.AuthResult.Success -> {
-                    _deleteAccountState.value = DeleteAccountUiState.Success
+            deleteAccountHandler
+                .deleteAccount(_deleteAccountState.value)
+                .forEach { state ->
+                    _deleteAccountState.value = state
                 }
-
-                is com.jeong.runninggoaltracker.domain.model.AuthResult.Failure -> {
-                    _deleteAccountState.value = DeleteAccountUiState.Failure(result.error)
-                }
-            }
         }
     }
 
     fun resetDeleteAccountState() =
         run { _deleteAccountState.value = DeleteAccountUiState.Idle }
+}
+
+class DeleteAccountHandler @Inject constructor(
+    private val deleteAccountUseCase: com.jeong.runninggoaltracker.domain.usecase.DeleteAccountUseCase
+) {
+    suspend fun deleteAccount(
+        currentState: DeleteAccountUiState
+    ): List<DeleteAccountUiState> =
+        if (currentState is DeleteAccountUiState.Loading) {
+            listOf(currentState)
+        } else {
+            val finalState = when (val result = deleteAccountUseCase()) {
+                is com.jeong.runninggoaltracker.domain.model.AuthResult.Success ->
+                    DeleteAccountUiState.Success
+
+                is com.jeong.runninggoaltracker.domain.model.AuthResult.Failure ->
+                    DeleteAccountUiState.Failure(result.error)
+            }
+            listOf(DeleteAccountUiState.Loading, finalState)
+        }
 }
