@@ -30,7 +30,6 @@ import androidx.compose.material3.TimeInput
 import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
@@ -72,7 +71,9 @@ fun ReminderRoute(
         onDeleteReminder = viewModel::deleteReminder,
         onToggleReminder = viewModel::updateEnabled,
         onUpdateTime = viewModel::updateTime,
-        onToggleDay = viewModel::toggleDay
+        onToggleDay = viewModel::toggleDay,
+        onOpenTimePicker = viewModel::openTimePicker,
+        onDismissTimePicker = viewModel::dismissTimePicker
     )
 }
 
@@ -83,7 +84,9 @@ private fun ReminderContent(
     onDeleteReminder: (Int) -> Unit,
     onToggleReminder: (Int, Boolean) -> Unit,
     onUpdateTime: (Int, Int, Int) -> Unit,
-    onToggleDay: (Int, Int) -> Unit
+    onToggleDay: (Int, Int) -> Unit,
+    onOpenTimePicker: (Int) -> Unit,
+    onDismissTimePicker: () -> Unit
 ) {
     val userMessageHandler = rememberUserMessageHandler()
     val timeFormatter = rememberReminderTimeFormatter()
@@ -96,6 +99,8 @@ private fun ReminderContent(
         onToggleReminder = onToggleReminder,
         onUpdateTime = onUpdateTime,
         onToggleDay = onToggleDay,
+        onOpenTimePicker = onOpenTimePicker,
+        onDismissTimePicker = onDismissTimePicker,
         messageHandler = userMessageHandler,
         timeFormatter = timeFormatter,
         daysOfWeekLabelProvider = daysOfWeekLabelProvider
@@ -110,6 +115,8 @@ fun ReminderScreen(
     onToggleReminder: (Int, Boolean) -> Unit,
     onUpdateTime: (Int, Int, Int) -> Unit,
     onToggleDay: (Int, Int) -> Unit,
+    onOpenTimePicker: (Int) -> Unit,
+    onDismissTimePicker: () -> Unit,
     messageHandler: UserMessageHandler,
     timeFormatter: ReminderTimeFormatter,
     daysOfWeekLabelProvider: DaysOfWeekLabelProvider
@@ -174,6 +181,9 @@ fun ReminderScreen(
                     onUpdateTime = onUpdateTime,
                     onToggleDay = onToggleDay,
                     onDeleteReminder = onDeleteReminder,
+                    onOpenTimePicker = onOpenTimePicker,
+                    onDismissTimePicker = onDismissTimePicker,
+                    isTimePickerVisible = state.activeTimePickerId == list[index].id,
                     messageHandler = messageHandler,
                     timeFormatter = timeFormatter,
                     daysOfWeekLabelProvider = daysOfWeekLabelProvider
@@ -191,6 +201,9 @@ private fun ReminderCard(
     onUpdateTime: (Int, Int, Int) -> Unit,
     onToggleDay: (Int, Int) -> Unit,
     onDeleteReminder: (Int) -> Unit,
+    onOpenTimePicker: (Int) -> Unit,
+    onDismissTimePicker: () -> Unit,
+    isTimePickerVisible: Boolean,
     messageHandler: UserMessageHandler,
     timeFormatter: ReminderTimeFormatter,
     daysOfWeekLabelProvider: DaysOfWeekLabelProvider
@@ -199,7 +212,6 @@ private fun ReminderCard(
     val surfaceColor = appSurfaceColor()
     val textMuted = appTextMutedColor()
     val textPrimary = appTextPrimaryColor()
-    val showTimePicker = remember { mutableStateOf(false) }
     val id = reminder.id
     val daysOfWeek = daysOfWeekLabelProvider.labels()
     val onDeleteReminderThrottled = rememberThrottleClick(onClick = { onDeleteReminder(id) })
@@ -238,7 +250,7 @@ private fun ReminderCard(
                             contentDescription = timePickerLabel
                             role = Role.Button
                         }
-                        .throttleClick { showTimePicker.value = true }
+                        .throttleClick { onOpenTimePicker(id) }
                 ) {
                     Text(
                         timeFormatter.periodLabel(reminder.hour),
@@ -303,15 +315,15 @@ private fun ReminderCard(
         }
     }
 
-    if (showTimePicker.value) {
+    if (isTimePickerVisible) {
         val timeState =
             rememberTimePickerState(initialHour = reminder.hour, initialMinute = reminder.minute)
         val onConfirmClick = rememberThrottleClick {
             onUpdateTime(id, timeState.hour, timeState.minute)
-            showTimePicker.value = false
+            onDismissTimePicker()
         }
         val onDismissClick = rememberThrottleClick {
-            showTimePicker.value = false
+            onDismissTimePicker()
         }
         AlertDialog(
             onDismissRequest = onDismissClick,
@@ -405,6 +417,8 @@ private fun ReminderScreenPreview() {
             onToggleReminder = { _, _ -> },
             onUpdateTime = { _, _, _ -> },
             onToggleDay = { _, _ -> },
+            onOpenTimePicker = {},
+            onDismissTimePicker = {},
             messageHandler = messageHandler,
             timeFormatter = timeFormatter,
             daysOfWeekLabelProvider = daysOfWeekLabelProvider

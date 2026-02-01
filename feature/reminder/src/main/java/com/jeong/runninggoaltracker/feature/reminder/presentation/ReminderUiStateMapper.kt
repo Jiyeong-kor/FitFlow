@@ -5,8 +5,14 @@ import javax.inject.Inject
 
 class ReminderUiStateMapper @Inject constructor() {
 
-    fun toListUiState(reminders: List<RunningReminder>): ReminderListUiState =
-        ReminderListUiState(reminders.mapNotNull { toUiStateOrNull(it) })
+    fun toListUiState(
+        reminders: List<RunningReminder>,
+        activeTimePickerId: Int?
+    ): ReminderListUiState =
+        ReminderListUiState(
+            reminders = reminders.mapNotNull { toUiStateOrNull(it) },
+            activeTimePickerId = activeTimePickerId
+        )
 
     fun toDomain(uiState: ReminderUiState): RunningReminder =
         RunningReminder(
