@@ -5,18 +5,22 @@ import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodDateCalculator
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodSummaryCalculator
+import com.jeong.runninggoaltracker.feature.home.domain.CalendarMonthState
+import com.jeong.runninggoaltracker.feature.home.domain.HomeCalendarCalculator
 import javax.inject.Inject
 
 class HomeUiStateMapper @Inject constructor(
     private val periodDateCalculator: RunningPeriodDateCalculator,
-    private val periodSummaryCalculator: RunningPeriodSummaryCalculator
+    private val periodSummaryCalculator: RunningPeriodSummaryCalculator,
+    private val calendarCalculator: HomeCalendarCalculator
 ) {
     fun map(
         summary: RunningSummary,
         records: List<RunningRecord>,
         period: PeriodState,
         selectedDateState: SelectedDateState,
-        isCalendarVisible: Boolean
+        isCalendarVisible: Boolean,
+        calendarMonthState: CalendarMonthState
     ): HomeUiState {
         val filteredRecords = periodDateCalculator.filterByPeriod(
             records = records,
@@ -28,6 +32,8 @@ class HomeUiStateMapper @Inject constructor(
             periodState = period,
             selectedDateState = selectedDateState,
             isCalendarVisible = isCalendarVisible,
+            calendarMonthState = calendarMonthState,
+            calendarDays = calendarCalculator.buildCalendarDays(calendarMonthState),
             summary = periodSummary.toUiState(),
             activityLogs = filteredRecords.map { record ->
                 HomeWorkoutLogUiModel(

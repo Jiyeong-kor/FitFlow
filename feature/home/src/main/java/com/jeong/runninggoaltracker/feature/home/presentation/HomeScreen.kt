@@ -44,10 +44,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -63,10 +60,13 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import com.jeong.runninggoaltracker.domain.contract.DateTimeContract
 import com.jeong.runninggoaltracker.domain.model.PeriodState
 import com.jeong.runninggoaltracker.feature.home.R
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION_LABEL
+import com.jeong.runninggoaltracker.feature.home.domain.CalendarDay
+import com.jeong.runninggoaltracker.feature.home.domain.CalendarMonthState
+import com.jeong.runninggoaltracker.feature.home.domain.HomeCalendarCalculator
+import com.jeong.runninggoaltracker.feature.home.domain.HomeDateRangeCalculator
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
@@ -114,6 +114,8 @@ fun HomeRoute(
         onDateSelected = viewModel::onDateSelected,
         onCalendarOpen = viewModel::onCalendarOpen,
         onCalendarDismiss = viewModel::onCalendarDismiss,
+        onCalendarPreviousMonth = viewModel::onPreviousCalendarMonth,
+        onCalendarNextMonth = viewModel::onNextCalendarMonth,
         onRecordClick = viewModel::onRecordClick,
         onGoalClick = viewModel::onGoalClick,
         onReminderClick = viewModel::onReminderClick
@@ -130,6 +132,8 @@ fun HomeScreen(
     onDateSelected: (Long) -> Unit,
     onCalendarOpen: () -> Unit,
     onCalendarDismiss: () -> Unit,
+    onCalendarPreviousMonth: () -> Unit,
+    onCalendarNextMonth: () -> Unit,
     onRecordClick: () -> Unit,
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
@@ -137,7 +141,10 @@ fun HomeScreen(
     val context = LocalContext.current
     val locale = LocalConfiguration.current.locales[0]
     val distanceFormatter = remember(locale) {
-        DistanceFormatter(localeProvider = { locale }, numberFormatFactory = NumberFormat::getNumberInstance)
+        DistanceFormatter(
+            localeProvider = { locale },
+            numberFormatFactory = NumberFormat::getNumberInstance
+        )
     }
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
@@ -164,11 +171,15 @@ fun HomeScreen(
     if (uiState.isCalendarVisible) {
         CalendarBottomSheet(
             selectedDateMillis = uiState.selectedDateState.dateMillis,
+            calendarMonthState = uiState.calendarMonthState,
+            calendarDays = uiState.calendarDays,
             onDateSelected = {
                 onDateSelected(it)
                 onCalendarDismiss()
             },
             onDismiss = onCalendarDismiss,
+            onPreviousMonth = onCalendarPreviousMonth,
+            onNextMonth = onCalendarNextMonth,
             sheetState = sheetState
         )
     }
@@ -591,8 +602,12 @@ private fun SectionHeader(
 @Composable
 private fun CalendarBottomSheet(
     selectedDateMillis: Long,
+    calendarMonthState: CalendarMonthState,
+    calendarDays: List<CalendarDay?>,
     onDateSelected: (Long) -> Unit,
     onDismiss: () -> Unit,
+    onPreviousMonth: () -> Unit,
+    onNextMonth: () -> Unit,
     sheetState: androidx.compose.material3.SheetState
 ) {
     val textPrimary = appTextPrimaryColor()
@@ -601,24 +616,8 @@ private fun CalendarBottomSheet(
     val onAccentColor = appOnAccentColor()
     val weightOne = integerResource(R.integer.home_weight_one).toFloat()
     val calendarColumnCount = integerResource(R.integer.home_calendar_column_count)
-    val initialMonth = remember(selectedDateMillis) { yearMonthFromMillis(selectedDateMillis) }
-    var visibleYear by rememberSaveable { mutableIntStateOf(initialMonth.year) }
-    var visibleMonth by rememberSaveable { mutableIntStateOf(initialMonth.month) }
-    val visibleState = YearMonthState(year = visibleYear, month = visibleMonth)
-    val onPreviousMonthClickThrottled = rememberThrottleClick(
-        onClick = {
-            val shifted = visibleState.copy(monthOffset = -1)
-            visibleYear = shifted.year
-            visibleMonth = shifted.month
-        }
-    )
-    val onNextMonthClickThrottled = rememberThrottleClick(
-        onClick = {
-            val shifted = visibleState.copy(monthOffset = 1)
-            visibleYear = shifted.year
-            visibleMonth = shifted.month
-        }
-    )
+    val onPreviousMonthClickThrottled = rememberThrottleClick(onClick = onPreviousMonth)
+    val onNextMonthClickThrottled = rememberThrottleClick(onClick = onNextMonth)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -647,7 +646,7 @@ private fun CalendarBottomSheet(
                     )
                 }
                 Text(
-                    text = yearMonthLabel(visibleState),
+                    text = yearMonthLabel(calendarMonthState),
                     color = textPrimary,
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
@@ -678,7 +677,6 @@ private fun CalendarBottomSheet(
                 }
             }
 
-            val calendarDays = visibleState.buildCalendarDays()
             LazyVerticalGrid(
                 columns = GridCells.Fixed(calendarColumnCount),
                 horizontalArrangement = Arrangement.spacedBy(appSpacingSm()),
@@ -780,7 +778,7 @@ private fun activityDateLabel(timestampMillis: Long): String {
 }
 
 @Composable
-private fun yearMonthLabel(state: YearMonthState): String {
+private fun yearMonthLabel(state: CalendarMonthState): String {
     val locale = Locale.getDefault()
     val monthPattern = stringResource(R.string.home_date_format_month)
     val formatter = remember(monthPattern, locale) { SimpleDateFormat(monthPattern, locale) }
@@ -791,21 +789,8 @@ private fun yearMonthLabel(state: YearMonthState): String {
     return formatter.format(calendar.timeInMillis)
 }
 
-private fun weekRange(selectedDateMillis: Long): Pair<Long, Long> {
-    val calendar = Calendar.getInstance().apply {
-        timeInMillis = selectedDateMillis
-        firstDayOfWeek = DateTimeContract.WEEK_START_DAY
-        set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }
-    val start = calendar.timeInMillis
-    calendar.add(Calendar.DAY_OF_YEAR, DateTimeContract.WEEK_END_OFFSET_DAYS)
-    val end = calendar.timeInMillis
-    return start to end
-}
+private fun weekRange(selectedDateMillis: Long): Pair<Long, Long> =
+    HomeDateRangeCalculator().weekRange(selectedDateMillis)
 
 private fun calendarDayOfWeekLabels(): List<Int> = listOf(
     R.string.home_day_of_week_sun,
@@ -817,81 +802,11 @@ private fun calendarDayOfWeekLabels(): List<Int> = listOf(
     R.string.home_day_of_week_sat
 )
 
-private data class YearMonthState(
-    val year: Int,
-    val month: Int
-) {
-    fun buildCalendarDays(): List<CalendarDay?> {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.YEAR, year)
-            set(Calendar.MONTH, month)
-            set(Calendar.DAY_OF_MONTH, 1)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        val daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH)
-        val firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK)
-        val offset =
-            (firstDayOfWeek - DateTimeContract.WEEK_START_DAY).let {
-                if (it < 0) it + DateTimeContract.DAYS_IN_WEEK else it
-            }
-        val totalCells = offset + daysInMonth
-        return buildList {
-            repeat(offset) { add(null) }
-            for (day in 1..daysInMonth) {
-                calendar.set(Calendar.DAY_OF_MONTH, day)
-                add(
-                    CalendarDay(
-                        dayOfMonth = day,
-                        timestampMillis = calendar.timeInMillis
-                    )
-                )
-            }
-            while (size < totalCells) {
-                add(null)
-            }
-        }
-    }
-
-    fun copy(monthOffset: Int): YearMonthState {
-        val calendar = Calendar.getInstance().apply {
-            set(Calendar.YEAR, year)
-            set(Calendar.MONTH, month)
-            add(Calendar.MONTH, monthOffset)
-        }
-        return YearMonthState(
-            year = calendar.get(Calendar.YEAR),
-            month = calendar.get(Calendar.MONTH)
-        )
-    }
-}
-
-private data class CalendarDay(
-    val dayOfMonth: Int,
-    val timestampMillis: Long
-) {
-    fun isSameDay(otherMillis: Long): Boolean =
-        Calendar.getInstance().apply { timeInMillis = timestampMillis }
-            .let { calendar ->
-                val other = Calendar.getInstance().apply { timeInMillis = otherMillis }
-                calendar.get(Calendar.YEAR) == other.get(Calendar.YEAR) &&
-                        calendar.get(Calendar.DAY_OF_YEAR) == other.get(Calendar.DAY_OF_YEAR)
-            }
-}
-
-private fun yearMonthFromMillis(dateMillis: Long): YearMonthState {
-    val calendar = Calendar.getInstance().apply { timeInMillis = dateMillis }
-    return YearMonthState(
-        year = calendar.get(Calendar.YEAR),
-        month = calendar.get(Calendar.MONTH)
-    )
-}
 
 @Preview(showBackground = true)
 @Composable
 private fun HomeScreenPreview() {
+    val calendarCalculator = remember { HomeCalendarCalculator() }
     val distanceScale = integerResource(R.integer.home_preview_distance_scale_tenths).toDouble()
     val totalDistance =
         integerResource(R.integer.home_preview_total_distance_tenths).toDouble() / distanceScale
@@ -902,9 +817,12 @@ private fun HomeScreenPreview() {
     val dayMillis = integerResource(R.integer.home_preview_day_millis).toLong()
     val epochDays = integerResource(R.integer.home_preview_epoch_days).toLong()
     val baseMillis = epochDays * dayMillis
+    val calendarMonthState = calendarCalculator.monthStateFromMillis(baseMillis)
     val uiState = HomeUiState(
         periodState = PeriodState.WEEKLY,
         selectedDateState = SelectedDateState(dateMillis = baseMillis),
+        calendarMonthState = calendarMonthState,
+        calendarDays = calendarCalculator.buildCalendarDays(calendarMonthState),
         summary = HomeSummaryUiState(
             totalDistanceKm = totalDistance,
             totalCalories = integerResource(R.integer.home_preview_total_calories),
@@ -948,6 +866,8 @@ private fun HomeScreenPreview() {
             onDateSelected = {},
             onCalendarOpen = {},
             onCalendarDismiss = {},
+            onCalendarPreviousMonth = {},
+            onCalendarNextMonth = {},
             onRecordClick = {},
             onGoalClick = {},
             onReminderClick = {}
