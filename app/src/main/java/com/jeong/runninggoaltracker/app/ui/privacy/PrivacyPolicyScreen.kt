@@ -18,7 +18,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
@@ -144,10 +143,10 @@ private fun PrivacyPolicyWebView(
     webViewDescription: String,
     modifier: Modifier = Modifier
 ) {
-    val webViewHolder = remember { mutableStateOf<WebView?>(null) }
+    val webViewHolder = remember { WebViewHolder() }
 
     BackHandler {
-        val webView = webViewHolder.value
+        val webView = webViewHolder.webView
         if (webView?.canGoBack() == true) {
             webView.goBack()
         } else {
@@ -157,7 +156,7 @@ private fun PrivacyPolicyWebView(
 
     DisposableEffect(Unit) {
         onDispose {
-            webViewHolder.value?.apply {
+            webViewHolder.webView?.apply {
                 stopLoading()
                 webViewClient = WebViewClient()
                 (parent as? ViewGroup)?.removeView(this)
@@ -170,7 +169,7 @@ private fun PrivacyPolicyWebView(
         modifier = modifier.semantics { contentDescription = webViewDescription },
         factory = { context ->
             WebView(context).apply {
-                webViewHolder.value = this
+                webViewHolder.webView = this
                 settings.javaScriptEnabled = false
                 webViewClient = object : WebViewClient() {
                     override fun onPageStarted(
@@ -217,4 +216,8 @@ private fun PrivacyPolicyWebView(
             }
         }
     )
+}
+
+private class WebViewHolder {
+    var webView: WebView? = null
 }

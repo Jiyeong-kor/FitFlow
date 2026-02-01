@@ -16,35 +16,50 @@ data class PrivacyPolicyUiState(
 )
 
 @HiltViewModel
-class PrivacyPolicyViewModel @Inject constructor() : ViewModel() {
+class PrivacyPolicyViewModel @Inject constructor(
+    private val reducer: PrivacyPolicyUiStateReducer
+) : ViewModel() {
     private val _uiState = MutableStateFlow(PrivacyPolicyUiState())
     val uiState: StateFlow<PrivacyPolicyUiState> = _uiState.asStateFlow()
 
     fun onRetry() {
-        _uiState.update { current ->
-            current.copy(
-                hasError = false,
-                isLoading = true,
-                reloadToken = current.reloadToken + 1
-            )
-        }
+        _uiState.update { current -> reducer.onRetry(current) }
     }
 
     fun onLoadStarted() {
-        _uiState.update { it.copy(isLoading = true, hasError = false) }
+        _uiState.update { current -> reducer.onLoadStarted(current) }
     }
 
     fun onLoadFinished() {
-        _uiState.update { it.copy(isLoading = false) }
+        _uiState.update { current -> reducer.onLoadFinished(current) }
     }
 
     fun onLoadError() {
-        _uiState.update { it.copy(isLoading = false, hasError = true) }
+        _uiState.update { current -> reducer.onLoadError(current) }
     }
 
     fun onReloadHandled() {
-        _uiState.update { current ->
-            current.copy(lastHandledReloadToken = current.reloadToken)
-        }
+        _uiState.update { current -> reducer.onReloadHandled(current) }
     }
+}
+
+class PrivacyPolicyUiStateReducer @Inject constructor() {
+    fun onRetry(current: PrivacyPolicyUiState): PrivacyPolicyUiState =
+        current.copy(
+            hasError = false,
+            isLoading = true,
+            reloadToken = current.reloadToken + 1
+        )
+
+    fun onLoadStarted(current: PrivacyPolicyUiState): PrivacyPolicyUiState =
+        current.copy(isLoading = true, hasError = false)
+
+    fun onLoadFinished(current: PrivacyPolicyUiState): PrivacyPolicyUiState =
+        current.copy(isLoading = false)
+
+    fun onLoadError(current: PrivacyPolicyUiState): PrivacyPolicyUiState =
+        current.copy(isLoading = false, hasError = true)
+
+    fun onReloadHandled(current: PrivacyPolicyUiState): PrivacyPolicyUiState =
+        current.copy(lastHandledReloadToken = current.reloadToken)
 }
