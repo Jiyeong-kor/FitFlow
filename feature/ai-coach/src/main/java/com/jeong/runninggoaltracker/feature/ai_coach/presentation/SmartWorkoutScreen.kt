@@ -30,7 +30,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -716,11 +715,11 @@ private fun CameraPreview(
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }
     val executor = remember { Executors.newSingleThreadExecutor() }
-    val cameraProviderState = remember { mutableStateOf<ProcessCameraProvider?>(null) }
+    val cameraProviderHolder = remember { CameraProviderHolder() }
 
     LaunchedEffect(imageAnalyzer) {
         val cameraProvider = context.awaitCameraProvider()
-        cameraProviderState.value = cameraProvider
+        cameraProviderHolder.cameraProvider = cameraProvider
         val preview = CameraPreview.Builder().build().also {
             it.surfaceProvider = previewView.surfaceProvider
         }
@@ -741,7 +740,7 @@ private fun CameraPreview(
     }
     DisposableEffect(lifecycleOwner) {
         onDispose {
-            cameraProviderState.value?.unbindAll()
+            cameraProviderHolder.cameraProvider?.unbindAll()
             executor.shutdown()
         }
     }
@@ -821,6 +820,10 @@ private fun SkeletonOverlay(
             )
         }
     }
+}
+
+private class CameraProviderHolder {
+    var cameraProvider: ProcessCameraProvider? = null
 }
 
 @Composable
