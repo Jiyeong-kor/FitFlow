@@ -6,16 +6,15 @@ val localProperties = Properties().apply {
     if (f.exists()) f.inputStream().use { load(it) }
 }
 
-val debugStorePassword: String =
-    localProperties.getProperty("DEBUG_STORE_PASSWORD")
-        ?: error("local.properties에 DEBUG_STORE_PASSWORD가 없습니다.")
-
-val debugKeyPassword: String =
-    localProperties.getProperty("DEBUG_KEY_PASSWORD")
-        ?: error("local.properties에 DEBUG_KEY_PASSWORD가 없습니다.")
-
-val debugKeyAlias: String =
-    localProperties.getProperty("DEBUG_KEY_ALIAS") ?: "debugkey"
+val debugStorePassword: String? = localProperties.getProperty("DEBUG_STORE_PASSWORD")
+val debugKeyPassword: String? = localProperties.getProperty("DEBUG_KEY_PASSWORD")
+val debugKeyAlias: String? = localProperties.getProperty("DEBUG_KEY_ALIAS")
+val debugStoreFile = rootProject.file("debug-custom.keystore")
+val useCustomDebugSigning: Boolean =
+    debugStoreFile.exists() &&
+        !debugStorePassword.isNullOrBlank() &&
+        !debugKeyPassword.isNullOrBlank() &&
+        !debugKeyAlias.isNullOrBlank()
 
 val kakaoNativeAppKey: String =
     localProperties.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""
@@ -42,10 +41,12 @@ android {
 
     signingConfigs {
         getByName("debug") {
-            storeFile = file("debug-custom.keystore")
-            storePassword = debugStorePassword
-            keyAlias = debugKeyAlias
-            keyPassword = debugKeyPassword
+            if (useCustomDebugSigning) {
+                storeFile = debugStoreFile
+                storePassword = debugStorePassword
+                keyAlias = debugKeyAlias
+                keyPassword = debugKeyPassword
+            }
         }
     }
 
