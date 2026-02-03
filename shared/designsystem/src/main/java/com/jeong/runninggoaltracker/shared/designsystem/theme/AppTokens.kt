@@ -2,10 +2,8 @@ package com.jeong.runninggoaltracker.shared.designsystem.theme
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.unit.Dp
-import com.jeong.runninggoaltracker.shared.designsystem.R
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
 
 @Composable
 fun appAccentColor(): Color = MaterialTheme.colorScheme.primary
@@ -26,16 +24,16 @@ fun appTextPrimaryColor(): Color = MaterialTheme.colorScheme.onSurface
 fun appTextMutedColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
-fun appSpacingSm(): Dp = dimensionResource(R.dimen.spacing_sm)
+fun appSpacingSm(): Dp = LocalAppDimensions.current.spacingSm
 
 @Composable
-fun appSpacingMd(): Dp = dimensionResource(R.dimen.spacing_md)
+fun appSpacingMd(): Dp = LocalAppDimensions.current.spacingMd
 
 @Composable
-fun appSpacingLg(): Dp = dimensionResource(R.dimen.spacing_lg)
+fun appSpacingLg(): Dp = LocalAppDimensions.current.spacingLg
 
 @Composable
-fun appSpacingXl(): Dp = dimensionResource(R.dimen.spacing_xl)
+fun appSpacingXl(): Dp = LocalAppDimensions.current.spacingXl
 
 @Composable
-fun appSpacing2xl(): Dp = dimensionResource(R.dimen.spacing_2xl)
+fun appSpacing2xl(): Dp = LocalAppDimensions.current.spacing2xl
