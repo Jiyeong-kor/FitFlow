@@ -31,12 +31,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import com.jeong.runninggoaltracker.feature.auth.R
+import com.jeong.runninggoaltracker.feature.auth.contract.ONBOARDING_WEIGHT_ONE
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
@@ -211,7 +211,7 @@ private fun PermissionRow(
 ) {
     val dimensions = LocalAppDimensions.current
     val appShapes = LocalAppShapes.current
-    val weightOne = integerResource(id = R.integer.permission_weight_one).toFloat()
+    val weightOne = ONBOARDING_WEIGHT_ONE
 
     Row(
         modifier = modifier,
@@ -266,7 +266,7 @@ private fun SuccessScreen(
     modifier: Modifier = Modifier
 ) {
     val dimensions = LocalAppDimensions.current
-    val weightOne = integerResource(id = R.integer.permission_weight_one).toFloat()
+    val weightOne = ONBOARDING_WEIGHT_ONE
     val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
 
     Column(

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
@@ -25,12 +24,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -39,17 +33,25 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.goal.R
+import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_PREVIEW_WEEKLY_GOAL_SCALE_TENTHS
+import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_PREVIEW_WEEKLY_GOAL_TENTHS
 import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_MIN_KM
 import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_PRESET_BASIC_FITNESS_KM
 import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_PRESET_HEALTH_MAINTAIN_KM
 import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_PRESET_LIGHT_WALK_KM
 import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_STEP_KM
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.feature.goal.contract.GOAL_WEIGHT_FULL
+import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppTypographyTokens
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -70,14 +72,16 @@ fun GoalScreen(
     val goalDistance = state.weeklyGoalKmInput
         ?: state.currentGoalKm
         ?: GOAL_MIN_KM
-    val context = LocalContext.current
     val locale = LocalConfiguration.current.locales[0]
     val distanceFormatter = remember(locale) {
-        DistanceFormatter(localeProvider = { locale }, numberFormatFactory = NumberFormat::getNumberInstance)
+        DistanceFormatter(
+            localeProvider = { locale },
+            numberFormatFactory = NumberFormat::getNumberInstance
+        )
     }
     val goalDistanceLabel = distanceFormatter.formatDistanceKm(
         distanceKm = goalDistance,
-        fractionDigits = NumericResourceProvider.distanceFractionDigits(context)
+        fractionDigits = AppNumericTokens.distanceFractionDigits
     )
 
     val onSaveThrottled = rememberThrottleClick(onClick = onSave)
@@ -91,37 +95,22 @@ fun GoalScreen(
     }
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
+    val surfaceColor = appSurfaceColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
-    val screenPadding = dimensionResource(R.dimen.goal_screen_padding)
-    val titleTopSpacing = dimensionResource(R.dimen.goal_title_top_spacing)
-    val titleBottomSpacing = dimensionResource(R.dimen.goal_title_bottom_spacing)
-    val adjustButtonSpacing = dimensionResource(R.dimen.goal_adjust_button_spacing)
-    val errorSpacing = dimensionResource(R.dimen.goal_error_spacing)
-    val presetSectionTopSpacing = dimensionResource(R.dimen.goal_preset_section_top_spacing)
-    val presetSectionBottomSpacing = dimensionResource(R.dimen.goal_preset_section_bottom_spacing)
-    val presetItemSpacing = dimensionResource(R.dimen.goal_preset_item_spacing)
-    val saveButtonHeight = dimensionResource(R.dimen.goal_save_button_height)
-    val saveButtonCornerRadius = dimensionResource(R.dimen.goal_save_button_corner_radius)
-    val titleTextSize = with(LocalDensity.current) {
-        dimensionResource(R.dimen.goal_text_size_title).toSp()
-    }
-    val valueTextSize = with(LocalDensity.current) {
-        dimensionResource(R.dimen.goal_text_size_value).toSp()
-    }
-    val unitTextSize = with(LocalDensity.current) {
-        dimensionResource(R.dimen.goal_text_size_unit).toSp()
-    }
-    val errorTextSize = with(LocalDensity.current) {
-        dimensionResource(R.dimen.goal_text_size_error).toSp()
-    }
-    val sectionTextSize = with(LocalDensity.current) {
-        dimensionResource(R.dimen.goal_text_size_section).toSp()
-    }
-    val buttonTextSize = with(LocalDensity.current) {
-        dimensionResource(R.dimen.goal_text_size_button).toSp()
-    }
-    val fillWeight = integerResource(R.integer.goal_weight_full).toFloat()
+    val dimensions = LocalAppDimensions.current
+    val shapes = LocalAppShapes.current
+    val typographyTokens = LocalAppTypographyTokens.current
+    val screenPadding = dimensions.goalScreenPadding
+    val titleTopSpacing = dimensions.goalTitleTopSpacing
+    val titleBottomSpacing = dimensions.goalTitleBottomSpacing
+    val adjustButtonSpacing = dimensions.goalAdjustButtonSpacing
+    val errorSpacing = dimensions.goalErrorSpacing
+    val presetSectionTopSpacing = dimensions.goalPresetSectionTopSpacing
+    val presetSectionBottomSpacing = dimensions.goalPresetSectionBottomSpacing
+    val presetItemSpacing = dimensions.goalPresetItemSpacing
+    val saveButtonHeight = dimensions.goalSaveButtonHeight
+    val fillWeight = GOAL_WEIGHT_FULL
 
     Column(
         modifier = Modifier
@@ -135,7 +124,7 @@ fun GoalScreen(
         Text(
             stringResource(R.string.goal_title_weekly_distance),
             color = textMuted,
-            fontSize = titleTextSize
+            style = MaterialTheme.typography.bodyLarge
         )
 
         Spacer(modifier = Modifier.height(titleBottomSpacing))
@@ -154,13 +143,13 @@ fun GoalScreen(
                 Text(
                     text = goalDistanceLabel,
                     color = textPrimary,
-                    fontSize = valueTextSize,
+                    style = typographyTokens.displayLarge,
                     fontWeight = FontWeight.Black
                 )
                 Text(
                     stringResource(R.string.goal_unit_km),
                     color = accentColor,
-                    fontSize = unitTextSize,
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
             }
@@ -177,7 +166,7 @@ fun GoalScreen(
             Text(
                 text = errorText,
                 color = MaterialTheme.colorScheme.error,
-                fontSize = errorTextSize,
+                style = MaterialTheme.typography.labelSmall,
                 fontWeight = FontWeight.Medium
             )
         }
@@ -188,7 +177,7 @@ fun GoalScreen(
             stringResource(R.string.goal_preset_section_title),
             modifier = Modifier.align(Alignment.Start),
             color = textMuted,
-            fontSize = sectionTextSize,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold
         )
 
@@ -215,11 +204,11 @@ fun GoalScreen(
                 .fillMaxWidth()
                 .height(saveButtonHeight),
             colors = ButtonDefaults.buttonColors(containerColor = accentColor),
-            shape = RoundedCornerShape(saveButtonCornerRadius)
+            shape = shapes.roundedLg
         ) {
             Text(
                 stringResource(R.string.goal_save_button),
-                fontSize = buttonTextSize,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -234,10 +223,12 @@ private fun GoalAdjustButton(
 ) {
     val textPrimary = appTextPrimaryColor()
     val onClickThrottled = rememberThrottleClick(onClick = onClick)
-    val buttonSize = dimensionResource(R.dimen.goal_adjust_button_size)
-    val borderWidth = dimensionResource(R.dimen.goal_adjust_button_border_width)
-    val alphaBase = integerResource(R.integer.goal_alpha_base_percent).toFloat()
-    val borderAlpha = integerResource(R.integer.goal_alpha_border_percent).toFloat() / alphaBase
+    val dimensions = LocalAppDimensions.current
+    val alphas = LocalAppAlphas.current
+    val buttonSize = dimensions.goalAdjustButtonSize
+    val borderWidth = dimensions.goalAdjustButtonBorderWidth
+    val borderAlpha = alphas.goalBorder
+    val transparentAlpha = alphas.transparent
 
     Surface(
         onClick = onClickThrottled,
@@ -245,10 +236,10 @@ private fun GoalAdjustButton(
             .size(buttonSize)
             .semantics { role = Role.Button },
         shape = CircleShape,
-        color = Color.Transparent,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = transparentAlpha),
         border = androidx.compose.foundation.BorderStroke(
             borderWidth,
-            Color.White.copy(alpha = borderAlpha)
+            textPrimary.copy(alpha = borderAlpha)
         )
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -260,18 +251,15 @@ private fun GoalAdjustButton(
 @Composable
 private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) {
     val accentColor = appAccentColor()
+    val surfaceColor = appSurfaceColor()
     val textPrimary = appTextPrimaryColor()
-    val cornerRadius = dimensionResource(R.dimen.goal_preset_card_corner_radius)
-    val borderWidth = dimensionResource(R.dimen.goal_preset_card_border_width)
-    val padding = dimensionResource(R.dimen.goal_preset_card_padding)
-    val alphaBase = integerResource(R.integer.goal_alpha_base_percent).toFloat()
-    val selectedAlpha = integerResource(R.integer.goal_alpha_selected_background_percent)
-        .toFloat() / alphaBase
-    val unselectedAlpha = integerResource(R.integer.goal_alpha_unselected_background_percent)
-        .toFloat() / alphaBase
-    val labelTextSize = with(LocalDensity.current) {
-        dimensionResource(R.dimen.goal_text_size_section).toSp()
-    }
+    val dimensions = LocalAppDimensions.current
+    val shapes = LocalAppShapes.current
+    val alphas = LocalAppAlphas.current
+    val borderWidth = dimensions.goalPresetCardBorderWidth
+    val padding = dimensions.goalPresetCardPadding
+    val selectedAlpha = alphas.goalSelectedBackground
+    val unselectedAlpha = alphas.goalUnselectedBackground
 
     Surface(
         modifier = Modifier
@@ -281,11 +269,11 @@ private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) 
                 selected = isSelected
             }
             .throttleClick(onClick = onClick),
-        shape = RoundedCornerShape(cornerRadius),
+        shape = shapes.roundedMd,
         color = if (isSelected) {
             accentColor.copy(alpha = selectedAlpha)
         } else {
-            Color.White.copy(alpha = unselectedAlpha)
+            surfaceColor.copy(alpha = unselectedAlpha)
         },
         border = if (isSelected) androidx.compose.foundation.BorderStroke(
             borderWidth,
@@ -296,7 +284,7 @@ private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) 
             label,
             modifier = Modifier.padding(padding),
             color = if (isSelected) accentColor else textPrimary,
-            fontSize = labelTextSize,
+            style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Medium
         )
     }
@@ -305,9 +293,9 @@ private fun PresetCard(label: String, isSelected: Boolean, onClick: () -> Unit) 
 @Preview(showBackground = true)
 @Composable
 private fun GoalScreenPreview() {
-    val previewScale = integerResource(R.integer.goal_preview_weekly_goal_scale_tenths).toDouble()
+    val previewScale = GOAL_PREVIEW_WEEKLY_GOAL_SCALE_TENTHS
     val previewGoalKm =
-        integerResource(R.integer.goal_preview_weekly_goal_tenths).toDouble() / previewScale
+        GOAL_PREVIEW_WEEKLY_GOAL_TENTHS.toDouble() / previewScale
     val state = GoalUiState(
         currentGoalKm = previewGoalKm,
         weeklyGoalKmInput = previewGoalKm,

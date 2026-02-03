@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.jeong.runninggoaltracker.feature.ai_coach.contract.SMART_WORKOUT_FEEDBACK_COOLDOWN_MS
 
 @Composable
 fun SmartWorkoutRoute(
@@ -18,9 +19,7 @@ fun SmartWorkoutRoute(
     viewModel: AiCoachViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val cooldownMs = androidx.compose.ui.res.integerResource(
-        com.jeong.runninggoaltracker.feature.ai_coach.R.integer.smart_workout_feedback_cooldown_ms
-    ).toLong()
+    val cooldownMs = SMART_WORKOUT_FEEDBACK_COOLDOWN_MS
     val lifecycleOwner = LocalLifecycleOwner.current
     val onBackClick = {
         viewModel.persistWorkoutRepCount()

@@ -1,0 +1,10 @@
+package com.jeong.runninggoaltracker.feature.mypage.contract
+
+const val MYPAGE_ZERO_INT = 0
+const val MYPAGE_WEIGHT_ONE = 1f
+const val MYPAGE_PERCENT_BASE = 100f
+const val MYPAGE_DISTANCE_SCALE_TENTHS = 10.0
+const val MYPAGE_PREVIEW_WEEKLY_GOAL_KM_TENTHS = 150
+const val MYPAGE_PREVIEW_TOTAL_WEEK_KM_TENTHS = 95
+const val MYPAGE_PREVIEW_RECORD_COUNT = 3
+const val MYPAGE_PREVIEW_PROGRESS_PERCENT = 63

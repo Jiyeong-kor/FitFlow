@@ -38,8 +38,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -50,14 +48,23 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
 import com.jeong.runninggoaltracker.feature.mypage.R
+import com.jeong.runninggoaltracker.feature.mypage.contract.MYPAGE_DISTANCE_SCALE_TENTHS
+import com.jeong.runninggoaltracker.feature.mypage.contract.MYPAGE_PERCENT_BASE
+import com.jeong.runninggoaltracker.feature.mypage.contract.MYPAGE_PREVIEW_PROGRESS_PERCENT
+import com.jeong.runninggoaltracker.feature.mypage.contract.MYPAGE_PREVIEW_RECORD_COUNT
+import com.jeong.runninggoaltracker.feature.mypage.contract.MYPAGE_PREVIEW_TOTAL_WEEK_KM_TENTHS
+import com.jeong.runninggoaltracker.feature.mypage.contract.MYPAGE_PREVIEW_WEEKLY_GOAL_KM_TENTHS
+import com.jeong.runninggoaltracker.feature.mypage.contract.MYPAGE_WEIGHT_ONE
+import com.jeong.runninggoaltracker.feature.mypage.contract.MYPAGE_ZERO_INT
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppProgressBar
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.PercentageFormatter
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
@@ -104,6 +111,7 @@ private fun MyPageContent(
     onDeleteAccountDialogDismiss: () -> Unit,
     onDeleteAccountStateConsumed: () -> Unit
 ) {
+    val dimensions = LocalAppDimensions.current
     val openDeleteDialog = rememberThrottleClick(onClick = onDeleteAccountClick)
     val closeDeleteDialog = rememberThrottleClick(onClick = onDeleteAccountDialogDismiss)
     val confirmDeleteDialog = rememberThrottleClick(
@@ -186,10 +194,10 @@ private fun MyPageContent(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
                 .verticalScroll(rememberScrollState())
-                .padding(dimensionResource(id = R.dimen.mypage_screen_padding)),
+                .padding(dimensions.myPageScreenPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(
-                dimensionResource(id = R.dimen.mypage_section_spacing)
+                dimensions.myPageSectionSpacing
             )
         ) {
             ProfileSection(uiState.userNickname, uiState.userLevel, uiState.isAnonymous)
@@ -232,6 +240,7 @@ private fun MyPageContent(
 
 @Composable
 private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) {
+    val dimensions = LocalAppDimensions.current
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         val displayName = if (name.isNullOrBlank()) {
             stringResource(id = R.string.mypage_default_nickname)
@@ -244,14 +253,14 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
             level
         }
         Surface(
-            modifier = Modifier.size(dimensionResource(id = R.dimen.mypage_profile_size)),
+            modifier = Modifier.size(dimensions.myPageProfileSize),
             shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.primaryContainer
         ) {
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = null,
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_profile_icon_padding)),
+                modifier = Modifier.padding(dimensions.myPageProfileIconPadding),
                 tint = MaterialTheme.colorScheme.primary
             )
         }
@@ -288,8 +297,8 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
             Text(
                 text = displayLevel,
                 modifier = Modifier.padding(
-                    horizontal = dimensionResource(id = R.dimen.mypage_level_badge_horizontal_padding),
-                    vertical = dimensionResource(id = R.dimen.mypage_level_badge_vertical_padding)
+                    horizontal = dimensions.myPageLevelBadgeHorizontalPadding,
+                    vertical = dimensions.myPageLevelBadgeVerticalPadding
                 ),
                 style = MaterialTheme.typography.labelSmall
             )
@@ -299,15 +308,16 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
 
 @Composable
 private fun SummaryStats(uiState: MyPageUiState) {
-    val zeroInt = integerResource(id = R.integer.mypage_numeric_zero)
+    val dimensions = LocalAppDimensions.current
+    val zeroInt = MYPAGE_ZERO_INT
     val zeroDouble = zeroInt.toDouble()
     val zeroFloat = zeroInt.toFloat()
-    val weightOne = integerResource(id = R.integer.mypage_weight_one).toFloat()
+    val weightOne = MYPAGE_WEIGHT_ONE
     val locale = LocalConfiguration.current.locales[0]
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(
-            dimensionResource(id = R.dimen.mypage_summary_spacing)
+            dimensions.myPageSummarySpacing
         )
     ) {
         val context = LocalContext.current
@@ -323,9 +333,9 @@ private fun SummaryStats(uiState: MyPageUiState) {
                 numberFormatFactory = NumberFormat::getNumberInstance
             )
         }
-        val distanceFractionDigits = NumericResourceProvider.distanceFractionDigits(context)
-        val percentageFractionDigits = NumericResourceProvider.percentageFractionDigits(context)
-        val percentageScale = NumericResourceProvider.percentageScale(context)
+        val distanceFractionDigits = AppNumericTokens.distanceFractionDigits
+        val percentageFractionDigits = AppNumericTokens.percentageFractionDigits
+        val percentageScale = AppNumericTokens.percentageScale
         val distanceText =
             distanceFormatter.formatDistanceKm(
                 distanceKm = uiState.summary?.totalThisWeekKm ?: zeroDouble,
@@ -360,10 +370,11 @@ private fun SummaryStats(uiState: MyPageUiState) {
 
 @Composable
 private fun StatItem(label: String, value: String, modifier: Modifier = Modifier) {
+    val dimensions = LocalAppDimensions.current
     AppContentCard(modifier = modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_stat_item_padding))
+            modifier = Modifier.padding(dimensions.myPageStatItemPadding)
         ) {
             Text(
                 text = label,
@@ -382,10 +393,11 @@ private fun StatItem(label: String, value: String, modifier: Modifier = Modifier
 @Composable
 private fun GoalProgressCard(uiState: MyPageUiState, onClick: () -> Unit) {
     val throttledOnClick = rememberThrottleClick(onClick = onClick)
-    val zeroFloat = integerResource(id = R.integer.mypage_numeric_zero).toFloat()
-    val weightOne = integerResource(id = R.integer.mypage_weight_one).toFloat()
+    val dimensions = LocalAppDimensions.current
+    val zeroFloat = MYPAGE_ZERO_INT.toFloat()
+    val weightOne = MYPAGE_WEIGHT_ONE
     AppContentCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_goal_card_padding))) {
+        Column(modifier = Modifier.padding(dimensions.myPageGoalCardPadding)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(id = R.string.mypage_goal_progress_title),
@@ -399,7 +411,7 @@ private fun GoalProgressCard(uiState: MyPageUiState, onClick: () -> Unit) {
             AppProgressBar(
                 progress = uiState.summary?.progress ?: zeroFloat,
                 modifier = Modifier.fillMaxWidth(),
-                height = dimensionResource(id = R.dimen.mypage_progress_height)
+                height = dimensions.myPageProgressHeight
             )
         }
     }
@@ -414,6 +426,7 @@ private fun SettingsList(
     onActivityToggle: (Boolean) -> Unit,
     onDeleteAccount: () -> Unit
 ) {
+    val dimensions = LocalAppDimensions.current
     AppContentCard(modifier = Modifier.fillMaxWidth()) {
         Column {
             val activityToggleLabel = stringResource(id = R.string.mypage_setting_activity_toggle)
@@ -425,7 +438,7 @@ private fun SettingsList(
             )
             HorizontalDivider(
                 modifier = Modifier.padding(
-                    horizontal = dimensionResource(id = R.dimen.mypage_divider_horizontal_padding)
+                    horizontal = dimensions.myPageDividerHorizontalPadding
                 ),
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
@@ -437,7 +450,7 @@ private fun SettingsList(
             )
             HorizontalDivider(
                 modifier = Modifier.padding(
-                    horizontal = dimensionResource(id = R.dimen.mypage_divider_horizontal_padding)
+                    horizontal = dimensions.myPageDividerHorizontalPadding
                 ),
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
@@ -449,19 +462,19 @@ private fun SettingsList(
             )
             HorizontalDivider(
                 modifier = Modifier.padding(
-                    horizontal = dimensionResource(id = R.dimen.mypage_divider_horizontal_padding)
+                    horizontal = dimensions.myPageDividerHorizontalPadding
                 ),
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
             Row(
-                modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_setting_row_padding)),
+                modifier = Modifier.padding(dimensions.myPageSettingRowPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(Icons.Default.Refresh, null, tint = MaterialTheme.colorScheme.primary)
                 Column(
                     modifier = Modifier
-                        .padding(start = dimensionResource(id = R.dimen.mypage_setting_title_spacing))
-                        .weight(integerResource(id = R.integer.mypage_weight_one).toFloat())
+                        .padding(start = dimensions.myPageSettingTitleSpacing)
+                        .weight(MYPAGE_WEIGHT_ONE)
                 ) {
                     Text(
                         text = stringResource(id = R.string.mypage_setting_activity_title),
@@ -499,7 +512,8 @@ private fun SettingsList(
 
 @Composable
 private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onClick: () -> Unit) {
-    val weightOne = integerResource(id = R.integer.mypage_weight_one).toFloat()
+    val dimensions = LocalAppDimensions.current
+    val weightOne = MYPAGE_WEIGHT_ONE
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -507,11 +521,11 @@ private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onCl
             .throttleClick(onClick = onClick)
     ) {
         Row(
-            modifier = Modifier.padding(dimensionResource(id = R.dimen.mypage_setting_row_padding)),
+            modifier = Modifier.padding(dimensions.myPageSettingRowPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
-            Column(modifier = Modifier.padding(start = dimensionResource(id = R.dimen.mypage_setting_title_spacing))) {
+            Column(modifier = Modifier.padding(start = dimensions.myPageSettingTitleSpacing)) {
                 Text(title, style = MaterialTheme.typography.bodyLarge)
                 Text(
                     subTitle,
@@ -535,23 +549,21 @@ private fun MyPageScreenPreview() =
     RunningGoalTrackerTheme {
         val previewNickname = stringResource(id = R.string.mypage_default_nickname)
         val previewLevel = stringResource(id = R.string.mypage_default_level)
-        val distanceScale = integerResource(id = R.integer.mypage_distance_scale_tenths).toDouble()
-        val progressBase = integerResource(id = R.integer.mypage_percent_base).toFloat()
-        val weeklyGoalKm = integerResource(id = R.integer.mypage_preview_weekly_goal_km_tenths)
-            .toDouble() / distanceScale
+        val distanceScale = MYPAGE_DISTANCE_SCALE_TENTHS
+        val progressBase = MYPAGE_PERCENT_BASE
+        val weeklyGoalKm =
+            MYPAGE_PREVIEW_WEEKLY_GOAL_KM_TENTHS.toDouble() / distanceScale
         val totalThisWeekKm =
-            integerResource(id = R.integer.mypage_preview_total_week_km_tenths).toDouble() /
-                    distanceScale
+            MYPAGE_PREVIEW_TOTAL_WEEK_KM_TENTHS.toDouble() / distanceScale
         val progress =
-            integerResource(id = R.integer.mypage_preview_progress_percent).toFloat() / progressBase
+            MYPAGE_PREVIEW_PROGRESS_PERCENT.toFloat() / progressBase
         MyPageContent(
             uiState = MyPageUiState(
                 isLoading = false,
                 summary = RunningSummary(
                     weeklyGoalKm = weeklyGoalKm,
                     totalThisWeekKm = totalThisWeekKm,
-                    recordCountThisWeek =
-                        integerResource(id = R.integer.mypage_preview_record_count),
+                    recordCountThisWeek = MYPAGE_PREVIEW_RECORD_COUNT,
                     progress = progress
                 ),
                 userNickname = previewNickname,

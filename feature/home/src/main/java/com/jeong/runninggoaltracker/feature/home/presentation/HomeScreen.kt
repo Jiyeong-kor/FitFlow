@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
@@ -46,9 +45,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -59,15 +55,34 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.domain.model.PeriodState
 import com.jeong.runninggoaltracker.feature.home.R
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_CALENDAR_COLUMN_COUNT
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_ACTIVITY_FIRST_DISTANCE_TENTHS
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_ACTIVITY_FIRST_DURATION_MINUTES
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_ACTIVITY_FIRST_ID
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_ACTIVITY_SECOND_COUNT
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_ACTIVITY_SECOND_DURATION_MINUTES
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_ACTIVITY_SECOND_ID
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_AVERAGE_PACE_MINUTES
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_AVERAGE_PACE_SECONDS
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_DAY_MILLIS
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_DISTANCE_SCALE_TENTHS
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_EPOCH_DAYS
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_TOTAL_CALORIES
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_TOTAL_DISTANCE_TENTHS
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_TOTAL_DURATION_MINUTES
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION_LABEL
+import com.jeong.runninggoaltracker.feature.home.contract.HOME_WEIGHT_ONE
 import com.jeong.runninggoaltracker.feature.home.domain.CalendarDay
 import com.jeong.runninggoaltracker.feature.home.domain.CalendarMonthState
 import com.jeong.runninggoaltracker.feature.home.domain.HomeCalendarCalculator
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
@@ -99,7 +114,6 @@ fun HomeScreen(
     onGoalClick: () -> Unit,
     onReminderClick: () -> Unit
 ) {
-    val context = LocalContext.current
     val locale = LocalConfiguration.current.locales[0]
     val distanceFormatter = remember(locale) {
         DistanceFormatter(
@@ -112,14 +126,15 @@ fun HomeScreen(
     val surfaceColor = appSurfaceColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
-    val weightOne = integerResource(R.integer.home_weight_one).toFloat()
+    val dimensions = LocalAppDimensions.current
+    val weightOne = HOME_WEIGHT_ONE
     val horizontalPadding = appSpacingLg()
-    val minTouchTarget = dimensionResource(R.dimen.home_touch_target_min)
+    val minTouchTarget = dimensions.homeTouchTargetMin
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val goalDescription = uiState.weeklyGoalKm?.let { goalKm ->
         val formattedDistance = distanceFormatter.formatDistanceKm(
             distanceKm = goalKm,
-            fractionDigits = NumericResourceProvider.distanceFractionDigits(context)
+            fractionDigits = AppNumericTokens.distanceFractionDigits
         )
         stringResource(R.string.home_goal_summary_value, formattedDistance)
     } ?: stringResource(R.string.home_goal_summary_description)
@@ -404,13 +419,14 @@ private fun SummaryMetricItem(
     accentColor: androidx.compose.ui.graphics.Color,
     textPrimary: androidx.compose.ui.graphics.Color
 ) {
-    val summaryMetricBackgroundAlpha = summaryMetricBackgroundAlpha()
+    val summaryMetricBackgroundAlpha = LocalAppAlphas.current.homeSummaryMetricBackground
+    val shapes = LocalAppShapes.current
 
     Column(
         modifier = Modifier
             .background(
                 accentColor.copy(alpha = summaryMetricBackgroundAlpha),
-                RoundedCornerShape(appSpacingSm())
+                shapes.roundedXs
             )
             .padding(horizontal = appSpacingMd(), vertical = appSpacingSm()),
         horizontalAlignment = Alignment.CenterHorizontally
@@ -431,11 +447,6 @@ private fun SummaryMetricItem(
 }
 
 @Composable
-private fun summaryMetricBackgroundAlpha(): Float =
-    integerResource(R.integer.home_alpha_summary_metric_background_percent).toFloat() /
-            integerResource(R.integer.home_percent_base).toFloat()
-
-@Composable
 private fun ActivityLogRow(
     activity: HomeWorkoutLogUiModel,
     modifier: Modifier = Modifier
@@ -443,7 +454,9 @@ private fun ActivityLogRow(
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
     val surfaceColor = appSurfaceColor()
-    val weightOne = integerResource(R.integer.home_weight_one).toFloat()
+    val dimensions = LocalAppDimensions.current
+    val shapes = LocalAppShapes.current
+    val weightOne = HOME_WEIGHT_ONE
     val icon = when (activity.type) {
         HomeWorkoutType.RUNNING -> Icons.AutoMirrored.Filled.DirectionsRun
         HomeWorkoutType.SQUAT -> Icons.Default.FitnessCenter
@@ -476,7 +489,7 @@ private fun ActivityLogRow(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(surfaceColor, RoundedCornerShape(appSpacingMd()))
+            .background(surfaceColor, shapes.roundedSm)
             .padding(appSpacingMd())
             .semantics(mergeDescendants = true) {},
         horizontalArrangement = Arrangement.spacedBy(appSpacingMd()),
@@ -484,7 +497,7 @@ private fun ActivityLogRow(
     ) {
         Box(
             modifier = Modifier
-                .size(dimensionResource(R.dimen.home_activity_log_icon_size))
+                .size(dimensions.homeActivityLogIconSize)
                 .background(surfaceColor, CircleShape),
             contentAlignment = Alignment.Center
         ) {
@@ -533,7 +546,8 @@ private fun SectionHeader(
 ) {
     val accentColor = appAccentColor()
     val textPrimary = appTextPrimaryColor()
-    val minTouchTarget = dimensionResource(R.dimen.home_touch_target_min)
+    val dimensions = LocalAppDimensions.current
+    val minTouchTarget = dimensions.homeTouchTargetMin
     val onViewAllClickThrottled = rememberThrottleClick(onClick = onViewAllClick)
 
     Row(
@@ -577,8 +591,9 @@ private fun CalendarBottomSheet(
     val textMuted = appTextMutedColor()
     val accentColor = appAccentColor()
     val onAccentColor = appOnAccentColor()
-    val weightOne = integerResource(R.integer.home_weight_one).toFloat()
-    val calendarColumnCount = integerResource(R.integer.home_calendar_column_count)
+    val dimensions = LocalAppDimensions.current
+    val weightOne = HOME_WEIGHT_ONE
+    val calendarColumnCount = HOME_CALENDAR_COLUMN_COUNT
     val onPreviousMonthClickThrottled = rememberThrottleClick(onClick = onPreviousMonth)
     val onNextMonthClickThrottled = rememberThrottleClick(onClick = onNextMonth)
 
@@ -586,8 +601,8 @@ private fun CalendarBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState
     ) {
-        val calendarGridHeight = dimensionResource(R.dimen.home_calendar_grid_height)
-        val calendarDaySize = dimensionResource(R.dimen.home_calendar_day_size)
+        val calendarGridHeight = dimensions.homeCalendarGridHeight
+        val calendarDaySize = dimensions.homeCalendarDaySize
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -770,15 +785,14 @@ private fun calendarDayOfWeekLabels(): List<Int> = listOf(
 @Composable
 private fun HomeScreenPreview() {
     val calendarCalculator = remember { HomeCalendarCalculator() }
-    val distanceScale = integerResource(R.integer.home_preview_distance_scale_tenths).toDouble()
+    val distanceScale = HOME_PREVIEW_DISTANCE_SCALE_TENTHS
     val totalDistance =
-        integerResource(R.integer.home_preview_total_distance_tenths).toDouble() / distanceScale
+        HOME_PREVIEW_TOTAL_DISTANCE_TENTHS.toDouble() / distanceScale
     val firstActivityDistance =
-        integerResource(R.integer.home_preview_activity_first_distance_tenths)
-            .toDouble() / distanceScale
-    val secondActivityCount = integerResource(R.integer.home_preview_activity_second_count)
-    val dayMillis = integerResource(R.integer.home_preview_day_millis).toLong()
-    val epochDays = integerResource(R.integer.home_preview_epoch_days).toLong()
+        HOME_PREVIEW_ACTIVITY_FIRST_DISTANCE_TENTHS.toDouble() / distanceScale
+    val secondActivityCount = HOME_PREVIEW_ACTIVITY_SECOND_COUNT
+    val dayMillis = HOME_PREVIEW_DAY_MILLIS
+    val epochDays = HOME_PREVIEW_EPOCH_DAYS
     val baseMillis = epochDays * dayMillis
     val calendarMonthState = calendarCalculator.monthStateFromMillis(baseMillis)
     val uiState = HomeUiState(
@@ -792,33 +806,29 @@ private fun HomeScreenPreview() {
         ),
         summary = HomeSummaryUiState(
             totalDistanceKm = totalDistance,
-            totalCalories = integerResource(R.integer.home_preview_total_calories),
-            totalDurationMinutes = integerResource(R.integer.home_preview_total_duration_minutes),
+            totalCalories = HOME_PREVIEW_TOTAL_CALORIES,
+            totalDurationMinutes = HOME_PREVIEW_TOTAL_DURATION_MINUTES,
             averagePace = HomePaceUiState(
-                minutes = integerResource(R.integer.home_preview_average_pace_minutes),
-                seconds = integerResource(R.integer.home_preview_average_pace_seconds),
+                minutes = HOME_PREVIEW_AVERAGE_PACE_MINUTES,
+                seconds = HOME_PREVIEW_AVERAGE_PACE_SECONDS,
                 isAvailable = true
             )
         ),
         activityLogs = listOf(
             HomeWorkoutLogUiModel(
-                id = integerResource(R.integer.home_preview_activity_first_id).toLong(),
+                id = HOME_PREVIEW_ACTIVITY_FIRST_ID,
                 timestamp = baseMillis,
                 distanceKm = firstActivityDistance,
                 repCount = 0,
-                durationMinutes = integerResource(
-                    R.integer.home_preview_activity_first_duration_minutes
-                ),
+                durationMinutes = HOME_PREVIEW_ACTIVITY_FIRST_DURATION_MINUTES,
                 type = HomeWorkoutType.RUNNING
             ),
             HomeWorkoutLogUiModel(
-                id = integerResource(R.integer.home_preview_activity_second_id).toLong(),
+                id = HOME_PREVIEW_ACTIVITY_SECOND_ID,
                 timestamp = baseMillis - dayMillis,
                 distanceKm = secondActivityCount.toDouble(),
                 repCount = secondActivityCount,
-                durationMinutes = integerResource(
-                    R.integer.home_preview_activity_second_duration_minutes
-                ),
+                durationMinutes = HOME_PREVIEW_ACTIVITY_SECOND_DURATION_MINUTES,
                 type = HomeWorkoutType.SQUAT
             )
         )

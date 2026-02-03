@@ -39,8 +39,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -49,7 +47,6 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
@@ -64,8 +61,11 @@ import com.jeong.runninggoaltracker.domain.model.SquatPhase
 import com.jeong.runninggoaltracker.feature.ai_coach.BuildConfig
 import com.jeong.runninggoaltracker.feature.ai_coach.R
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
+import com.jeong.runninggoaltracker.feature.ai_coach.contract.SMART_WORKOUT_ACCURACY_PERCENT_MULTIPLIER
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppTypographyTokens
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacing2xl
@@ -94,11 +94,12 @@ fun SmartWorkoutScreen(
     val accentColor = appAccentColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
-    val repCountTextSize = dimensionResource(R.dimen.smart_workout_rep_count_text_size)
-    val feedbackTitleTextSize = dimensionResource(R.dimen.smart_workout_feedback_title_text_size)
-    val feedbackBodyTextSize = dimensionResource(R.dimen.smart_workout_feedback_body_text_size)
-    val accuracyLabelTextSize = dimensionResource(R.dimen.smart_workout_accuracy_label_text_size)
-    val accuracyMultiplier = integerResource(R.integer.smart_workout_accuracy_percent_multiplier)
+    val typographyTokens = LocalAppTypographyTokens.current
+    val repCountTextStyle = typographyTokens.displayHuge
+    val feedbackTitleTextStyle = MaterialTheme.typography.labelSmall
+    val feedbackBodyTextStyle = MaterialTheme.typography.titleMedium
+    val accuracyLabelTextStyle = MaterialTheme.typography.labelSmall
+    val accuracyMultiplier = SMART_WORKOUT_ACCURACY_PERCENT_MULTIPLIER
     val onBackClick = rememberThrottleClick(onClick = onBack)
     val onToggleDebugOverlayClick = rememberThrottleClick(onClick = onToggleDebugOverlay)
     val debugToggleLabel = stringResource(R.string.smart_workout_debug_toggle)
@@ -171,7 +172,7 @@ fun SmartWorkoutScreen(
                 Text(
                     text = debugToggleLabel,
                     color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
+                    style = accuracyLabelTextStyle
                 )
                 Switch(
                     checked = uiState.overlayMode != DebugOverlayMode.OFF,
@@ -191,7 +192,7 @@ fun SmartWorkoutScreen(
             Text(
                 text = stringResource(R.string.smart_workout_rep_count_value, uiState.repCount),
                 color = textPrimary,
-                fontSize = repCountTextSize.value.sp,
+                style = repCountTextStyle,
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Black
             )
@@ -278,7 +279,7 @@ fun SmartWorkoutScreen(
                             metrics.kneeAngleRaw
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -286,7 +287,7 @@ fun SmartWorkoutScreen(
                             metrics.kneeAngleEma
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -294,7 +295,7 @@ fun SmartWorkoutScreen(
                             metrics.trunkTiltVerticalAngleRaw
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -302,7 +303,7 @@ fun SmartWorkoutScreen(
                             metrics.trunkTiltVerticalAngleEma
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -310,7 +311,7 @@ fun SmartWorkoutScreen(
                             metrics.trunkToThighAngleRaw
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -318,7 +319,7 @@ fun SmartWorkoutScreen(
                             metrics.trunkToThighAngleEma
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -326,7 +327,7 @@ fun SmartWorkoutScreen(
                             metrics.repMinKneeAngle
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -334,7 +335,7 @@ fun SmartWorkoutScreen(
                             metrics.repMinTrunkToThighAngle
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -342,7 +343,7 @@ fun SmartWorkoutScreen(
                             metrics.repMaxTrunkTiltVerticalAngle
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -350,7 +351,7 @@ fun SmartWorkoutScreen(
                             phaseText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -358,7 +359,7 @@ fun SmartWorkoutScreen(
                             sideText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -366,7 +367,7 @@ fun SmartWorkoutScreen(
                             lockText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -374,7 +375,7 @@ fun SmartWorkoutScreen(
                             metrics.upThreshold
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -382,7 +383,7 @@ fun SmartWorkoutScreen(
                             metrics.downThreshold
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -390,7 +391,7 @@ fun SmartWorkoutScreen(
                             metrics.upFramesRequired
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -398,7 +399,7 @@ fun SmartWorkoutScreen(
                             metrics.downFramesRequired
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -406,7 +407,7 @@ fun SmartWorkoutScreen(
                             metrics.upCandidateFrames
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -414,7 +415,7 @@ fun SmartWorkoutScreen(
                             metrics.downCandidateFrames
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -422,7 +423,7 @@ fun SmartWorkoutScreen(
                             metrics.leftConfidenceSum
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -430,7 +431,7 @@ fun SmartWorkoutScreen(
                             metrics.rightConfidenceSum
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -438,7 +439,7 @@ fun SmartWorkoutScreen(
                             attemptActiveText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -446,7 +447,7 @@ fun SmartWorkoutScreen(
                             depthReachedText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -454,7 +455,7 @@ fun SmartWorkoutScreen(
                             metrics.attemptMinKneeAngle
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -462,7 +463,7 @@ fun SmartWorkoutScreen(
                             fullBodyVisibleText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -470,7 +471,7 @@ fun SmartWorkoutScreen(
                             invisibleDurationSec
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -478,7 +479,7 @@ fun SmartWorkoutScreen(
                             metrics.rotationDegrees
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -486,7 +487,7 @@ fun SmartWorkoutScreen(
                             frontCameraText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -494,7 +495,7 @@ fun SmartWorkoutScreen(
                             mirroringText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -502,7 +503,7 @@ fun SmartWorkoutScreen(
                             cameraTiltText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                     Text(
                         text = stringResource(
@@ -510,7 +511,7 @@ fun SmartWorkoutScreen(
                             reliableText
                         ),
                         color = textMuted,
-                        fontSize = accuracyLabelTextSize.value.sp
+                        style = accuracyLabelTextStyle
                     )
                 }
             }
@@ -530,13 +531,13 @@ fun SmartWorkoutScreen(
                 Text(
                     text = stringResource(R.string.smart_workout_feedback_title),
                     color = textMuted,
-                    fontSize = feedbackTitleTextSize.value.sp,
+                    style = feedbackTitleTextStyle,
                     fontWeight = FontWeight.SemiBold
                 )
                 Text(
                     text = stringResource(uiState.feedbackResId),
                     color = textPrimary,
-                    fontSize = feedbackBodyTextSize.value.sp,
+                    style = feedbackBodyTextStyle,
                     fontWeight = FontWeight.SemiBold
                 )
                 LinearProgressIndicator(
@@ -551,7 +552,7 @@ fun SmartWorkoutScreen(
                         (accuracyProgress * accuracyMultiplier).toInt()
                     ),
                     color = textMuted,
-                    fontSize = accuracyLabelTextSize.value.sp
+                    style = accuracyLabelTextStyle
                 )
             }
         }
@@ -623,7 +624,7 @@ private fun ExerciseTypeOption(
         ) {
             Text(
                 text = label,
-                fontSize = dimensionResource(R.dimen.smart_workout_chip_text_size).value.sp,
+                style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold
             )
         }
@@ -684,11 +685,12 @@ private fun SkeletonOverlay(
     modifier: Modifier = Modifier
 ) {
     val density = LocalDensity.current
+    val dimensions = LocalAppDimensions.current
     val skeletonStrokeWidthPx = with(density) {
-        dimensionResource(R.dimen.smart_workout_skeleton_stroke_width).toPx()
+        dimensions.smartWorkoutSkeletonStrokeWidth.toPx()
     }
     val skeletonDotRadiusPx = with(density) {
-        dimensionResource(R.dimen.smart_workout_skeleton_dot_radius).toPx()
+        dimensions.smartWorkoutSkeletonDotRadius.toPx()
     }
     val connections = remember {
         listOf(
