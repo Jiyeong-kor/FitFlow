@@ -30,6 +30,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
@@ -48,7 +49,8 @@ class RunningTrackerService : Service() {
     @Inject
     lateinit var notificationDispatcher: RunningNotificationDispatcher
 
-    private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val serviceJob = SupervisorJob()
+    private val serviceScope = CoroutineScope(serviceJob + Dispatchers.Main.immediate)
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var locationCallback: LocationCallback? = null
     private var startTimeMillis: Long? = null
@@ -125,11 +127,13 @@ class RunningTrackerService : Service() {
             val zeroInt = NumericResourceProvider.zeroInt(this@RunningTrackerService)
             val zeroDouble = NumericResourceProvider.zeroDouble(this@RunningTrackerService)
             if (distanceKm > zeroDouble && durationMinutes > zeroInt) {
-                addRunningRecordUseCase(
-                    date = dateProvider.getToday(),
-                    distanceKm = distanceKm,
-                    durationMinutes = durationMinutes
-                )
+                withContext(Dispatchers.IO) {
+                    addRunningRecordUseCase(
+                        date = dateProvider.getToday(),
+                        distanceKm = distanceKm,
+                        durationMinutes = durationMinutes
+                    )
+                }
             }
             stopSelf()
         }
@@ -233,6 +237,7 @@ class RunningTrackerService : Service() {
     override fun onDestroy() {
         stopLocationUpdates()
         elapsedUpdateJob?.cancel()
+        serviceJob.cancel()
         stateUpdater.stop()
         super.onDestroy()
     }
