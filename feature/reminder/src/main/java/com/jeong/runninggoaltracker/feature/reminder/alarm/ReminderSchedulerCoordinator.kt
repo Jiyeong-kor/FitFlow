@@ -23,11 +23,12 @@ class ReminderSchedulerCoordinator @Inject constructor(
         )
     }
 
-    override fun cancel(reminder: RunningReminder) =
+    override fun cancel(reminder: RunningReminder) {
         reminderAlarmScheduler.cancel(
             reminder.id,
             reminder.hour,
             reminder.minute,
             reminder.days
         )
+    }
 }

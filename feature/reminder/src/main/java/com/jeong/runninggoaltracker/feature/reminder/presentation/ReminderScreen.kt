@@ -403,7 +403,8 @@ private fun ReminderScreenPreview() {
     )
     val messageHandler = remember {
         object : UserMessageHandler {
-            override fun showMessage(message: UiMessage) = Unit
+            override fun showMessage(message: UiMessage) {
+            }
         }
     }
     val timeFormatter = rememberReminderTimeFormatter()

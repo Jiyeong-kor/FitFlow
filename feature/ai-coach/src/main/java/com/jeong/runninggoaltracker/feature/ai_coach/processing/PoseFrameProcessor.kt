@@ -31,11 +31,17 @@ class PoseFrameProcessor @Inject constructor(
     val imageAnalyzer: ImageAnalysis.Analyzer
         get() = poseDetector.imageAnalyzer
 
-    fun clear() = poseDetector.clear()
+    fun clear() {
+        poseDetector.clear()
+    }
 
-    fun updateSpeechCooldown(cooldownMs: Long) = speechCoordinator.updateCooldown(cooldownMs)
+    fun updateSpeechCooldown(cooldownMs: Long) {
+        speechCoordinator.updateCooldown(cooldownMs)
+    }
 
-    fun resetSpeechState() = speechCoordinator.reset()
+    fun resetSpeechState() {
+        speechCoordinator.reset()
+    }
 
     fun results(stateFlow: StateFlow<SmartWorkoutUiState>): Flow<PoseFrameProcessingResult> =
         poseDetector.poseFrames.map { frame ->

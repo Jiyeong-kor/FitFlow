@@ -141,11 +141,15 @@ class SquatRepCounter(
 
     fun downFramesRequired(): Int = downFramesRequired
 
-    private fun resetUpCandidate() = Unit.also { upCandidateFrames = SQUAT_INT_ZERO }
+    private fun resetUpCandidate() {
+        upCandidateFrames = SQUAT_INT_ZERO
+    }
 
-    private fun resetDownCandidate() = Unit.also { downCandidateFrames = SQUAT_INT_ZERO }
+    private fun resetDownCandidate() {
+        downCandidateFrames = SQUAT_INT_ZERO
+    }
 
-    private fun resetCandidates() = Unit.also {
+    private fun resetCandidates() {
         resetUpCandidate()
         resetDownCandidate()
     }

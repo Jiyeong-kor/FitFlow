@@ -18,6 +18,7 @@ class ActivityRecognitionStateHolder @Inject constructor() : ActivityStateUpdate
     private val _state = MutableStateFlow(ActivityState())
     val state: StateFlow<ActivityState> = _state
 
-    override fun update(status: ActivityRecognitionStatus) =
+    override fun update(status: ActivityRecognitionStatus) {
         _state.update { ActivityState(status = status) }
+    }
 }

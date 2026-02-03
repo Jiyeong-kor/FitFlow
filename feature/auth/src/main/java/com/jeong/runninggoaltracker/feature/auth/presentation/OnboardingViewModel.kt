@@ -45,7 +45,7 @@ class OnboardingViewModel @Inject constructor(
     private val _isPrivacyAccepted = MutableStateFlow(false)
     val isPrivacyAccepted: StateFlow<Boolean> = _isPrivacyAccepted
 
-    fun onPermissionsResult(granted: Boolean, isPermanentlyDenied: Boolean) =
+    fun onPermissionsResult(granted: Boolean, isPermanentlyDenied: Boolean) {
         _uiState.update { currentState ->
             uiStateReducer.reducePermissionsResult(
                 currentState = currentState,
@@ -53,6 +53,7 @@ class OnboardingViewModel @Inject constructor(
                 isPermanentlyDenied = isPermanentlyDenied
             )
         }
+    }
 
     fun onOpenSettings() {
         viewModelScope.launch {
@@ -62,10 +63,11 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun onNicknameChanged(value: String) =
+    fun onNicknameChanged(value: String) {
         _uiState.update { currentState ->
             uiStateReducer.reduceNicknameChanged(currentState, value)
         }
+    }
 
     fun onContinueWithNickname() {
         val nickname = _uiState.value.nickname
@@ -87,10 +89,11 @@ class OnboardingViewModel @Inject constructor(
         onContinueWithNickname()
     }
 
-    fun onDismissNoInternetDialog() =
+    fun onDismissNoInternetDialog() {
         _uiState.update { currentState ->
             uiStateReducer.reduceNoInternetDismissed(currentState)
         }
+    }
 
     fun onPrivacyAcceptedChanged(isAccepted: Boolean) {
         _isPrivacyAccepted.value = isAccepted

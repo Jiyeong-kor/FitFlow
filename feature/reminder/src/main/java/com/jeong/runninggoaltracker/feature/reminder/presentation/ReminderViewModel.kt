@@ -68,14 +68,17 @@ class ReminderViewModel @Inject constructor(
         }
     }
 
-    fun updateEnabled(id: Int, enabled: Boolean) =
+    fun updateEnabled(id: Int, enabled: Boolean) {
         updateReminder(id) { reminder -> reminder.copy(enabled = enabled) }
+    }
 
-    fun updateTime(id: Int, hour: Int, minute: Int) =
+    fun updateTime(id: Int, hour: Int, minute: Int) {
         updateReminder(id) { it.copy(hour = hour, minute = minute) }
+    }
 
-    fun toggleDay(id: Int, day: Int) =
+    fun toggleDay(id: Int, day: Int) {
         updateReminder(id) { current -> toggleReminderDayUseCase(current, day) }
+    }
 
     fun openTimePicker(id: Int) {
         activeTimePickerId.value = id

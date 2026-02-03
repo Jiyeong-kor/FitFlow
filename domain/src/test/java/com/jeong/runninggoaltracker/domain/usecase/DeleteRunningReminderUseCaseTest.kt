@@ -25,9 +25,11 @@ class DeleteRunningReminderUseCaseTest {
 
         override fun getAllReminders(): Flow<List<RunningReminder>> = emptyFlow()
 
-        override suspend fun upsertReminder(reminder: RunningReminder) = Unit
+        override suspend fun upsertReminder(reminder: RunningReminder) {
+        }
 
-        override suspend fun deleteReminder(reminderId: Int) =
-            run { deletedId = reminderId }
+        override suspend fun deleteReminder(reminderId: Int) {
+            deletedId = reminderId
+        }
     }
 }

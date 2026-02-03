@@ -149,21 +149,31 @@ class HomeViewModel @Inject constructor(
         calendarVisibility.value = false
     }
 
-    fun onPreviousCalendarMonth() =
+    fun onPreviousCalendarMonth() {
         calendarMonthState.update { current ->
             calendarCalculator.shiftMonth(current, -1)
         }
+    }
 
-    fun onNextCalendarMonth() =
+    fun onNextCalendarMonth() {
         calendarMonthState.update { current ->
             calendarCalculator.shiftMonth(current, 1)
         }
+    }
 
-    fun onRecordClick() = emitEffect(HomeUiEffect.NavigateToRecord)
+    fun onRecordClick() {
+        emitEffect(HomeUiEffect.NavigateToRecord)
+    }
 
-    fun onGoalClick() = emitEffect(HomeUiEffect.NavigateToGoal)
+    fun onGoalClick() {
+        emitEffect(HomeUiEffect.NavigateToGoal)
+    }
 
-    fun onReminderClick() = emitEffect(HomeUiEffect.NavigateToReminder)
+    fun onReminderClick() {
+        emitEffect(HomeUiEffect.NavigateToReminder)
+    }
 
-    private fun emitEffect(effect: HomeUiEffect) = viewModelScope.launch { _effect.emit(effect) }
+    private fun emitEffect(effect: HomeUiEffect) {
+        viewModelScope.launch { _effect.emit(effect) }
+    }
 }

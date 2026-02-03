@@ -38,11 +38,19 @@ class RecordViewModel @Inject constructor(
         initialValue = RecordUiState()
     )
 
-    fun startActivityRecognition() = activityRecognitionController.startUpdates()
+    fun startActivityRecognition() {
+        activityRecognitionController.startUpdates()
+    }
 
-    fun stopActivityRecognition() = activityRecognitionController.stopUpdates()
+    fun stopActivityRecognition() {
+        activityRecognitionController.stopUpdates()
+    }
 
-    fun startTracking() = runningTrackerController.startTracking()
+    fun startTracking() {
+        runningTrackerController.startTracking()
+    }
 
-    fun stopTracking() = runningTrackerController.stopTracking()
+    fun stopTracking() {
+        runningTrackerController.stopTracking()
+    }
 }

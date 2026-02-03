@@ -53,14 +53,17 @@ class AiCoachViewModel @Inject constructor(
             .launchIn(viewModelScope)
     }
 
-    fun updateSpeechCooldown(cooldownMs: Long) = poseFrameProcessor.updateSpeechCooldown(cooldownMs)
+    fun updateSpeechCooldown(cooldownMs: Long) {
+        poseFrameProcessor.updateSpeechCooldown(cooldownMs)
+    }
 
-    fun logUiRepCount(repCount: Int) =
+    fun logUiRepCount(repCount: Int) {
         analyticsLogger.logRepCountUpdate(
             source = SmartWorkoutLogContract.SOURCE_UI,
             repCount = repCount,
             timestampMs = dateProvider.getToday()
         )
+    }
 
     fun toggleDebugOverlay() {
         _uiState.update { current -> stateReducer.toggleOverlay(current) }

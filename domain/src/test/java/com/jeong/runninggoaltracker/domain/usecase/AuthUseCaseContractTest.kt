@@ -12,27 +12,31 @@ import org.junit.Test
 class AuthUseCaseContractTest {
 
     @Test
-    fun `nickname reservation returns nickname taken for race condition`() = runTest {
-        val repository = FakeAuthRepository(
-            reserveResult = AuthResult.Failure(AuthError.NicknameTaken)
-        )
-        val useCase = ReserveNicknameAndCreateUserProfileUseCase(repository)
+    fun `nickname reservation returns nickname taken for race condition`() {
+        runTest {
+            val repository = FakeAuthRepository(
+                reserveResult = AuthResult.Failure(AuthError.NicknameTaken)
+            )
+            val useCase = ReserveNicknameAndCreateUserProfileUseCase(repository)
 
-        val result = useCase("러너")
+            val result = useCase("러너")
 
-        assertEquals(AuthError.NicknameTaken, (result as AuthResult.Failure).error)
+            assertEquals(AuthError.NicknameTaken, (result as AuthResult.Failure).error)
+        }
     }
 
     @Test
-    fun `delete account returns permission denied when backend rejects`() = runTest {
-        val repository = FakeAuthRepository(
-            deleteResult = AuthResult.Failure(AuthError.PermissionDenied)
-        )
-        val useCase = DeleteAccountUseCase(repository)
+    fun `delete account returns permission denied when backend rejects`() {
+        runTest {
+            val repository = FakeAuthRepository(
+                deleteResult = AuthResult.Failure(AuthError.PermissionDenied)
+            )
+            val useCase = DeleteAccountUseCase(repository)
 
-        val result = useCase()
+            val result = useCase()
 
-        assertEquals(AuthError.PermissionDenied, (result as AuthResult.Failure).error)
+            assertEquals(AuthError.PermissionDenied, (result as AuthResult.Failure).error)
+        }
     }
 }
 

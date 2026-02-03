@@ -10,7 +10,8 @@ sealed interface ReminderUpdateCommand {
 }
 
 private data object ReminderNoOpCommand : ReminderUpdateCommand {
-    override suspend fun execute(interactor: ReminderSchedulingInteractor) = Unit
+    override suspend fun execute(interactor: ReminderSchedulingInteractor) {
+    }
 }
 
 private data class ReminderSaveCommand(
