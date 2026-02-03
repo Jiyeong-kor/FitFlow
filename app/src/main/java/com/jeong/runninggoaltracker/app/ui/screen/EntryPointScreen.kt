@@ -1,18 +1,16 @@
 package com.jeong.runninggoaltracker.app.ui.screen
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jeong.runninggoaltracker.app.ui.navigation.AppNavGraph
-import com.jeong.runninggoaltracker.app.ui.navigation.MainNavigationViewModel
+import com.jeong.runninggoaltracker.app.ui.navigation.MainTabItem
+import com.jeong.runninggoaltracker.shared.navigation.MainTab
 
 @Composable
 fun EntryPointScreen(
-    mainNavigationViewModel: MainNavigationViewModel,
+    tabItemsByTab: Map<MainTab, MainTabItem>,
     modifier: Modifier = Modifier
 ) {
-    val tabItemsByTab by mainNavigationViewModel.tabItemsByTab.collectAsStateWithLifecycle()
     AppNavGraph(
         tabItemsByTab = tabItemsByTab,
         modifier = modifier

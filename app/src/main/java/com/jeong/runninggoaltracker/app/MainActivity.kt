@@ -4,7 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import com.jeong.runninggoaltracker.app.ui.screen.EntryPointScreen
+import com.jeong.runninggoaltracker.app.ui.screen.EntryPointRoute
 import com.jeong.runninggoaltracker.app.ui.navigation.MainNavigationViewModel
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -23,7 +23,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             RunningGoalTrackerTheme {
-                EntryPointScreen(
+                EntryPointRoute(
                     mainNavigationViewModel = mainNavigationViewModel
                 )
             }
