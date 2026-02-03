@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Person
@@ -28,8 +27,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -38,8 +35,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
-import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appKakaoYellow
 
 @Composable
 fun NicknameScreen(
@@ -52,20 +51,8 @@ fun NicknameScreen(
     onPrivacyPolicyClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val spacingXs =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_xs)
-    val spacingSm =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_sm)
-    val spacingLg =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_lg)
-    val spacingXl =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_xl)
-    val spacing2xl =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_2xl)
-    val cornerRadius =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_corner_radius)
-    val kakaoButtonHeight = dimensionResource(id = R.dimen.kakao_login_button_height)
-    val kakaoButtonCornerRadius = dimensionResource(id = R.dimen.kakao_login_button_corner_radius)
+    val dimensions = LocalAppDimensions.current
+    val appShapes = LocalAppShapes.current
     val kakaoLoginButtonText = stringResource(id = R.string.kakao_login_button_text)
     val privacyPolicyLabel = stringResource(id = R.string.privacy_policy_agreement_link)
     val privacyPolicySuffix = stringResource(id = R.string.privacy_policy_agreement_suffix)
@@ -77,8 +64,8 @@ fun NicknameScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = spacingXl, vertical = spacing2xl),
-        verticalArrangement = Arrangement.spacedBy(spacingLg)
+            .padding(horizontal = dimensions.spacingXl, vertical = dimensions.spacing2xl),
+        verticalArrangement = Arrangement.spacedBy(dimensions.spacingLg)
     ) {
         Text(
             text = stringResource(id = R.string.nickname_title),
@@ -91,10 +78,13 @@ fun NicknameScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         AppSurfaceCard(
-            contentPadding = PaddingValues(vertical = spacingLg, horizontal = spacingXl)
+            contentPadding = PaddingValues(
+                vertical = dimensions.spacingLg,
+                horizontal = dimensions.spacingXl
+            )
         ) {
             androidx.compose.foundation.layout.Column(
-                verticalArrangement = Arrangement.spacedBy(spacingSm)
+                verticalArrangement = Arrangement.spacedBy(dimensions.spacingSm)
             ) {
                 OutlinedTextField(
                     modifier = Modifier.fillMaxWidth(),
@@ -107,9 +97,9 @@ fun NicknameScreen(
                     },
                     label = { Text(text = stringResource(id = R.string.nickname_label)) },
                     singleLine = true,
-                    shape = RoundedCornerShape(cornerRadius)
+                    shape = appShapes.rounded2xl
                 )
-                Row(modifier = Modifier.padding(top = appSpacingSm())) {
+                Row(modifier = Modifier.padding(top = dimensions.spacingSm)) {
                     Text(
                         text = stringResource(id = R.string.anonymous_nickname_caption),
                         style = MaterialTheme.typography.labelMedium,
@@ -150,7 +140,7 @@ fun NicknameScreen(
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(spacingXs),
+            horizontalArrangement = Arrangement.spacedBy(dimensions.spacingXs),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Checkbox(
@@ -187,20 +177,18 @@ fun NicknameScreen(
         }
         val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
         val onKakaoLoginThrottled = rememberThrottleClick(onClick = onKakaoLogin)
-        Spacer(modifier = Modifier.height(spacingSm))
+        Spacer(modifier = Modifier.height(dimensions.spacingSm))
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = onContinueThrottled,
             enabled = uiState.isNicknameValid && isPrivacyAccepted && !uiState.isLoading,
-            contentPadding = PaddingValues(vertical = spacingLg)
+            contentPadding = PaddingValues(vertical = dimensions.spacingLg)
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator(
-                    modifier = Modifier.size(spacingLg),
+                    modifier = Modifier.size(dimensions.spacingLg),
                     color = MaterialTheme.colorScheme.onPrimary,
-                    strokeWidth = dimensionResource(
-                        id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_xs
-                    )
+                    strokeWidth = dimensions.spacingXs
                 )
             } else {
                 Text(
@@ -212,9 +200,9 @@ fun NicknameScreen(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(kakaoButtonHeight)
-                .clip(RoundedCornerShape(kakaoButtonCornerRadius))
-                .background(colorResource(id = R.color.auth_kakao_yellow))
+                .height(dimensions.kakaoLoginButtonHeight)
+                .clip(appShapes.roundedXs)
+                .background(appKakaoYellow())
                 .clickable(
                     enabled = !uiState.isLoading,
                     role = Role.Button,
@@ -231,7 +219,6 @@ fun NicknameScreen(
                 modifier = Modifier.align(Alignment.Center)
             )
         }
-
     }
 }
 

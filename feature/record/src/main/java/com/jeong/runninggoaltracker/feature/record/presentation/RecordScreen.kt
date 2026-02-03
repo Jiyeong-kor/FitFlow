@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Pause
 import androidx.compose.material.icons.filled.PlayArrow
@@ -28,24 +27,24 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppTypographyTokens
+import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appOnAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
-import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import java.util.Locale
 
 @Composable
@@ -57,13 +56,11 @@ fun RecordScreen(
     onStopTracking: () -> Unit,
 ) {
     val displayLabel = uiState.activityStatus.toRecordLabel()
-    val alphaDenominator = integerResource(R.integer.record_alpha_denominator)
     val fullWeight = integerResource(R.integer.record_weight_full).toFloat()
-    val accentAlphaWeak = integerResource(R.integer.record_accent_alpha_weak).toFloat() /
-            alphaDenominator.toFloat()
-    val accentAlphaStrong = integerResource(R.integer.record_accent_alpha_strong).toFloat() /
-            alphaDenominator.toFloat()
 
+    val dimensions = LocalAppDimensions.current
+    val typographyTokens = LocalAppTypographyTokens.current
+    val alphas = LocalAppAlphas.current
     val onPauseClick = rememberThrottleClick(onClick = {
         if (uiState.isTracking) {
             onStopActivityRecognition()
@@ -114,20 +111,20 @@ fun RecordScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(backgroundColor)
-            .padding(dimensionResource(R.dimen.record_screen_padding)),
+            .padding(dimensions.recordScreenPadding),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Spacer(modifier = Modifier.height(dimensionResource(R.dimen.record_top_spacer_height)))
+        Spacer(modifier = Modifier.height(dimensions.recordTopSpacerHeight))
 
         Box(contentAlignment = Alignment.Center) {
             Surface(
-                modifier = Modifier.size(dimensionResource(R.dimen.record_circle_size)),
+                modifier = Modifier.size(dimensions.recordCircleSize),
                 shape = CircleShape,
-                color = accentColor.copy(alpha = accentAlphaWeak),
+                color = accentColor.copy(alpha = alphas.recordAccentWeak),
                 border = androidx.compose.foundation.BorderStroke(
-                    dimensionResource(R.dimen.record_circle_border),
-                    accentColor.copy(alpha = accentAlphaStrong)
+                    dimensions.recordCircleBorder,
+                    accentColor.copy(alpha = alphas.recordAccentStrong)
                 )
             ) {}
 
@@ -135,25 +132,22 @@ fun RecordScreen(
                 Text(
                     displayLabel.uppercase(Locale.getDefault()),
                     color = accentColor,
-                    fontSize = dimensionResource(R.dimen.record_label_font_size).value.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = dimensionResource(R.dimen.record_label_letter_spacing).value.sp
+                    style = typographyTokens.recordLabel
                 )
                 Spacer(
                     modifier = Modifier.height(
-                        dimensionResource(R.dimen.record_label_spacer_height)
+                        dimensions.recordLabelSpacerHeight
                     )
                 )
                 Text(
                     distanceValue,
                     color = textPrimary,
-                    fontSize = dimensionResource(R.dimen.record_distance_font_size).value.sp,
-                    fontWeight = FontWeight.Bold
+                    style = typographyTokens.displayLarge
                 )
                 Text(
                     stringResource(R.string.record_unit_kilometers),
                     color = textMuted,
-                    fontSize = dimensionResource(R.dimen.record_unit_font_size).value.sp
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -161,7 +155,7 @@ fun RecordScreen(
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement =
-                Arrangement.spacedBy(dimensionResource(R.dimen.record_metric_spacing))
+                Arrangement.spacedBy(dimensions.recordMetricSpacing)
         ) {
             MetricItem(
                 label = stringResource(R.string.record_metric_time),
@@ -184,16 +178,16 @@ fun RecordScreen(
             Text(
                 text = stringResource(R.string.record_tracking_permission_required),
                 color = MaterialTheme.colorScheme.error,
-                fontSize = dimensionResource(R.dimen.record_permission_font_size).value.sp
+                style = MaterialTheme.typography.labelSmall
             )
         }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = dimensionResource(R.dimen.record_control_row_bottom_padding)),
+                .padding(bottom = dimensions.recordControlRowBottomPadding),
             horizontalArrangement =
-                Arrangement.spacedBy(dimensionResource(R.dimen.record_metric_spacing))
+                Arrangement.spacedBy(dimensions.recordMetricSpacing)
         ) {
             val startPauseIcon = if (uiState.isTracking) {
                 Icons.Default.Pause
@@ -216,7 +210,7 @@ fun RecordScreen(
             RecordControlButton(
                 label = stringResource(R.string.record_action_stop),
                 icon = Icons.Default.Stop,
-                containerColor = colorResource(R.color.record_stop_button_color),
+                containerColor = MaterialTheme.colorScheme.error,
                 contentColor = onAccent,
                 modifier = Modifier.weight(fullWeight),
                 onClick = onStopClick
@@ -227,35 +221,33 @@ fun RecordScreen(
 
 @Composable
 private fun MetricItem(label: String, value: String, modifier: Modifier = Modifier) {
-    val alphaDenominator = integerResource(R.integer.record_alpha_denominator)
-    val metricBackgroundAlpha =
-        integerResource(R.integer.record_metric_background_alpha).toFloat() /
-                alphaDenominator.toFloat()
+    val dimensions = LocalAppDimensions.current
+    val appShapes = LocalAppShapes.current
+    val typographyTokens = LocalAppTypographyTokens.current
+    val alphas = LocalAppAlphas.current
     Column(
         modifier = modifier
             .background(
-                Color.White.copy(alpha = metricBackgroundAlpha),
-                RoundedCornerShape(dimensionResource(R.dimen.record_metric_item_shape))
+                MaterialTheme.colorScheme.surface.copy(alpha = alphas.recordMetricBackground),
+                appShapes.roundedLg
             )
-            .padding(dimensionResource(R.dimen.record_metric_item_padding)),
+            .padding(dimensions.recordMetricItemPadding),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
             label,
             color = appTextMutedColor(),
-            fontSize = dimensionResource(R.dimen.record_metric_label_text_size).value.sp,
-            fontWeight = FontWeight.Bold
+            style = typographyTokens.labelTiny
         )
         Spacer(
             modifier = Modifier.height(
-                dimensionResource(R.dimen.record_metric_label_spacing)
+                dimensions.recordMetricLabelSpacing
             )
         )
         Text(
             value,
             color = appTextPrimaryColor(),
-            fontSize = dimensionResource(R.dimen.record_metric_value_text_size).value.sp,
-            fontWeight = FontWeight.ExtraBold
+            style = MaterialTheme.typography.titleMedium
         )
     }
 }
@@ -264,35 +256,37 @@ private fun MetricItem(label: String, value: String, modifier: Modifier = Modifi
 private fun RecordControlButton(
     label: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
-    containerColor: Color,
-    contentColor: Color,
+    containerColor: androidx.compose.ui.graphics.Color,
+    contentColor: androidx.compose.ui.graphics.Color,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val dimensions = LocalAppDimensions.current
+    val appShapes = LocalAppShapes.current
     val onClickThrottled = rememberThrottleClick(onClick = onClick)
     Button(
         onClick = onClickThrottled,
-        modifier = modifier.height(dimensionResource(R.dimen.record_control_button_height)),
+        modifier = modifier.height(dimensions.recordControlButtonHeight),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor
         ),
-        shape = RoundedCornerShape(dimensionResource(R.dimen.record_control_button_shape)),
-        contentPadding = PaddingValues(dimensionResource(R.dimen.record_control_button_padding))
+        shape = appShapes.roundedLg,
+        contentPadding = PaddingValues(dimensions.sizeZero)
     ) {
         Icon(
             icon,
             contentDescription = null,
-            modifier = Modifier.size(dimensionResource(R.dimen.record_control_button_icon_size))
+            modifier = Modifier.size(dimensions.recordControlButtonIconSize)
         )
         Spacer(
             modifier = Modifier.width(
-                dimensionResource(R.dimen.record_control_button_icon_spacing)
+                dimensions.recordControlButtonIconSpacing
             )
         )
         Text(
             label,
-            fontSize = dimensionResource(R.dimen.record_control_button_text_size).value.sp,
+            style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.Bold
         )
     }

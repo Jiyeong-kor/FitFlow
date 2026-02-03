@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
@@ -32,7 +31,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -42,6 +40,8 @@ import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 
 @Composable
@@ -106,16 +106,7 @@ private fun PermissionsScreen(
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val spacingSm =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_sm)
-    val spacingMd =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_md)
-    val spacingLg =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_lg)
-    val spacingXl =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_xl)
-    val spacing2xl =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_2xl)
+    val dimensions = LocalAppDimensions.current
     val onAgreeThrottled = rememberThrottleClick(onClick = onAgree)
     val onOpenSettingsThrottled = rememberThrottleClick(onClick = onOpenSettings)
 
@@ -151,22 +142,22 @@ private fun PermissionsScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
-            .padding(horizontal = spacingXl, vertical = spacing2xl)
+            .padding(horizontal = dimensions.spacingXl, vertical = dimensions.spacing2xl)
     ) {
         HeaderIcon()
-        Spacer(modifier = Modifier.height(spacingMd))
+        Spacer(modifier = Modifier.height(dimensions.spacingMd))
         Text(
             text = stringResource(id = R.string.permission_title),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-        Spacer(modifier = Modifier.height(spacingSm))
+        Spacer(modifier = Modifier.height(dimensions.spacingSm))
         Text(
             text = stringResource(id = R.string.permission_subtitle),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        Spacer(modifier = Modifier.height(spacingLg))
+        Spacer(modifier = Modifier.height(dimensions.spacingLg))
         permissions.forEach { permission ->
             AppContentCard {
                 PermissionRow(
@@ -174,7 +165,7 @@ private fun PermissionsScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            Spacer(modifier = Modifier.height(spacingMd))
+            Spacer(modifier = Modifier.height(dimensions.spacingMd))
         }
 
         if (permissionErrorResId != null) {
@@ -183,14 +174,14 @@ private fun PermissionsScreen(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error
             )
-            Spacer(modifier = Modifier.height(spacingMd))
+            Spacer(modifier = Modifier.height(dimensions.spacingMd))
         }
 
-        Spacer(modifier = Modifier.height(spacingLg))
+        Spacer(modifier = Modifier.height(dimensions.spacingLg))
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = onAgreeThrottled,
-            contentPadding = PaddingValues(vertical = spacingLg)
+            contentPadding = PaddingValues(vertical = dimensions.spacingLg)
         ) {
             Text(
                 text = stringResource(id = R.string.permission_agree),
@@ -198,11 +189,11 @@ private fun PermissionsScreen(
             )
         }
         if (showSettingsAction) {
-            Spacer(modifier = Modifier.height(spacingMd))
+            Spacer(modifier = Modifier.height(dimensions.spacingMd))
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = onOpenSettingsThrottled,
-                contentPadding = PaddingValues(vertical = spacingLg)
+                contentPadding = PaddingValues(vertical = dimensions.spacingLg)
             ) {
                 Text(
                     text = stringResource(id = R.string.permission_open_settings),
@@ -218,21 +209,13 @@ private fun PermissionRow(
     item: PermissionItem,
     modifier: Modifier = Modifier
 ) {
-    val spacingSm =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_sm)
-    val spacingMd =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_md)
-    val tagCornerRadius =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_tag_corner_radius)
-    val tagPaddingHorizontal =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_tag_padding_horizontal)
-    val tagPaddingVertical =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_tag_padding_vertical)
+    val dimensions = LocalAppDimensions.current
+    val appShapes = LocalAppShapes.current
     val weightOne = integerResource(id = R.integer.permission_weight_one).toFloat()
 
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(spacingMd),
+        horizontalArrangement = Arrangement.spacedBy(dimensions.spacingMd),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
@@ -243,7 +226,7 @@ private fun PermissionRow(
         Column(modifier = Modifier.weight(weightOne)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(spacingSm)
+                horizontalArrangement = Arrangement.spacedBy(dimensions.spacingSm)
             ) {
                 Text(
                     text = stringResource(id = item.titleResId),
@@ -253,13 +236,13 @@ private fun PermissionRow(
                 if (item.isEssential) {
                     Surface(
                         color = MaterialTheme.colorScheme.primaryContainer,
-                        shape = RoundedCornerShape(tagCornerRadius)
+                        shape = appShapes.roundedSm
                     ) {
                         Text(
                             text = stringResource(id = R.string.permission_essential),
                             modifier = Modifier.padding(
-                                horizontal = tagPaddingHorizontal,
-                                vertical = tagPaddingVertical
+                                horizontal = dimensions.onboardingTagPaddingHorizontal,
+                                vertical = dimensions.onboardingTagPaddingVertical
                             ),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onPrimaryContainer
@@ -267,7 +250,7 @@ private fun PermissionRow(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(spacingSm))
+            Spacer(modifier = Modifier.height(dimensions.spacingSm))
             Text(
                 text = stringResource(id = item.descriptionResId),
                 style = MaterialTheme.typography.bodyMedium,
@@ -282,14 +265,7 @@ private fun SuccessScreen(
     onContinue: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val spacingLg =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_lg)
-    val spacingXl =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_xl)
-    val spacing2xl =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_2xl)
-    val iconSize =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_icon_size)
+    val dimensions = LocalAppDimensions.current
     val weightOne = integerResource(id = R.integer.permission_weight_one).toFloat()
     val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
 
@@ -297,7 +273,7 @@ private fun SuccessScreen(
         modifier = modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = spacingXl, vertical = spacing2xl),
+            .padding(horizontal = dimensions.spacingXl, vertical = dimensions.spacing2xl),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.weight(weightOne))
@@ -305,15 +281,15 @@ private fun SuccessScreen(
             imageVector = Icons.AutoMirrored.Outlined.DirectionsRun,
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.size(iconSize)
+            modifier = Modifier.size(dimensions.onboardingIconSize)
         )
-        Spacer(modifier = Modifier.height(spacingLg))
+        Spacer(modifier = Modifier.height(dimensions.spacingLg))
         Text(
             text = stringResource(id = R.string.success_title),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-        Spacer(modifier = Modifier.height(spacingLg))
+        Spacer(modifier = Modifier.height(dimensions.spacingLg))
         Text(
             text = stringResource(id = R.string.success_subtitle),
             style = MaterialTheme.typography.bodyMedium,
@@ -324,7 +300,7 @@ private fun SuccessScreen(
         Button(
             modifier = Modifier.fillMaxWidth(),
             onClick = onContinueThrottled,
-            contentPadding = PaddingValues(vertical = spacingLg)
+            contentPadding = PaddingValues(vertical = dimensions.spacingLg)
         ) {
             Text(
                 text = stringResource(id = R.string.success_continue),
@@ -343,27 +319,21 @@ private data class PermissionItem(
 
 @Composable
 private fun HeaderIcon() {
-    val cornerRadius =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_corner_radius)
-    val iconContainerSize =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_icon_container_size)
-    val iconSize =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_icon_size)
-    val cardElevation =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.onboarding_card_elevation)
+    val dimensions = LocalAppDimensions.current
+    val appShapes = LocalAppShapes.current
 
     Card(
-        modifier = Modifier.size(iconContainerSize),
-        shape = RoundedCornerShape(cornerRadius),
+        modifier = Modifier.size(dimensions.onboardingIconContainerSize),
+        shape = appShapes.rounded2xl,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerHighest),
-        elevation = CardDefaults.cardElevation(defaultElevation = cardElevation)
+        elevation = CardDefaults.cardElevation(defaultElevation = dimensions.onboardingCardElevation)
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = Icons.AutoMirrored.Outlined.DirectionsRun,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(iconSize)
+                modifier = Modifier.size(dimensions.onboardingIconSize)
             )
         }
     }
@@ -374,21 +344,14 @@ private fun NoInternetDialog(
     onRetry: () -> Unit,
     onDismiss: () -> Unit
 ) {
-    val spacingSm =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_sm)
-    val spacingMd =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_md)
-    val spacingLg =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_lg)
-    val spacingXl =
-        dimensionResource(id = com.jeong.runninggoaltracker.shared.designsystem.R.dimen.spacing_xl)
+    val dimensions = LocalAppDimensions.current
     val onRetryThrottled = rememberThrottleClick(onClick = onRetry)
 
     Dialog(onDismissRequest = onDismiss) {
         AppSurfaceCard(
-            modifier = Modifier.padding(horizontal = spacingXl)
+            modifier = Modifier.padding(horizontal = dimensions.spacingXl)
         ) {
-            Column(verticalArrangement = Arrangement.spacedBy(spacingMd)) {
+            Column(verticalArrangement = Arrangement.spacedBy(dimensions.spacingMd)) {
                 Text(
                     text = stringResource(id = R.string.no_internet_title),
                     style = MaterialTheme.typography.titleMedium,
@@ -399,11 +362,11 @@ private fun NoInternetDialog(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-                Spacer(modifier = Modifier.height(spacingSm))
+                Spacer(modifier = Modifier.height(dimensions.spacingSm))
                 Button(
                     modifier = Modifier.fillMaxWidth(),
                     onClick = onRetryThrottled,
-                    contentPadding = PaddingValues(vertical = spacingLg)
+                    contentPadding = PaddingValues(vertical = dimensions.spacingLg)
                 ) {
                     Text(
                         text = stringResource(id = R.string.no_internet_retry),

@@ -10,9 +10,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Shape
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
 
 @Composable
 fun AppSurfaceCard(
@@ -23,7 +23,8 @@ fun AppSurfaceCard(
     content: @Composable () -> Unit
 ) {
     val dimensions = LocalAppDimensions.current
-    val resolvedShape = shape ?: RoundedCornerShape(dimensions.cardCornerRadius)
+    val appShapes = LocalAppShapes.current
+    val resolvedShape = shape ?: appShapes.roundedXl
     val resolvedContentPadding =
         contentPadding ?: PaddingValues(dimensions.surfaceCardContentPadding)
     Card(
