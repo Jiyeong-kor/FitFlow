@@ -42,10 +42,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
@@ -66,7 +63,6 @@ import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION
 import com.jeong.runninggoaltracker.feature.home.domain.CalendarDay
 import com.jeong.runninggoaltracker.feature.home.domain.CalendarMonthState
 import com.jeong.runninggoaltracker.feature.home.domain.HomeCalendarCalculator
-import com.jeong.runninggoaltracker.feature.home.domain.HomeDateRangeCalculator
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
@@ -86,41 +82,6 @@ import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
-
-@Composable
-fun HomeRoute(
-    onNavigateToRecord: () -> Unit,
-    onNavigateToGoal: () -> Unit,
-    onNavigateToReminder: () -> Unit,
-    viewModel: HomeViewModel
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(viewModel) {
-        viewModel.effect.collect { effect ->
-            when (effect) {
-                HomeUiEffect.NavigateToRecord -> onNavigateToRecord()
-                HomeUiEffect.NavigateToGoal -> onNavigateToGoal()
-                HomeUiEffect.NavigateToReminder -> onNavigateToReminder()
-            }
-        }
-    }
-
-    HomeScreen(
-        uiState = uiState,
-        onPeriodSelected = viewModel::onPeriodSelected,
-        onNavigatePreviousPeriod = viewModel::onNavigatePreviousPeriod,
-        onNavigateNextPeriod = viewModel::onNavigateNextPeriod,
-        onDateSelected = viewModel::onDateSelected,
-        onCalendarOpen = viewModel::onCalendarOpen,
-        onCalendarDismiss = viewModel::onCalendarDismiss,
-        onCalendarPreviousMonth = viewModel::onPreviousCalendarMonth,
-        onCalendarNextMonth = viewModel::onNextCalendarMonth,
-        onRecordClick = viewModel::onRecordClick,
-        onGoalClick = viewModel::onGoalClick,
-        onReminderClick = viewModel::onReminderClick
-    )
-}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -215,6 +176,7 @@ fun HomeScreen(
                 DateNavigator(
                     periodState = uiState.periodState,
                     selectedDateMillis = uiState.selectedDateState.dateMillis,
+                    weeklyRange = uiState.weeklyRange,
                     onNavigatePreviousPeriod = onNavigatePreviousPeriod,
                     onNavigateNextPeriod = onNavigateNextPeriod
                 )
@@ -339,10 +301,11 @@ private fun PeriodSegmentedTabs(
 private fun DateNavigator(
     periodState: PeriodState,
     selectedDateMillis: Long,
+    weeklyRange: HomeWeeklyRange,
     onNavigatePreviousPeriod: () -> Unit,
     onNavigateNextPeriod: () -> Unit
 ) {
-    val label = periodLabel(periodState, selectedDateMillis)
+    val label = periodLabel(periodState, selectedDateMillis, weeklyRange)
     val textPrimary = appTextPrimaryColor()
     val onPreviousClickThrottled = rememberThrottleClick(onClick = onNavigatePreviousPeriod)
     val onNextClickThrottled = rememberThrottleClick(onClick = onNavigateNextPeriod)
@@ -731,7 +694,11 @@ private fun CalendarBottomSheet(
 }
 
 @Composable
-private fun periodLabel(periodState: PeriodState, selectedDateMillis: Long): String {
+private fun periodLabel(
+    periodState: PeriodState,
+    selectedDateMillis: Long,
+    weeklyRange: HomeWeeklyRange
+): String {
     val locale = Locale.getDefault()
     val dayPattern = stringResource(R.string.home_date_format_day)
     val monthPattern = stringResource(R.string.home_date_format_month)
@@ -746,11 +713,10 @@ private fun periodLabel(periodState: PeriodState, selectedDateMillis: Long): Str
         )
 
         PeriodState.WEEKLY -> {
-            val (start, end) = weekRange(selectedDateMillis)
             stringResource(
                 R.string.home_period_weekly_range_format,
-                rangeFormatter.format(start),
-                rangeFormatter.format(end)
+                rangeFormatter.format(weeklyRange.startMillis),
+                rangeFormatter.format(weeklyRange.endMillis)
             )
         }
 
@@ -789,9 +755,6 @@ private fun yearMonthLabel(state: CalendarMonthState): String {
     return formatter.format(calendar.timeInMillis)
 }
 
-private fun weekRange(selectedDateMillis: Long): Pair<Long, Long> =
-    HomeDateRangeCalculator().weekRange(selectedDateMillis)
-
 private fun calendarDayOfWeekLabels(): List<Int> = listOf(
     R.string.home_day_of_week_sun,
     R.string.home_day_of_week_mon,
@@ -823,6 +786,10 @@ private fun HomeScreenPreview() {
         selectedDateState = SelectedDateState(dateMillis = baseMillis),
         calendarMonthState = calendarMonthState,
         calendarDays = calendarCalculator.buildCalendarDays(calendarMonthState),
+        weeklyRange = HomeWeeklyRange(
+            startMillis = baseMillis,
+            endMillis = baseMillis
+        ),
         summary = HomeSummaryUiState(
             totalDistanceKm = totalDistance,
             totalCalories = integerResource(R.integer.home_preview_total_calories),

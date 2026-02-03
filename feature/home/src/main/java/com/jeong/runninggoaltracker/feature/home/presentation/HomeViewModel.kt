@@ -9,8 +9,6 @@ import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodDateCalculator
-import com.jeong.runninggoaltracker.feature.home.domain.CalendarDay
-import com.jeong.runninggoaltracker.feature.home.domain.CalendarMonthState
 import com.jeong.runninggoaltracker.feature.home.domain.HomeCalendarCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -23,23 +21,6 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-data class HomeUiState(
-    val periodState: PeriodState = PeriodState.DAILY,
-    val selectedDateState: SelectedDateState,
-    val isCalendarVisible: Boolean = false,
-    val calendarMonthState: CalendarMonthState,
-    val calendarDays: List<CalendarDay?> = emptyList(),
-    val summary: HomeSummaryUiState = HomeSummaryUiState(),
-    val activityLogs: List<HomeWorkoutLogUiModel> = emptyList(),
-    val weeklyGoalKm: Double? = null
-)
-
-sealed interface HomeUiEffect {
-    data object NavigateToRecord : HomeUiEffect
-    data object NavigateToGoal : HomeUiEffect
-    data object NavigateToReminder : HomeUiEffect
-}
 
 private data class HomeSummaryRecords(
     val summary: RunningSummary,
@@ -56,14 +37,16 @@ class HomeViewModel @Inject constructor(
     private val calendarCalculator: HomeCalendarCalculator
 ) : ViewModel() {
 
-    private val periodState = MutableStateFlow(PeriodState.DAILY)
-    private val selectedDateState = MutableStateFlow(
-        SelectedDateState(dateMillis = periodDateCalculator.startOfDayMillis(dateProvider.getToday()))
+    private val initialSelectedDateState = SelectedDateState(
+        dateMillis = periodDateCalculator.startOfDayMillis(dateProvider.getToday())
     )
-    private val calendarVisibility = MutableStateFlow(false)
-    private val calendarMonthState = MutableStateFlow(
+    private val initialCalendarMonthState =
         calendarCalculator.monthStateFromMillis(dateProvider.getToday())
-    )
+
+    private val periodState = MutableStateFlow(PeriodState.DAILY)
+    private val selectedDateState = MutableStateFlow(initialSelectedDateState)
+    private val calendarVisibility = MutableStateFlow(false)
+    private val calendarMonthState = MutableStateFlow(initialCalendarMonthState)
 
     private val _effect = MutableSharedFlow<HomeUiEffect>()
     val effect = _effect.asSharedFlow()
@@ -94,18 +77,14 @@ class HomeViewModel @Inject constructor(
         }.stateIn(
             scope = viewModelScope,
             started = SharingStarted.Eagerly,
-            initialValue = run {
-                val initialCalendarMonth =
-                    calendarCalculator.monthStateFromMillis(dateProvider.getToday())
-                HomeUiState(
-                    selectedDateState = SelectedDateState(
-                        dateMillis = periodDateCalculator.startOfDayMillis(dateProvider.getToday())
-                    ),
-                    isCalendarVisible = false,
-                    calendarMonthState = initialCalendarMonth,
-                    calendarDays = calendarCalculator.buildCalendarDays(initialCalendarMonth)
-                )
-            }
+            initialValue = uiStateMapper.map(
+                summary = RunningSummary(),
+                records = emptyList(),
+                period = PeriodState.DAILY,
+                selectedDateState = initialSelectedDateState,
+                isCalendarVisible = false,
+                calendarMonthState = initialCalendarMonthState
+            )
         )
 
     fun onPeriodSelected(period: PeriodState) {
