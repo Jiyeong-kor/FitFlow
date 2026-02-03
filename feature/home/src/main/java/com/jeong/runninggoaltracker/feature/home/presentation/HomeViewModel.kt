@@ -3,38 +3,24 @@ package com.jeong.runninggoaltracker.feature.home.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.model.PeriodState
-import com.jeong.runninggoaltracker.domain.model.RunningRecord
-import com.jeong.runninggoaltracker.domain.model.RunningSummary
-import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
-import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodDateCalculator
 import com.jeong.runninggoaltracker.feature.home.domain.HomeCalendarCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private data class HomeSummaryRecords(
-    val summary: RunningSummary,
-    val records: List<RunningRecord>
-)
-
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    getRunningSummaryUseCase: GetRunningSummaryUseCase,
-    getRunningRecordsUseCase: GetRunningRecordsUseCase,
     dateProvider: DateProvider,
     private val periodDateCalculator: RunningPeriodDateCalculator,
-    private val uiStateMapper: HomeUiStateMapper,
-    private val calendarCalculator: HomeCalendarCalculator
+    private val calendarCalculator: HomeCalendarCalculator,
+    stateHolder: HomeStateHolder
 ) : ViewModel() {
 
     private val initialSelectedDateState = SelectedDateState(
@@ -51,40 +37,19 @@ class HomeViewModel @Inject constructor(
     private val _effect = MutableSharedFlow<HomeUiEffect>()
     val effect = _effect.asSharedFlow()
 
-    private val summaryRecords = combine(
-        getRunningSummaryUseCase(),
-        getRunningRecordsUseCase()
-    ) { summary, records ->
-        HomeSummaryRecords(summary = summary, records = records)
-    }
-
     val uiState: StateFlow<HomeUiState> =
-        combine(
-            summaryRecords,
-            periodState,
-            selectedDateState,
-            calendarVisibility,
-            calendarMonthState
-        ) { summaryRecords, period, selectedDate, isCalendarVisible, calendarMonth ->
-            uiStateMapper.map(
-                summary = summaryRecords.summary,
-                records = summaryRecords.records,
-                period = period,
-                selectedDateState = selectedDate,
-                isCalendarVisible = isCalendarVisible,
-                calendarMonthState = calendarMonth
-            )
-        }.stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.Eagerly,
-            initialValue = uiStateMapper.map(
-                summary = RunningSummary(),
-                records = emptyList(),
+        stateHolder.uiState(
+            periodState = periodState,
+            selectedDateState = selectedDateState,
+            calendarVisibility = calendarVisibility,
+            calendarMonthState = calendarMonthState,
+            initialState = stateHolder.initialState(
                 period = PeriodState.DAILY,
                 selectedDateState = initialSelectedDateState,
                 isCalendarVisible = false,
                 calendarMonthState = initialCalendarMonthState
-            )
+            ),
+            scope = viewModelScope
         )
 
     fun onPeriodSelected(period: PeriodState) {
