@@ -6,13 +6,11 @@ import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -60,9 +58,11 @@ import com.jeong.runninggoaltracker.domain.model.PoseSide
 import com.jeong.runninggoaltracker.domain.model.SquatPhase
 import com.jeong.runninggoaltracker.feature.ai_coach.BuildConfig
 import com.jeong.runninggoaltracker.feature.ai_coach.R
-import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SMART_WORKOUT_ACCURACY_PERCENT_MULTIPLIER
+import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCardPadding
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCardTone
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppTypographyTokens
@@ -73,7 +73,6 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingXl
-import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -103,14 +102,8 @@ fun SmartWorkoutScreen(
     val onBackClick = rememberThrottleClick(onClick = onBack)
     val onToggleDebugOverlayClick = rememberThrottleClick(onClick = onToggleDebugOverlay)
     val debugToggleLabel = stringResource(R.string.smart_workout_debug_toggle)
-    val containerColor by animateColorAsState(
-        targetValue = if (uiState.isPerfectForm) {
-            MaterialTheme.colorScheme.primaryContainer
-        } else {
-            appSurfaceColor()
-        },
-        label = SmartWorkoutAnimationContract.FEEDBACK_CARD_ANIMATION_LABEL
-    )
+    val cardTone =
+        if (uiState.isPerfectForm) AppSurfaceCardTone.Emphasized else AppSurfaceCardTone.Default
     val accuracyProgress by animateFloatAsState(
         targetValue = uiState.accuracy,
         label = SmartWorkoutAnimationContract.ACCURACY_PROGRESS_ANIMATION_LABEL
@@ -524,8 +517,8 @@ fun SmartWorkoutScreen(
                     horizontal = appSpacingLg(),
                     vertical = appSpacingXl()
                 ),
-            containerColor = containerColor,
-            contentPadding = PaddingValues(appSpacingLg())
+            tone = cardTone,
+            padding = AppSurfaceCardPadding.Large
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(appSpacingSm())) {
                 Text(

@@ -3,7 +3,6 @@ package com.jeong.runninggoaltracker.feature.mypage.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -59,6 +58,7 @@ import com.jeong.runninggoaltracker.feature.mypage.contract.MYPAGE_ZERO_INT
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppProgressBar
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCardPadding
 import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
@@ -203,7 +203,7 @@ private fun MyPageContent(
             ProfileSection(uiState.userNickname, uiState.userLevel, uiState.isAnonymous)
 
             if (uiState.isAnonymous) {
-                AppSurfaceCard(contentPadding = PaddingValues(appSpacingLg())) {
+                AppSurfaceCard(padding = AppSurfaceCardPadding.Large) {
                     Column(verticalArrangement = Arrangement.spacedBy(appSpacingMd())) {
                         val upgradeAccountClick = rememberThrottleClick(onClick = {})
                         Text(
@@ -320,7 +320,7 @@ private fun SummaryStats(uiState: MyPageUiState) {
             dimensions.myPageSummarySpacing
         )
     ) {
-        val context = LocalContext.current
+        LocalContext.current
         val distanceFormatter = remember(locale) {
             DistanceFormatter(
                 localeProvider = { locale },
@@ -410,8 +410,7 @@ private fun GoalProgressCard(uiState: MyPageUiState, onClick: () -> Unit) {
             }
             AppProgressBar(
                 progress = uiState.summary?.progress ?: zeroFloat,
-                modifier = Modifier.fillMaxWidth(),
-                height = dimensions.myPageProgressHeight
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

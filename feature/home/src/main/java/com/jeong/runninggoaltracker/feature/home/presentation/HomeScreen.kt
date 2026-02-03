@@ -123,7 +123,7 @@ fun HomeScreen(
     }
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
-    val surfaceColor = appSurfaceColor()
+    appSurfaceColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
     val dimensions = LocalAppDimensions.current
@@ -207,8 +207,7 @@ fun HomeScreen(
                     summary = summary,
                     accentColor = accentColor,
                     textPrimary = textPrimary,
-                    textMuted = textMuted,
-                    surfaceColor = surfaceColor
+                    textMuted = textMuted
                 )
             }
         }
@@ -357,10 +356,9 @@ private fun SummaryCard(
     summary: HomeSummaryUiState,
     accentColor: androidx.compose.ui.graphics.Color,
     textPrimary: androidx.compose.ui.graphics.Color,
-    textMuted: androidx.compose.ui.graphics.Color,
-    surfaceColor: androidx.compose.ui.graphics.Color
+    textMuted: androidx.compose.ui.graphics.Color
 ) {
-    AppSurfaceCard(containerColor = surfaceColor) {
+    AppSurfaceCard {
         Column(verticalArrangement = Arrangement.spacedBy(appSpacingMd())) {
             Text(
                 text = stringResource(R.string.home_summary_title),

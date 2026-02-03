@@ -50,7 +50,6 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTracker
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appOnAccentColor
-import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import java.util.Calendar
@@ -159,13 +158,10 @@ private fun ReminderCard(
     daysOfWeekLabelProvider: DaysOfWeekLabelProvider
 ) {
     val accentColor = appAccentColor()
-    val surfaceColor = appSurfaceColor()
     val textMuted = appTextMutedColor()
     val textPrimary = appTextPrimaryColor()
     val dimensions = LocalAppDimensions.current
-    val shapes = LocalAppShapes.current
     val typographyTokens = LocalAppTypographyTokens.current
-    val alphas = LocalAppAlphas.current
     val id = reminder.id
     val daysOfWeek = daysOfWeekLabelProvider.labels()
     val onDeleteReminderThrottled = rememberThrottleClick(onClick = { onDeleteReminder(id) })
@@ -178,18 +174,14 @@ private fun ReminderCard(
         R.string.reminder_toggle_accessibility,
         timeLabel
     )
-    val cardContentPadding = dimensions.reminderCardContentPadding
     val spacingMd = dimensions.reminderSpacingMd
     val daySpacing = dimensions.reminderSpacingSm
     val periodTextStyle = MaterialTheme.typography.labelSmall
     val timeTextStyle = typographyTokens.headlineLarge
-    val disabledSurfaceAlpha = alphas.reminderDisabledSurface
 
     AppSurfaceCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = shapes.roundedXl,
-        containerColor = if (reminder.enabled) surfaceColor else surfaceColor.copy(alpha = disabledSurfaceAlpha),
-        contentPadding = PaddingValues(cardContentPadding)
+        isEnabled = reminder.enabled
     ) {
         Column {
             Row(

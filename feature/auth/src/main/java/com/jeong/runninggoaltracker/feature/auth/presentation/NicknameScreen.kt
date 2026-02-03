@@ -34,6 +34,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCardPadding
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
@@ -77,12 +78,7 @@ fun NicknameScreen(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
-        AppSurfaceCard(
-            contentPadding = PaddingValues(
-                vertical = dimensions.spacingLg,
-                horizontal = dimensions.spacingXl
-            )
-        ) {
+        AppSurfaceCard(padding = AppSurfaceCardPadding.Wide) {
             androidx.compose.foundation.layout.Column(
                 verticalArrangement = Arrangement.spacedBy(dimensions.spacingSm)
             ) {
