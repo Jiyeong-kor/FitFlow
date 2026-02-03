@@ -3,12 +3,9 @@ package com.jeong.runninggoaltracker.app.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.foundation.layout.padding
-import androidx.compose.runtime.remember
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
-import com.google.firebase.Firebase
-import com.google.firebase.auth.auth
 import com.jeong.runninggoaltracker.app.ui.privacy.PrivacyPolicyRoute
 import com.jeong.runninggoaltracker.app.ui.privacy.PrivacyPolicyViewModel
 import com.jeong.runninggoaltracker.feature.ai_coach.navigation.aiCoachEntry
@@ -21,12 +18,14 @@ import com.jeong.runninggoaltracker.feature.reminder.navigation.reminderEntry
 import com.jeong.runninggoaltracker.shared.navigation.AuthRoute
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
+import com.jeong.runninggoaltracker.shared.navigation.NavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.composable
 import com.jeong.runninggoaltracker.shared.navigation.navigateTo
 
 @Composable
 fun AppNavGraph(
     tabItemsByTab: Map<MainTab, MainTabItem>,
+    startDestination: NavigationRoute,
     modifier: Modifier = Modifier
 ) {
     val navController = rememberNavController()
@@ -34,13 +33,6 @@ fun AppNavGraph(
         navController = navController,
         tabItemsByTab = tabItemsByTab
     )
-    val startDestination = remember {
-        if (Firebase.auth.currentUser?.displayName?.isNotBlank() == true) {
-            MainNavigationRoute.Home
-        } else {
-            AuthRoute.Onboarding
-        }
-    }
 
     MainContainerRoute(
         navController = navController,
