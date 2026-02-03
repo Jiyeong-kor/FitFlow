@@ -1,11 +1,11 @@
 package com.jeong.runninggoaltracker.app.ui.privacy
 
+import android.view.ViewGroup
 import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebResourceResponse
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.view.ViewGroup
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,7 +42,6 @@ fun PrivacyPolicyScreen(
     onReloadHandled: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val url = BuildConfig.PRIVACY_POLICY_URL
     val webViewDescription = stringResource(id = R.string.privacy_policy_webview_description)
     val errorMessage = stringResource(id = R.string.privacy_policy_load_error)
     val retryLabel = stringResource(id = R.string.privacy_policy_retry)
@@ -74,16 +73,13 @@ fun PrivacyPolicyScreen(
                     Text(text = errorMessage)
                     Button(
                         modifier = Modifier.padding(top = appSpacingMd()),
-                        onClick = {
-                            onRetry()
-                        }
+                        onClick = onRetry
                     ) {
                         Text(text = retryLabel)
                     }
                 }
             } else {
                 PrivacyPolicyWebView(
-                    url = url,
                     uiState = uiState,
                     onBack = onBack,
                     onLoadStarted = onLoadStarted,
@@ -113,7 +109,6 @@ fun PrivacyPolicyScreen(
 
 @Composable
 private fun PrivacyPolicyWebView(
-    url: String,
     uiState: PrivacyPolicyUiState,
     onBack: () -> Unit,
     onLoadStarted: () -> Unit,
@@ -123,6 +118,7 @@ private fun PrivacyPolicyWebView(
     webViewDescription: String,
     modifier: Modifier = Modifier
 ) {
+    val url = BuildConfig.PRIVACY_POLICY_URL
     val webViewHolder = remember { WebViewHolder() }
 
     BackHandler {
@@ -142,16 +138,20 @@ private fun PrivacyPolicyWebView(
                 (parent as? ViewGroup)?.removeView(this)
                 destroy()
             }
+            webViewHolder.webView = null
         }
     }
 
     AndroidView(
-        modifier = modifier.semantics { contentDescription = webViewDescription },
+        modifier = modifier.semantics {
+            contentDescription = webViewDescription
+        },
         factory = { context ->
             WebView(context).apply {
                 webViewHolder.webView = this
                 settings.javaScriptEnabled = false
                 webViewClient = object : WebViewClient() {
+
                     override fun onPageStarted(
                         view: WebView?,
                         url: String?,
@@ -160,7 +160,10 @@ private fun PrivacyPolicyWebView(
                         onLoadStarted()
                     }
 
-                    override fun onPageFinished(view: WebView?, url: String?) {
+                    override fun onPageFinished(
+                        view: WebView?,
+                        url: String?
+                    ) {
                         onLoadFinished()
                     }
 
