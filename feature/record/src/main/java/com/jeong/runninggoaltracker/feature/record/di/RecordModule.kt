@@ -5,10 +5,10 @@ import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionContro
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerMonitor
-import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionManager
+import com.jeong.runninggoaltracker.feature.record.recognition.DefaultActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionStateHolder
 import com.jeong.runninggoaltracker.feature.record.recognition.ActivityRecognitionMonitorHolder
-import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerManager
+import com.jeong.runninggoaltracker.feature.record.tracking.DefaultRunningTrackerController
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerStateHolder
 import com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerStateUpdater
 import dagger.Binds
@@ -28,7 +28,7 @@ abstract class RecordBindingsModule {
     @Binds
     @ViewModelScoped
     abstract fun bindActivityRecognitionController(
-        manager: ActivityRecognitionManager
+        controller: DefaultActivityRecognitionController
     ): ActivityRecognitionController
 }
 
@@ -43,10 +43,10 @@ object RecordSingletonModule {
 
     @Provides
     @Singleton
-    fun provideActivityRecognitionManager(
+    fun provideActivityRecognitionController(
         @ApplicationContext context: Context,
         stateHolder: ActivityRecognitionStateHolder
-    ): ActivityRecognitionManager = ActivityRecognitionManager(
+    ): DefaultActivityRecognitionController = DefaultActivityRecognitionController(
         context = context,
         activityStateUpdater = stateHolder
     )
@@ -70,7 +70,7 @@ abstract class RunningTrackerControllerBindingsModule {
     @Binds
     @ViewModelScoped
     abstract fun bindRunningTrackerController(
-        impl: RunningTrackerManager
+        impl: DefaultRunningTrackerController
     ): RunningTrackerController
 }
 

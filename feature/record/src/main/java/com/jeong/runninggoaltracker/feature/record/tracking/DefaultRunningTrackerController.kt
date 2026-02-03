@@ -11,7 +11,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.notification.Notificatio
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
-class RunningTrackerManager @Inject constructor(
+class DefaultRunningTrackerController @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val stateUpdater: RunningTrackerStateUpdater
 ) : RunningTrackerController {

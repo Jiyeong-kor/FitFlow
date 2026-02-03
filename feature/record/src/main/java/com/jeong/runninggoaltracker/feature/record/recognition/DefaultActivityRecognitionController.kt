@@ -16,7 +16,7 @@ import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognition
 import com.jeong.runninggoaltracker.feature.record.contract.ActivityRecognitionContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 
-class ActivityRecognitionManager @Inject constructor(
+class DefaultActivityRecognitionController @Inject constructor(
     private val context: Context,
     private val activityStateUpdater: ActivityStateUpdater
 ) : ActivityRecognitionController {
