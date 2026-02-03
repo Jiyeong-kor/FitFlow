@@ -1,6 +1,7 @@
 package com.jeong.runninggoaltracker.feature.ai_coach.presentation
 
 import android.content.Context
+import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.lifecycle.ProcessCameraProvider
@@ -664,7 +665,9 @@ private fun CameraPreview(
     DisposableEffect(lifecycleOwner) {
         onDispose {
             cameraProviderHolder.cameraProvider?.unbindAll()
+            cameraProviderHolder.cameraProvider = null
             executor.shutdown()
+            (previewView.parent as? ViewGroup)?.removeView(previewView)
         }
     }
 
