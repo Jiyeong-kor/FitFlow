@@ -20,7 +20,8 @@ data class AppAlphas(
     val homeActivityArrowTint: Float,
     val homeSummaryMetricBackground: Float,
     val progressBarBackground: Float,
-    val debugOverlaySurface: Float
+    val debugOverlaySurface: Float,
+    val transparent: Float
 )
 
 val LocalAppAlphas = staticCompositionLocalOf {
@@ -41,7 +42,8 @@ val LocalAppAlphas = staticCompositionLocalOf {
         homeActivityArrowTint = 0f,
         homeSummaryMetricBackground = 0f,
         progressBarBackground = 0f,
-        debugOverlaySurface = 0f
+        debugOverlaySurface = 0f,
+        transparent = 0f
     )
 }
 
@@ -62,5 +64,6 @@ fun appAlphas(): AppAlphas = AppAlphas(
     homeActivityArrowTint = 0.4f,
     homeSummaryMetricBackground = 0.1f,
     progressBarBackground = 0.7f,
-    debugOverlaySurface = 0.92f
+    debugOverlaySurface = 0.92f,
+    transparent = 0f
 )

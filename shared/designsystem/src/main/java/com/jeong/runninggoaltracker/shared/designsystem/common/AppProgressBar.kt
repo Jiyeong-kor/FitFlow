@@ -12,8 +12,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.res.integerResource
-import com.jeong.runninggoaltracker.shared.designsystem.R
+import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 
 @Composable
@@ -26,10 +26,9 @@ fun AppProgressBar(
 ) {
     val dimensions = LocalAppDimensions.current
     val resolvedHeight = height ?: dimensions.progressBarHeight
-    val percentScale = integerResource(R.integer.percentage_scale).toFloat()
-    val cornerDivisor = integerResource(R.integer.progress_bar_corner_divisor).toFloat()
-    val backgroundAlpha =
-        integerResource(R.integer.progress_bar_background_alpha_percent).toFloat() / percentScale
+    val alphas = LocalAppAlphas.current
+    val cornerDivisor = AppNumericTokens.progressBarCornerDivisor.toFloat()
+    val backgroundAlpha = alphas.progressBarBackground
     val resolvedBackgroundColor =
         backgroundColor ?: MaterialTheme.colorScheme.surfaceContainer.copy(alpha = backgroundAlpha)
     Box(
