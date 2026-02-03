@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -22,13 +21,11 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.ProgressIndicatorDefaults
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
@@ -52,7 +49,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
+import com.jeong.runninggoaltracker.feature.mypage.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppProgressBar
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
@@ -60,11 +59,10 @@ import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.PercentageFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
-import java.text.NumberFormat
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingSm
-import com.jeong.runninggoaltracker.feature.mypage.R
+import java.text.NumberFormat
 
 @Composable
 fun MyPageScreen(
@@ -314,10 +312,16 @@ private fun SummaryStats(uiState: MyPageUiState) {
     ) {
         val context = LocalContext.current
         val distanceFormatter = remember(locale) {
-            DistanceFormatter(localeProvider = { locale }, numberFormatFactory = NumberFormat::getNumberInstance)
+            DistanceFormatter(
+                localeProvider = { locale },
+                numberFormatFactory = NumberFormat::getNumberInstance
+            )
         }
         val percentageFormatter = remember(locale) {
-            PercentageFormatter(localeProvider = { locale }, numberFormatFactory = NumberFormat::getNumberInstance)
+            PercentageFormatter(
+                localeProvider = { locale },
+                numberFormatFactory = NumberFormat::getNumberInstance
+            )
         }
         val distanceFractionDigits = NumericResourceProvider.distanceFractionDigits(context)
         val percentageFractionDigits = NumericResourceProvider.percentageFractionDigits(context)
@@ -392,12 +396,10 @@ private fun GoalProgressCard(uiState: MyPageUiState, onClick: () -> Unit) {
                     Text(text = stringResource(id = R.string.mypage_goal_progress_detail))
                 }
             }
-            LinearProgressIndicator(
-                progress = { uiState.summary?.progress ?: zeroFloat },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensionResource(id = R.dimen.mypage_progress_height)),
-                strokeCap = ProgressIndicatorDefaults.LinearStrokeCap
+            AppProgressBar(
+                progress = uiState.summary?.progress ?: zeroFloat,
+                modifier = Modifier.fillMaxWidth(),
+                height = dimensionResource(id = R.dimen.mypage_progress_height)
             )
         }
     }
