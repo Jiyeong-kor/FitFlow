@@ -3,7 +3,9 @@ package com.jeong.runninggoaltracker.app
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
 import com.jeong.runninggoaltracker.app.ui.screen.EntryPointScreen
+import com.jeong.runninggoaltracker.app.ui.navigation.MainNavigationViewModel
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,6 +16,7 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var activityRecognitionMonitor: ActivityRecognitionMonitor
+    private val mainNavigationViewModel: MainNavigationViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -21,6 +24,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             RunningGoalTrackerTheme {
                 EntryPointScreen(
+                    mainNavigationViewModel = mainNavigationViewModel
                 )
             }
         }
