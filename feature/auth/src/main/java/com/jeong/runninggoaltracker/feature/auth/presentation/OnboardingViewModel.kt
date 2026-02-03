@@ -1,6 +1,5 @@
 package com.jeong.runninggoaltracker.feature.auth.presentation
 
-import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.feature.auth.domain.OnboardingWorkflow
@@ -12,26 +11,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-
-enum class OnboardingStep {
-    Permissions,
-    Nickname,
-    Success
-}
-
-data class OnboardingUiState(
-    val step: OnboardingStep = OnboardingStep.Permissions,
-    val nickname: String = "",
-    val isLoading: Boolean = false,
-    val isNicknameValid: Boolean = false,
-    @field:StringRes val nicknameValidationMessage: Int? = null,
-    @field:StringRes val nicknameAvailabilityMessageResId: Int? = null,
-    val nicknameHintError: Boolean = false,
-    @field:StringRes val errorMessageResId: Int? = null,
-    @field:StringRes val permissionErrorResId: Int? = null,
-    val isPermissionPermanentlyDenied: Boolean = false,
-    val showNoInternetDialog: Boolean = false
-)
 
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
@@ -110,8 +89,4 @@ class OnboardingViewModel @Inject constructor(
             }
         }
     }
-}
-
-sealed interface OnboardingEffect {
-    data object OpenSettings : OnboardingEffect
 }
