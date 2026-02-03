@@ -9,8 +9,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.Dp
 import androidx.compose.material3.MaterialTheme
 import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
@@ -20,17 +18,14 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 fun AppProgressBar(
     progress: Float,
     modifier: Modifier = Modifier,
-    height: Dp? = null,
-    backgroundColor: Color? = null,
-    foregroundColor: Color = MaterialTheme.colorScheme.primary
 ) {
     val dimensions = LocalAppDimensions.current
-    val resolvedHeight = height ?: dimensions.progressBarHeight
+    val resolvedHeight = dimensions.progressBarHeight
     val alphas = LocalAppAlphas.current
     val cornerDivisor = AppNumericTokens.progressBarCornerDivisor.toFloat()
     val backgroundAlpha = alphas.progressBarBackground
     val resolvedBackgroundColor =
-        backgroundColor ?: MaterialTheme.colorScheme.surfaceContainer.copy(alpha = backgroundAlpha)
+        MaterialTheme.colorScheme.surfaceContainer.copy(alpha = backgroundAlpha)
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -42,7 +37,7 @@ fun AppProgressBar(
             modifier = Modifier
                 .fillMaxWidth(progress)
                 .fillMaxHeight()
-                .background(foregroundColor)
+                .background(MaterialTheme.colorScheme.primary)
         )
     }
 }
