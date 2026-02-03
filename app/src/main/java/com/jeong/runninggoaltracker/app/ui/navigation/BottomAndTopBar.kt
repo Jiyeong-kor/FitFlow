@@ -9,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
@@ -19,7 +18,7 @@ import com.jeong.runninggoaltracker.shared.navigation.isBottomTab
 import com.jeong.runninggoaltracker.shared.navigation.isRouteInHierarchy
 import com.jeong.runninggoaltracker.shared.navigation.navigateTo
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
-import com.jeong.runninggoaltracker.R
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 
 @Composable
 fun BottomAndTopBar(
@@ -27,8 +26,9 @@ fun BottomAndTopBar(
     navController: NavHostController,
 ) {
     val density = LocalDensity.current
+    val dimensions = LocalAppDimensions.current
     val insetPx = with(density) {
-        dimensionResource(R.dimen.navigation_bar_inset_none).roundToPx()
+        dimensions.sizeZero.roundToPx()
     }
 
     NavigationBar(windowInsets = WindowInsets(insetPx, insetPx, insetPx, insetPx)) {
