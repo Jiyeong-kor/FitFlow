@@ -26,8 +26,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -40,7 +38,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.sp
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
-import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
@@ -50,21 +47,6 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import java.util.Locale
-
-@Composable
-fun RecordRoute(
-    viewModel: RecordViewModel
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    RecordScreen(
-        uiState = uiState,
-        onStartActivityRecognition = viewModel::startActivityRecognition,
-        onStopActivityRecognition = viewModel::stopActivityRecognition,
-        onStartTracking = viewModel::startTracking,
-        onStopTracking = viewModel::stopTracking
-    )
-}
 
 @Composable
 fun RecordScreen(

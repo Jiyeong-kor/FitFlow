@@ -19,7 +19,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.remember
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -31,25 +30,6 @@ import com.jeong.runninggoaltracker.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppTopBar
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
-
-@Composable
-fun PrivacyPolicyRoute(
-    onBack: () -> Unit,
-    viewModel: PrivacyPolicyViewModel,
-    modifier: Modifier = Modifier
-) {
-    val uiState = viewModel.uiState.collectAsStateWithLifecycle().value
-    PrivacyPolicyScreen(
-        uiState = uiState,
-        onBack = onBack,
-        onRetry = viewModel::onRetry,
-        onLoadStarted = viewModel::onLoadStarted,
-        onLoadFinished = viewModel::onLoadFinished,
-        onLoadError = viewModel::onLoadError,
-        onReloadHandled = viewModel::onReloadHandled,
-        modifier = modifier
-    )
-}
 
 @Composable
 fun PrivacyPolicyScreen(

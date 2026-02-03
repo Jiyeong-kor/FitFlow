@@ -31,8 +31,6 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -53,8 +51,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_TWO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
@@ -85,79 +81,6 @@ import kotlin.coroutines.resume
 import kotlin.math.max
 import androidx.camera.core.Preview as CameraPreview
 import androidx.compose.ui.tooling.preview.Preview as ComposePreview
-
-@Composable
-fun SmartWorkoutRoute(
-    onBack: () -> Unit,
-    viewModel: AiCoachViewModel
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val cooldownMs = integerResource(R.integer.smart_workout_feedback_cooldown_ms).toLong()
-    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-    val onBackClick = {
-        viewModel.persistWorkoutRepCount()
-        onBack()
-    }
-
-    SmartWorkoutEffectHandler(
-        viewModel = viewModel,
-        cooldownMs = cooldownMs,
-        repCount = uiState.repCount
-    )
-
-    DisposableEffect(lifecycleOwner, viewModel) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                viewModel.persistWorkoutRepCount()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-            viewModel.persistWorkoutRepCount()
-        }
-    }
-
-    SmartWorkoutScreen(
-        uiState = uiState,
-        imageAnalyzer = viewModel.imageAnalyzer,
-        onBack = onBackClick,
-        onToggleDebugOverlay = viewModel::toggleDebugOverlay,
-        onExerciseTypeChange = viewModel::updateExerciseType
-    )
-}
-
-@Composable
-private fun SmartWorkoutEffectHandler(
-    viewModel: AiCoachViewModel,
-    cooldownMs: Long,
-    repCount: Int
-) {
-    val context = LocalContext.current
-    val latestContext by rememberUpdatedState(context)
-    val ttsController = remember { SmartWorkoutTtsController(context) }
-
-    LaunchedEffect(cooldownMs) {
-        viewModel.updateSpeechCooldown(cooldownMs)
-    }
-
-    LaunchedEffect(repCount, viewModel) {
-        viewModel.logUiRepCount(repCount)
-    }
-
-    LaunchedEffect(viewModel, ttsController) {
-        viewModel.speechEvents.collect { event ->
-            val text = latestContext.getString(event.feedbackResId)
-            ttsController.speak(text)
-        }
-    }
-
-    DisposableEffect(ttsController) {
-        onDispose {
-            ttsController.shutdown()
-        }
-    }
-}
 
 @Composable
 fun SmartWorkoutScreen(
