@@ -1,6 +1,5 @@
 package com.jeong.runninggoaltracker.feature.reminder.presentation
 
-import androidx.annotation.IntegerRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,7 +13,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
@@ -32,9 +30,6 @@ import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.dimensionResource
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -43,14 +38,18 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import com.jeong.runninggoaltracker.feature.reminder.R
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppTypographyTokens
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
+import com.jeong.runninggoaltracker.shared.designsystem.theme.appOnAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
@@ -73,14 +72,16 @@ fun ReminderScreen(
     val onAddReminderThrottled = rememberThrottleClick(onClick = onAddReminder)
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
+    val onAccentColor = appOnAccentColor()
     val textPrimary = appTextPrimaryColor()
-    val paddingHorizontal = dimensionResource(id = R.dimen.reminder_padding_horizontal)
-    val spacingMd = dimensionResource(id = R.dimen.reminder_spacing_md)
-    val spacingLg = dimensionResource(id = R.dimen.reminder_spacing_lg)
-    val iconButtonSize = dimensionResource(id = R.dimen.reminder_icon_button_size)
-    val iconButtonCornerRadius = dimensionResource(id = R.dimen.reminder_icon_button_corner_radius)
-    val iconSize = dimensionResource(id = R.dimen.reminder_icon_size)
-    val titleTextSize = dimensionResource(id = R.dimen.reminder_text_title_size).value.sp
+    val dimensions = LocalAppDimensions.current
+    val shapes = LocalAppShapes.current
+    val typographyTokens = LocalAppTypographyTokens.current
+    val paddingHorizontal = dimensions.reminderPaddingHorizontal
+    val spacingMd = dimensions.reminderSpacingMd
+    val spacingLg = dimensions.reminderSpacingLg
+    val iconButtonSize = dimensions.reminderIconButtonSize
+    val iconSize = dimensions.reminderIconSize
 
     Column(
         modifier = Modifier
@@ -98,19 +99,19 @@ fun ReminderScreen(
             Text(
                 stringResource(R.string.reminder_title_settings),
                 color = textPrimary,
-                fontSize = titleTextSize,
+                style = typographyTokens.titleLargeAlt,
                 fontWeight = FontWeight.Bold
             )
             IconButton(
                 onClick = onAddReminderThrottled,
                 modifier = Modifier
-                    .background(accentColor, RoundedCornerShape(iconButtonCornerRadius))
+                    .background(accentColor, shapes.roundedSm)
                     .size(iconButtonSize)
             ) {
                 Icon(
                     Icons.Default.Add,
                     contentDescription = stringResource(R.string.reminder_add_button_label),
-                    tint = Color.White,
+                    tint = onAccentColor,
                     modifier = Modifier.size(iconSize)
                 )
             }
@@ -161,6 +162,10 @@ private fun ReminderCard(
     val surfaceColor = appSurfaceColor()
     val textMuted = appTextMutedColor()
     val textPrimary = appTextPrimaryColor()
+    val dimensions = LocalAppDimensions.current
+    val shapes = LocalAppShapes.current
+    val typographyTokens = LocalAppTypographyTokens.current
+    val alphas = LocalAppAlphas.current
     val id = reminder.id
     val daysOfWeek = daysOfWeekLabelProvider.labels()
     val onDeleteReminderThrottled = rememberThrottleClick(onClick = { onDeleteReminder(id) })
@@ -173,18 +178,17 @@ private fun ReminderCard(
         R.string.reminder_toggle_accessibility,
         timeLabel
     )
-    val cardCornerRadius = dimensionResource(id = R.dimen.reminder_card_corner_radius)
-    val cardContentPadding = dimensionResource(id = R.dimen.reminder_card_content_padding)
-    val spacingMd = dimensionResource(id = R.dimen.reminder_spacing_md)
-    val daySpacing = dimensionResource(id = R.dimen.reminder_spacing_sm)
-    val periodTextSize = dimensionResource(id = R.dimen.reminder_text_period_size).value.sp
-    val timeTextSize = dimensionResource(id = R.dimen.reminder_text_time_size).value.sp
-    val disabledSurfaceAlpha = alphaFromPercent(R.integer.reminder_alpha_disabled_surface_percent)
+    val cardContentPadding = dimensions.reminderCardContentPadding
+    val spacingMd = dimensions.reminderSpacingMd
+    val daySpacing = dimensions.reminderSpacingSm
+    val periodTextStyle = MaterialTheme.typography.labelSmall
+    val timeTextStyle = typographyTokens.headlineLarge
+    val disabledSurfaceAlpha = alphas.reminderDisabledSurface
 
     AppSurfaceCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(cardCornerRadius),
-        containerColor = if (reminder.enabled) surfaceColor else Color.White.copy(alpha = disabledSurfaceAlpha),
+        shape = shapes.roundedXl,
+        containerColor = if (reminder.enabled) surfaceColor else surfaceColor.copy(alpha = disabledSurfaceAlpha),
         contentPadding = PaddingValues(cardContentPadding)
     ) {
         Column {
@@ -204,13 +208,13 @@ private fun ReminderCard(
                     Text(
                         timeFormatter.periodLabel(reminder.hour),
                         color = textMuted,
-                        fontSize = periodTextSize,
+                        style = periodTextStyle,
                         fontWeight = FontWeight.Medium
                     )
                     Text(
                         timeFormatter.formatTime(reminder.hour, reminder.minute),
                         color = textPrimary,
-                        fontSize = timeTextSize,
+                        style = timeTextStyle,
                         fontWeight = FontWeight.Black
                     )
                 }
@@ -230,10 +234,10 @@ private fun ReminderCard(
                         role = Role.Switch
                     },
                     colors = SwitchDefaults.colors(
-                        checkedThumbColor = Color.White,
+                        checkedThumbColor = MaterialTheme.colorScheme.onPrimary,
                         checkedTrackColor = accentColor,
-                        uncheckedThumbColor = Color.Gray,
-                        uncheckedTrackColor = Color.Transparent
+                        uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant
                     )
                 )
             }
@@ -291,11 +295,14 @@ private fun ReminderCard(
 @Composable
 private fun DayBubble(day: String, isSelected: Boolean, onClick: () -> Unit) {
     val accentColor = appAccentColor()
-    val bubbleSize = dimensionResource(id = R.dimen.reminder_day_bubble_size)
-    val bubbleCornerRadius = dimensionResource(id = R.dimen.reminder_day_bubble_corner_radius)
-    val dayTextSize = dimensionResource(id = R.dimen.reminder_text_day_size).value.sp
-    val selectedAlpha = alphaFromPercent(R.integer.reminder_alpha_selected_day_background_percent)
-    val unselectedTextAlpha = alphaFromPercent(R.integer.reminder_alpha_unselected_day_text_percent)
+    val textMuted = appTextMutedColor()
+    val dimensions = LocalAppDimensions.current
+    val shapes = LocalAppShapes.current
+    val alphas = LocalAppAlphas.current
+    val bubbleSize = dimensions.reminderDayBubbleSize
+    val selectedAlpha = alphas.reminderSelectedDayBackground
+    val unselectedTextAlpha = alphas.reminderUnselectedDayText
+    val transparentAlpha = alphas.transparent
     val stateLabel = stringResource(
         if (isSelected) R.string.reminder_day_selected else R.string.reminder_day_unselected
     )
@@ -304,8 +311,10 @@ private fun DayBubble(day: String, isSelected: Boolean, onClick: () -> Unit) {
         modifier = Modifier
             .size(bubbleSize)
             .background(
-                color = if (isSelected) accentColor.copy(alpha = selectedAlpha) else Color.Transparent,
-                shape = RoundedCornerShape(bubbleCornerRadius)
+                color = if (isSelected) accentColor.copy(alpha = selectedAlpha) else MaterialTheme.colorScheme.surface.copy(
+                    alpha = transparentAlpha
+                ),
+                shape = shapes.roundedXs
             )
             .semantics {
                 contentDescription = day
@@ -317,17 +326,12 @@ private fun DayBubble(day: String, isSelected: Boolean, onClick: () -> Unit) {
     ) {
         Text(
             day,
-            color = if (isSelected) accentColor else Color.Gray.copy(alpha = unselectedTextAlpha),
-            fontSize = dayTextSize,
+            color = if (isSelected) accentColor else textMuted.copy(alpha = unselectedTextAlpha),
+            style = MaterialTheme.typography.labelSmall,
             fontWeight = FontWeight.Bold
         )
     }
 }
-
-@Composable
-private fun alphaFromPercent(@IntegerRes percentResId: Int): Float =
-    integerResource(id = percentResId).toFloat() /
-            integerResource(id = R.integer.reminder_percent_divisor).toFloat()
 
 @Preview(showBackground = true)
 @Composable

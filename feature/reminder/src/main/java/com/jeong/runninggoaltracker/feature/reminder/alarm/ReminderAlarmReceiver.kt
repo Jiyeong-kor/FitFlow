@@ -6,7 +6,7 @@ import android.content.Intent
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderAlarmContract
 import com.jeong.runninggoaltracker.feature.reminder.notification.ReminderNotifier
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.android.EntryPointAccessors
@@ -15,11 +15,11 @@ import dagger.hilt.components.SingletonComponent
 class ReminderAlarmReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
-        val payload = intent.toAlarmPayload(context)
+        val payload = intent.toAlarmPayload()
 
         ReminderNotifier.showNow(context, payload.hour, payload.minute)
 
-        val reminder = intent.toRunningReminderOrNull(context) ?: return
+        val reminder = intent.toRunningReminderOrNull() ?: return
 
         getEntryPoint(context)
             .reminderScheduler()
@@ -46,8 +46,8 @@ private data class AlarmPayload(
     val dayOfWeekRaw: Int,
 )
 
-private fun Intent.toAlarmPayload(context: Context): AlarmPayload {
-    val zeroInt = NumericResourceProvider.zeroInt(context)
+private fun Intent.toAlarmPayload(): AlarmPayload {
+    val zeroInt = AppNumericTokens.zeroInt
 
     return AlarmPayload(
         id = getIntExtra(ReminderAlarmContract.EXTRA_ID, zeroInt),
@@ -57,10 +57,10 @@ private fun Intent.toAlarmPayload(context: Context): AlarmPayload {
     )
 }
 
-private fun Intent.toRunningReminderOrNull(context: Context): RunningReminder? {
-    val zeroInt = NumericResourceProvider.zeroInt(context)
-    val minDay = NumericResourceProvider.reminderDayOfWeekMin(context)
-    val maxDay = NumericResourceProvider.reminderDayOfWeekMax(context)
+private fun Intent.toRunningReminderOrNull(): RunningReminder? {
+    val zeroInt = AppNumericTokens.zeroInt
+    val minDay = AppNumericTokens.reminderDayOfWeekMin
+    val maxDay = AppNumericTokens.reminderDayOfWeekMax
 
     val id = getIntExtra(ReminderAlarmContract.EXTRA_ID, zeroInt)
         .takeIf { it != zeroInt }

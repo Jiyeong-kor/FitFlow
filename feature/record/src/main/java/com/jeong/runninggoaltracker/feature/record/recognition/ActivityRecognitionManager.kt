@@ -14,7 +14,7 @@ import com.google.android.gms.location.ActivityRecognitionClient
 import javax.inject.Inject
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import com.jeong.runninggoaltracker.feature.record.contract.ActivityRecognitionContract
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 
 class ActivityRecognitionManager @Inject constructor(
     private val context: Context,
@@ -100,5 +100,5 @@ class ActivityRecognitionManager @Inject constructor(
     private fun requestCode(): Int = ActivityRecognitionContract.REQUEST_CODE
 
     private fun intervalMillis(): Long =
-        NumericResourceProvider.activityRecognitionIntervalMillis(context)
+        AppNumericTokens.recordActivityRecognitionIntervalMillis
 }

@@ -27,11 +27,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.record.R
+import com.jeong.runninggoaltracker.feature.record.contract.RECORD_PREVIEW_DISTANCE_HUNDREDTHS
+import com.jeong.runninggoaltracker.feature.record.contract.RECORD_PREVIEW_DISTANCE_SCALE_HUNDREDTHS
+import com.jeong.runninggoaltracker.feature.record.contract.RECORD_PREVIEW_ELAPSED_MILLIS
+import com.jeong.runninggoaltracker.feature.record.contract.RECORD_WEIGHT_FULL
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
@@ -56,7 +59,7 @@ fun RecordScreen(
     onStopTracking: () -> Unit,
 ) {
     val displayLabel = uiState.activityStatus.toRecordLabel()
-    val fullWeight = integerResource(R.integer.record_weight_full).toFloat()
+    val fullWeight = RECORD_WEIGHT_FULL
 
     val dimensions = LocalAppDimensions.current
     val typographyTokens = LocalAppTypographyTokens.current
@@ -329,11 +332,10 @@ private fun ActivityRecognitionStatus.toRecordLabel(): String =
 @Preview(showBackground = true)
 @Composable
 private fun RecordScreenPreview() {
-    val distanceScale =
-        integerResource(R.integer.record_preview_distance_scale_hundredths).toDouble()
+    val distanceScale = RECORD_PREVIEW_DISTANCE_SCALE_HUNDREDTHS
     val previewDistance =
-        integerResource(R.integer.record_preview_distance_hundredths).toDouble() / distanceScale
-    val previewElapsedMillis = integerResource(R.integer.record_preview_elapsed_millis).toLong()
+        RECORD_PREVIEW_DISTANCE_HUNDREDTHS.toDouble() / distanceScale
+    val previewElapsedMillis = RECORD_PREVIEW_ELAPSED_MILLIS
     val uiState = RecordUiState(
         activityStatus = ActivityRecognitionStatus.Running,
         isTracking = true,

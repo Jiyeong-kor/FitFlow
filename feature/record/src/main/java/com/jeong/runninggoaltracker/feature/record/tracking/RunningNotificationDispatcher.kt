@@ -9,7 +9,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.feature.record.contract.RecordNotificationContract
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -32,7 +32,7 @@ class RunningNotificationDispatcher @Inject constructor(
         val channelId = RecordNotificationContract.NOTIFICATION_CHANNEL_ID
         val distanceFormatted = distanceFormatter.formatDistanceKm(
             distanceKm = distanceKm,
-            fractionDigits = NumericResourceProvider.distanceFractionDigits(context)
+            fractionDigits = AppNumericTokens.distanceFractionDigits
         )
         val content = context.getString(
             R.string.record_notification_content,

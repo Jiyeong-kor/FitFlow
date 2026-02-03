@@ -9,7 +9,7 @@ import android.os.Build
 import androidx.annotation.RequiresPermission
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.reminder.contract.ReminderAlarmContract
-import com.jeong.runninggoaltracker.shared.designsystem.config.NumericResourceProvider
+import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Calendar
 import javax.inject.Inject
@@ -65,8 +65,8 @@ class ReminderAlarmScheduler @Inject constructor(
             }
         }
 
-        val zeroInt = NumericResourceProvider.zeroInt(context)
-        val oneInt = NumericResourceProvider.oneInt(context)
+        val zeroInt = AppNumericTokens.zeroInt
+        val oneInt = AppNumericTokens.oneInt
 
         val nowMillis = dateProvider.getToday()
         days.forEach { dayOfWeek ->
