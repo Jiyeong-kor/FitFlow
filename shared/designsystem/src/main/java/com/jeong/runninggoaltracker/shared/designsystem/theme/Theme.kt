@@ -93,7 +93,6 @@ private val appShapes = Shapes()
 @Composable
 fun RunningGoalTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-
     dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
@@ -113,7 +112,10 @@ fun RunningGoalTrackerTheme(
         shapes = appShapes
     ) {
         CompositionLocalProvider(
-            LocalAppDimensions provides appDimensions()
+            LocalAppDimensions provides appDimensions(),
+            LocalAppShapes provides appShapes(),
+            LocalAppTypographyTokens provides appTypographyTokens(),
+            LocalAppAlphas provides appAlphas()
         ) {
             content()
         }

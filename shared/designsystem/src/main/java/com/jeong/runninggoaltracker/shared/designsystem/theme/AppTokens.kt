@@ -24,6 +24,9 @@ fun appTextPrimaryColor(): Color = MaterialTheme.colorScheme.onSurface
 fun appTextMutedColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
+fun appKakaoYellow(): Color = kakaoYellow
+
+@Composable
 fun appSpacingSm(): Dp = LocalAppDimensions.current.spacingSm
 
 @Composable
