@@ -12,17 +12,18 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
-import com.jeong.runninggoaltracker.shared.designsystem.R
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 
 @Composable
 fun AppContentCard(
     modifier: Modifier = Modifier,
-    verticalArrangement: Arrangement.Vertical =
-        Arrangement.spacedBy(dimensionResource(R.dimen.card_spacing_small)),
+    verticalArrangement: Arrangement.Vertical? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val dimensions = LocalAppDimensions.current
+    val resolvedArrangement =
+        verticalArrangement ?: Arrangement.spacedBy(dimensions.cardSpacingSmall)
 
     Card(
         modifier = modifier
@@ -32,16 +33,16 @@ fun AppContentCard(
             containerColor = colorScheme.surfaceContainerLow
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = dimensionResource(R.dimen.card_elevation)
+            defaultElevation = dimensions.cardElevation
         ),
-        shape = RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius))
+        shape = RoundedCornerShape(dimensions.cardCornerRadius)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(dimensionResource(R.dimen.card_padding_large)),
-            verticalArrangement = verticalArrangement,
+                .padding(dimensions.cardPaddingLarge),
+            verticalArrangement = resolvedArrangement,
             content = content
         )
     }

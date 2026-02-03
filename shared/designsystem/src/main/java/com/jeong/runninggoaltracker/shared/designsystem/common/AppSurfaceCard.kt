@@ -12,8 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.res.dimensionResource
-import com.jeong.runninggoaltracker.shared.designsystem.R
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 
 @Composable
 fun AppSurfaceCard(
@@ -23,15 +22,16 @@ fun AppSurfaceCard(
     contentPadding: PaddingValues? = null,
     content: @Composable () -> Unit
 ) {
-    val resolvedShape = shape ?: RoundedCornerShape(dimensionResource(R.dimen.card_corner_radius))
-    val resolvedContentPadding = contentPadding
-        ?: PaddingValues(dimensionResource(R.dimen.app_surface_card_content_padding))
+    val dimensions = LocalAppDimensions.current
+    val resolvedShape = shape ?: RoundedCornerShape(dimensions.cardCornerRadius)
+    val resolvedContentPadding =
+        contentPadding ?: PaddingValues(dimensions.surfaceCardContentPadding)
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = resolvedShape,
         colors = CardDefaults.cardColors(containerColor = containerColor),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = dimensionResource(R.dimen.size_zero)
+            defaultElevation = dimensions.sizeZero
         )
     ) {
         Box(modifier = Modifier.padding(resolvedContentPadding)) {
