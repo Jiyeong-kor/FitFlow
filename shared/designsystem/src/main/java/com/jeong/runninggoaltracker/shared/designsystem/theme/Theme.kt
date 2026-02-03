@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.shared.designsystem.theme
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Shapes
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
@@ -86,6 +87,8 @@ private val darkScheme = darkColorScheme(
     surfaceContainerHighest = surfaceContainerHighestDark,
 )
 
+private val appShapes = Shapes()
+
 @Composable
 fun RunningGoalTrackerTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -106,6 +109,7 @@ fun RunningGoalTrackerTheme(
     MaterialTheme(
         colorScheme = colorScheme,
         typography = appTypography(),
+        shapes = appShapes,
         content = content
     )
 }
