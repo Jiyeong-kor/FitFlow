@@ -24,11 +24,11 @@ class OnboardingViewModel @Inject constructor(
     private val _isPrivacyAccepted = MutableStateFlow(false)
     val isPrivacyAccepted: StateFlow<Boolean> = _isPrivacyAccepted
 
-    fun onPermissionsResult(granted: Boolean, isPermanentlyDenied: Boolean) {
+    fun onPermissionsResult(isGranted: Boolean, isPermanentlyDenied: Boolean) {
         _uiState.update { currentState ->
             uiStateReducer.reducePermissionsResult(
                 currentState = currentState,
-                granted = granted,
+                isGranted = isGranted,
                 isPermanentlyDenied = isPermanentlyDenied
             )
         }

@@ -149,7 +149,7 @@ class AuthRepositoryImpl @Inject constructor(
                 val usernameSnapshot = transaction.get(usernameDocRef)
                 val usernameOwner = usernameSnapshot.getString(UsernameFirestoreFields.UID)
                 val canReserve = UsernameReservationPolicy.shouldAllowReservation(
-                    exists = usernameSnapshot.exists(),
+                    isExisting = usernameSnapshot.exists(),
                     ownerUid = usernameOwner,
                     currentUid = uid
                 )

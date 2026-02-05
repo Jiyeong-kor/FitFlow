@@ -9,7 +9,7 @@ class UsernameReservationPolicyTest {
     @Test
     fun `reservation allowed when username missing`() {
         val allowed = UsernameReservationPolicy.shouldAllowReservation(
-            exists = false,
+            isExisting = false,
             ownerUid = null,
             currentUid = "uid-1"
         )
@@ -20,7 +20,7 @@ class UsernameReservationPolicyTest {
     @Test
     fun `reservation denied when owned by different user`() {
         val allowed = UsernameReservationPolicy.shouldAllowReservation(
-            exists = true,
+            isExisting = true,
             ownerUid = "uid-2",
             currentUid = "uid-1"
         )

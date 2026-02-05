@@ -18,11 +18,11 @@ data class OnboardingUiState(
     val isNicknameValid: Boolean = false,
     @field:StringRes val nicknameValidationMessage: Int? = null,
     @field:StringRes val nicknameAvailabilityMessageResId: Int? = null,
-    val nicknameHintError: Boolean = false,
+    val shouldShowNicknameHintError: Boolean = false,
     @field:StringRes val errorMessageResId: Int? = null,
     @field:StringRes val permissionErrorResId: Int? = null,
     val isPermissionPermanentlyDenied: Boolean = false,
-    val showNoInternetDialog: Boolean = false,
+    val shouldShowNoInternetDialog: Boolean = false,
     val authProvider: AuthProvider? = null,
     val kakaoOidcSub: String? = null
 )

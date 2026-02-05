@@ -77,7 +77,7 @@ fun OnboardingScreen(
         OnboardingStep.Permissions -> PermissionsScreen(
             modifier = modifier,
             permissionErrorResId = uiState.permissionErrorResId,
-            showSettingsAction = uiState.isPermissionPermanentlyDenied,
+            shouldShowSettingsAction = uiState.isPermissionPermanentlyDenied,
             onAgree = onRequestPermissions,
             onOpenSettings = openSettingsThrottled
         )
@@ -106,7 +106,7 @@ fun OnboardingScreen(
         )
     }
 
-    if (uiState.showNoInternetDialog) {
+    if (uiState.shouldShowNoInternetDialog) {
         NoInternetDialog(
             onRetry = onRetryInternet,
             onDismiss = onDismissNoInternetDialog
@@ -192,7 +192,7 @@ private fun AuthChoiceScreen(
 @Composable
 private fun PermissionsScreen(
     @StringRes permissionErrorResId: Int?,
-    showSettingsAction: Boolean,
+    shouldShowSettingsAction: Boolean,
     onAgree: () -> Unit,
     onOpenSettings: () -> Unit,
     modifier: Modifier = Modifier
@@ -281,7 +281,7 @@ private fun PermissionsScreen(
                 style = MaterialTheme.typography.titleMedium
             )
         }
-        if (showSettingsAction) {
+        if (shouldShowSettingsAction) {
             Spacer(modifier = Modifier.height(dimensions.spacingMd))
             Button(
                 modifier = Modifier.fillMaxWidth(),
@@ -477,7 +477,7 @@ private fun PermissionsScreenPreview() =
     RunningGoalTrackerTheme {
         PermissionsScreen(
             permissionErrorResId = null,
-            showSettingsAction = false,
+            shouldShowSettingsAction = false,
             onAgree = {},
             onOpenSettings = {}
         )

@@ -12,10 +12,10 @@ class OnboardingUiStateReducer @Inject constructor() {
 
     fun reducePermissionsResult(
         currentState: OnboardingUiState,
-        granted: Boolean,
+        isGranted: Boolean,
         isPermanentlyDenied: Boolean
     ): OnboardingUiState =
-        if (granted) {
+        if (isGranted) {
             currentState.copy(
                 step = OnboardingStep.AuthChoice,
                 permissionErrorResId = null,
@@ -38,7 +38,7 @@ class OnboardingUiStateReducer @Inject constructor() {
             isNicknameValid = value.isNotBlank(),
             nicknameValidationMessage = null,
             nicknameAvailabilityMessageResId = null,
-            nicknameHintError = false,
+            shouldShowNicknameHintError = false,
             errorMessageResId = null
         )
 
@@ -48,12 +48,12 @@ class OnboardingUiStateReducer @Inject constructor() {
             errorMessageResId = null,
             nicknameValidationMessage = null,
             nicknameAvailabilityMessageResId = null,
-            nicknameHintError = false,
-            showNoInternetDialog = false
+            shouldShowNicknameHintError = false,
+            shouldShowNoInternetDialog = false
         )
 
     fun reduceNoInternetDismissed(currentState: OnboardingUiState): OnboardingUiState =
-        currentState.copy(showNoInternetDialog = false)
+        currentState.copy(shouldShowNoInternetDialog = false)
 
     fun reduceContinueResult(
         currentState: OnboardingUiState,
@@ -74,13 +74,13 @@ class OnboardingUiStateReducer @Inject constructor() {
                 isLoading = false,
                 isNicknameValid = false,
                 nicknameValidationMessage = validationUi.messageResId,
-                nicknameHintError = validationUi.showHintError
+                shouldShowNicknameHintError = validationUi.shouldShowHintError
             )
         }
 
         is OnboardingResult.NoInternet -> currentState.copy(
             isLoading = false,
-            showNoInternetDialog = true
+            shouldShowNoInternetDialog = true
         )
 
         is OnboardingResult.Failure -> when (val reason = result.reason) {
@@ -100,7 +100,7 @@ class OnboardingUiStateReducer @Inject constructor() {
                         isLoading = false,
                         isNicknameValid = false,
                         nicknameValidationMessage = R.string.nickname_taken_error,
-                        nicknameHintError = false
+                        shouldShowNicknameHintError = false
                     )
                 } else {
                     currentState.copy(
@@ -125,7 +125,7 @@ class OnboardingUiStateReducer @Inject constructor() {
 
         is OnboardingResult.NoInternet -> currentState.copy(
             isLoading = false,
-            showNoInternetDialog = true
+            shouldShowNoInternetDialog = true
         )
 
         is OnboardingResult.Success -> currentState.copy(isLoading = false)
@@ -162,19 +162,19 @@ class OnboardingUiStateReducer @Inject constructor() {
             is NicknameValidationResult.Valid -> NicknameValidationUiState(
                 isValid = true,
                 messageResId = null,
-                showHintError = false
+                shouldShowHintError = false
             )
 
             NicknameValidationResult.Error.EMPTY -> NicknameValidationUiState(
                 isValid = false,
                 messageResId = R.string.nickname_required_error,
-                showHintError = false
+                shouldShowHintError = false
             )
 
             NicknameValidationResult.Error.INVALID_FORMAT -> NicknameValidationUiState(
                 isValid = false,
                 messageResId = null,
-                showHintError = true
+                shouldShowHintError = true
             )
         }
 
@@ -190,5 +190,5 @@ class OnboardingUiStateReducer @Inject constructor() {
 private data class NicknameValidationUiState(
     val isValid: Boolean,
     @field:StringRes val messageResId: Int?,
-    val showHintError: Boolean
+    val shouldShowHintError: Boolean
 )
