@@ -1,7 +1,10 @@
 package com.jeong.runninggoaltracker.domain.usecase
 
 import com.jeong.runninggoaltracker.domain.model.AuthError
+import com.jeong.runninggoaltracker.domain.model.AuthProvider
 import com.jeong.runninggoaltracker.domain.model.AuthResult
+import com.jeong.runninggoaltracker.domain.model.KakaoAuthExchange
+import com.jeong.runninggoaltracker.domain.model.KakaoOidcToken
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
@@ -45,10 +48,19 @@ class CheckNicknameAvailabilityUseCaseTest {
 
         override suspend fun signInAnonymously(): Result<Unit> = error("Not used")
 
-        override suspend fun signInWithKakao(): Result<String> = error("Not used")
+        override suspend fun signInWithKakao(): Result<KakaoOidcToken> = error("Not used")
 
-        override suspend fun reserveNicknameAndCreateUserProfile(nickname: String): AuthResult<Unit> =
+        override suspend fun exchangeKakaoOidcToken(idToken: String): AuthResult<KakaoAuthExchange> =
             error("Not used")
+
+        override suspend fun signInWithCustomToken(customToken: String): AuthResult<Unit> =
+            error("Not used")
+
+        override suspend fun reserveNicknameAndCreateUserProfile(
+            nickname: String,
+            authProvider: AuthProvider,
+            kakaoOidcSub: String?
+        ): AuthResult<Unit> = error("Not used")
 
         override suspend fun checkNicknameAvailability(nickname: String): AuthResult<Boolean> {
             requestedNickname = nickname
@@ -57,8 +69,7 @@ class CheckNicknameAvailabilityUseCaseTest {
 
         override suspend fun deleteAccountAndReleaseNickname(): AuthResult<Unit> = error("Not used")
 
-        override suspend fun upgradeAnonymousWithCustomToken(customToken: String): AuthResult<Unit> =
-            error("Not used")
+        override fun isSignedIn(): Boolean = true
 
         override fun observeIsAnonymous(): Flow<Boolean> = emptyFlow()
 

@@ -1,7 +1,10 @@
 package com.jeong.runninggoaltracker.domain.usecase
 
 import com.jeong.runninggoaltracker.domain.model.AuthError
+import com.jeong.runninggoaltracker.domain.model.AuthProvider
 import com.jeong.runninggoaltracker.domain.model.AuthResult
+import com.jeong.runninggoaltracker.domain.model.KakaoAuthExchange
+import com.jeong.runninggoaltracker.domain.model.KakaoOidcToken
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -19,7 +22,7 @@ class AuthUseCaseContractTest {
             )
             val useCase = ReserveNicknameAndCreateUserProfileUseCase(repository)
 
-            val result = useCase("러너")
+            val result = useCase("러너", AuthProvider.ANONYMOUS, null)
 
             assertEquals(AuthError.NicknameTaken, (result as AuthResult.Failure).error)
         }
@@ -43,23 +46,31 @@ class AuthUseCaseContractTest {
 private class FakeAuthRepository(
     private val reserveResult: AuthResult<Unit> = AuthResult.Success(Unit),
     private val checkResult: AuthResult<Boolean> = AuthResult.Success(true),
-    private val deleteResult: AuthResult<Unit> = AuthResult.Success(Unit),
-    private val upgradeResult: AuthResult<Unit> = AuthResult.Success(Unit)
+    private val deleteResult: AuthResult<Unit> = AuthResult.Success(Unit)
 ) : AuthRepository {
     override suspend fun signInAnonymously(): Result<Unit> = Result.success(Unit)
 
-    override suspend fun signInWithKakao(): Result<String> = Result.success("token")
+    override suspend fun signInWithKakao(): Result<KakaoOidcToken> =
+        Result.success(KakaoOidcToken("idToken"))
 
-    override suspend fun reserveNicknameAndCreateUserProfile(nickname: String): AuthResult<Unit> =
-        reserveResult
+    override suspend fun exchangeKakaoOidcToken(idToken: String): AuthResult<KakaoAuthExchange> =
+        AuthResult.Success(KakaoAuthExchange("customToken", "sub"))
+
+    override suspend fun signInWithCustomToken(customToken: String): AuthResult<Unit> =
+        AuthResult.Success(Unit)
+
+    override suspend fun reserveNicknameAndCreateUserProfile(
+        nickname: String,
+        authProvider: AuthProvider,
+        kakaoOidcSub: String?
+    ): AuthResult<Unit> = reserveResult
 
     override suspend fun checkNicknameAvailability(nickname: String): AuthResult<Boolean> =
         checkResult
 
     override suspend fun deleteAccountAndReleaseNickname(): AuthResult<Unit> = deleteResult
 
-    override suspend fun upgradeAnonymousWithCustomToken(customToken: String): AuthResult<Unit> =
-        upgradeResult
+    override fun isSignedIn(): Boolean = true
 
     override fun observeIsAnonymous(): Flow<Boolean> = flowOf(false)
 
