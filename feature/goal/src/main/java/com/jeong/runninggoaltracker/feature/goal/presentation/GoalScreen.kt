@@ -143,8 +143,7 @@ fun GoalScreen(
                 Text(
                     text = goalDistanceLabel,
                     color = textPrimary,
-                    style = typographyTokens.displayLarge,
-                    fontWeight = FontWeight.Black
+                    style = typographyTokens.displayLarge
                 )
                 Text(
                     stringResource(R.string.goal_unit_km),

@@ -76,6 +76,7 @@ import com.jeong.runninggoaltracker.feature.home.domain.CalendarDay
 import com.jeong.runninggoaltracker.feature.home.domain.CalendarMonthState
 import com.jeong.runninggoaltracker.feature.home.domain.HomeCalendarCalculator
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
+import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCardTone
 import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
@@ -83,6 +84,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormat
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
+import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppTypographyTokens
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
@@ -203,9 +205,7 @@ fun HomeScreen(
             ) { summary ->
                 SummaryCard(
                     summary = summary,
-                    accentColor = accentColor,
-                    textPrimary = textPrimary,
-                    textMuted = textMuted
+                    accentColor = accentColor
                 )
             }
         }
@@ -352,11 +352,12 @@ private fun DateNavigator(
 @Composable
 private fun SummaryCard(
     summary: HomeSummaryUiState,
-    accentColor: androidx.compose.ui.graphics.Color,
-    textPrimary: androidx.compose.ui.graphics.Color,
-    textMuted: androidx.compose.ui.graphics.Color
+    accentColor: androidx.compose.ui.graphics.Color
 ) {
-    AppSurfaceCard {
+    val typographyTokens = LocalAppTypographyTokens.current
+    val textPrimary = MaterialTheme.colorScheme.onPrimaryContainer
+    val textMuted = MaterialTheme.colorScheme.onPrimaryContainer
+    AppSurfaceCard(tone = AppSurfaceCardTone.Emphasized) {
         Column(verticalArrangement = Arrangement.spacedBy(appSpacingMd())) {
             Text(
                 text = stringResource(R.string.home_summary_title),
@@ -366,8 +367,7 @@ private fun SummaryCard(
             Text(
                 text = stringResource(R.string.home_distance_value_format, summary.totalDistanceKm),
                 color = textPrimary,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold
+                style = typographyTokens.numericTitleLarge
             )
             Text(
                 text = stringResource(R.string.home_distance_unit_label),
@@ -417,6 +417,7 @@ private fun SummaryMetricItem(
 ) {
     val summaryMetricBackgroundAlpha = LocalAppAlphas.current.homeSummaryMetricBackground
     val shapes = LocalAppShapes.current
+    val typographyTokens = LocalAppTypographyTokens.current
 
     Column(
         modifier = Modifier
@@ -436,8 +437,7 @@ private fun SummaryMetricItem(
         Text(
             text = value,
             color = textPrimary,
-            style = MaterialTheme.typography.bodyMedium,
-            fontWeight = FontWeight.Bold
+            style = typographyTokens.numericBodyMedium
         )
     }
 }

@@ -250,7 +250,7 @@ private fun MetricItem(label: String, value: String, modifier: Modifier = Modifi
         Text(
             value,
             color = appTextPrimaryColor(),
-            style = MaterialTheme.typography.titleMedium
+            style = typographyTokens.numericTitleMedium
         )
     }
 }
