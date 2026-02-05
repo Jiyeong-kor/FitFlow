@@ -38,11 +38,13 @@ class SquatStateMachine(
 
             SquatState.DESCENDING -> {
                 when {
-                    applyTransition(kneeAngle <= bottomAngleThreshold, SquatState.BOTTOM) -> Unit
-                    applyTransition(
-                        kneeAngle >= standingAngleThreshold,
-                        SquatState.STANDING
-                    ) -> Unit
+                    kneeAngle <= bottomAngleThreshold -> {
+                        applyTransition(true, SquatState.BOTTOM)
+                    }
+
+                    kneeAngle >= standingAngleThreshold -> {
+                        applyTransition(true, SquatState.STANDING)
+                    }
 
                     else -> resetCandidate()
                 }
@@ -64,15 +66,13 @@ class SquatStateMachine(
 
             SquatState.REP_COMPLETE -> {
                 when {
-                    applyTransition(
-                        kneeAngle >= standingAngleThreshold,
-                        SquatState.STANDING
-                    ) -> Unit
+                    kneeAngle >= standingAngleThreshold -> {
+                        applyTransition(true, SquatState.STANDING)
+                    }
 
-                    applyTransition(
-                        kneeAngle <= descendingAngleThreshold,
-                        SquatState.DESCENDING
-                    ) -> Unit
+                    kneeAngle <= descendingAngleThreshold -> {
+                        applyTransition(true, SquatState.DESCENDING)
+                    }
 
                     else -> resetCandidate()
                 }
