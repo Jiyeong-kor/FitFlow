@@ -33,17 +33,17 @@ class SquatStateMachine(
         var repCompleted = false
         when (state) {
             SquatState.STANDING -> {
-                applyTransition(kneeAngle <= descendingAngleThreshold, SquatState.DESCENDING)
+                isTransitionApplied(kneeAngle <= descendingAngleThreshold, SquatState.DESCENDING)
             }
 
             SquatState.DESCENDING -> {
                 when {
                     kneeAngle <= bottomAngleThreshold -> {
-                        applyTransition(true, SquatState.BOTTOM)
+                        isTransitionApplied(true, SquatState.BOTTOM)
                     }
 
                     kneeAngle >= standingAngleThreshold -> {
-                        applyTransition(true, SquatState.STANDING)
+                        isTransitionApplied(true, SquatState.STANDING)
                     }
 
                     else -> resetCandidate()
@@ -51,11 +51,11 @@ class SquatStateMachine(
             }
 
             SquatState.BOTTOM -> {
-                applyTransition(kneeAngle >= ascendingAngleThreshold, SquatState.ASCENDING)
+                isTransitionApplied(kneeAngle >= ascendingAngleThreshold, SquatState.ASCENDING)
             }
 
             SquatState.ASCENDING -> {
-                if (applyTransition(
+                if (isTransitionApplied(
                         kneeAngle >= repCompleteAngleThreshold,
                         SquatState.REP_COMPLETE
                     )
@@ -67,11 +67,11 @@ class SquatStateMachine(
             SquatState.REP_COMPLETE -> {
                 when {
                     kneeAngle >= standingAngleThreshold -> {
-                        applyTransition(true, SquatState.STANDING)
+                        isTransitionApplied(true, SquatState.STANDING)
                     }
 
                     kneeAngle <= descendingAngleThreshold -> {
-                        applyTransition(true, SquatState.DESCENDING)
+                        isTransitionApplied(true, SquatState.DESCENDING)
                     }
 
                     else -> resetCandidate()
@@ -81,7 +81,7 @@ class SquatStateMachine(
         return SquatStateMachineResult(state = state, repCompleted = repCompleted)
     }
 
-    private fun applyTransition(condition: Boolean, nextState: SquatState): Boolean {
+    private fun isTransitionApplied(condition: Boolean, nextState: SquatState): Boolean {
         if (!condition) {
             resetCandidate()
             return false
