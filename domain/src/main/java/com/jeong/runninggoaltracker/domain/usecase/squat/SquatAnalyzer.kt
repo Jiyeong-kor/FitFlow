@@ -56,24 +56,24 @@ class SquatAnalyzer(
     private var hasBottomFeedback: Boolean = false
     private var previousPhase: SquatPhase = SquatPhase.UP
     private var lastFeedbackType: PostureFeedbackType = PostureFeedbackType.UNKNOWN
-    private var attemptActive: Boolean = false
-    private var attemptDepthReached: Boolean = false
+    private var isAttemptActive: Boolean = false
+    private var isAttemptDepthReached: Boolean = false
     private var attemptMinKneeAngle: Float? = null
     private var attemptDepthFrames: Int = SQUAT_INT_ZERO
     private var fullBodyInvisibleStartMs: Long? = null
-    private var notInFrameFeedbackEmitted: Boolean = false
-    private var wasStableUp: Boolean = true
+    private var isNotInFrameFeedbackEmitted: Boolean = false
+    private var isStableUp: Boolean = true
 
     override fun analyze(frame: PoseFrame): PoseAnalysisResult {
         val sideSelection = sideSelector.update(frame, previousPhase)
         val metrics =
             sideSelection.selectedSide?.let { metricsCalculator.calculate(frame, calibration, it) }
         val fullBodyState = updateFullBodyVisibility(frame)
-        val fullBodyVisible = fullBodyState.isVisible
+        val isFullBodyVisible = fullBodyState.isVisible
         val counterResult = repCounter.update(frame.timestampMs, metrics)
-        val skippedLowConfidence = metrics == null
+        val isLowConfidenceSkipped = metrics == null
         if (counterResult == null) {
-            val feedbackType = if (fullBodyVisible) {
+            val feedbackType = if (isFullBodyVisible) {
                 PostureFeedbackType.UNKNOWN
             } else {
                 PostureFeedbackType.NOT_IN_FRAME
@@ -93,13 +93,13 @@ class SquatAnalyzer(
                 lungeRepSummary = null,
                 warningEvent = null,
                 feedbackKeys = emptyList(),
-                skippedLowConfidence = skippedLowConfidence
+                isLowConfidenceSkipped = isLowConfidenceSkipped
             )
         }
         if (calibration == null && counterResult.isReliable && counterResult.phase == SquatPhase.UP) {
             metrics?.let { accumulateCalibration(it) }
         }
-        val attemptResult = updateAttemptState(counterResult, fullBodyVisible)
+        val attemptResult = updateAttemptState(counterResult, isFullBodyVisible)
         val feedbackResult = handleRepTracking(counterResult, metrics)
         val feedbackSummary = feedbackResult.repSummary ?: feedbackResult.bottomSummary
         val rawFeedbackType = when {
@@ -110,7 +110,7 @@ class SquatAnalyzer(
             else -> lastFeedbackType
         }
         val fullBodyFeedbackType =
-            if (fullBodyVisible) rawFeedbackType else PostureFeedbackType.NOT_IN_FRAME
+            if (isFullBodyVisible) rawFeedbackType else PostureFeedbackType.NOT_IN_FRAME
         val feedbackType = suppressStandingFeedback(counterResult, fullBodyFeedbackType)
         if (feedbackType != rawFeedbackType) {
             lastFeedbackType = feedbackType
@@ -146,10 +146,10 @@ class SquatAnalyzer(
             repMinKneeAngle = repMinKnee,
             repMinTrunkToThighAngle = repMinTrunkToThigh,
             repMaxTrunkTiltVerticalAngle = repMaxTrunkTilt,
-            attemptActive = attemptActive,
-            depthReached = attemptDepthReached,
+            isAttemptActive = isAttemptActive,
+            isDepthReached = isAttemptDepthReached,
             attemptMinKneeAngle = attemptMinKnee,
-            fullBodyVisible = fullBodyVisible,
+            isFullBodyVisible = isFullBodyVisible,
             fullBodyInvisibleDurationMs = fullBodyState.invisibleDurationMs,
             leftConfidenceSum = sideSelection.leftConfidenceSum,
             rightConfidenceSum = sideSelection.rightConfidenceSum,
@@ -162,7 +162,7 @@ class SquatAnalyzer(
             isCalibrated = calibration != null
         )
         val warningEvent = feedbackSummary?.let { summary ->
-            if (fullBodyVisible &&
+            if (isFullBodyVisible &&
                 feedbackType == rawFeedbackType &&
                 isFormCorrection(feedbackType)
             ) {
@@ -171,11 +171,11 @@ class SquatAnalyzer(
                 null
             }
         }
-        val stableUpEvent = shouldEmitStableUpEvent(counterResult, fullBodyVisible)
+        val stableUpEvent = shouldEmitStableUpEvent(counterResult, isFullBodyVisible)
         val feedbackEvent = when {
             fullBodyState.feedbackEvent != null -> fullBodyState.feedbackEvent
-            attemptResult.shallowFeedbackEvent -> PostureFeedbackType.TOO_SHALLOW
-            counterResult.repCompleted && fullBodyVisible -> feedbackType
+            attemptResult.isShallowFeedbackEvent -> PostureFeedbackType.TOO_SHALLOW
+            counterResult.isRepCompleted && isFullBodyVisible -> feedbackType
             stableUpEvent -> PostureFeedbackType.GOOD_FORM
             else -> null
         }
@@ -184,7 +184,7 @@ class SquatAnalyzer(
         }
         previousPhase = counterResult.phase
         return PoseAnalysisResult(
-            repCount = RepCount(counterResult.repCount, isIncremented = counterResult.repCompleted),
+            repCount = RepCount(counterResult.repCount, isIncremented = counterResult.isRepCompleted),
             feedback = PostureFeedback(
                 type = feedbackType,
                 isValid = feedbackSummary != null,
@@ -198,7 +198,7 @@ class SquatAnalyzer(
             lungeRepSummary = null,
             warningEvent = warningEvent,
             feedbackKeys = emptyList(),
-            skippedLowConfidence = skippedLowConfidence
+            isLowConfidenceSkipped = isLowConfidenceSkipped
         )
     }
 
@@ -256,7 +256,7 @@ class SquatAnalyzer(
             bottomSummary = scorer.score(buildRepMetrics(counterResult))
             hasBottomFeedback = true
         }
-        if (counterResult.repCompleted) {
+        if (counterResult.isRepCompleted) {
             repSummary = scorer.score(buildRepMetrics(counterResult))
             resetRepTracking()
             return SquatFeedbackResult(repSummary = repSummary, bottomSummary = bottomSummary)
@@ -274,45 +274,45 @@ class SquatAnalyzer(
 
     private fun updateAttemptState(
         counterResult: SquatRepCounterResult,
-        fullBodyVisible: Boolean
+        isFullBodyVisible: Boolean
     ): AttemptUpdateResult {
         val kneeAngle = counterResult.kneeAngleEma
         val isReliable = counterResult.isReliable
-        var shallowFeedbackEvent = false
-        if (!attemptActive &&
-            fullBodyVisible &&
+        var isShallowFeedbackEvent = false
+        if (!isAttemptActive &&
+            isFullBodyVisible &&
             isReliable &&
             kneeAngle <= SQUAT_DESCENDING_KNEE_ANGLE_THRESHOLD
         ) {
-            attemptActive = true
+            isAttemptActive = true
             attemptMinKneeAngle = kneeAngle
-            attemptDepthReached = false
+            isAttemptDepthReached = false
             attemptDepthFrames = SQUAT_INT_ZERO
-            wasStableUp = false
+            isStableUp = false
         }
-        if (attemptActive) {
+        if (isAttemptActive) {
             if (isReliable) {
                 attemptMinKneeAngle = attemptMinKneeAngle?.let { min(it, kneeAngle) } ?: kneeAngle
                 if (kneeAngle <= repCounter.downThreshold()) {
                     attemptDepthFrames += SQUAT_INT_ONE
                     if (attemptDepthFrames >= repCounter.downFramesRequired()) {
-                        attemptDepthReached = true
+                        isAttemptDepthReached = true
                     }
                 } else {
                     attemptDepthFrames = SQUAT_INT_ZERO
                 }
                 if (kneeAngle >= repCounter.upThreshold()) {
-                    if (!attemptDepthReached && fullBodyVisible) {
-                        shallowFeedbackEvent = true
+                    if (!isAttemptDepthReached && isFullBodyVisible) {
+                        isShallowFeedbackEvent = true
                     }
                     attemptDepthFrames = SQUAT_INT_ZERO
-                    attemptActive = false
+                    isAttemptActive = false
                 }
             } else {
                 attemptDepthFrames = SQUAT_INT_ZERO
             }
         }
-        return AttemptUpdateResult(shallowFeedbackEvent = shallowFeedbackEvent)
+        return AttemptUpdateResult(isShallowFeedbackEvent = isShallowFeedbackEvent)
     }
 
     private fun updateFullBodyVisibility(frame: PoseFrame): FullBodyVisibilityState {
@@ -320,7 +320,7 @@ class SquatAnalyzer(
         val startMs = fullBodyInvisibleStartMs
         return if (isVisible) {
             fullBodyInvisibleStartMs = null
-            notInFrameFeedbackEmitted = false
+            isNotInFrameFeedbackEmitted = false
             FullBodyVisibilityState(
                 isVisible = true,
                 invisibleDurationMs = SQUAT_INT_ZERO.toLong(),
@@ -331,9 +331,9 @@ class SquatAnalyzer(
             fullBodyInvisibleStartMs = startTimestamp
             val durationMs = frame.timestampMs - startTimestamp
             val shouldEmit = durationMs >= SQUAT_FULL_BODY_INVISIBLE_DURATION_MS &&
-                    !notInFrameFeedbackEmitted
+                    !isNotInFrameFeedbackEmitted
             if (shouldEmit) {
-                notInFrameFeedbackEmitted = true
+                isNotInFrameFeedbackEmitted = true
             }
             FullBodyVisibilityState(
                 isVisible = false,
@@ -345,14 +345,14 @@ class SquatAnalyzer(
 
     private fun shouldEmitStableUpEvent(
         counterResult: SquatRepCounterResult,
-        fullBodyVisible: Boolean
+        isFullBodyVisible: Boolean
     ): Boolean {
-        val stableUp = fullBodyVisible &&
+        val stableUp = isFullBodyVisible &&
                 counterResult.phase == SquatPhase.UP &&
                 counterResult.kneeAngleEma >= repCounter.upThreshold() &&
-                !attemptActive
-        val shouldEmit = stableUp && !wasStableUp
-        wasStableUp = stableUp
+                !isAttemptActive
+        val shouldEmit = stableUp && !isStableUp
+        isStableUp = stableUp
         return shouldEmit
     }
 
@@ -480,7 +480,7 @@ private data class SquatFeedbackResult(
 )
 
 private data class AttemptUpdateResult(
-    val shallowFeedbackEvent: Boolean
+    val isShallowFeedbackEvent: Boolean
 )
 
 private data class FullBodyVisibilityState(

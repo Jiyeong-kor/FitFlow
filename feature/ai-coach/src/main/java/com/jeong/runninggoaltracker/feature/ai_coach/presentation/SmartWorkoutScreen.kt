@@ -225,17 +225,17 @@ fun SmartWorkoutScreen(
                 } else {
                     stringResource(R.string.smart_workout_reliable_false)
                 }
-                val attemptActiveText = if (metrics.attemptActive) {
+                val attemptActiveText = if (metrics.isAttemptActive) {
                     stringResource(R.string.smart_workout_debug_on)
                 } else {
                     stringResource(R.string.smart_workout_debug_off)
                 }
-                val depthReachedText = if (metrics.depthReached) {
+                val depthReachedText = if (metrics.isDepthReached) {
                     stringResource(R.string.smart_workout_debug_on)
                 } else {
                     stringResource(R.string.smart_workout_debug_off)
                 }
-                val fullBodyVisibleText = if (metrics.fullBodyVisible) {
+                val fullBodyVisibleText = if (metrics.isFullBodyVisible) {
                     stringResource(R.string.smart_workout_debug_on)
                 } else {
                     stringResource(R.string.smart_workout_debug_off)

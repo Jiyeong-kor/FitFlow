@@ -48,13 +48,13 @@ class SquatFormScorer(
             metrics.minTrunkToThighAngle < trunkToThighSoftThreshold ->
                 issues.add(SquatFormIssue.EXCESS_TRUNK_LEAN_SOFT)
         }
-        if (heuristicConfig.enableHeelRiseProxy) {
+        if (heuristicConfig.isHeelRiseProxyEnabled) {
             val heelRatio = metrics.maxHeelRiseRatio
             if (heelRatio != null && heelRatio > heuristicConfig.heelRiseRatioThreshold) {
                 issues.add(SquatFormIssue.HEEL_RISE)
             }
         }
-        if (heuristicConfig.enableKneeForwardProxy) {
+        if (heuristicConfig.isKneeForwardProxyEnabled) {
             val kneeRatio = metrics.maxKneeForwardRatio
             if (kneeRatio != null && kneeRatio > heuristicConfig.kneeForwardRatioThreshold) {
                 issues.add(SquatFormIssue.KNEE_FORWARD_TRANSLATION)
@@ -79,8 +79,8 @@ class SquatFormScorer(
 
 private fun defaultHeuristicConfig(): SquatHeuristicConfig =
     SquatHeuristicConfig(
-        enableHeelRiseProxy = true,
+        isHeelRiseProxyEnabled = true,
         heelRiseRatioThreshold = SQUAT_HEEL_RISE_RATIO_THRESHOLD,
-        enableKneeForwardProxy = true,
+        isKneeForwardProxyEnabled = true,
         kneeForwardRatioThreshold = SQUAT_KNEE_FORWARD_RATIO_THRESHOLD
     )

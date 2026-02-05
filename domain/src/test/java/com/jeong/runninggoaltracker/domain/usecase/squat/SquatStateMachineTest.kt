@@ -28,6 +28,6 @@ class SquatStateMachineTest {
         val repComplete = stateMachine.update(170f, true)
 
         assertEquals(SquatState.REP_COMPLETE, repComplete.state)
-        assertTrue(repComplete.repCompleted)
+        assertTrue(repComplete.isRepCompleted)
     }
 }

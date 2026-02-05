@@ -14,7 +14,7 @@ import com.jeong.runninggoaltracker.domain.model.SquatState
 
 data class LungeStateMachineResult(
     val state: SquatState,
-    val repCompleted: Boolean,
+    val isRepCompleted: Boolean,
     val standingToDescendingCount: Int,
     val descendingToBottomCount: Int,
     val descendingToStandingCount: Int,
@@ -48,7 +48,7 @@ class LungeStateMachine(
         if (!isReliable) {
             return LungeStateMachineResult(
                 state = state,
-                repCompleted = false,
+                isRepCompleted = false,
                 standingToDescendingCount = standingToDescendingCount,
                 descendingToBottomCount = descendingToBottomCount,
                 descendingToStandingCount = descendingToStandingCount,
@@ -60,11 +60,11 @@ class LungeStateMachine(
             )
         }
         val descentAngle = minOf(kneeAngleEma, kneeAngleRaw)
-        var repCompleted = false
+        var isRepCompleted = false
         when (state) {
             SquatState.STANDING -> {
                 if (applyTransition(
-                        condition = descentAngle <= descendingAngleThreshold,
+                        isConditionMet = descentAngle <= descendingAngleThreshold,
                         currentCount = standingToDescendingCount,
                         nextState = SquatState.DESCENDING,
                         threshold = descendingAngleThreshold,
@@ -77,14 +77,14 @@ class LungeStateMachine(
                     standingToDescendingCount = updateCount(
                         standingToDescendingCount,
                         descentAngle <= descendingAngleThreshold,
-                        allowDecay = false
+                        isDecayAllowed = false
                     )
                 }
             }
 
             SquatState.DESCENDING -> {
                 if (applyTransition(
-                        condition = descentAngle <= bottomAngleThreshold,
+                        isConditionMet = descentAngle <= bottomAngleThreshold,
                         currentCount = descendingToBottomCount,
                         nextState = SquatState.BOTTOM,
                         threshold = bottomAngleThreshold,
@@ -97,12 +97,12 @@ class LungeStateMachine(
                     descendingToBottomCount = updateCount(
                         descendingToBottomCount,
                         descentAngle <= bottomAngleThreshold,
-                        allowDecay = false
+                        isDecayAllowed = false
                     )
                 }
                 if (state == SquatState.DESCENDING) {
                     if (applyTransition(
-                            condition = kneeAngleEma >= standingAngleThreshold,
+                            isConditionMet = kneeAngleEma >= standingAngleThreshold,
                             currentCount = descendingToStandingCount,
                             nextState = SquatState.STANDING,
                             threshold = standingAngleThreshold,
@@ -115,7 +115,7 @@ class LungeStateMachine(
                         descendingToStandingCount = updateCount(
                             descendingToStandingCount,
                             kneeAngleEma >= standingAngleThreshold,
-                            allowDecay = false
+                            isDecayAllowed = false
                         )
                     }
                 }
@@ -123,7 +123,7 @@ class LungeStateMachine(
 
             SquatState.BOTTOM -> {
                 if (applyTransition(
-                        condition = kneeAngleEma >= ascendingAngleThreshold,
+                        isConditionMet = kneeAngleEma >= ascendingAngleThreshold,
                         currentCount = bottomToAscendingCount,
                         nextState = SquatState.ASCENDING,
                         threshold = ascendingAngleThreshold,
@@ -136,14 +136,14 @@ class LungeStateMachine(
                     bottomToAscendingCount = updateCount(
                         bottomToAscendingCount,
                         kneeAngleEma >= ascendingAngleThreshold,
-                        allowDecay = false
+                        isDecayAllowed = false
                     )
                 }
             }
 
             SquatState.ASCENDING -> {
                 if (applyTransition(
-                        condition = kneeAngleRaw >= repCompleteAngleThreshold - repCompleteMargin,
+                        isConditionMet = kneeAngleRaw >= repCompleteAngleThreshold - repCompleteMargin,
                         currentCount = ascendingToCompleteCount,
                         nextState = SquatState.REP_COMPLETE,
                         threshold = repCompleteAngleThreshold - repCompleteMargin,
@@ -151,20 +151,20 @@ class LungeStateMachine(
                         angleRaw = kneeAngleRaw
                     )
                 ) {
-                    repCompleted = true
+                    isRepCompleted = true
                     ascendingToCompleteCount = LUNGE_INT_ZERO
                 } else {
                     ascendingToCompleteCount = updateCount(
                         ascendingToCompleteCount,
                         kneeAngleRaw >= repCompleteAngleThreshold - repCompleteMargin,
-                        allowDecay = true
+                        isDecayAllowed = true
                     )
                 }
             }
 
             SquatState.REP_COMPLETE -> {
                 if (applyTransition(
-                        condition = kneeAngleRaw >= standingAngleThreshold,
+                        isConditionMet = kneeAngleRaw >= standingAngleThreshold,
                         currentCount = repCompleteToStandingCount,
                         nextState = SquatState.STANDING,
                         threshold = standingAngleThreshold,
@@ -177,12 +177,12 @@ class LungeStateMachine(
                     repCompleteToStandingCount = updateCount(
                         repCompleteToStandingCount,
                         kneeAngleRaw >= standingAngleThreshold,
-                        allowDecay = true
+                        isDecayAllowed = true
                     )
                 }
                 if (state == SquatState.REP_COMPLETE) {
                     if (applyTransition(
-                            condition = kneeAngleEma <= descendingAngleThreshold,
+                            isConditionMet = kneeAngleEma <= descendingAngleThreshold,
                             currentCount = repCompleteToDescendingCount,
                             nextState = SquatState.DESCENDING,
                             threshold = descendingAngleThreshold,
@@ -195,7 +195,7 @@ class LungeStateMachine(
                         repCompleteToDescendingCount = updateCount(
                             repCompleteToDescendingCount,
                             kneeAngleEma <= descendingAngleThreshold,
-                            allowDecay = false
+                            isDecayAllowed = false
                         )
                     }
                 }
@@ -218,12 +218,12 @@ class LungeStateMachine(
                 ascendingToCompleteCount = ascendingToCompleteCount,
                 repCompleteToStandingCount = repCompleteToStandingCount,
                 repCompleteToDescendingCount = repCompleteToDescendingCount,
-                repCompleted = repCompleted
+                isRepCompleted = isRepCompleted
             )
         )
         return LungeStateMachineResult(
             state = state,
-            repCompleted = repCompleted,
+            isRepCompleted = isRepCompleted,
             standingToDescendingCount = standingToDescendingCount,
             descendingToBottomCount = descendingToBottomCount,
             descendingToStandingCount = descendingToStandingCount,
@@ -236,19 +236,19 @@ class LungeStateMachine(
     }
 
     private fun applyTransition(
-        condition: Boolean,
+        isConditionMet: Boolean,
         currentCount: Int,
         nextState: SquatState,
         threshold: Float,
         angleEma: Float,
         angleRaw: Float
     ): Boolean {
-        if (!condition) {
+        if (!isConditionMet) {
             debugLogger(
                 LungeStateMachineTransitionDebug(
                     currentState = state,
                     nextState = nextState,
-                    conditionMet = false,
+                    isConditionMet = false,
                     candidateCount = currentCount,
                     threshold = threshold,
                     kneeAngleEma = angleEma,
@@ -262,7 +262,7 @@ class LungeStateMachine(
             LungeStateMachineTransitionDebug(
                 currentState = state,
                 nextState = nextState,
-                conditionMet = true,
+                isConditionMet = true,
                 candidateCount = updated,
                 threshold = threshold,
                 kneeAngleEma = angleEma,
@@ -283,10 +283,10 @@ class LungeStateMachine(
         return false
     }
 
-    private fun updateCount(currentCount: Int, condition: Boolean, allowDecay: Boolean): Int =
-        if (condition) {
+    private fun updateCount(currentCount: Int, isConditionMet: Boolean, isDecayAllowed: Boolean): Int =
+        if (isConditionMet) {
             (currentCount + LUNGE_INT_ONE).coerceAtMost(hysteresisFrames)
-        } else if (allowDecay) {
+        } else if (isDecayAllowed) {
             (currentCount - LUNGE_CANDIDATE_DECAY_STEP).coerceAtLeast(LUNGE_INT_ZERO)
         } else {
             LUNGE_INT_ZERO
@@ -309,13 +309,13 @@ private data class LungeStateMachineDebug(
     val ascendingToCompleteCount: Int,
     val repCompleteToStandingCount: Int,
     val repCompleteToDescendingCount: Int,
-    val repCompleted: Boolean
+    val isRepCompleted: Boolean
 )
 
 private data class LungeStateMachineTransitionDebug(
     val currentState: SquatState,
     val nextState: SquatState,
-    val conditionMet: Boolean,
+    val isConditionMet: Boolean,
     val candidateCount: Int,
     val threshold: Float,
     val kneeAngleEma: Float,

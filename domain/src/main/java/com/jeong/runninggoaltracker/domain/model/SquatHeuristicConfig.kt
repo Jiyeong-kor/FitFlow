@@ -1,8 +1,8 @@
 package com.jeong.runninggoaltracker.domain.model
 
 data class SquatHeuristicConfig(
-    val enableHeelRiseProxy: Boolean,
+    val isHeelRiseProxyEnabled: Boolean,
     val heelRiseRatioThreshold: Float,
-    val enableKneeForwardProxy: Boolean,
+    val isKneeForwardProxyEnabled: Boolean,
     val kneeForwardRatioThreshold: Float
 )

@@ -24,9 +24,9 @@ class PoseFrameProcessor @Inject constructor(
     private val speechCoordinator: SpeechCoordinator,
     private val analyticsLogger: WorkoutAnalyticsLogger
 ) {
-    private var lastAttemptActive: Boolean? = null
-    private var lastDepthReached: Boolean? = null
-    private var lastFullBodyVisible: Boolean? = null
+    private var isLastAttemptActive: Boolean? = null
+    private var isLastDepthReached: Boolean? = null
+    private var isLastFullBodyVisible: Boolean? = null
 
     val imageAnalyzer: ImageAnalysis.Analyzer
         get() = poseDetector.imageAnalyzer
@@ -47,7 +47,7 @@ class PoseFrameProcessor @Inject constructor(
         poseDetector.poseFrames.map { frame ->
             val currentState = stateFlow.value
             val analysis = processPoseUseCase.analyze(frame, currentState.exerciseType)
-            if (analysis.skippedLowConfidence) {
+            if (analysis.isLowConfidenceSkipped) {
                 analyticsLogger.logSkippedFrame(frame.timestampMs)
             }
             if (analysis.repCount.isIncremented) {
@@ -158,32 +158,32 @@ class PoseFrameProcessor @Inject constructor(
     }
 
     private fun logMetricsState(metrics: SquatFrameMetrics, timestampMs: Long) {
-        val attemptActive = metrics.attemptActive
-        val previousAttempt = lastAttemptActive
+        val isAttemptActive = metrics.isAttemptActive
+        val previousAttempt = isLastAttemptActive
         if (previousAttempt == null) {
-            if (attemptActive) {
+            if (isAttemptActive) {
                 analyticsLogger.logAttemptStart(metrics, timestampMs)
             }
-        } else if (previousAttempt != attemptActive) {
-            if (attemptActive) {
+        } else if (previousAttempt != isAttemptActive) {
+            if (isAttemptActive) {
                 analyticsLogger.logAttemptStart(metrics, timestampMs)
             } else {
                 analyticsLogger.logAttemptEnd(metrics, timestampMs)
             }
         }
-        lastAttemptActive = attemptActive
-        val depthReached = metrics.depthReached
-        val previousDepthReached = lastDepthReached
-        if (depthReached && previousDepthReached != true) {
+        isLastAttemptActive = isAttemptActive
+        val isDepthReached = metrics.isDepthReached
+        val previousDepthReached = isLastDepthReached
+        if (isDepthReached && previousDepthReached != true) {
             analyticsLogger.logDepthReached(metrics, timestampMs)
         }
-        lastDepthReached = depthReached
-        val fullBodyVisible = metrics.fullBodyVisible
-        val previousFullBodyVisible = lastFullBodyVisible
-        if (previousFullBodyVisible == null || previousFullBodyVisible != fullBodyVisible) {
+        isLastDepthReached = isDepthReached
+        val isFullBodyVisible = metrics.isFullBodyVisible
+        val previousFullBodyVisible = isLastFullBodyVisible
+        if (previousFullBodyVisible == null || previousFullBodyVisible != isFullBodyVisible) {
             analyticsLogger.logFullBodyVisibility(metrics, timestampMs)
         }
-        lastFullBodyVisible = fullBodyVisible
+        isLastFullBodyVisible = isFullBodyVisible
     }
 
     fun overlayModeFor(exerciseType: ExerciseType): DebugOverlayMode = when (exerciseType) {

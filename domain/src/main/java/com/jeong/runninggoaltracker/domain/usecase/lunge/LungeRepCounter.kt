@@ -17,7 +17,7 @@ data class LungeRepCounterResult(
     val repCount: Int,
     val phase: SquatPhase,
     val state: SquatState,
-    val repCompleted: Boolean,
+    val isRepCompleted: Boolean,
     val kneeAngleRaw: Float,
     val kneeAngleEma: Float,
     val trunkTiltVerticalRaw: Float,
@@ -59,7 +59,7 @@ class LungeRepCounter(
     private var lastReliableTimestampMs: Long? = null
     private var lastState: SquatState? = null
     private var lastPhase: SquatPhase? = null
-    private var lastIsReliable: Boolean? = null
+    private var isLastReliable: Boolean? = null
     private val sanitizer = LungeKneeAngleSanitizer()
 
     fun update(
@@ -138,8 +138,8 @@ class LungeRepCounter(
             )
             phase = newPhase
         }
-        val repCompleted = stateResult.repCompleted
-        if (repCompleted) {
+        val isRepCompleted = stateResult.isRepCompleted
+        if (isRepCompleted) {
             repCount += LUNGE_INT_ONE
             countingSide = null
             lastLeftValidKneeRaw = null
@@ -152,7 +152,7 @@ class LungeRepCounter(
         val outlier = leftAngleResult.outlier ?: rightAngleResult.outlier
         val shouldLog = stateResult.state != lastState ||
             phase != lastPhase ||
-            isReliable != lastIsReliable ||
+            isReliable != isLastReliable ||
             transition != null ||
             outlier != null
         if (shouldLog) {
@@ -175,19 +175,19 @@ class LungeRepCounter(
                     leftOutlier = leftAngleResult.outlier,
                     rightOutlier = rightAngleResult.outlier,
                     lockFramesRemaining = lockFramesRemaining,
-                    repCompleted = repCompleted,
+                    isRepCompleted = isRepCompleted,
                     repCount = repCount
                 )
             )
         }
         lastState = stateResult.state
         lastPhase = phase
-        lastIsReliable = isReliable
+        isLastReliable = isReliable
         return LungeRepCounterResult(
             repCount = repCount,
             phase = phase,
             state = stateResult.state,
-            repCompleted = repCompleted,
+            isRepCompleted = isRepCompleted,
             kneeAngleRaw = kneeRaw,
             kneeAngleEma = kneeAngleEma,
             trunkTiltVerticalRaw = trunkTiltRaw,
@@ -286,6 +286,6 @@ private data class LungeRepCounterDebug(
     val leftOutlier: LungeKneeAngleOutlier?,
     val rightOutlier: LungeKneeAngleOutlier?,
     val lockFramesRemaining: Int,
-    val repCompleted: Boolean,
+    val isRepCompleted: Boolean,
     val repCount: Int
 )

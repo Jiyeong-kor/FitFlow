@@ -169,7 +169,7 @@ fun LungeDebugOverlay(
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_stability_eligible,
-                            booleanText(info.stabilityEligible)
+                            booleanText(info.isStabilityEligible)
                         ),
                         color = textMuted,
                         style = typographyTokens.labelTiny
@@ -261,7 +261,7 @@ fun LungeDebugOverlay(
                             style = typographyTokens.labelTiny
                         )
                     }
-                    if (!info.stabilityNormalized) {
+                    if (!info.isStabilityNormalized) {
                         Text(
                             text = stringResource(R.string.smart_workout_debug_lunge_normalization_warning),
                             color = MaterialTheme.colorScheme.error,
@@ -301,7 +301,7 @@ fun LungeDebugOverlay(
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_rep_min_update,
-                            booleanText(info.repMinUpdated)
+                            booleanText(info.isRepMinUpdated)
                         ),
                         color = textMuted,
                         style = typographyTokens.labelTiny
@@ -474,8 +474,8 @@ private fun poseSideText(side: PoseSide?): String = when (side) {
 }
 
 @Composable
-private fun booleanText(value: Boolean): String =
-    if (value) {
+private fun booleanText(isEnabled: Boolean): String =
+    if (isEnabled) {
         stringResource(R.string.smart_workout_debug_on)
     } else {
         stringResource(R.string.smart_workout_debug_off)

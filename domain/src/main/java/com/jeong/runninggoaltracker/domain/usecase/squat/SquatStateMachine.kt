@@ -12,7 +12,7 @@ import com.jeong.runninggoaltracker.domain.model.SquatState
 
 data class SquatStateMachineResult(
     val state: SquatState,
-    val repCompleted: Boolean
+    val isRepCompleted: Boolean
 )
 
 class SquatStateMachine(
@@ -28,9 +28,9 @@ class SquatStateMachine(
 
     fun update(kneeAngle: Float, isReliable: Boolean): SquatStateMachineResult {
         if (!isReliable) {
-            return SquatStateMachineResult(state = state, repCompleted = false)
+            return SquatStateMachineResult(state = state, isRepCompleted = false)
         }
-        var repCompleted = false
+        var isRepCompleted = false
         when (state) {
             SquatState.STANDING -> {
                 isTransitionApplied(kneeAngle <= descendingAngleThreshold, SquatState.DESCENDING)
@@ -60,7 +60,7 @@ class SquatStateMachine(
                         SquatState.REP_COMPLETE
                     )
                 ) {
-                    repCompleted = true
+                    isRepCompleted = true
                 }
             }
 
@@ -78,11 +78,11 @@ class SquatStateMachine(
                 }
             }
         }
-        return SquatStateMachineResult(state = state, repCompleted = repCompleted)
+        return SquatStateMachineResult(state = state, isRepCompleted = isRepCompleted)
     }
 
-    private fun isTransitionApplied(condition: Boolean, nextState: SquatState): Boolean {
-        if (!condition) {
+    private fun isTransitionApplied(isConditionMet: Boolean, nextState: SquatState): Boolean {
+        if (!isConditionMet) {
             resetCandidate()
             return false
         }

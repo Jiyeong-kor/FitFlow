@@ -66,7 +66,7 @@ class LungeAnalyzer(
     private var hasBottomFeedback: Boolean = false
     private var previousPhase: SquatPhase = SquatPhase.UP
     private var fullBodyInvisibleStartMs: Long? = null
-    private var notInFrameFeedbackEmitted: Boolean = false
+    private var isNotInFrameFeedbackEmitted: Boolean = false
     private val kneeSanitizer = LungeKneeAngleSanitizer()
     private var lastLeftMetricValid: Float? = null
     private var lastRightMetricValid: Float? = null
@@ -110,7 +110,7 @@ class LungeAnalyzer(
             rightKneeAngle = rightKneeAngleRaw,
             leadLeg = leadLegSelection
         )
-        val skippedLowConfidence = metrics == null
+        val isLowConfidenceSkipped = metrics == null
         if (counterResult == null) {
             val feedbackType = if (fullBodyState.isVisible) {
                 PostureFeedbackType.UNKNOWN
@@ -132,7 +132,7 @@ class LungeAnalyzer(
                 lungeRepSummary = null,
                 warningEvent = null,
                 feedbackKeys = emptyList(),
-                skippedLowConfidence = skippedLowConfidence
+                isLowConfidenceSkipped = isLowConfidenceSkipped
             )
         }
         val activeSide = counterResult.countingSide ?: leadLegSelection ?: PoseSide.LEFT
@@ -171,7 +171,7 @@ class LungeAnalyzer(
         val kneeAngleRaw = counterResult.kneeAngleRaw
         val trunkToThigh = metrics?.let { frontTrunkToThigh(it, activeSide) } ?: LUNGE_FLOAT_ZERO
         val stabilityInfo = stabilityStdDev()
-        val unstableEmitted = feedbackSummary?.feedbackKeys?.contains(LUNGE_UNSTABLE) == true
+        val isUnstableEmitted = feedbackSummary?.feedbackKeys?.contains(LUNGE_UNSTABLE) == true
         val normalizedRangeOk = isNormalizedRange(currentHipCenterX) &&
                 isNormalizedRange(currentShoulderCenterX)
         val lungeDebugInfo = LungeDebugInfo(
@@ -185,7 +185,7 @@ class LungeAnalyzer(
             lastRightKneeAngle = lastRightMetricValid,
             leftOutlierReason = leftSanitizeResult.outlier?.reason,
             rightOutlierReason = rightSanitizeResult.outlier?.reason,
-            repMinUpdated = repTrackingResult.repMinUpdated,
+            isRepMinUpdated = repTrackingResult.isRepMinUpdated,
             hipSampleCount = hipStats.sampleCount(),
             shoulderSampleCount = shoulderStats.sampleCount(),
             hipCenterX = currentHipCenterX,
@@ -195,8 +195,8 @@ class LungeAnalyzer(
             shoulderCenterMin = shoulderCenterMin,
             shoulderCenterMax = shoulderCenterMax,
             stabilityStdDev = stabilityInfo.value,
-            stabilityEligible = stabilityInfo.isEligible,
-            stabilityNormalized = normalizedRangeOk,
+            isStabilityEligible = stabilityInfo.isEligible,
+            isStabilityNormalized = normalizedRangeOk,
             feedbackEventKey = feedbackEventKey,
             state = counterResult.state,
             phase = counterResult.phase,
@@ -219,7 +219,7 @@ class LungeAnalyzer(
         )
         debugLogger(
             LungeAnalyzerDebug(
-                metricsAvailable = metrics != null,
+                isMetricsAvailable = metrics != null,
                 leftKneeAngle = leftKneeAngle,
                 rightKneeAngle = rightKneeAngle,
                 frontKneeAngle = frontKneeAngle,
@@ -234,21 +234,21 @@ class LungeAnalyzer(
                 rightKneeAngleSanitized = rightKneeAngle,
                 leftOutlier = leftSanitizeResult.outlier,
                 rightOutlier = rightSanitizeResult.outlier,
-                repMinUpdated = repTrackingResult.repMinUpdated,
+                isRepMinUpdated = repTrackingResult.isRepMinUpdated,
                 isFrontCamera = frame.isFrontCamera,
                 isMirrored = frame.isMirrored,
                 counterState = counterResult.state,
                 counterPhase = counterResult.phase,
-                counterReliable = counterResult.isReliable,
-                repCompleted = counterResult.repCompleted,
+                isCounterReliable = counterResult.isReliable,
+                isRepCompleted = counterResult.isRepCompleted,
                 repCount = counterResult.repCount,
                 hipSampleCount = hipStats.sampleCount(),
                 shoulderSampleCount = shoulderStats.sampleCount(),
                 stabilityStdDev = stabilityInfo.value,
-                stabilityEligible = stabilityInfo.isEligible,
-                stabilityNormalized = normalizedRangeOk,
-                feedbackSummaryAvailable = feedbackSummary != null,
-                unstableEmitted = unstableEmitted,
+                isStabilityEligible = stabilityInfo.isEligible,
+                isStabilityNormalized = normalizedRangeOk,
+                isFeedbackSummaryAvailable = feedbackSummary != null,
+                isUnstableEmitted = isUnstableEmitted,
                 feedbackEventKey = feedbackEventKey
             )
         )
@@ -274,10 +274,10 @@ class LungeAnalyzer(
             repMinTrunkToThighAngle = trunkToThigh,
             repMaxTrunkTiltVerticalAngle = repMaxTorsoLeanAngle
                 ?: counterResult.trunkTiltVerticalEma,
-            attemptActive = false,
-            depthReached = false,
+            isAttemptActive = false,
+            isDepthReached = false,
             attemptMinKneeAngle = repMinFrontKneeAngle ?: counterResult.kneeAngleEma,
-            fullBodyVisible = fullBodyState.isVisible,
+            isFullBodyVisible = fullBodyState.isVisible,
             fullBodyInvisibleDurationMs = fullBodyState.invisibleDurationMs,
             leftConfidenceSum = LUNGE_FLOAT_ZERO,
             rightConfidenceSum = LUNGE_FLOAT_ZERO,
@@ -291,17 +291,17 @@ class LungeAnalyzer(
         )
         val feedbackEvent = when {
             fullBodyState.feedbackEvent != null -> fullBodyState.feedbackEvent
-            counterResult.repCompleted && fullBodyState.isVisible -> feedbackType
+            counterResult.isRepCompleted && fullBodyState.isVisible -> feedbackType
             else -> null
         }
         previousPhase = counterResult.phase
-        if (counterResult.repCompleted) {
+        if (counterResult.isRepCompleted) {
             leadLegSelector.reset()
             lastLeftMetricValid = null
             lastRightMetricValid = null
         }
         return PoseAnalysisResult(
-            repCount = RepCount(counterResult.repCount, isIncremented = counterResult.repCompleted),
+            repCount = RepCount(counterResult.repCount, isIncremented = counterResult.isRepCompleted),
             feedback = PostureFeedback(
                 type = feedbackType,
                 isValid = feedbackSummary != null,
@@ -315,7 +315,7 @@ class LungeAnalyzer(
             lungeRepSummary = feedbackSummary,
             warningEvent = null,
             feedbackKeys = feedbackKeys,
-            skippedLowConfidence = skippedLowConfidence,
+            isLowConfidenceSkipped = isLowConfidenceSkipped,
             lungeDebugInfo = lungeDebugInfo
         )
     }
@@ -332,7 +332,7 @@ class LungeAnalyzer(
             hasBottomFeedback = false
         }
         if (metrics == null || frontKneeAngle == null || backKneeAngle == null) {
-            return RepTrackingUpdate(repMinUpdated = false)
+            return RepTrackingUpdate(isRepMinUpdated = false)
         }
         if (counterResult.phase == SquatPhase.DOWN &&
             (counterResult.state == SquatState.DESCENDING || counterResult.state == SquatState.BOTTOM)
@@ -349,9 +349,9 @@ class LungeAnalyzer(
             repMaxKneeCollapseRatio =
                 updateMaxRatio(repMaxKneeCollapseRatio, frontKneeCollapseRatio(metrics, activeSide))
             updateStability(metrics)
-            return RepTrackingUpdate(repMinUpdated = true)
+            return RepTrackingUpdate(isRepMinUpdated = true)
         }
-        return RepTrackingUpdate(repMinUpdated = false)
+        return RepTrackingUpdate(isRepMinUpdated = false)
     }
 
     private fun handleFeedback(
@@ -378,7 +378,7 @@ class LungeAnalyzer(
                 hasBottomFeedback = true
             }
         }
-        if (counterResult.repCompleted && metrics != null && frontKneeAngle != null && backKneeAngle != null) {
+        if (counterResult.isRepCompleted && metrics != null && frontKneeAngle != null && backKneeAngle != null) {
             repSummary = scorer.score(
                 buildRepMetrics(
                     metrics,
@@ -528,7 +528,7 @@ class LungeAnalyzer(
         val startMs = fullBodyInvisibleStartMs
         return if (isVisible) {
             fullBodyInvisibleStartMs = null
-            notInFrameFeedbackEmitted = false
+            isNotInFrameFeedbackEmitted = false
             FullBodyVisibilityState(
                 isVisible = true,
                 invisibleDurationMs = LUNGE_INT_ZERO.toLong(),
@@ -539,9 +539,9 @@ class LungeAnalyzer(
             fullBodyInvisibleStartMs = startTimestamp
             val durationMs = frame.timestampMs - startTimestamp
             val shouldEmit = durationMs >= LUNGE_FULL_BODY_INVISIBLE_DURATION_MS &&
-                    !notInFrameFeedbackEmitted
+                    !isNotInFrameFeedbackEmitted
             if (shouldEmit) {
-                notInFrameFeedbackEmitted = true
+                isNotInFrameFeedbackEmitted = true
             }
             FullBodyVisibilityState(
                 isVisible = false,
@@ -571,7 +571,7 @@ class LungeAnalyzer(
 }
 
 private data class LungeAnalyzerDebug(
-    val metricsAvailable: Boolean,
+    val isMetricsAvailable: Boolean,
     val leftKneeAngle: Float?,
     val rightKneeAngle: Float?,
     val frontKneeAngle: Float?,
@@ -586,21 +586,21 @@ private data class LungeAnalyzerDebug(
     val rightKneeAngleSanitized: Float?,
     val leftOutlier: LungeKneeAngleOutlier?,
     val rightOutlier: LungeKneeAngleOutlier?,
-    val repMinUpdated: Boolean,
+    val isRepMinUpdated: Boolean,
     val isFrontCamera: Boolean,
     val isMirrored: Boolean,
     val counterState: SquatState?,
     val counterPhase: SquatPhase?,
-    val counterReliable: Boolean?,
-    val repCompleted: Boolean?,
+    val isCounterReliable: Boolean?,
+    val isRepCompleted: Boolean?,
     val repCount: Int?,
     val hipSampleCount: Int,
     val shoulderSampleCount: Int,
     val stabilityStdDev: Float,
-    val stabilityEligible: Boolean,
-    val stabilityNormalized: Boolean,
-    val feedbackSummaryAvailable: Boolean,
-    val unstableEmitted: Boolean,
+    val isStabilityEligible: Boolean,
+    val isStabilityNormalized: Boolean,
+    val isFeedbackSummaryAvailable: Boolean,
+    val isUnstableEmitted: Boolean,
     val feedbackEventKey: String?
 )
 
@@ -615,7 +615,7 @@ private data class LungeFeedbackResult(
 )
 
 private data class RepTrackingUpdate(
-    val repMinUpdated: Boolean
+    val isRepMinUpdated: Boolean
 )
 
 private data class FullBodyVisibilityState(

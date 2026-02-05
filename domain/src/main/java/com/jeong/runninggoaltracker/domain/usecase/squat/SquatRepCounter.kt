@@ -15,7 +15,7 @@ import com.jeong.runninggoaltracker.domain.model.SquatPhaseTransition
 data class SquatRepCounterResult(
     val repCount: Int,
     val phase: SquatPhase,
-    val repCompleted: Boolean,
+    val isRepCompleted: Boolean,
     val kneeAngleRaw: Float,
     val kneeAngleEma: Float,
     val trunkTiltVerticalRaw: Float,
@@ -71,7 +71,7 @@ class SquatRepCounter(
             return null
         }
         var transition: SquatPhaseTransition? = null
-        var repCompleted = false
+        var isRepCompleted = false
         val isReliable = metrics != null
         if (isReliable) {
             when (phase) {
@@ -105,7 +105,7 @@ class SquatRepCounter(
                             )
                             phase = SquatPhase.UP
                             repCount += SQUAT_INT_ONE
-                            repCompleted = true
+                            isRepCompleted = true
                             resetUpCandidate()
                         }
                     } else {
@@ -119,7 +119,7 @@ class SquatRepCounter(
         return SquatRepCounterResult(
             repCount = repCount,
             phase = phase,
-            repCompleted = repCompleted,
+            isRepCompleted = isRepCompleted,
             kneeAngleRaw = kneeRaw,
             kneeAngleEma = kneeAngleEma,
             trunkTiltVerticalRaw = trunkTiltRaw,

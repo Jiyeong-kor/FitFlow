@@ -43,6 +43,6 @@ class ProcessPoseUseCase(
                 lungeRepSummary = null,
                 warningEvent = null,
                 feedbackKeys = emptyList(),
-                skippedLowConfidence = false
+                isLowConfidenceSkipped = false
             )
 }
