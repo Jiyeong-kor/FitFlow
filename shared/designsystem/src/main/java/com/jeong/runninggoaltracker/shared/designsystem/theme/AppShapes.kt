@@ -30,6 +30,6 @@ fun appShapes(): AppShapes = AppShapes(
     roundedSm = RoundedCornerShape(12.dp),
     roundedMd = RoundedCornerShape(16.dp),
     roundedLg = RoundedCornerShape(20.dp),
-    roundedXl = RoundedCornerShape(24.dp),
-    rounded2xl = RoundedCornerShape(28.dp)
+    roundedXl = RoundedCornerShape(32.dp),
+    rounded2xl = RoundedCornerShape(40.dp)
 )

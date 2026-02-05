@@ -2,6 +2,7 @@ package com.jeong.runninggoaltracker.shared.designsystem.theme
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 
@@ -11,6 +12,9 @@ data class AppTypographyTokens(
     val displayLarge: TextStyle,
     val headlineLarge: TextStyle,
     val titleLargeAlt: TextStyle,
+    val numericTitleLarge: TextStyle,
+    val numericTitleMedium: TextStyle,
+    val numericBodyMedium: TextStyle,
     val labelTiny: TextStyle,
     val recordLabel: TextStyle
 )
@@ -21,6 +25,9 @@ val LocalAppTypographyTokens = staticCompositionLocalOf {
         displayLarge = TextStyle.Default,
         headlineLarge = TextStyle.Default,
         titleLargeAlt = TextStyle.Default,
+        numericTitleLarge = TextStyle.Default,
+        numericTitleMedium = TextStyle.Default,
+        numericBodyMedium = TextStyle.Default,
         labelTiny = TextStyle.Default,
         recordLabel = TextStyle.Default
     )
@@ -29,13 +36,15 @@ val LocalAppTypographyTokens = staticCompositionLocalOf {
 fun appTypographyTokens(): AppTypographyTokens = AppTypographyTokens(
     displayHuge = TextStyle(
         fontFamily = Pretendard,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Black,
+        fontStyle = FontStyle.Italic,
         fontSize = 160.sp,
         lineHeight = 160.sp
     ),
     displayLarge = TextStyle(
         fontFamily = Pretendard,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.Black,
+        fontStyle = FontStyle.Italic,
         fontSize = 64.sp,
         lineHeight = 64.sp
     ),
@@ -50,6 +59,27 @@ fun appTypographyTokens(): AppTypographyTokens = AppTypographyTokens(
         fontWeight = FontWeight.SemiBold,
         fontSize = 20.sp,
         lineHeight = 24.sp
+    ),
+    numericTitleLarge = TextStyle(
+        fontFamily = Pretendard,
+        fontWeight = FontWeight.Black,
+        fontStyle = FontStyle.Italic,
+        fontSize = 22.sp,
+        lineHeight = 28.sp
+    ),
+    numericTitleMedium = TextStyle(
+        fontFamily = Pretendard,
+        fontWeight = FontWeight.Black,
+        fontStyle = FontStyle.Italic,
+        fontSize = 18.sp,
+        lineHeight = 24.sp
+    ),
+    numericBodyMedium = TextStyle(
+        fontFamily = Pretendard,
+        fontWeight = FontWeight.Black,
+        fontStyle = FontStyle.Italic,
+        fontSize = 14.sp,
+        lineHeight = 20.sp
     ),
     labelTiny = TextStyle(
         fontFamily = Pretendard,

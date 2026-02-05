@@ -4,6 +4,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.graphics.Brush
 
 @Composable
 fun appAccentColor(): Color = MaterialTheme.colorScheme.primary
@@ -25,6 +26,21 @@ fun appTextMutedColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
 @Composable
 fun appKakaoYellow(): Color = kakaoYellow
+
+@Composable
+fun appBrandGradient(): Brush = Brush.linearGradient(
+    colors = listOf(brandGradientStart, brandGradientEnd)
+)
+
+@Composable
+fun appProgressGradient(): Brush = Brush.horizontalGradient(
+    colors = listOf(progressGradientStart, progressGradientEnd)
+)
+
+@Composable
+fun appDashboardGradient(): Brush = Brush.linearGradient(
+    colors = listOf(dashboardGradientStart, dashboardGradientEnd)
+)
 
 @Composable
 fun appSpacingSm(): Dp = LocalAppDimensions.current.spacingSm
