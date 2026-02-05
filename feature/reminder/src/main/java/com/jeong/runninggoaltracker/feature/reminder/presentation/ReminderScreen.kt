@@ -181,7 +181,7 @@ private fun ReminderCard(
 
     AppSurfaceCard(
         modifier = Modifier.fillMaxWidth(),
-        isEnabled = reminder.enabled
+        isEnabled = reminder.isEnabled
     ) {
         Column {
             Row(
@@ -211,14 +211,14 @@ private fun ReminderCard(
                     )
                 }
                 Switch(
-                    checked = reminder.enabled,
-                    onCheckedChange = { enabled ->
-                        if (enabled && reminder.days.isEmpty()) {
+                    checked = reminder.isEnabled,
+                    onCheckedChange = { isEnabled ->
+                        if (isEnabled && reminder.days.isEmpty()) {
                             messageHandler.showMessage(
                                 UiMessage(messageResId = R.string.reminder_error_select_at_least_one_day)
                             )
                         } else {
-                            onToggleReminder(id, enabled)
+                            onToggleReminder(id, isEnabled)
                         }
                     },
                     modifier = Modifier.semantics {
@@ -334,14 +334,14 @@ private fun ReminderScreenPreview() {
                 id = 1,
                 hour = 6,
                 minute = 30,
-                enabled = true,
+                isEnabled = true,
                 days = setOf(Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY)
             ),
             ReminderUiState(
                 id = 2,
                 hour = 20,
                 minute = 0,
-                enabled = false,
+                isEnabled = false,
                 days = emptySet()
             )
         )

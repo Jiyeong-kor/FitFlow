@@ -30,7 +30,7 @@ class ReminderScreenTest {
             id = 1,
             hour = 6,
             minute = 30,
-            enabled = false,
+            isEnabled = false,
             days = setOf(java.util.Calendar.MONDAY)
         )
 
@@ -45,7 +45,7 @@ class ReminderScreenTest {
                     state = ReminderListUiState(reminders = listOf(reminder)),
                     onAddReminder = { addCalled = true },
                     onDeleteReminder = { deletedId = it },
-                    onToggleReminder = { _, enabled -> toggleCalled = enabled },
+                    onToggleReminder = { _, isEnabled -> toggleCalled = isEnabled },
                     onUpdateTime = { _, _, _ -> },
                     onToggleDay = { id, day -> toggledDay = id to day },
                     messageHandler = messageHandler,

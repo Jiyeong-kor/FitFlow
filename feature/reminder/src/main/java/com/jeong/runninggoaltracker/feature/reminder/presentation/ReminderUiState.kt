@@ -5,7 +5,7 @@ data class ReminderUiState(
     val id: Int,
     val hour: Int,
     val minute: Int,
-    val enabled: Boolean,
+    val isEnabled: Boolean,
     val days: Set<Int>
 )
 

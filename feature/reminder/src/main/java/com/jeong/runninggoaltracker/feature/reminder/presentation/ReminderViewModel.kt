@@ -55,8 +55,8 @@ class ReminderViewModel @Inject constructor(
         }
     }
 
-    fun updateEnabled(id: Int, enabled: Boolean) {
-        updateReminder(id) { reminder -> reminder.copy(enabled = enabled) }
+    fun updateEnabled(id: Int, isEnabled: Boolean) {
+        updateReminder(id) { reminder -> reminder.copy(isEnabled = isEnabled) }
     }
 
     fun updateTime(id: Int, hour: Int, minute: Int) {

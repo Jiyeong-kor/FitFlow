@@ -19,7 +19,7 @@ class ReminderUiStateMapper @Inject constructor() {
             id = uiState.id,
             hour = uiState.hour,
             minute = uiState.minute,
-            enabled = uiState.enabled,
+            isEnabled = uiState.isEnabled,
             days = uiState.days
         )
 
@@ -29,7 +29,7 @@ class ReminderUiStateMapper @Inject constructor() {
             id = reminderId,
             hour = reminder.hour,
             minute = reminder.minute,
-            enabled = reminder.enabled,
+            isEnabled = reminder.isEnabled,
             days = reminder.days
         )
     }
