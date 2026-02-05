@@ -10,7 +10,7 @@ class ReminderSchedulerCoordinator @Inject constructor(
 ) : ReminderScheduler {
 
     override fun scheduleIfNeeded(reminder: RunningReminder) {
-        if (!reminder.enabled || reminder.days.isEmpty()) {
+        if (!reminder.isEnabled || reminder.days.isEmpty()) {
             cancel(reminder)
             return
         }

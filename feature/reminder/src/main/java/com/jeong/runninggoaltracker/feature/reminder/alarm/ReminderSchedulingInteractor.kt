@@ -42,5 +42,5 @@ class ReminderSchedulingInteractor @Inject constructor(
     }
 
     private val RunningReminder.shouldSchedule: Boolean
-        get() = enabled && days.isNotEmpty()
+        get() = isEnabled && days.isNotEmpty()
 }

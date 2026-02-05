@@ -76,7 +76,7 @@ private fun Intent.toRunningReminderOrNull(): RunningReminder? {
         id = id,
         hour = hour,
         minute = minute,
-        enabled = true,
+        isEnabled = true,
         days = setOf(dayOfWeekRaw)
     )
 }
