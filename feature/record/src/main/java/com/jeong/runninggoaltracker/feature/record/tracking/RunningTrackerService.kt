@@ -97,7 +97,7 @@ class RunningTrackerService : Service() {
         lastLocation = null
         startTimeMillis = dateProvider.getToday()
         val notification = notificationDispatcher.createNotification(zeroDouble, zeroLong)
-        if (!startForegroundSafely(notification)) {
+        if (!isForegroundStarted(notification)) {
             stateUpdater.markPermissionRequired()
             stopSelf()
             return
@@ -221,7 +221,7 @@ class RunningTrackerService : Service() {
     }
 
     private fun handleNotificationUpdate(distanceKm: Double, elapsedMillis: Long) {
-        val notified = notificationDispatcher.notifyProgress(distanceKm, elapsedMillis)
+        val notified = notificationDispatcher.isProgressNotified(distanceKm, elapsedMillis)
         if (!notified) {
             stateUpdater.markPermissionRequired()
             stopTracking()
@@ -252,7 +252,7 @@ class RunningTrackerService : Service() {
 
     private fun minDistanceMeters(): Float = AppNumericTokens.recordMinDistanceMeters
 
-    private fun startForegroundSafely(notification: Notification): Boolean =
+    private fun isForegroundStarted(notification: Notification): Boolean =
         try {
             startForeground(
                 RecordNotificationContract.NOTIFICATION_ID,

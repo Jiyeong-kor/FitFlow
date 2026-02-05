@@ -55,7 +55,7 @@ class RunningNotificationDispatcher @Inject constructor(
             .build()
     }
 
-    fun notifyProgress(distanceKm: Double, elapsedMillis: Long): Boolean =
+    fun isProgressNotified(distanceKm: Double, elapsedMillis: Long): Boolean =
         NotificationPermissionGate.notifyIfAllowed(
             context,
             notificationId()
