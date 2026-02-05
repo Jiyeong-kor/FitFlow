@@ -21,7 +21,7 @@ fun AppContentCard(
     val appShapes = LocalAppShapes.current
     Card(
         modifier = modifier.fillMaxWidth(),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant),
         shape = appShapes.roundedXl,
         elevation = CardDefaults.cardElevation(defaultElevation = dimensions.cardElevation)
     ) {
