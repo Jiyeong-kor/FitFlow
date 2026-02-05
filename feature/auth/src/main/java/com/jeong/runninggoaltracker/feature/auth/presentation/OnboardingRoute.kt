@@ -96,6 +96,7 @@ fun OnboardingRoute(
         onPrivacyAcceptedChange = viewModel::onPrivacyAcceptedChanged,
         onContinue = viewModel::onContinueWithNickname,
         onKakaoLogin = viewModel::onKakaoLoginClicked,
+        onContinueWithoutLogin = viewModel::onContinueWithoutLogin,
         onPrivacyPolicyClick = onPrivacyPolicyClick,
         onRetryInternet = viewModel::onRetryInternet,
         onDismissNoInternetDialog = viewModel::onDismissNoInternetDialog,

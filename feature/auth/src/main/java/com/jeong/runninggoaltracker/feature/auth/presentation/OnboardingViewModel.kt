@@ -50,11 +50,17 @@ class OnboardingViewModel @Inject constructor(
 
     fun onContinueWithNickname() {
         val nickname = _uiState.value.nickname
+        val authProvider = _uiState.value.authProvider
+        val kakaoOidcSub = _uiState.value.kakaoOidcSub
         viewModelScope.launch {
             _uiState.update { currentState ->
                 uiStateReducer.reduceLoadingStart(currentState)
             }
-            val result = onboardingWorkflow.continueWithNickname(nickname)
+            val result = onboardingWorkflow.continueWithNickname(
+                nickname = nickname,
+                authProvider = authProvider,
+                kakaoOidcSub = kakaoOidcSub
+            )
             _uiState.update { currentState ->
                 uiStateReducer.reduceContinueResult(currentState, result)
             }
@@ -78,14 +84,26 @@ class OnboardingViewModel @Inject constructor(
         _isPrivacyAccepted.value = isAccepted
     }
 
+    fun onContinueWithoutLogin() {
+        viewModelScope.launch {
+            _uiState.update { currentState ->
+                uiStateReducer.reduceLoadingStart(currentState)
+            }
+            val result = onboardingWorkflow.startAnonymousSession()
+            _uiState.update { currentState ->
+                uiStateReducer.reduceAuthChoiceResult(currentState, result)
+            }
+        }
+    }
+
     fun onKakaoLoginClicked() {
         viewModelScope.launch {
             _uiState.update { currentState ->
                 uiStateReducer.reduceLoadingStart(currentState)
             }
-            val result = onboardingWorkflow.loginWithKakao()
+            val result = onboardingWorkflow.startKakaoSession()
             _uiState.update { currentState ->
-                uiStateReducer.reduceLoginResult(currentState, result)
+                uiStateReducer.reduceAuthChoiceResult(currentState, result)
             }
         }
     }

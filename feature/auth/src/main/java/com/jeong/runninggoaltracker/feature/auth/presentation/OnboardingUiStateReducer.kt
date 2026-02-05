@@ -17,7 +17,7 @@ class OnboardingUiStateReducer @Inject constructor() {
     ): OnboardingUiState =
         if (granted) {
             currentState.copy(
-                step = OnboardingStep.Nickname,
+                step = OnboardingStep.AuthChoice,
                 permissionErrorResId = null,
                 isPermissionPermanentlyDenied = false
             )
@@ -64,6 +64,10 @@ class OnboardingUiStateReducer @Inject constructor() {
             step = OnboardingStep.Success
         )
 
+        is OnboardingResult.AuthReady -> currentState.copy(
+            isLoading = false
+        )
+
         is OnboardingResult.ValidationFailed -> {
             val validationUi = result.result.toUiState()
             currentState.copy(
@@ -108,13 +112,15 @@ class OnboardingUiStateReducer @Inject constructor() {
         }
     }
 
-    fun reduceLoginResult(
+    fun reduceAuthChoiceResult(
         currentState: OnboardingUiState,
         result: OnboardingResult
     ): OnboardingUiState = when (result) {
-        is OnboardingResult.Success -> currentState.copy(
+        is OnboardingResult.AuthReady -> currentState.copy(
             isLoading = false,
-            step = OnboardingStep.Success
+            step = OnboardingStep.Nickname,
+            authProvider = result.authProvider,
+            kakaoOidcSub = result.kakaoOidcSub
         )
 
         is OnboardingResult.NoInternet -> currentState.copy(
@@ -122,9 +128,7 @@ class OnboardingUiStateReducer @Inject constructor() {
             showNoInternetDialog = true
         )
 
-        is OnboardingResult.ValidationFailed -> currentState.copy(
-            isLoading = false
-        )
+        is OnboardingResult.Success -> currentState.copy(isLoading = false)
 
         is OnboardingResult.Failure -> when (val reason = result.reason) {
             is OnboardingFailure.KakaoLogin -> currentState.copy(
@@ -142,6 +146,8 @@ class OnboardingUiStateReducer @Inject constructor() {
                 errorMessageResId = reason.error.toErrorMessageResId()
             )
         }
+
+        is OnboardingResult.ValidationFailed -> currentState.copy(isLoading = false)
     }
 
     fun openSettingsEffects(currentState: OnboardingUiState): List<OnboardingEffect> =

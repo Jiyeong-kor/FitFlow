@@ -1,10 +1,12 @@
 package com.jeong.runninggoaltracker.feature.auth.presentation
 
 import androidx.annotation.StringRes
+import com.jeong.runninggoaltracker.domain.model.AuthProvider
 
 
 enum class OnboardingStep {
     Permissions,
+    AuthChoice,
     Nickname,
     Success
 }
@@ -20,7 +22,9 @@ data class OnboardingUiState(
     @field:StringRes val errorMessageResId: Int? = null,
     @field:StringRes val permissionErrorResId: Int? = null,
     val isPermissionPermanentlyDenied: Boolean = false,
-    val showNoInternetDialog: Boolean = false
+    val showNoInternetDialog: Boolean = false,
+    val authProvider: AuthProvider? = null,
+    val kakaoOidcSub: String? = null
 )
 
 sealed interface OnboardingEffect {

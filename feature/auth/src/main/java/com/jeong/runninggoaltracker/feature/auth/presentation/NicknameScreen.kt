@@ -3,7 +3,6 @@ package com.jeong.runninggoaltracker.feature.auth.presentation
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,20 +25,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.auth.R
+import com.jeong.runninggoaltracker.feature.auth.contract.ONBOARDING_NICKNAME_INPUT_TAG
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCardPadding
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
-import com.jeong.runninggoaltracker.shared.designsystem.theme.appKakaoYellow
 
 @Composable
 fun NicknameScreen(
@@ -48,13 +47,11 @@ fun NicknameScreen(
     onNicknameChanged: (String) -> Unit,
     onPrivacyAcceptedChange: (Boolean) -> Unit,
     onContinue: () -> Unit,
-    onKakaoLogin: () -> Unit,
     onPrivacyPolicyClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val dimensions = LocalAppDimensions.current
     val appShapes = LocalAppShapes.current
-    val kakaoLoginButtonText = stringResource(id = R.string.kakao_login_button_text)
     val privacyPolicyLabel = stringResource(id = R.string.privacy_policy_agreement_link)
     val privacyPolicySuffix = stringResource(id = R.string.privacy_policy_agreement_suffix)
     val privacyPolicyAccessibilityLabel =
@@ -83,7 +80,9 @@ fun NicknameScreen(
                 verticalArrangement = Arrangement.spacedBy(dimensions.spacingSm)
             ) {
                 OutlinedTextField(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag(ONBOARDING_NICKNAME_INPUT_TAG),
                     value = uiState.nickname,
                     onValueChange = onNicknameChanged,
                     enabled = !uiState.isLoading,
@@ -172,7 +171,6 @@ fun NicknameScreen(
             }
         }
         val onContinueThrottled = rememberThrottleClick(onClick = onContinue)
-        val onKakaoLoginThrottled = rememberThrottleClick(onClick = onKakaoLogin)
         Spacer(modifier = Modifier.height(dimensions.spacingSm))
         Button(
             modifier = Modifier.fillMaxWidth(),
@@ -193,28 +191,6 @@ fun NicknameScreen(
                 )
             }
         }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dimensions.kakaoLoginButtonHeight)
-                .clip(appShapes.roundedXs)
-                .background(appKakaoYellow())
-                .clickable(
-                    enabled = !uiState.isLoading,
-                    role = Role.Button,
-                    onClick = onKakaoLoginThrottled
-                )
-                .semantics(mergeDescendants = true) {
-                    contentDescription = kakaoLoginButtonText
-                }
-        ) {
-            Text(
-                text = kakaoLoginButtonText,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
     }
 }
 
@@ -227,7 +203,6 @@ private fun NicknameScreenPreview() = RunningGoalTrackerTheme {
         onNicknameChanged = {},
         onPrivacyAcceptedChange = {},
         onContinue = {},
-        onKakaoLogin = {},
         onPrivacyPolicyClick = {}
     )
 }
