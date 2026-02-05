@@ -21,7 +21,7 @@ private class ToastUserMessageHandler(
 
 @Composable
 fun rememberUserMessageHandler(): UserMessageHandler {
-    val context = LocalContext.current
+    val context = LocalContext.current.applicationContext
     return remember(context) { ToastUserMessageHandler(context) }
 }
 
