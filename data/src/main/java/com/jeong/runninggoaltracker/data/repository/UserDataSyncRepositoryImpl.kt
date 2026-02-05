@@ -68,14 +68,14 @@ class UserDataSyncRepositoryImpl @Inject constructor(
                 val id = doc.id.toIntOrNull() ?: return@mapNotNull null
                 val hour = doc.getLong("hour")?.toInt() ?: return@mapNotNull null
                 val minute = doc.getLong("minute")?.toInt() ?: return@mapNotNull null
-                val enabled = doc.getBoolean("enabled") ?: return@mapNotNull null
+                val isEnabled = doc.getBoolean("enabled") ?: return@mapNotNull null
                 val days = doc.get("days") as? List<*> ?: emptyList<Any>()
                 val daySet = days.mapNotNull { (it as? Number)?.toInt() }.toSet()
                 RunningReminderEntity(
                     id = id,
                     hour = hour,
                     minute = minute,
-                    enabled = enabled,
+                    isEnabled = isEnabled,
                     days = daySet
                 )
             }

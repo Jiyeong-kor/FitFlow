@@ -14,7 +14,7 @@ class ToggleReminderDayUseCaseTest {
             id = 1,
             hour = 6,
             minute = 30,
-            enabled = true,
+            isEnabled = true,
             days = setOf(1)
         )
 
@@ -29,7 +29,7 @@ class ToggleReminderDayUseCaseTest {
             id = 1,
             hour = 6,
             minute = 30,
-            enabled = true,
+            isEnabled = true,
             days = setOf(1, 2)
         )
 

@@ -5,8 +5,8 @@ import javax.inject.Inject
 
 class RunningReminderValidator @Inject constructor() {
     fun normalizeEnabledDays(reminder: RunningReminder): RunningReminder =
-        if (reminder.enabled && reminder.days.isEmpty()) {
-            reminder.copy(enabled = false)
+        if (reminder.isEnabled && reminder.days.isEmpty()) {
+            reminder.copy(isEnabled = false)
         } else {
             reminder
         }

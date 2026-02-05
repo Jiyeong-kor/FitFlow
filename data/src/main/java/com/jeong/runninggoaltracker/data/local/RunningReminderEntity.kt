@@ -1,6 +1,7 @@
 package com.jeong.runninggoaltracker.data.local
 
 import androidx.room.Entity
+import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import com.jeong.runninggoaltracker.data.contract.RunningDatabaseContract
 
@@ -9,6 +10,7 @@ data class RunningReminderEntity(
     @PrimaryKey val id: Int? = null,
     val hour: Int,
     val minute: Int,
-    val enabled: Boolean,
+    @ColumnInfo(name = "enabled")
+    val isEnabled: Boolean,
     val days: Set<Int>
 )

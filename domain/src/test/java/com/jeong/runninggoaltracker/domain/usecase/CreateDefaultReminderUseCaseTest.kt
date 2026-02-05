@@ -15,7 +15,7 @@ class CreateDefaultReminderUseCaseTest {
         assertEquals(null, reminder.id)
         assertEquals(8, reminder.hour)
         assertEquals(0, reminder.minute)
-        assertEquals(false, reminder.enabled)
+        assertEquals(false, reminder.isEnabled)
         assertEquals(emptySet<DayOfWeek>(), reminder.days)
     }
 }

@@ -39,7 +39,7 @@ object RunningMockData {
         id = 1,
         hour = 7,
         minute = 30,
-        enabled = true,
+        isEnabled = true,
         days = setOf(Calendar.MONDAY, Calendar.WEDNESDAY, Calendar.FRIDAY)
     )
 

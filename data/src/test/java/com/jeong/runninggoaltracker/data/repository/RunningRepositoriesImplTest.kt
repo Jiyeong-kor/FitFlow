@@ -92,7 +92,7 @@ class RunningRepositoriesImplTest {
                 id = 3,
                 hour = 6,
                 minute = 45,
-                enabled = true,
+                isEnabled = true,
                 days = setOf(1, 5)
             )
         )
@@ -107,7 +107,7 @@ class RunningRepositoriesImplTest {
             id = 4,
             hour = 7,
             minute = 15,
-            enabled = true,
+            isEnabled = true,
             days = setOf(2)
         )
 
@@ -120,7 +120,7 @@ class RunningRepositoriesImplTest {
                     id = 4,
                     hour = 7,
                     minute = 15,
-                    enabled = true,
+                    isEnabled = true,
                     days = setOf(2)
                 )
             )

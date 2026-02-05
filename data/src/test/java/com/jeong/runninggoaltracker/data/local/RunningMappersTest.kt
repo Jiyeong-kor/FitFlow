@@ -41,7 +41,7 @@ class RunningMappersTest {
             id = 3,
             hour = 6,
             minute = 30,
-            enabled = true,
+            isEnabled = true,
             days = setOf(1, 6)
         )
 

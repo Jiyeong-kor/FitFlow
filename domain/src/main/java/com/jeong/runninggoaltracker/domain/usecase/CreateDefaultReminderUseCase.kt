@@ -8,7 +8,7 @@ class CreateDefaultReminderUseCase @Inject constructor() {
         id = null,
         hour = 8,
         minute = 0,
-        enabled = false,
+        isEnabled = false,
         days = emptySet()
     )
 }

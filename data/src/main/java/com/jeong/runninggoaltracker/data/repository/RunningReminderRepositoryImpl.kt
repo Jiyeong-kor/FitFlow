@@ -55,7 +55,7 @@ class RunningReminderRepositoryImpl @Inject constructor(
         val data = mapOf(
             "hour" to reminder.hour,
             "minute" to reminder.minute,
-            "enabled" to reminder.enabled,
+            "enabled" to reminder.isEnabled,
             "days" to reminder.days.toList()
         )
         try {

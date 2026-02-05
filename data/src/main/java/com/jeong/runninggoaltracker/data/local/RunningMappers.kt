@@ -36,7 +36,7 @@ fun RunningReminderEntity.toDomain(): RunningReminder =
         id = id,
         hour = hour,
         minute = minute,
-        enabled = enabled,
+        isEnabled = isEnabled,
         days = days
     )
 
@@ -45,7 +45,7 @@ fun RunningReminder.toEntity(): RunningReminderEntity =
         id = id,
         hour = hour,
         minute = minute,
-        enabled = enabled,
+        isEnabled = isEnabled,
         days = days
     )
 
