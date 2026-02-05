@@ -60,7 +60,7 @@ private fun SmartWorkoutEffectHandler(
     cooldownMs: Long,
     repCount: Int
 ) {
-    val context = LocalContext.current
+    val context = LocalContext.current.applicationContext
     val latestContext by rememberUpdatedState(context)
     val ttsController = remember { SmartWorkoutTtsController(context) }
 
