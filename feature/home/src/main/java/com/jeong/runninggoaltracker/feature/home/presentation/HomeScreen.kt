@@ -94,8 +94,6 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSurfaceColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import java.text.NumberFormat
-import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -716,56 +714,57 @@ private fun periodLabel(
     val dayPattern = stringResource(R.string.home_date_format_day)
     val monthPattern = stringResource(R.string.home_date_format_month)
     val rangePattern = stringResource(R.string.home_date_format_range)
-    val dayFormatter = remember(dayPattern, locale) { SimpleDateFormat(dayPattern, locale) }
-    val monthFormatter = remember(monthPattern, locale) { SimpleDateFormat(monthPattern, locale) }
-    val rangeFormatter = remember(rangePattern, locale) { SimpleDateFormat(rangePattern, locale) }
-    return when (periodState) {
-        PeriodState.DAILY -> stringResource(
-            R.string.home_period_daily_format,
-            dayFormatter.format(selectedDateMillis)
-        )
-
-        PeriodState.WEEKLY -> {
-            stringResource(
-                R.string.home_period_weekly_range_format,
-                rangeFormatter.format(weeklyRange.startMillis),
-                rangeFormatter.format(weeklyRange.endMillis)
-            )
-        }
-
-        PeriodState.MONTHLY -> stringResource(
-            R.string.home_period_monthly_format,
-            monthFormatter.format(selectedDateMillis)
-        )
+    val periodText = HomeUiFormatter.periodLabelText(
+        periodState = periodState,
+        selectedDateMillis = selectedDateMillis,
+        weeklyRange = weeklyRange,
+        dayPattern = dayPattern,
+        monthPattern = monthPattern,
+        rangePattern = rangePattern,
+        locale = locale
+    )
+    return if (periodText.formatArgs.isEmpty()) {
+        stringResource(periodText.resId)
+    } else {
+        stringResource(periodText.resId, *periodText.formatArgs.toTypedArray())
     }
 }
 
 @Composable
-private fun paceLabel(pace: HomePaceUiState): String =
-    if (pace.isAvailable) {
-        stringResource(R.string.home_pace_format, pace.minutes, pace.seconds)
+private fun paceLabel(pace: HomePaceUiState): String {
+    val paceText = HomeUiFormatter.paceText(
+        pace = pace,
+        formatResId = R.string.home_pace_format,
+        placeholderResId = R.string.home_pace_placeholder
+    )
+    return if (paceText.formatArgs.isEmpty()) {
+        stringResource(paceText.resId)
     } else {
-        stringResource(R.string.home_pace_placeholder)
+        stringResource(paceText.resId, *paceText.formatArgs.toTypedArray())
     }
+}
 
 @Composable
 private fun activityDateLabel(timestampMillis: Long): String {
     val locale = Locale.getDefault()
     val rangePattern = stringResource(R.string.home_date_format_range)
-    val formatter = remember(rangePattern, locale) { SimpleDateFormat(rangePattern, locale) }
-    return formatter.format(timestampMillis)
+    return HomeUiFormatter.activityDateText(
+        timestampMillis = timestampMillis,
+        rangePattern = rangePattern,
+        locale = locale
+    )
 }
 
 @Composable
 private fun yearMonthLabel(state: CalendarMonthState): String {
     val locale = Locale.getDefault()
     val monthPattern = stringResource(R.string.home_date_format_month)
-    val formatter = remember(monthPattern, locale) { SimpleDateFormat(monthPattern, locale) }
-    val calendar = Calendar.getInstance().apply {
-        set(Calendar.YEAR, state.year)
-        set(Calendar.MONTH, state.month)
-    }
-    return formatter.format(calendar.timeInMillis)
+    return HomeUiFormatter.yearMonthText(
+        year = state.year,
+        month = state.month,
+        monthPattern = monthPattern,
+        locale = locale
+    )
 }
 
 private fun calendarDayOfWeekLabels(): List<Int> = listOf(
