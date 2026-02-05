@@ -33,12 +33,12 @@ object NotificationPermissionGate {
             ContextCompat.checkSelfPermission(
                 context,
                 Manifest.permission.POST_NOTIFICATIONS
-            ) == PackageManager.PERMISSION_GRANTED && areNotificationsEnabled(context)
+            ) == PackageManager.PERMISSION_GRANTED && isNotificationsEnabled(context)
         } else {
-            areNotificationsEnabled(context)
+            isNotificationsEnabled(context)
         }
 
-    private fun areNotificationsEnabled(context: Context): Boolean =
+    private fun isNotificationsEnabled(context: Context): Boolean =
         NotificationManagerCompat.from(context).areNotificationsEnabled()
 
     @RequiresPermission(Manifest.permission.POST_NOTIFICATIONS)
