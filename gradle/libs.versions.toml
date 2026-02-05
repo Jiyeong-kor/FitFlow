@@ -102,7 +102,7 @@ firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "fir
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
-firebase-ai = { group = "com.google.firebase", name = "firebase-ai" }
+firebase-functions = { module = "com.google.firebase:firebase-functions" }
 
 # Location
 androidx-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
