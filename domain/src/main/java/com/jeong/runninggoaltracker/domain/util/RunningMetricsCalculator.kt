@@ -18,7 +18,7 @@ class RunningMetricsCalculator @Inject constructor() {
             hours = hours,
             minutes = minutes,
             seconds = seconds,
-            showHours = hours > RunningTimeContract.ZERO_LONG
+            shouldShowHours = hours > RunningTimeContract.ZERO_LONG
         )
     }
 

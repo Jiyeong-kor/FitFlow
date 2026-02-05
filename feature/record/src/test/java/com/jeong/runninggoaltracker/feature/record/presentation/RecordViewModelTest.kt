@@ -63,7 +63,7 @@ class RecordViewModelTest {
                 isTracking = tracker.isTracking,
                 distanceKm = tracker.distanceKm,
                 elapsedMillis = tracker.elapsedMillis,
-                permissionRequired = tracker.permissionRequired
+                isPermissionRequired = tracker.isPermissionRequired
             )
         }
 
@@ -97,7 +97,7 @@ class RecordViewModelTest {
             isTracking = true,
             distanceKm = 1.5,
             elapsedMillis = 120_000,
-            permissionRequired = false
+            isPermissionRequired = false
         )
 
         trackerState.value = newTrackerState
@@ -107,7 +107,7 @@ class RecordViewModelTest {
         assertTrue(uiState.isTracking)
         assertEquals(1.5, uiState.distanceKm, 0.0)
         assertEquals(120_000, uiState.elapsedMillis)
-        assertEquals(false, uiState.permissionRequired)
+        assertEquals(false, uiState.isPermissionRequired)
     }
 
     @Test

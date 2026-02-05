@@ -7,7 +7,7 @@ fun RunningElapsedTime.toUiState(): RecordElapsedTimeUiState = RecordElapsedTime
     hours = hours,
     minutes = minutes,
     seconds = seconds,
-    showHours = showHours
+    shouldShowHours = shouldShowHours
 )
 
 fun RunningPace.toUiState(): RecordPaceUiState = RecordPaceUiState(

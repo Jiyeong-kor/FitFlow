@@ -7,7 +7,7 @@ data class RecordElapsedTimeUiState(
     val hours: Long = 0L,
     val minutes: Long = 0L,
     val seconds: Long = 0L,
-    val showHours: Boolean = false
+    val shouldShowHours: Boolean = false
 )
 
 data class RecordPaceUiState(
@@ -24,5 +24,5 @@ data class RecordUiState(
     val elapsedMillis: Long = 0L,
     val elapsedTime: RecordElapsedTimeUiState = RecordElapsedTimeUiState(),
     val pace: RecordPaceUiState = RecordPaceUiState(),
-    val permissionRequired: Boolean = false
+    val isPermissionRequired: Boolean = false
 )

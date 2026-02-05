@@ -24,7 +24,7 @@ class RecordUiStateMapper @Inject constructor(
             elapsedMillis = tracker.elapsedMillis,
             elapsedTime = elapsedTime.toUiState(),
             pace = pace.toUiState(),
-            permissionRequired = tracker.permissionRequired
+            isPermissionRequired = tracker.isPermissionRequired
         )
     }
 }

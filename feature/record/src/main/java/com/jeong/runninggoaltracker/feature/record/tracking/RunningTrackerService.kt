@@ -56,7 +56,7 @@ class RunningTrackerService : Service() {
     private var startTimeMillis: Long? = null
     private var distanceMeters: Double? = null
     private var lastLocation: Location? = null
-    private var tracking: Boolean = false
+    private var isTrackingActive: Boolean = false
     private var elapsedUpdateJob: Job? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -84,7 +84,7 @@ class RunningTrackerService : Service() {
             Manifest.permission.ACCESS_COARSE_LOCATION]
     )
     private fun startTracking() {
-        if (tracking) return
+        if (isTrackingActive) return
         if (!NotificationPermissionGate.canPostNotifications(this)) {
             stateUpdater.markPermissionRequired()
             stopSelf()
@@ -102,18 +102,18 @@ class RunningTrackerService : Service() {
             stopSelf()
             return
         }
-        tracking = true
+        isTrackingActive = true
         stateUpdater.markTracking()
         startLocationUpdates()
         startElapsedUpdater()
     }
 
     private fun stopTracking() {
-        if (!tracking) {
+        if (!isTrackingActive) {
             stopSelf()
             return
         }
-        tracking = false
+        isTrackingActive = false
         elapsedUpdateJob?.cancel()
         stopLocationUpdates()
         val startMillis = startTimeMillis ?: AppNumericTokens.zeroLong
@@ -199,7 +199,7 @@ class RunningTrackerService : Service() {
         elapsedUpdateJob?.cancel()
         elapsedUpdateJob = serviceScope.launch {
             val metersInKmValue = metersInKm()
-            while (tracking) {
+            while (isTrackingActive) {
                 val startMillis =
                     startTimeMillis ?: AppNumericTokens.zeroLong
                 val elapsed = dateProvider.getToday() - startMillis

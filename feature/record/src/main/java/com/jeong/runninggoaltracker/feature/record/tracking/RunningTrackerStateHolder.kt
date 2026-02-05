@@ -20,7 +20,7 @@ class RunningTrackerStateHolder @Inject constructor() :
         _state.update {
             it.copy(
                 isTracking = true,
-                permissionRequired = false,
+                isPermissionRequired = false,
                 distanceKm = 0.0,
                 elapsedMillis = 0L
             )
@@ -47,7 +47,7 @@ class RunningTrackerStateHolder @Inject constructor() :
     override fun markPermissionRequired() {
         _state.update {
             it.copy(
-                permissionRequired = true,
+                isPermissionRequired = true,
                 isTracking = false
             )
         }

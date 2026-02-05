@@ -95,7 +95,7 @@ fun RecordScreen(
     } else {
         stringResource(R.string.record_pace_zero)
     }
-    val elapsedTimeLabel = if (uiState.elapsedTime.showHours) {
+    val elapsedTimeLabel = if (uiState.elapsedTime.shouldShowHours) {
         stringResource(
             R.string.record_elapsed_time_hms_format,
             uiState.elapsedTime.hours,
@@ -177,7 +177,7 @@ fun RecordScreen(
             )
         }
 
-        if (uiState.permissionRequired) {
+        if (uiState.isPermissionRequired) {
             Text(
                 text = stringResource(R.string.record_tracking_permission_required),
                 color = MaterialTheme.colorScheme.error,
@@ -341,7 +341,7 @@ private fun RecordScreenPreview() {
         isTracking = true,
         distanceKm = previewDistance,
         elapsedMillis = previewElapsedMillis,
-        permissionRequired = false
+        isPermissionRequired = false
     )
 
     RunningGoalTrackerTheme {
