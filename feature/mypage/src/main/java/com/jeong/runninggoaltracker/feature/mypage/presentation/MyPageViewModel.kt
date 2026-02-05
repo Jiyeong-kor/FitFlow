@@ -24,8 +24,8 @@ class MyPageViewModel @Inject constructor(
         MutableStateFlow<DeleteAccountUiState>(DeleteAccountUiState.Idle)
     val deleteAccountState: StateFlow<DeleteAccountUiState> = _deleteAccountState.asStateFlow()
 
-    fun toggleActivityRecognition(enabled: Boolean) {
-        localUiState.update { it.copy(isActivityRecognitionEnabled = enabled) }
+    fun toggleActivityRecognition(isEnabled: Boolean) {
+        localUiState.update { it.copy(isActivityRecognitionEnabled = isEnabled) }
     }
 
     fun showDeleteAccountDialog() {
