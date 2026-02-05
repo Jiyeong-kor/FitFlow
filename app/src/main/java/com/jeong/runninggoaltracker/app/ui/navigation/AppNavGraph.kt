@@ -38,7 +38,7 @@ fun AppNavGraph(
         navController = navController,
         navigationState = navigationState,
         tabItemsByTab = tabItemsByTab,
-        showNavigationBars = navigationState.currentScreen != null || navigationState.activeTab != null,
+        shouldShowNavigationBars = navigationState.currentScreen != null || navigationState.activeTab != null,
         modifier = modifier
     ) { innerPadding ->
         NavHost(

@@ -11,42 +11,42 @@ sealed interface MainScreen {
 
     @get:StringRes
     val titleResId: Int
-    val showBackInTopBar: Boolean
+    val shouldShowBackInTopBar: Boolean
 
     data object Home : MainScreen {
         override val route: MainNavigationRoute = MainNavigationRoute.Home
         override val titleResId: Int = R.string.title_home
-        override val showBackInTopBar: Boolean = false
+        override val shouldShowBackInTopBar: Boolean = false
     }
 
     data object Record : MainScreen {
         override val route: MainNavigationRoute = MainNavigationRoute.Record
         override val titleResId: Int = R.string.title_record
-        override val showBackInTopBar: Boolean = true
+        override val shouldShowBackInTopBar: Boolean = true
     }
 
     data object AiCoach : MainScreen {
         override val route: MainNavigationRoute = MainNavigationRoute.AiCoach
         override val titleResId: Int = R.string.title_ai_coach
-        override val showBackInTopBar: Boolean = false
+        override val shouldShowBackInTopBar: Boolean = false
     }
 
     data object Goal : MainScreen {
         override val route: MainNavigationRoute = MainNavigationRoute.Goal
         override val titleResId: Int = R.string.title_goal
-        override val showBackInTopBar: Boolean = true
+        override val shouldShowBackInTopBar: Boolean = true
     }
 
     data object Reminder : MainScreen {
         override val route: MainNavigationRoute = MainNavigationRoute.Reminder
         override val titleResId: Int = R.string.title_reminder
-        override val showBackInTopBar: Boolean = true
+        override val shouldShowBackInTopBar: Boolean = true
     }
 
     data object MyPage : MainScreen {
         override val route: MainNavigationRoute = MainNavigationRoute.MyPage
         override val titleResId: Int = R.string.title_mypage
-        override val showBackInTopBar: Boolean = false
+        override val shouldShowBackInTopBar: Boolean = false
     }
 
     companion object {

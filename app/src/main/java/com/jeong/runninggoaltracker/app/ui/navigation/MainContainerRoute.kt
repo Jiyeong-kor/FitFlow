@@ -14,18 +14,18 @@ fun MainContainerRoute(
     navController: NavHostController,
     navigationState: MainNavigationState,
     tabItemsByTab: Map<MainTab, MainTabItem>,
-    showNavigationBars: Boolean,
+    shouldShowNavigationBars: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
         modifier = modifier,
         topBar = {
-            if (showNavigationBars) {
+            if (shouldShowNavigationBars) {
                 AppTopBar(
                     titleResId = navigationState.titleResId,
                     fallbackTitleResId = R.string.app_name_full,
-                    onBack = if (navigationState.showBackInTopBar) {
+                    onBack = if (navigationState.shouldShowBackInTopBar) {
                         { navController.popBackStack() }
                     } else {
                         null
@@ -34,7 +34,7 @@ fun MainContainerRoute(
             }
         },
         bottomBar = {
-            if (showNavigationBars) {
+            if (shouldShowNavigationBars) {
                 BottomAndTopBar(
                     tabItemsByTab = tabItemsByTab,
                     navController = navController
