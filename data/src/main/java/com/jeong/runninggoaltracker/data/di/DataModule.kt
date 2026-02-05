@@ -11,14 +11,17 @@ import com.jeong.runninggoaltracker.data.repository.AuthRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningGoalRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningReminderRepositoryImpl
+import com.jeong.runninggoaltracker.data.repository.UserDataSyncRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.WorkoutRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.util.SystemDateProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.functions.FirebaseFunctions
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
+import com.jeong.runninggoaltracker.domain.repository.UserDataSyncRepository
 import com.jeong.runninggoaltracker.domain.repository.WorkoutRecordRepository
 import com.jeong.runninggoaltracker.domain.usecase.RunningSummaryCalculator
 import com.jeong.runninggoaltracker.domain.usecase.WeeklySummaryCalculator
@@ -66,6 +69,10 @@ object DataProvidesModule {
     @Provides
     @Singleton
     fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
+
+    @Provides
+    @Singleton
+    fun provideFirebaseFunctions(): FirebaseFunctions = FirebaseFunctions.getInstance()
 }
 
 @Module
@@ -95,4 +102,8 @@ abstract class DataBindsModule {
     @Binds
     @Singleton
     abstract fun bindAuthRepository(impl: AuthRepositoryImpl): AuthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindUserDataSyncRepository(impl: UserDataSyncRepositoryImpl): UserDataSyncRepository
 }

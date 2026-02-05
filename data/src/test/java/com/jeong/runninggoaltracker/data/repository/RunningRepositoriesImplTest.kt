@@ -6,6 +6,8 @@ import com.jeong.runninggoaltracker.data.local.RunningRecordEntity
 import com.jeong.runninggoaltracker.data.local.RunningRecordDao
 import com.jeong.runninggoaltracker.data.local.RunningReminderDao
 import com.jeong.runninggoaltracker.data.local.RunningReminderEntity
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
@@ -13,6 +15,8 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import io.mockk.every
+import io.mockk.mockk
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -20,9 +24,14 @@ import org.junit.Test
 class RunningRepositoriesImplTest {
 
     private val fakeDaos = FakeRunningDaos()
-    private val recordRepository = RunningRecordRepositoryImpl(fakeDaos)
-    private val goalRepository = RunningGoalRepositoryImpl(fakeDaos)
-    private val reminderRepository = RunningReminderRepositoryImpl(fakeDaos)
+    private val firebaseAuth = mockk<FirebaseAuth> {
+        every { currentUser } returns null
+    }
+    private val firestore = mockk<FirebaseFirestore>(relaxed = true)
+    private val recordRepository = RunningRecordRepositoryImpl(fakeDaos, firebaseAuth, firestore)
+    private val goalRepository = RunningGoalRepositoryImpl(fakeDaos, firebaseAuth, firestore)
+    private val reminderRepository =
+        RunningReminderRepositoryImpl(fakeDaos, firebaseAuth, firestore)
 
     @Test
     fun `record repository exposes mapped records and inserts entities`() = runBlocking {
@@ -132,9 +141,10 @@ class RunningRepositoriesImplTest {
 
         override fun getAllRecords(): Flow<List<RunningRecordEntity>> = records
 
-        override suspend fun insertRecord(record: RunningRecordEntity) {
+        override suspend fun insertRecord(record: RunningRecordEntity): Long {
             lastInsertedRecord = record
             records.value = records.value + record
+            return record.id
         }
 
         override fun getGoal(): Flow<RunningGoalEntity?> = goal

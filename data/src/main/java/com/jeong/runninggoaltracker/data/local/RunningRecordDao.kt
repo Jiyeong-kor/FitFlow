@@ -14,5 +14,5 @@ interface RunningRecordDao {
     fun getAllRecords(): Flow<List<RunningRecordEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRecord(record: RunningRecordEntity)
+    suspend fun insertRecord(record: RunningRecordEntity): Long
 }

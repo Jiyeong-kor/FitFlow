@@ -5,5 +5,5 @@ import kotlinx.coroutines.flow.Flow
 
 interface RunningRecordRepository {
     fun getAllRecords(): Flow<List<RunningRecord>>
-    suspend fun addRecord(record: RunningRecord)
+    suspend fun addRecord(record: RunningRecord): Long
 }

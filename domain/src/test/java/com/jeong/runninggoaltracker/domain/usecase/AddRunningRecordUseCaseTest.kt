@@ -36,9 +36,10 @@ class AddRunningRecordUseCaseTest {
 
         override fun getAllRecords(): Flow<List<RunningRecord>> = records
 
-        override suspend fun addRecord(record: RunningRecord) {
+        override suspend fun addRecord(record: RunningRecord): Long {
             added += record
             records.value = records.value + record
+            return record.id
         }
     }
 }
