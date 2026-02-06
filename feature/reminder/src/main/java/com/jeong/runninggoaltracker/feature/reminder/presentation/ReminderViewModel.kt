@@ -8,48 +8,34 @@ import com.jeong.runninggoaltracker.domain.usecase.GetRunningRemindersUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ToggleReminderDayUseCase
 import com.jeong.runninggoaltracker.domain.util.RunningReminderValidator
 import com.jeong.runninggoaltracker.feature.reminder.alarm.ReminderSchedulingInteractor
-import com.jeong.runninggoaltracker.feature.reminder.contract.REMINDER_STATE_TIMEOUT_MS
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ReminderViewModel @Inject constructor(
     getRunningRemindersUseCase: GetRunningRemindersUseCase,
-    private val createDefaultReminderUseCase: CreateDefaultReminderUseCase,
-    private val toggleReminderDayUseCase: ToggleReminderDayUseCase,
+    createDefaultReminderUseCase: CreateDefaultReminderUseCase,
+    toggleReminderDayUseCase: ToggleReminderDayUseCase,
     private val reminderSchedulingInteractor: ReminderSchedulingInteractor,
     private val reminderUiStateMapper: ReminderUiStateMapper,
     private val reminderUpdateHandler: ReminderUpdateHandler,
     private val reminderValidator: RunningReminderValidator
 ) : ViewModel() {
 
-    private val viewMode = MutableStateFlow(ReminderViewMode.LIST)
-    private val editingReminder = MutableStateFlow<EditingReminderState?>(null)
-    val uiState: StateFlow<ReminderListUiState> =
-        getRunningRemindersUseCase()
-            .combine(viewMode) { reminders, mode ->
-                reminders to mode
-            }
-            .combine(editingReminder) { (reminders, mode), editing ->
-                reminderUiStateMapper.toListUiState(reminders, mode, editing)
-            }
-            .stateIn(
-                scope = viewModelScope,
-                started = SharingStarted.WhileSubscribed(REMINDER_STATE_TIMEOUT_MS),
-                initialValue = ReminderListUiState()
-            )
+    private val stateHolder = ReminderStateHolder(
+        scope = viewModelScope,
+        getRunningRemindersUseCase = getRunningRemindersUseCase,
+        createDefaultReminderUseCase = createDefaultReminderUseCase,
+        toggleReminderDayUseCase = toggleReminderDayUseCase,
+        reminderUiStateMapper = reminderUiStateMapper
+    )
+
+    val uiState: StateFlow<ReminderListUiState> = stateHolder.uiState
 
     fun onAddClick() {
-        val defaultReminder = createDefaultReminderUseCase()
-        viewMode.value = ReminderViewMode.EDIT
-        editingReminder.value = reminderUiStateMapper.toEditingState(defaultReminder)
+        stateHolder.onAddClick()
     }
 
     fun deleteReminder(id: Int) {
@@ -64,18 +50,15 @@ class ReminderViewModel @Inject constructor(
     }
 
     fun onReminderClick(id: Int) {
-        val reminder = uiState.value.reminders.firstOrNull { it.id == id } ?: return
-        viewMode.value = ReminderViewMode.EDIT
-        editingReminder.value = reminderUiStateMapper.toEditingState(reminder)
+        stateHolder.onReminderClick(id)
     }
 
     fun onCancelEdit() {
-        viewMode.value = ReminderViewMode.LIST
-        editingReminder.value = null
+        stateHolder.onCancelEdit()
     }
 
     fun onSaveEdit() {
-        val currentEditing = editingReminder.value ?: return
+        val currentEditing = stateHolder.currentEditing() ?: return
         viewModelScope.launch {
             val normalizedReminder = reminderValidator.normalizeEnabledDays(
                 reminderUiStateMapper.toDomain(currentEditing)
@@ -96,12 +79,11 @@ class ReminderViewModel @Inject constructor(
                     .execute(reminderSchedulingInteractor)
             }
         }
-        viewMode.value = ReminderViewMode.LIST
-        editingReminder.value = null
+        stateHolder.finishEdit()
     }
 
     fun onDeleteEdit() {
-        val currentEditing = editingReminder.value ?: return
+        val currentEditing = stateHolder.currentEditing() ?: return
         val reminderId = currentEditing.id
         if (reminderId == null) {
             onCancelEdit()
@@ -111,44 +93,27 @@ class ReminderViewModel @Inject constructor(
             reminderUpdateHandler.buildDeleteCommand(uiState.value.reminders, reminderId)
                 .execute(reminderSchedulingInteractor)
         }
-        viewMode.value = ReminderViewMode.LIST
-        editingReminder.value = null
+        stateHolder.finishEdit()
     }
 
     fun onToggleEditingEnabled(isEnabled: Boolean) {
-        editingReminder.update { current ->
-            current?.copy(isEnabled = isEnabled)
-        }
+        stateHolder.onToggleEditingEnabled(isEnabled)
     }
 
     fun onUpdateEditingTime(hour: Int, minute: Int) {
-        editingReminder.update { current ->
-            current?.copy(hour = hour, minute = minute)
-        }
+        stateHolder.onUpdateEditingTime(hour, minute)
     }
 
     fun onToggleEditingDay(day: Int) {
-        editingReminder.update { current ->
-            current?.let {
-                val updatedReminder = toggleReminderDayUseCase(
-                    reminderUiStateMapper.toDomain(it),
-                    day
-                )
-                it.copy(days = updatedReminder.days)
-            }
-        }
+        stateHolder.onToggleEditingDay(day)
     }
 
     fun onOpenTimePicker() {
-        editingReminder.update { current ->
-            current?.copy(isTimePickerVisible = true)
-        }
+        stateHolder.onOpenTimePicker()
     }
 
     fun onDismissTimePicker() {
-        editingReminder.update { current ->
-            current?.copy(isTimePickerVisible = false)
-        }
+        stateHolder.onDismissTimePicker()
     }
 
     private fun updateReminder(
