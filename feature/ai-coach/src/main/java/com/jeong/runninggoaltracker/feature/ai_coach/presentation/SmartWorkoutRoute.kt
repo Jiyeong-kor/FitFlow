@@ -62,7 +62,7 @@ private fun SmartWorkoutEffectHandler(
 ) {
     val context = LocalContext.current.applicationContext
     val latestContext by rememberUpdatedState(context)
-    val ttsController = remember { SmartWorkoutTtsController(context) }
+    val textToSpeechController = remember { SmartWorkoutTextToSpeechController(context) }
 
     LaunchedEffect(cooldownMs) {
         viewModel.updateSpeechCooldown(cooldownMs)
@@ -72,16 +72,16 @@ private fun SmartWorkoutEffectHandler(
         viewModel.logUiRepCount(repCount)
     }
 
-    LaunchedEffect(viewModel, ttsController) {
+    LaunchedEffect(viewModel, textToSpeechController) {
         viewModel.speechEvents.collect { event ->
             val text = latestContext.getString(event.feedbackResId)
-            ttsController.speak(text)
+            textToSpeechController.speak(text)
         }
     }
 
-    DisposableEffect(ttsController) {
+    DisposableEffect(textToSpeechController) {
         onDispose {
-            ttsController.shutdown()
+            textToSpeechController.shutdown()
         }
     }
 }

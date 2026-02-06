@@ -5,13 +5,13 @@ import android.speech.tts.TextToSpeech
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutSpeechContract
 import java.util.Locale
 
-class SmartWorkoutTtsController(context: Context) {
+class SmartWorkoutTextToSpeechController(context: Context) {
     private var isReady: Boolean = false
     private var pendingMessage: String? = null
-    private val tts: TextToSpeech = TextToSpeech(context.applicationContext) { status ->
+    private val textToSpeech: TextToSpeech = TextToSpeech(context.applicationContext) { status ->
         isReady = status == TextToSpeech.SUCCESS
         if (isReady) {
-            tts.setLanguage(Locale.KOREAN)
+            textToSpeech.setLanguage(Locale.KOREAN)
             pendingMessage?.let { message ->
                 pendingMessage = null
                 speakInternal(message)
@@ -28,16 +28,16 @@ class SmartWorkoutTtsController(context: Context) {
     }
 
     private fun speakInternal(message: String) {
-        tts.speak(
+        textToSpeech.speak(
             message,
             TextToSpeech.QUEUE_FLUSH,
             null,
-            SmartWorkoutSpeechContract.TTS_UTTERANCE_ID
+            SmartWorkoutSpeechContract.TEXT_TO_SPEECH_UTTERANCE_ID
         )
     }
 
     fun shutdown() {
-        tts.stop()
-        tts.shutdown()
+        textToSpeech.stop()
+        textToSpeech.shutdown()
     }
 }
