@@ -7,11 +7,9 @@ class DistanceFormatter(
     private val localeProvider: () -> Locale,
     private val numberFormatFactory: (Locale) -> NumberFormat
 ) {
-    fun formatDistanceKm(distanceKm: Double, fractionDigits: Int): String {
-        val locale = localeProvider()
-        val formatter = numberFormatFactory(locale)
-        formatter.minimumFractionDigits = fractionDigits
-        formatter.maximumFractionDigits = fractionDigits
-        return formatter.format(distanceKm)
-    }
+    fun formatDistanceKm(distanceKm: Double, fractionDigits: Int): String =
+        numberFormatFactory(localeProvider()).apply {
+            minimumFractionDigits = fractionDigits
+            maximumFractionDigits = fractionDigits
+        }.format(distanceKm)
 }
