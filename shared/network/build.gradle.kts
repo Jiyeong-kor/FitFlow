@@ -43,14 +43,16 @@ kotlin {
 }
 
 dependencies {
-    implementation(libs.androidx.core.ktx)
     implementation(libs.kotlinx.coroutines.core)
+
+    implementation(libs.androidx.core.ktx)
+
     implementation(libs.hilt.android)
+
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
 
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.test.runner)
+    androidTestImplementation(libs.bundles.androidx.test)
 }

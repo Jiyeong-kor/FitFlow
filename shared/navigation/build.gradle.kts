@@ -43,19 +43,15 @@ kotlin {
 }
 
 dependencies {
-    // Compose (BOM + bundles)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.bundles.androidx.compose)
-    implementation(libs.bundles.androidx.lifecycle.compose)
-
-    // Serialization
     implementation(libs.kotlinx.serialization.json)
 
-    // Test (unit)
+    implementation(libs.bundles.androidx.lifecycle.compose)
+
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.bundles.androidx.compose)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
 
-    // Test (android)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(libs.bundles.androidx.test)
 }
