@@ -218,6 +218,12 @@ firebase-data = [
     "firebase-functions"
 ]
 
+# Hilt
+hilt-compose = [
+    "androidx-hilt-navigation-compose",
+    "hilt-android"
+]
+
 # Unit Test
 test-unit = [
     "junit",

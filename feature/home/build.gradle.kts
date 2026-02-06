@@ -54,16 +54,14 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)
 
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.hilt.android)
+    implementation(libs.bundles.hilt.compose)
 
     debugImplementation(libs.bundles.androidx.compose.debug)
 
     ksp(libs.hilt.compiler)
 
-    testImplementation(libs.kotlinx.coroutines.test)
-
     testImplementation(libs.bundles.test.unit)
+    testImplementation(libs.kotlinx.coroutines.test)
 
     androidTestImplementation(libs.bundles.androidx.test)
 

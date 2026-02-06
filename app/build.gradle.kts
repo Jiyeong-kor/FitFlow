@@ -94,15 +94,15 @@ kotlin {
 
 dependencies {
     implementation(project(":data"))
-    implementation(project(":shared:designsystem"))
-    implementation(project(":shared:navigation"))
-    implementation(project(":feature:home"))
-    implementation(project(":feature:goal"))
-    implementation(project(":feature:record"))
-    implementation(project(":feature:reminder"))
-    implementation(project(":feature:mypage"))
     implementation(project(":feature:ai-coach"))
     implementation(project(":feature:auth"))
+    implementation(project(":feature:goal"))
+    implementation(project(":feature:home"))
+    implementation(project(":feature:mypage"))
+    implementation(project(":feature:record"))
+    implementation(project(":feature:reminder"))
+    implementation(project(":shared:designsystem"))
+    implementation(project(":shared:navigation"))
 
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
@@ -112,8 +112,7 @@ dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)
 
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.hilt.android)
+    implementation(libs.bundles.hilt.compose)
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase.app)
@@ -129,8 +128,8 @@ dependencies {
 
     androidTestImplementation(libs.bundles.androidx.test)
 
-    androidTestImplementation(libs.hilt.android.testing)
-
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.bundles.androidx.compose.test)
+
+    androidTestImplementation(libs.hilt.android.testing)
 }
