@@ -10,11 +10,10 @@ val debugStorePassword: String? = localProperties.getProperty("DEBUG_STORE_PASSW
 val debugKeyPassword: String? = localProperties.getProperty("DEBUG_KEY_PASSWORD")
 val debugKeyAlias: String? = localProperties.getProperty("DEBUG_KEY_ALIAS")
 val debugStoreFile = rootProject.file("debug-custom.keystore")
-val useCustomDebugSigning: Boolean =
-    debugStoreFile.exists() &&
-            !debugStorePassword.isNullOrBlank() &&
-            !debugKeyPassword.isNullOrBlank() &&
-            !debugKeyAlias.isNullOrBlank()
+val hasDebugCredentials: Boolean =
+    listOf(debugStorePassword, debugKeyPassword, debugKeyAlias)
+        .all { !it.isNullOrBlank() }
+val useCustomDebugSigning: Boolean = debugStoreFile.exists() && hasDebugCredentials
 
 val kakaoNativeAppKey: String =
     localProperties.getProperty("KAKAO_NATIVE_APP_KEY").orEmpty()
