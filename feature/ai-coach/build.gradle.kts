@@ -45,46 +45,33 @@ kotlin {
 }
 
 dependencies {
-    // Project modules
     implementation(project(":domain"))
     implementation(project(":shared:designsystem"))
     implementation(project(":shared:navigation"))
 
-    // AndroidX core & lifecycle
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
-
-    // Compose (BOM + bundles)
-    implementation(platform(libs.androidx.compose.bom))
-    implementation(libs.bundles.androidx.compose)
     implementation(libs.bundles.androidx.lifecycle.compose)
 
-    // DI (Hilt)
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.bundles.androidx.compose)
+
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
 
-    // CameraX
     implementation(libs.androidx.camera.core)
     implementation(libs.androidx.camera.camera2)
     implementation(libs.androidx.camera.lifecycle)
     implementation(libs.androidx.camera.view)
 
-    // ML Kit
     implementation(libs.mlkit.pose.detection)
 
-    // Test (unit)
+    debugImplementation(libs.bundles.androidx.compose.debug)
+
+    ksp(libs.hilt.compiler)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
 
-    // Test (android)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-
-    // Compose test (android)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-
-    // Debug
-    debugImplementation(libs.androidx.compose.ui.tooling)
+    androidTestImplementation(libs.bundles.androidx.test)
 }
