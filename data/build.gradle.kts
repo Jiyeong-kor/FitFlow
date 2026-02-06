@@ -50,29 +50,27 @@ ksp {
 dependencies {
     implementation(project(":domain"))
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.auth)
-    implementation(libs.firebase.firestore)
-    implementation(libs.firebase.functions)
     implementation(libs.kotlinx.coroutines.core)
-    implementation(libs.kakao.sdk.user)
-
-    // Room
-    implementation(libs.bundles.room)
-    ksp(libs.androidx.room.compiler)
-
-    // DI core
-    implementation(libs.javax.inject)
 
     implementation(libs.androidx.core.ktx)
+
+    implementation(libs.hilt.android)
+    implementation(libs.javax.inject)
+
+    implementation(libs.bundles.room)
+
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase.data)
+
+    implementation(libs.kakao.sdk.user)
+
+    ksp(libs.androidx.room.compiler)
+
+    ksp(libs.hilt.compiler)
+
     testImplementation(libs.junit)
-    testImplementation(libs.androidx.junit)
-    testImplementation(libs.androidx.test.runner)
+    testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.mockk)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.test.runner)
-    androidTestImplementation(libs.androidx.espresso.core)
+
+    androidTestImplementation(libs.bundles.androidx.test)
 }

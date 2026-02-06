@@ -93,7 +93,6 @@ kotlin {
 }
 
 dependencies {
-    // Project modules
     implementation(project(":data"))
     implementation(project(":shared:designsystem"))
     implementation(project(":shared:navigation"))
@@ -105,43 +104,33 @@ dependencies {
     implementation(project(":feature:ai-coach"))
     implementation(project(":feature:auth"))
 
-    // AndroidX core & lifecycle
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.bundles.androidx.lifecycle.compose)
 
-    // Kakao SDK
-    implementation(libs.kakao.sdk.user)
-
-    // DI (Hilt)
-    implementation(libs.androidx.hilt.navigation.compose)
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-
-    // Compose (BOM + bundles)
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)
 
-    // Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.firebase.analytics)
-    implementation(libs.firebase.auth)
+    implementation(libs.androidx.hilt.navigation.compose)
+    implementation(libs.hilt.android)
 
-    // Test (unit)
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.bundles.firebase.app)
+
+    implementation(libs.kakao.sdk.user)
+
+    debugImplementation(libs.bundles.androidx.compose.debug)
+    debugImplementation(libs.leakcanary.android)
+
+    ksp(libs.hilt.compiler)
+
     testImplementation(libs.junit)
     testImplementation(libs.mockk)
 
-    // Test (android)
     androidTestImplementation(libs.bundles.androidx.test)
     androidTestImplementation(libs.hilt.android.testing)
 
-    // Compose test (android)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.bundles.androidx.compose.test)
-    kspAndroidTest(libs.dagger.hilt.compiler)
-
-    // Debug
-    debugImplementation(libs.bundles.androidx.compose.debug)
-    debugImplementation(libs.leakcanary.android)
 }
