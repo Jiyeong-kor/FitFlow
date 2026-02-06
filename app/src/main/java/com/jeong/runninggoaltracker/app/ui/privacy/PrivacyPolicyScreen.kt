@@ -18,12 +18,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -122,26 +120,23 @@ private fun PrivacyPolicyWebView(
     modifier: Modifier = Modifier
 ) {
     val url = BuildConfig.PRIVACY_POLICY_URL
-    var webView by remember { mutableStateOf<WebView?>(null) }
+    val context = LocalContext.current
+    val webView = remember(context) { WebView(context) }
 
     BackHandler {
-        val activeWebView = webView
-        if (activeWebView?.canGoBack() == true) {
-            activeWebView.goBack()
+        if (webView.canGoBack()) {
+            webView.goBack()
         } else {
             onBack()
         }
     }
 
-    DisposableEffect(Unit) {
+    DisposableEffect(webView) {
         onDispose {
-            webView?.apply {
-                stopLoading()
-                webViewClient = WebViewClient()
-                (parent as? ViewGroup)?.removeView(this)
-                destroy()
-            }
-            webView = null
+            webView.stopLoading()
+            webView.webViewClient = WebViewClient()
+            (webView.parent as? ViewGroup)?.removeView(webView)
+            webView.destroy()
         }
     }
 
@@ -149,9 +144,8 @@ private fun PrivacyPolicyWebView(
         modifier = modifier.semantics {
             contentDescription = webViewDescription
         },
-        factory = { context ->
-            WebView(context).apply {
-                webView = this
+        factory = {
+            webView.apply {
                 settings.javaScriptEnabled = false
                 webViewClient = object : WebViewClient() {
 
