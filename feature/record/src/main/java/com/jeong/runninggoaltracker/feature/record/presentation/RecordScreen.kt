@@ -79,10 +79,10 @@ fun RecordScreen(
     val distanceValue = stringResource(R.string.record_distance_format, uiState.distanceKm)
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
-    val surfaceColor = appSurfaceColor()
+    appSurfaceColor()
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
-    val onAccent = appOnAccentColor()
+    appOnAccentColor()
     val paceLabel = if (uiState.pace.isAvailable) {
         stringResource(
             R.string.record_pace_format,
@@ -202,16 +202,18 @@ fun RecordScreen(
                     stringResource(R.string.record_action_start)
                 },
                 icon = startPauseIcon,
-                containerColor = if (uiState.isTracking) surfaceColor else accentColor,
-                contentColor = if (uiState.isTracking) textPrimary else onAccent,
+                variant = if (uiState.isTracking) {
+                    RecordControlButtonVariant.SECONDARY
+                } else {
+                    RecordControlButtonVariant.PRIMARY
+                },
                 modifier = Modifier.weight(fullWeight),
                 onClick = onPauseClick
             )
             RecordControlButton(
                 label = stringResource(R.string.record_action_stop),
                 icon = AppIcons::stop,
-                containerColor = MaterialTheme.colorScheme.error,
-                contentColor = onAccent,
+                variant = RecordControlButtonVariant.DESTRUCTIVE,
                 modifier = Modifier.weight(fullWeight),
                 onClick = onStopClick
             )
@@ -256,21 +258,39 @@ private fun MetricItem(label: String, value: String, modifier: Modifier = Modifi
 private fun RecordControlButton(
     label: String,
     icon: @Composable () -> androidx.compose.ui.graphics.painter.Painter,
-    containerColor: androidx.compose.ui.graphics.Color,
-    contentColor: androidx.compose.ui.graphics.Color,
+    variant: RecordControlButtonVariant,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val dimensions = LocalAppDimensions.current
     val appShapes = LocalAppShapes.current
     val onClickThrottled = rememberThrottleClick(onClick = onClick)
+    val colors = when (variant) {
+        RecordControlButtonVariant.PRIMARY -> {
+            ButtonDefaults.buttonColors(
+                containerColor = appAccentColor(),
+                contentColor = appOnAccentColor()
+            )
+        }
+
+        RecordControlButtonVariant.SECONDARY -> {
+            ButtonDefaults.buttonColors(
+                containerColor = appSurfaceColor(),
+                contentColor = appTextPrimaryColor()
+            )
+        }
+
+        RecordControlButtonVariant.DESTRUCTIVE -> {
+            ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.error,
+                contentColor = appOnAccentColor()
+            )
+        }
+    }
     Button(
         onClick = onClickThrottled,
         modifier = modifier.height(dimensions.recordControlButtonHeight),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = containerColor,
-            contentColor = contentColor
-        ),
+        colors = colors,
         shape = appShapes.roundedLg,
         contentPadding = PaddingValues(dimensions.sizeZero)
     ) {
@@ -290,6 +310,12 @@ private fun RecordControlButton(
             fontWeight = FontWeight.Bold
         )
     }
+}
+
+private enum class RecordControlButtonVariant {
+    PRIMARY,
+    SECONDARY,
+    DESTRUCTIVE
 }
 
 @Composable
@@ -367,8 +393,7 @@ private fun RecordControlButtonPreview() = RunningGoalTrackerTheme {
     RecordControlButton(
         label = previewControlLabel(),
         icon = AppIcons::pause,
-        containerColor = appAccentColor(),
-        contentColor = appOnAccentColor(),
+        variant = RecordControlButtonVariant.PRIMARY,
         onClick = {}
     )
 }
