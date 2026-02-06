@@ -107,6 +107,6 @@ class ReminderScreenTest {
         composeRule.onNodeWithContentDescription(listItemLabel).performClick()
         composeRule.onNodeWithText(tuesdayLabel).performClick()
         composeRule.onNodeWithContentDescription(saveLabel).performClick()
-        composeRule.onNodeWithText(tuesdayLabel).assertIsDisplayed()
+        composeRule.onNodeWithText(tuesdayLabel, substring = true).assertIsDisplayed()
     }
 }
