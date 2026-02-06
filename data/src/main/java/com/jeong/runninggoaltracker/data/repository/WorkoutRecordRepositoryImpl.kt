@@ -8,15 +8,20 @@ import com.jeong.runninggoaltracker.data.util.awaitResult
 import com.jeong.runninggoaltracker.data.local.toEntity
 import com.jeong.runninggoaltracker.domain.model.WorkoutRecord
 import com.jeong.runninggoaltracker.domain.repository.WorkoutRecordRepository
+import com.jeong.runninggoaltracker.domain.di.IoDispatcher
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class WorkoutRecordRepositoryImpl @Inject constructor(
     private val workoutRecordDao: WorkoutRecordDao,
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
 ) : WorkoutRecordRepository {
     override suspend fun upsertRecord(record: WorkoutRecord) {
-        workoutRecordDao.upsertRecord(record.toEntity())
+        withContext(ioDispatcher) {
+            workoutRecordDao.upsertRecord(record.toEntity())
+        }
         uploadRecordIfNeeded(record)
     }
 

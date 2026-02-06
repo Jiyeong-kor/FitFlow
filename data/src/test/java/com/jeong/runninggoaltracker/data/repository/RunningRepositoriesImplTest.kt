@@ -11,12 +11,15 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
+import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -24,14 +27,32 @@ import org.junit.Test
 class RunningRepositoriesImplTest {
 
     private val fakeDaos = FakeRunningDaos()
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private val testDispatcher = UnconfinedTestDispatcher()
+    private val dateProvider = object : DateProvider {
+        override fun getTodayFlow(): Flow<Long> = MutableStateFlow(1720000000000L)
+
+        override fun getToday(): Long = 1720000000000L
+
+        override fun getStartOfWeek(timestamp: Long): Long = timestamp
+    }
     private val firebaseAuth = mockk<FirebaseAuth> {
         every { currentUser } returns null
     }
     private val firestore = mockk<FirebaseFirestore>(relaxed = true)
-    private val recordRepository = RunningRecordRepositoryImpl(fakeDaos, firebaseAuth, firestore)
-    private val goalRepository = RunningGoalRepositoryImpl(fakeDaos, firebaseAuth, firestore)
+    private val recordRepository =
+        RunningRecordRepositoryImpl(fakeDaos, firebaseAuth, firestore, testDispatcher)
+    private val goalRepository =
+        RunningGoalRepositoryImpl(fakeDaos, firebaseAuth, firestore, testDispatcher)
     private val reminderRepository =
-        RunningReminderRepositoryImpl(fakeDaos, firebaseAuth, firestore)
+        RunningReminderRepositoryImpl(
+            fakeDaos,
+            firebaseAuth,
+            firestore,
+            dateProvider,
+            testDispatcher
+        )
 
     @Test
     fun `record repository exposes mapped records and inserts entities`() = runBlocking {
@@ -104,7 +125,7 @@ class RunningRepositoriesImplTest {
         assertEquals(setOf(1, 5), reminder.days)
 
         val newReminder = RunningReminder(
-            id = 4,
+            id = null,
             hour = 7,
             minute = 15,
             isEnabled = true,
@@ -117,7 +138,7 @@ class RunningRepositoriesImplTest {
         assertTrue(
             fakeDaos.upsertedReminders.contains(
                 RunningReminderEntity(
-                    id = 4,
+                    id = (dateProvider.getToday() % Int.MAX_VALUE).toInt(),
                     hour = 7,
                     minute = 15,
                     isEnabled = true,
@@ -143,7 +164,7 @@ class RunningRepositoriesImplTest {
 
         override suspend fun insertRecord(record: RunningRecordEntity): Long {
             lastInsertedRecord = record
-            records.value = records.value + record
+            records.value += record
             return record.id
         }
 

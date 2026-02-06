@@ -9,23 +9,31 @@ import com.jeong.runninggoaltracker.data.local.toDomain
 import com.jeong.runninggoaltracker.data.local.toEntity
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
+import com.jeong.runninggoaltracker.domain.di.IoDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class RunningRecordRepositoryImpl @Inject constructor(
     private val recordDao: RunningRecordDao,
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
 ) : RunningRecordRepository {
 
     override fun getAllRecords(): Flow<List<RunningRecord>> =
         recordDao.getAllRecords().map { records ->
             records.map { it.toDomain() }
-        }
+        }.distinctUntilChanged()
+            .flowOn(ioDispatcher)
 
     override suspend fun addRecord(record: RunningRecord): Long {
-        val id = recordDao.insertRecord(record.toEntity())
+        val id = withContext(ioDispatcher) {
+            recordDao.insertRecord(record.toEntity())
+        }
         val recordWithId = if (record.id == 0L) record.copy(id = id) else record
         uploadRecordIfNeeded(recordWithId)
         return id

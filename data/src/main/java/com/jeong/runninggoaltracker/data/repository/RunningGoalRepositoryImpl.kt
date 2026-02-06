@@ -9,20 +9,31 @@ import com.jeong.runninggoaltracker.data.local.toDomain
 import com.jeong.runninggoaltracker.data.local.toEntity
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
+import com.jeong.runninggoaltracker.domain.di.IoDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class RunningGoalRepositoryImpl @Inject constructor(
     private val goalDao: RunningGoalDao,
     private val firebaseAuth: FirebaseAuth,
-    private val firestore: FirebaseFirestore
+    private val firestore: FirebaseFirestore,
+    @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
 ) : RunningGoalRepository {
 
-    override fun getGoal(): Flow<RunningGoal?> = goalDao.getGoal().map { it?.toDomain() }
+    override fun getGoal(): Flow<RunningGoal?> =
+        goalDao.getGoal()
+            .map { it?.toDomain() }
+            .distinctUntilChanged()
+            .flowOn(ioDispatcher)
 
     override suspend fun upsertGoal(goal: RunningGoal) {
-        goalDao.upsertGoal(goal.toEntity())
+        withContext(ioDispatcher) {
+            goalDao.upsertGoal(goal.toEntity())
+        }
         uploadGoalIfNeeded(goal)
     }
 
