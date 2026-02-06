@@ -7,11 +7,13 @@ class ReminderUiStateMapper @Inject constructor() {
 
     fun toListUiState(
         reminders: List<RunningReminder>,
-        activeTimePickerId: Int?
+        viewMode: ReminderViewMode,
+        editingReminder: EditingReminderState?
     ): ReminderListUiState =
         ReminderListUiState(
             reminders = reminders.mapNotNull { toUiStateOrNull(it) },
-            activeTimePickerId = activeTimePickerId
+            viewMode = viewMode,
+            editingReminder = editingReminder
         )
 
     fun toDomain(uiState: ReminderUiState): RunningReminder =
@@ -21,6 +23,33 @@ class ReminderUiStateMapper @Inject constructor() {
             minute = uiState.minute,
             isEnabled = uiState.isEnabled,
             days = uiState.days
+        )
+
+    fun toDomain(editingState: EditingReminderState): RunningReminder =
+        RunningReminder(
+            id = editingState.id,
+            hour = editingState.hour,
+            minute = editingState.minute,
+            isEnabled = editingState.isEnabled,
+            days = editingState.days
+        )
+
+    fun toEditingState(uiState: ReminderUiState): EditingReminderState =
+        EditingReminderState(
+            id = uiState.id,
+            hour = uiState.hour,
+            minute = uiState.minute,
+            isEnabled = uiState.isEnabled,
+            days = uiState.days
+        )
+
+    fun toEditingState(reminder: RunningReminder): EditingReminderState =
+        EditingReminderState(
+            id = reminder.id,
+            hour = reminder.hour,
+            minute = reminder.minute,
+            isEnabled = reminder.isEnabled,
+            days = reminder.days
         )
 
     private fun toUiStateOrNull(reminder: RunningReminder): ReminderUiState? {

@@ -12,12 +12,17 @@ fun ReminderRoute(
 
     ReminderScreen(
         state = state,
-        onAddReminder = viewModel::addReminder,
+        onAddClick = viewModel::onAddClick,
+        onReminderClick = viewModel::onReminderClick,
         onDeleteReminder = viewModel::deleteReminder,
         onToggleReminder = viewModel::updateEnabled,
-        onUpdateTime = viewModel::updateTime,
-        onToggleDay = viewModel::toggleDay,
-        onOpenTimePicker = viewModel::openTimePicker,
-        onDismissTimePicker = viewModel::dismissTimePicker
+        onCancelEdit = viewModel::onCancelEdit,
+        onSaveEdit = viewModel::onSaveEdit,
+        onDeleteEdit = viewModel::onDeleteEdit,
+        onToggleEditingEnabled = viewModel::onToggleEditingEnabled,
+        onUpdateEditingTime = viewModel::onUpdateEditingTime,
+        onToggleEditingDay = viewModel::onToggleEditingDay,
+        onOpenTimePicker = viewModel::onOpenTimePicker,
+        onDismissTimePicker = viewModel::onDismissTimePicker
     )
 }
