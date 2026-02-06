@@ -59,10 +59,7 @@ dependencies {
     implementation(libs.androidx.hilt.navigation.compose)
     implementation(libs.hilt.android)
 
-    implementation(libs.androidx.camera.core)
-    implementation(libs.androidx.camera.camera2)
-    implementation(libs.androidx.camera.lifecycle)
-    implementation(libs.androidx.camera.view)
+    implementation(libs.bundles.camerax)
 
     implementation(libs.mlkit.pose.detection)
 
@@ -70,8 +67,7 @@ dependencies {
 
     ksp(libs.hilt.compiler)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
+    testImplementation(libs.bundles.test.unit)
 
     androidTestImplementation(libs.bundles.androidx.test)
 }

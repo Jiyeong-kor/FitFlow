@@ -185,6 +185,14 @@ androidx-compose-test = [
     "androidx-compose-ui-test-junit4"
 ]
 
+# CameraX
+camerax = [
+    "androidx-camera-camera2",
+    "androidx-camera-core",
+    "androidx-camera-lifecycle",
+    "androidx-camera-view"
+]
+
 # Room
 room = [
     "androidx-room-ktx",
@@ -208,4 +216,10 @@ firebase-data = [
     "firebase-auth",
     "firebase-firestore",
     "firebase-functions"
+]
+
+# Unit Test
+test-unit = [
+    "junit",
+    "mockk"
 ]
