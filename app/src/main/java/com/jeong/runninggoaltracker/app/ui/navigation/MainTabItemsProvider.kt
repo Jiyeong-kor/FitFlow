@@ -1,12 +1,8 @@
 package com.jeong.runninggoaltracker.app.ui.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.DirectionsRun
-import androidx.compose.material.icons.filled.AccountCircle
-import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.painter.Painter
+import com.jeong.runninggoaltracker.shared.designsystem.icon.AppIcons
 import com.jeong.runninggoaltracker.shared.navigation.BottomTabIcon
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
 import javax.inject.Inject
@@ -19,7 +15,7 @@ class DefaultMainTabItemsProvider @Inject constructor() : MainTabItemsProvider {
     override fun tabItemsByTab(): Map<MainTab, MainTabItem> =
         MainTab.entries.mapNotNull { tab ->
             val screen = MainScreen.fromRoute(tab.route) ?: return@mapNotNull null
-            val icon = tab.icon.asImageVector() ?: return@mapNotNull null
+            val icon = tab.icon.asPainter()
 
             MainTabItem(
                 tab = tab,
@@ -29,10 +25,10 @@ class DefaultMainTabItemsProvider @Inject constructor() : MainTabItemsProvider {
         }.associateBy { it.tab }
 }
 
-fun BottomTabIcon.asImageVector(): ImageVector? = when (this) {
-    BottomTabIcon.HOME -> Icons.Filled.Home
-    BottomTabIcon.RECORD -> Icons.AutoMirrored.Filled.DirectionsRun
-    BottomTabIcon.AI_COACH -> Icons.Filled.FitnessCenter
-    BottomTabIcon.REMINDER -> Icons.Filled.Notifications
-    BottomTabIcon.MYPAGE -> Icons.Filled.AccountCircle
+fun BottomTabIcon.asPainter(): @Composable () -> Painter = when (this) {
+    BottomTabIcon.HOME -> AppIcons::home
+    BottomTabIcon.RECORD -> AppIcons::directionsRun
+    BottomTabIcon.AI_COACH -> AppIcons::fitnessCenter
+    BottomTabIcon.REMINDER -> AppIcons::notifications
+    BottomTabIcon.MYPAGE -> AppIcons::accountCircle
 }

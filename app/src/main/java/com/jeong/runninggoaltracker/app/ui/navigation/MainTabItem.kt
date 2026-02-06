@@ -1,11 +1,12 @@
 package com.jeong.runninggoaltracker.app.ui.navigation
 
 import androidx.annotation.StringRes
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.graphics.painter.Painter
 import com.jeong.runninggoaltracker.shared.navigation.MainTab
 
 data class MainTabItem(
     val tab: MainTab,
     @field:StringRes val titleResId: Int,
-    val icon: ImageVector,
+    val icon: @Composable () -> Painter,
 )

@@ -60,7 +60,7 @@ fun BottomAndTopBar(
                 onClick = onTabClick,
                 icon = {
                     Icon(
-                        imageVector = tabItem.icon,
+                        painter = tabItem.icon(),
                         contentDescription = stringResource(tabItem.titleResId)
                     )
                 },
