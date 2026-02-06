@@ -4,6 +4,10 @@ import androidx.room.withTransaction
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
+import com.jeong.runninggoaltracker.data.contract.RunningGoalFirestoreFields
+import com.jeong.runninggoaltracker.data.contract.RunningRecordFirestoreFields
+import com.jeong.runninggoaltracker.data.contract.RunningReminderFirestoreFields
+import com.jeong.runninggoaltracker.data.contract.WorkoutRecordFirestoreFields
 import com.jeong.runninggoaltracker.data.local.RunningDatabase
 import com.jeong.runninggoaltracker.data.local.RunningGoalEntity
 import com.jeong.runninggoaltracker.data.local.RunningRecordEntity
@@ -52,10 +56,13 @@ class UserDataSyncRepositoryImpl @Inject constructor(
 
             val recordEntities = recordsSnapshot.documents.mapNotNull { doc ->
                 val id = doc.id.toLongOrNull() ?: return@mapNotNull null
-                val date = doc.getLong("date") ?: return@mapNotNull null
-                val distanceKm = doc.getDouble("distanceKm") ?: return@mapNotNull null
+                val date = doc.getLong(RunningRecordFirestoreFields.DATE)
+                    ?: return@mapNotNull null
+                val distanceKm = doc.getDouble(RunningRecordFirestoreFields.DISTANCE_KM)
+                    ?: return@mapNotNull null
                 val durationMinutes =
-                    doc.getLong("durationMinutes")?.toInt() ?: return@mapNotNull null
+                    doc.getLong(RunningRecordFirestoreFields.DURATION_MINUTES)?.toInt()
+                        ?: return@mapNotNull null
                 RunningRecordEntity(
                     id = id,
                     date = date,
@@ -66,10 +73,14 @@ class UserDataSyncRepositoryImpl @Inject constructor(
 
             val reminderEntities = remindersSnapshot.documents.mapNotNull { doc ->
                 val id = doc.id.toIntOrNull() ?: return@mapNotNull null
-                val hour = doc.getLong("hour")?.toInt() ?: return@mapNotNull null
-                val minute = doc.getLong("minute")?.toInt() ?: return@mapNotNull null
-                val isEnabled = doc.getBoolean("enabled") ?: return@mapNotNull null
-                val days = doc.get("days") as? List<*> ?: emptyList<Any>()
+                val hour = doc.getLong(RunningReminderFirestoreFields.HOUR)?.toInt()
+                    ?: return@mapNotNull null
+                val minute = doc.getLong(RunningReminderFirestoreFields.MINUTE)?.toInt()
+                    ?: return@mapNotNull null
+                val isEnabled = doc.getBoolean(RunningReminderFirestoreFields.IS_ENABLED)
+                    ?: return@mapNotNull null
+                val days = doc.get(RunningReminderFirestoreFields.DAYS) as? List<*>
+                    ?: emptyList<Any>()
                 val daySet = days.mapNotNull { (it as? Number)?.toInt() }.toSet()
                 RunningReminderEntity(
                     id = id,
@@ -81,9 +92,12 @@ class UserDataSyncRepositoryImpl @Inject constructor(
             }
 
             val workoutEntities = workoutSnapshot.documents.mapNotNull { doc ->
-                val date = doc.getLong("date") ?: return@mapNotNull null
-                val exerciseType = doc.getString("exerciseType") ?: return@mapNotNull null
-                val repCount = doc.getLong("repCount")?.toInt() ?: return@mapNotNull null
+                val date = doc.getLong(WorkoutRecordFirestoreFields.DATE)
+                    ?: return@mapNotNull null
+                val exerciseType = doc.getString(WorkoutRecordFirestoreFields.EXERCISE_TYPE)
+                    ?: return@mapNotNull null
+                val repCount = doc.getLong(WorkoutRecordFirestoreFields.REP_COUNT)?.toInt()
+                    ?: return@mapNotNull null
                 WorkoutRecordEntity(
                     date = date,
                     exerciseType = exerciseType,
@@ -92,7 +106,7 @@ class UserDataSyncRepositoryImpl @Inject constructor(
             }
 
             val goalEntity = if (goalSnapshot.exists()) {
-                val weeklyGoalKm = goalSnapshot.getDouble("weeklyGoalKm")
+                val weeklyGoalKm = goalSnapshot.getDouble(RunningGoalFirestoreFields.WEEKLY_GOAL_KM)
                 weeklyGoalKm?.let { RunningGoalEntity(weeklyGoalKm = it) }
             } else {
                 null
