@@ -71,12 +71,10 @@ object HomeUiFormatter {
         month: Int,
         monthPattern: String,
         locale: Locale
-    ): String {
-        val formatter = SimpleDateFormat(monthPattern, locale)
-        val calendar = Calendar.getInstance().apply {
+    ): String =
+        Calendar.getInstance().run {
             set(Calendar.YEAR, year)
             set(Calendar.MONTH, month)
+            SimpleDateFormat(monthPattern, locale).format(timeInMillis)
         }
-        return formatter.format(calendar.timeInMillis)
-    }
 }
