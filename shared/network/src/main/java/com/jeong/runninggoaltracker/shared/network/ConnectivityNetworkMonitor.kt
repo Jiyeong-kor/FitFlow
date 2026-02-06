@@ -49,6 +49,6 @@ class ConnectivityNetworkMonitor @Inject constructor(
     private fun isConnected(capabilities: NetworkCapabilities?): Boolean =
         capabilities?.let { networkCapabilities ->
             networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
-                networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
+                    networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
         } ?: false
 }
