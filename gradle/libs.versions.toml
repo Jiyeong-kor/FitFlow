@@ -197,3 +197,15 @@ androidx-test = [
     "androidx-junit",
     "androidx-test-runner"
 ]
+
+# Firebase
+firebase-app = [
+    "firebase-analytics",
+    "firebase-auth"
+]
+
+firebase-data = [
+    "firebase-auth",
+    "firebase-firestore",
+    "firebase-functions"
+]
