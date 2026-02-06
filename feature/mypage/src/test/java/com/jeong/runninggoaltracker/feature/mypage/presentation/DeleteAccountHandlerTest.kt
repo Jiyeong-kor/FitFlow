@@ -14,10 +14,10 @@ class DeleteAccountHandlerTest {
 
     @Test
     fun `handler emits loading then success when delete succeeds`() = runTest {
-        val deleteAccountUseCase = mockk<DeleteAccountUseCase> {
-            coEvery { invoke() } returns AuthResult.Success(Unit)
-        }
+        val deleteAccountUseCase = mockk<DeleteAccountUseCase>()
         val handler = DeleteAccountHandler(deleteAccountUseCase)
+
+        coEvery { deleteAccountUseCase() } returns AuthResult.Success(Unit)
 
         val states = handler.deleteAccount(DeleteAccountUiState.Idle)
 
@@ -28,10 +28,10 @@ class DeleteAccountHandlerTest {
 
     @Test
     fun `handler emits loading then failure when delete fails`() = runTest {
-        val deleteAccountUseCase = mockk<DeleteAccountUseCase> {
-            coEvery { invoke() } returns AuthResult.Failure(AuthError.PermissionDenied)
-        }
+        val deleteAccountUseCase = mockk<DeleteAccountUseCase>()
         val handler = DeleteAccountHandler(deleteAccountUseCase)
+
+        coEvery { deleteAccountUseCase() } returns AuthResult.Failure(AuthError.PermissionDenied)
 
         val states = handler.deleteAccount(DeleteAccountUiState.Idle)
 

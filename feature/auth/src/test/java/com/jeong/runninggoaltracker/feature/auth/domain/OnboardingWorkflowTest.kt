@@ -28,23 +28,23 @@ class OnboardingWorkflowTest {
 
     @Test
     fun `auth failure stops nickname availability check`() = runTest {
-        val validateNicknameUseCase = mockk<ValidateNicknameUseCase> {
-            every { invoke(any<String>()) } returns NicknameValidationResult.Valid("runner")
-        }
+        val validateNicknameUseCase = mockk<ValidateNicknameUseCase>()
         val networkMonitor = mockk<NetworkMonitor> {
             every { isConnected() } returns true
         }
         val checkNicknameAvailabilityUseCase = mockk<CheckNicknameAvailabilityUseCase>()
         val signInAnonymouslyUseCase = mockk<SignInAnonymouslyUseCase>()
-        val ensureSignedInUseCase = mockk<EnsureSignedInUseCase> {
-            coEvery { invoke() } returns AuthResult.Failure(AuthError.PermissionDenied)
-        }
+        val permissionDeniedResult: AuthResult<Unit> = AuthResult.Failure(AuthError.PermissionDenied)
+        val ensureSignedInUseCase = mockk<EnsureSignedInUseCase>()
         val reserveNicknameAndCreateUserProfileUseCase =
             mockk<ReserveNicknameAndCreateUserProfileUseCase>()
         val signInWithKakaoUseCase = mockk<SignInWithKakaoUseCase>()
         val exchangeKakaoOidcTokenUseCase = mockk<ExchangeKakaoOidcTokenUseCase>()
         val signInWithCustomTokenUseCase = mockk<SignInWithCustomTokenUseCase>()
         val restoreUserDataUseCase = mockk<RestoreUserDataUseCase>()
+
+        every { validateNicknameUseCase("runner") } returns NicknameValidationResult.Valid("runner")
+        coEvery { ensureSignedInUseCase() } returns permissionDeniedResult
 
         val workflow = OnboardingWorkflow(
             validateNicknameUseCase = validateNicknameUseCase,
@@ -61,7 +61,7 @@ class OnboardingWorkflowTest {
 
         workflow.continueWithNickname("runner", AuthProvider.ANONYMOUS, null)
 
-        coVerify(exactly = 0) { checkNicknameAvailabilityUseCase.invoke(any<String>()) }
+        coVerify(exactly = 0) { checkNicknameAvailabilityUseCase("runner") }
     }
 
     @Test
@@ -75,20 +75,20 @@ class OnboardingWorkflowTest {
         val ensureSignedInUseCase = mockk<EnsureSignedInUseCase>()
         val reserveNicknameAndCreateUserProfileUseCase =
             mockk<ReserveNicknameAndCreateUserProfileUseCase>()
-        val signInWithKakaoUseCase = mockk<SignInWithKakaoUseCase> {
-            coEvery { invoke() } returns Result.success(KakaoOidcToken("idToken"))
-        }
-        val exchangeKakaoOidcTokenUseCase = mockk<ExchangeKakaoOidcTokenUseCase> {
-            coEvery { invoke(any<String>()) } returns AuthResult.Success(
-                KakaoAuthExchange(customToken = "customToken", kakaoOidcSub = "sub-001")
-            )
-        }
-        val signInWithCustomTokenUseCase = mockk<SignInWithCustomTokenUseCase> {
-            coEvery { invoke(any<String>()) } returns AuthResult.Success(Unit)
-        }
-        val restoreUserDataUseCase = mockk<RestoreUserDataUseCase> {
-            coEvery { invoke() } returns AuthResult.Success(Unit)
-        }
+        val kakaoTokenResult = Result.success(KakaoOidcToken("idToken"))
+        val exchangeResult: AuthResult<KakaoAuthExchange> = AuthResult.Success(
+            KakaoAuthExchange(customToken = "customToken", kakaoOidcSub = "sub-001")
+        )
+        val authSuccessResult: AuthResult<Unit> = AuthResult.Success(Unit)
+        val signInWithKakaoUseCase = mockk<SignInWithKakaoUseCase>()
+        val exchangeKakaoOidcTokenUseCase = mockk<ExchangeKakaoOidcTokenUseCase>()
+        val signInWithCustomTokenUseCase = mockk<SignInWithCustomTokenUseCase>()
+        val restoreUserDataUseCase = mockk<RestoreUserDataUseCase>()
+
+        coEvery { signInWithKakaoUseCase() } returns kakaoTokenResult
+        coEvery { exchangeKakaoOidcTokenUseCase("idToken") } returns exchangeResult
+        coEvery { signInWithCustomTokenUseCase("customToken") } returns authSuccessResult
+        coEvery { restoreUserDataUseCase() } returns authSuccessResult
 
         val workflow = OnboardingWorkflow(
             validateNicknameUseCase = validateNicknameUseCase,
