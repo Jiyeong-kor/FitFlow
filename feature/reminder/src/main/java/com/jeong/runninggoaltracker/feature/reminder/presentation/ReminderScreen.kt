@@ -15,11 +15,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -49,6 +44,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppTopBar
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
+import com.jeong.runninggoaltracker.shared.designsystem.icon.AppIcons
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
@@ -92,6 +88,7 @@ fun ReminderScreen(
             timeFormatter = timeFormatter,
             daysOfWeekLabelProvider = daysOfWeekLabelProvider
         )
+
         ReminderViewMode.EDIT -> {
             val editingReminder = state.editingReminder
             if (editingReminder != null) {
@@ -155,7 +152,7 @@ private fun ReminderListContent(
                     .size(iconButtonSize)
             ) {
                 Icon(
-                    Icons.Default.Add,
+                    AppIcons.add(),
                     contentDescription = stringResource(R.string.reminder_action_add),
                     tint = onAccentColor,
                     modifier = Modifier.size(iconSize)
@@ -252,7 +249,7 @@ private fun ReminderListContent(
                                     modifier = Modifier.size(iconButtonSize)
                                 ) {
                                     Icon(
-                                        imageVector = Icons.Default.Delete,
+                                        painter = AppIcons.delete(),
                                         contentDescription = stringResource(R.string.reminder_action_delete),
                                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         modifier = Modifier.size(iconSize)
@@ -318,7 +315,7 @@ private fun ReminderEditContent(
                 modifier = Modifier.size(dimensions.reminderIconButtonSize)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Close,
+                    painter = AppIcons.close(),
                     contentDescription = stringResource(R.string.reminder_action_close),
                     tint = textPrimary,
                     modifier = Modifier.size(dimensions.reminderIconSize)
@@ -329,7 +326,7 @@ private fun ReminderEditContent(
                 modifier = Modifier.size(dimensions.reminderIconButtonSize)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Check,
+                    painter = AppIcons.check(),
                     contentDescription = stringResource(R.string.reminder_action_save),
                     tint = textPrimary,
                     modifier = Modifier.size(dimensions.reminderIconSize)

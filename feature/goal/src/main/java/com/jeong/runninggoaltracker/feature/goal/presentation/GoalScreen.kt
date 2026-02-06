@@ -11,9 +11,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -45,6 +42,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
+import com.jeong.runninggoaltracker.shared.designsystem.icon.AppIcons
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
@@ -134,7 +132,7 @@ fun GoalScreen(
             horizontalArrangement = Arrangement.spacedBy(adjustButtonSpacing)
         ) {
             GoalAdjustButton(
-                icon = Icons.Default.Remove,
+                icon = AppIcons::remove,
                 contentDescription = stringResource(R.string.goal_action_decrease),
                 onClick = onDecreaseThrottled
             )
@@ -154,7 +152,7 @@ fun GoalScreen(
             }
 
             GoalAdjustButton(
-                icon = Icons.Default.Add,
+                icon = AppIcons::add,
                 contentDescription = stringResource(R.string.goal_action_increase),
                 onClick = onIncreaseThrottled
             )
@@ -216,7 +214,7 @@ fun GoalScreen(
 
 @Composable
 private fun GoalAdjustButton(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: @Composable () -> androidx.compose.ui.graphics.painter.Painter,
     contentDescription: String,
     onClick: () -> Unit
 ) {
@@ -242,7 +240,7 @@ private fun GoalAdjustButton(
         )
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(icon, contentDescription = contentDescription, tint = textPrimary)
+            Icon(icon(), contentDescription = contentDescription, tint = textPrimary)
         }
     }
 }

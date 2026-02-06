@@ -14,10 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Pause
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.filled.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -37,6 +33,7 @@ import com.jeong.runninggoaltracker.feature.record.contract.RECORD_PREVIEW_ELAPS
 import com.jeong.runninggoaltracker.feature.record.contract.RECORD_WEIGHT_FULL
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityRecognitionStatus
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.icon.AppIcons
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
@@ -193,9 +190,9 @@ fun RecordScreen(
                 Arrangement.spacedBy(dimensions.recordMetricSpacing)
         ) {
             val startPauseIcon = if (uiState.isTracking) {
-                Icons.Default.Pause
+                AppIcons::pause
             } else {
-                Icons.Default.PlayArrow
+                AppIcons::playArrow
             }
 
             RecordControlButton(
@@ -212,7 +209,7 @@ fun RecordScreen(
             )
             RecordControlButton(
                 label = stringResource(R.string.record_action_stop),
-                icon = Icons.Default.Stop,
+                icon = AppIcons::stop,
                 containerColor = MaterialTheme.colorScheme.error,
                 contentColor = onAccent,
                 modifier = Modifier.weight(fullWeight),
@@ -258,7 +255,7 @@ private fun MetricItem(label: String, value: String, modifier: Modifier = Modifi
 @Composable
 private fun RecordControlButton(
     label: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: @Composable () -> androidx.compose.ui.graphics.painter.Painter,
     containerColor: androidx.compose.ui.graphics.Color,
     contentColor: androidx.compose.ui.graphics.Color,
     onClick: () -> Unit,
@@ -278,7 +275,7 @@ private fun RecordControlButton(
         contentPadding = PaddingValues(dimensions.sizeZero)
     ) {
         Icon(
-            icon,
+            icon(),
             contentDescription = null,
             modifier = Modifier.size(dimensions.recordControlButtonIconSize)
         )
@@ -369,7 +366,7 @@ private fun MetricItemPreview() = RunningGoalTrackerTheme {
 private fun RecordControlButtonPreview() = RunningGoalTrackerTheme {
     RecordControlButton(
         label = previewControlLabel(),
-        icon = Icons.Default.Pause,
+        icon = AppIcons::pause,
         containerColor = appAccentColor(),
         contentColor = appOnAccentColor(),
         onClick = {}

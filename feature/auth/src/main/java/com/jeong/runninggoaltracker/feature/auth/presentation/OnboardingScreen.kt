@@ -16,11 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.outlined.DirectionsRun
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.material.icons.outlined.Notifications
-import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,7 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -47,6 +42,7 @@ import com.jeong.runninggoaltracker.feature.auth.contract.ONBOARDING_PERMISSION_
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.icon.AppIcons
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -203,25 +199,25 @@ private fun PermissionsScreen(
 
     val permissions = listOf(
         PermissionItem(
-            icon = Icons.AutoMirrored.Outlined.DirectionsRun,
+            icon = AppIcons::directionsRun,
             titleResId = R.string.permission_activity_title,
             descriptionResId = R.string.permission_activity_description,
             isEssential = true
         ),
         PermissionItem(
-            icon = Icons.Outlined.LocationOn,
+            icon = AppIcons::locationOn,
             titleResId = R.string.permission_location_title,
             descriptionResId = R.string.permission_location_description,
             isEssential = true
         ),
         PermissionItem(
-            icon = Icons.Outlined.PhotoCamera,
+            icon = AppIcons::photoCamera,
             titleResId = R.string.permission_camera_title,
             descriptionResId = R.string.permission_camera_description,
             isEssential = true
         ),
         PermissionItem(
-            icon = Icons.Outlined.Notifications,
+            icon = AppIcons::notifications,
             titleResId = R.string.permission_notification_title,
             descriptionResId = R.string.permission_notification_description,
             isEssential = true
@@ -312,7 +308,7 @@ private fun PermissionRow(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Icon(
-            imageVector = item.icon,
+            painter = item.icon(),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary
         )
@@ -371,7 +367,7 @@ private fun SuccessScreen(
     ) {
         Spacer(modifier = Modifier.weight(weightOne))
         Icon(
-            imageVector = Icons.AutoMirrored.Outlined.DirectionsRun,
+            painter = AppIcons.directionsRun(),
             contentDescription = null,
             tint = MaterialTheme.colorScheme.primary,
             modifier = Modifier.size(dimensions.onboardingIconSize)
@@ -404,7 +400,7 @@ private fun SuccessScreen(
 }
 
 private data class PermissionItem(
-    val icon: ImageVector,
+    val icon: @Composable () -> Painter,
     @field:StringRes val titleResId: Int,
     @field:StringRes val descriptionResId: Int,
     val isEssential: Boolean
@@ -423,7 +419,7 @@ private fun HeaderIcon() {
     ) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Icon(
-                imageVector = Icons.AutoMirrored.Outlined.DirectionsRun,
+                painter = AppIcons.directionsRun(),
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(dimensions.onboardingIconSize)
@@ -489,7 +485,7 @@ private fun PermissionRowPreview() =
     RunningGoalTrackerTheme {
         PermissionRow(
             item = PermissionItem(
-                icon = Icons.Outlined.LocationOn,
+                icon = AppIcons::locationOn,
                 titleResId = R.string.permission_location_title,
                 descriptionResId = R.string.permission_location_description,
                 isEssential = true

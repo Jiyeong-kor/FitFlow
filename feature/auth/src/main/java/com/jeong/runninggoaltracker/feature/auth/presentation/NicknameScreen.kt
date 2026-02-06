@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -36,6 +34,7 @@ import com.jeong.runninggoaltracker.feature.auth.contract.ONBOARDING_NICKNAME_IN
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCardPadding
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.runninggoaltracker.shared.designsystem.icon.AppIcons
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
@@ -88,7 +87,7 @@ fun NicknameScreen(
                     enabled = !uiState.isLoading,
                     isError = uiState.nicknameValidationMessage != null || uiState.shouldShowNicknameHintError,
                     leadingIcon = {
-                        Icon(imageVector = Icons.Outlined.Person, contentDescription = null)
+                        Icon(painter = AppIcons.person(), contentDescription = null)
                     },
                     label = { Text(text = stringResource(id = R.string.nickname_label)) },
                     singleLine = true,

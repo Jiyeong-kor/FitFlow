@@ -12,14 +12,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Description
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -34,7 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -64,6 +56,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrott
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.PercentageFormatter
+import com.jeong.runninggoaltracker.shared.designsystem.icon.AppIcons
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
@@ -258,7 +251,7 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
             color = MaterialTheme.colorScheme.primaryContainer
         ) {
             Icon(
-                imageVector = Icons.Default.Person,
+                painter = AppIcons.person(),
                 contentDescription = null,
                 modifier = Modifier.padding(dimensions.myPageProfileIconPadding),
                 tint = MaterialTheme.colorScheme.primary
@@ -430,7 +423,7 @@ private fun SettingsList(
         Column {
             val activityToggleLabel = stringResource(id = R.string.mypage_setting_activity_toggle)
             SettingItem(
-                icon = Icons.Default.Notifications,
+                icon = AppIcons::notifications,
                 title = stringResource(id = R.string.mypage_setting_notification_title),
                 subTitle = stringResource(id = R.string.mypage_setting_notification_desc),
                 onClick = onNavigateToReminder
@@ -442,7 +435,7 @@ private fun SettingsList(
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
             SettingItem(
-                icon = Icons.Default.Edit,
+                icon = AppIcons::edit,
                 title = stringResource(id = R.string.mypage_setting_goal_title),
                 subTitle = stringResource(id = R.string.mypage_setting_goal_desc),
                 onClick = onNavigateToGoal
@@ -454,7 +447,7 @@ private fun SettingsList(
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
             SettingItem(
-                icon = Icons.Default.Description,
+                icon = AppIcons::description,
                 title = stringResource(id = R.string.mypage_setting_privacy_policy_title),
                 subTitle = stringResource(id = R.string.mypage_setting_privacy_policy_desc),
                 onClick = onNavigateToPrivacyPolicy
@@ -469,7 +462,7 @@ private fun SettingsList(
                 modifier = Modifier.padding(dimensions.myPageSettingRowPadding),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Default.Refresh, null, tint = MaterialTheme.colorScheme.primary)
+                Icon(AppIcons.refresh(), null, tint = MaterialTheme.colorScheme.primary)
                 Column(
                     modifier = Modifier
                         .padding(start = dimensions.myPageSettingTitleSpacing)
@@ -500,7 +493,7 @@ private fun SettingsList(
                 color = MaterialTheme.colorScheme.surfaceVariant
             )
             SettingItem(
-                icon = Icons.Default.Delete,
+                icon = AppIcons::delete,
                 title = stringResource(id = R.string.mypage_setting_delete_account_title),
                 subTitle = stringResource(id = R.string.mypage_setting_delete_account_desc),
                 onClick = onDeleteAccount
@@ -510,7 +503,12 @@ private fun SettingsList(
 }
 
 @Composable
-private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onClick: () -> Unit) {
+private fun SettingItem(
+    icon: @Composable () -> Painter,
+    title: String,
+    subTitle: String,
+    onClick: () -> Unit
+) {
     val dimensions = LocalAppDimensions.current
     val weightOne = MYPAGE_WEIGHT_ONE
     Surface(
@@ -523,7 +521,7 @@ private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onCl
             modifier = Modifier.padding(dimensions.myPageSettingRowPadding),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Icon(icon, null, tint = MaterialTheme.colorScheme.primary)
+            Icon(icon(), null, tint = MaterialTheme.colorScheme.primary)
             Column(modifier = Modifier.padding(start = dimensions.myPageSettingTitleSpacing)) {
                 Text(title, style = MaterialTheme.typography.bodyLarge)
                 Text(
@@ -534,7 +532,7 @@ private fun SettingItem(icon: ImageVector, title: String, subTitle: String, onCl
             }
             Spacer(Modifier.weight(weightOne))
             Icon(
-                Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                AppIcons.keyboardArrowRight(),
                 null,
                 tint = MaterialTheme.colorScheme.outline
             )

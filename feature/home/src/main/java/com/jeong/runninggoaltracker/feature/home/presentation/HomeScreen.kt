@@ -23,13 +23,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
-import androidx.compose.material.icons.automirrored.filled.DirectionsRun
-import androidx.compose.material.icons.automirrored.filled.DirectionsWalk
-import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -81,6 +74,7 @@ import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.extension.rememberThrottleClick
 import com.jeong.runninggoaltracker.shared.designsystem.extension.throttleClick
 import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
+import com.jeong.runninggoaltracker.shared.designsystem.icon.AppIcons
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppAlphas
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
@@ -182,7 +176,7 @@ fun HomeScreen(
                     )
                     IconButton(onClick = onCalendarClickThrottled) {
                         Icon(
-                            imageVector = Icons.Default.CalendarMonth,
+                            painter = AppIcons.calendar(),
                             contentDescription = stringResource(R.string.home_action_select_date),
                             tint = textPrimary
                         )
@@ -328,7 +322,7 @@ private fun DateNavigator(
     ) {
         IconButton(onClick = onPreviousClickThrottled) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                painter = AppIcons.arrowBack(),
                 contentDescription = stringResource(R.string.home_action_previous_period),
                 tint = textPrimary
             )
@@ -341,7 +335,7 @@ private fun DateNavigator(
         )
         IconButton(onClick = onNextClickThrottled) {
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                painter = AppIcons.arrowForward(),
                 contentDescription = stringResource(R.string.home_action_next_period),
                 tint = textPrimary
             )
@@ -454,9 +448,9 @@ private fun ActivityLogRow(
     val shapes = LocalAppShapes.current
     val weightOne = HOME_WEIGHT_ONE
     val icon = when (activity.type) {
-        HomeWorkoutType.RUNNING -> Icons.AutoMirrored.Filled.DirectionsRun
-        HomeWorkoutType.SQUAT -> Icons.Default.FitnessCenter
-        HomeWorkoutType.LUNGE -> Icons.AutoMirrored.Filled.DirectionsWalk
+        HomeWorkoutType.RUNNING -> AppIcons::directionsRun
+        HomeWorkoutType.SQUAT -> AppIcons::fitnessCenter
+        HomeWorkoutType.LUNGE -> AppIcons::directionsWalk
     }
     val dateLabel = activityDateLabel(activity.timestamp)
     val distanceLabel = when (activity.type) {
@@ -498,7 +492,7 @@ private fun ActivityLogRow(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                imageVector = icon,
+                painter = icon(),
                 contentDescription = null,
                 tint = textMuted
             )
@@ -614,7 +608,7 @@ private fun CalendarBottomSheet(
                     onClick = onPreviousMonthClickThrottled
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        painter = AppIcons.arrowBack(),
                         contentDescription = stringResource(R.string.home_action_previous_month),
                         tint = textPrimary
                     )
@@ -629,7 +623,7 @@ private fun CalendarBottomSheet(
                     onClick = onNextMonthClickThrottled
                 ) {
                     Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                        painter = AppIcons.arrowForward(),
                         contentDescription = stringResource(R.string.home_action_next_month),
                         tint = textPrimary
                     )
