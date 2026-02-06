@@ -633,11 +633,11 @@ private fun CameraPreview(
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val previewView = remember { PreviewView(context) }
     val executor = remember { Executors.newSingleThreadExecutor() }
-    val cameraProviderHolder = remember { CameraProviderHolder() }
+    val cameraBindingState = remember { CameraBindingState() }
 
     LaunchedEffect(imageAnalyzer) {
         val cameraProvider = context.awaitCameraProvider()
-        cameraProviderHolder.cameraProvider = cameraProvider
+        cameraBindingState.cameraProvider = cameraProvider
         val preview = CameraPreview.Builder().build().also {
             it.surfaceProvider = previewView.surfaceProvider
         }
@@ -647,6 +647,7 @@ private fun CameraPreview(
             .also {
                 it.setAnalyzer(executor, imageAnalyzer)
             }
+        cameraBindingState.analysis = analysis
 
         cameraProvider.unbindAll()
         cameraProvider.bindToLifecycle(
@@ -658,8 +659,10 @@ private fun CameraPreview(
     }
     DisposableEffect(lifecycleOwner) {
         onDispose {
-            cameraProviderHolder.cameraProvider?.unbindAll()
-            cameraProviderHolder.cameraProvider = null
+            cameraBindingState.analysis?.clearAnalyzer()
+            cameraBindingState.analysis = null
+            cameraBindingState.cameraProvider?.unbindAll()
+            cameraBindingState.cameraProvider = null
             executor.shutdown()
             (previewView.parent as? ViewGroup)?.removeView(previewView)
         }
@@ -743,8 +746,9 @@ private fun SkeletonOverlay(
     }
 }
 
-private class CameraProviderHolder {
+private class CameraBindingState {
     var cameraProvider: ProcessCameraProvider? = null
+    var analysis: ImageAnalysis? = null
 }
 
 @Composable
