@@ -233,5 +233,6 @@ hilt-compose = [
 # Unit Test
 test-unit = [
     "junit",
+    "kotlinx-coroutines-test",
     "mockk"
 ]

@@ -55,6 +55,7 @@ class ReminderViewModelTest {
         advanceUntilIdle()
 
         viewModel.onReminderClick(1)
+        advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertEquals(ReminderViewMode.EDIT, state.viewMode)
@@ -131,6 +132,7 @@ class ReminderViewModelTest {
         advanceUntilIdle()
 
         viewModel.onAddClick()
+        advanceUntilIdle()
 
         val state = viewModel.uiState.value
         assertEquals(ReminderViewMode.EDIT, state.viewMode)

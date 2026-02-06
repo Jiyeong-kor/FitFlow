@@ -1,29 +1,39 @@
 package com.jeong.runninggoaltracker.shared.designsystem.util
 
-import java.time.LocalDate
+import com.jeong.runninggoaltracker.shared.designsystem.formatter.DistanceFormatter
+import com.jeong.runninggoaltracker.shared.designsystem.formatter.PercentageFormatter
+import java.text.NumberFormat
+import java.util.Locale
 import org.junit.Assert.assertEquals
 import org.junit.Test
 
 class DateFormattersTest {
 
     @Test
-    fun `로컬 날짜를 한국어 라벨로 포맷함`() {
-        val date = LocalDate.of(2024, 11, 8)
-        val formatted = date.toKoreanDateLabel()
-        assertEquals("11월 8일 (금)", formatted)
+    fun `거리 값을 지정된 자릿수로 포맷한다`() {
+        val formatter = DistanceFormatter(
+            localeProvider = { Locale.KOREA },
+            numberFormatFactory = { locale ->
+                NumberFormat.getNumberInstance(locale).apply { isGroupingUsed = false }
+            }
+        )
+
+        val result = formatter.formatDistanceKm(distanceKm = 3.456, fractionDigits = 1)
+
+        assertEquals("3.5", result)
     }
 
     @Test
-    fun `ISO 날짜 문자열을 안전하게 포맷함`() {
-        val formatted = "2024-12-01".toKoreanDateLabel()
-        val fallback = "invalid-date".toKoreanDateLabel()
-        assertEquals("12월 1일 (일)", formatted)
-        assertEquals("invalid-date", fallback)
-    }
+    fun `진행률 값을 퍼센트로 포맷한다`() {
+        val formatter = PercentageFormatter(
+            localeProvider = { Locale.KOREA },
+            numberFormatFactory = { locale ->
+                NumberFormat.getNumberInstance(locale).apply { isGroupingUsed = false }
+            }
+        )
 
-    @Test
-    fun `최소 정밀도로 거리 라벨을 포맷함`() {
-        assertEquals("12 km", 12.0.toDistanceLabel())
-        assertEquals("3.5 km", 3.456.toDistanceLabel())
+        val result = formatter.formatProgress(progress = 0.756f, fractionDigits = 0, percentScale = 100)
+
+        assertEquals("76", result)
     }
 }
