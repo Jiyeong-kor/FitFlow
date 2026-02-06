@@ -17,7 +17,7 @@ val useCustomDebugSigning: Boolean =
             !debugKeyAlias.isNullOrBlank()
 
 val kakaoNativeAppKey: String =
-    localProperties.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""
+    localProperties.getProperty("KAKAO_NATIVE_APP_KEY").orEmpty()
 
 val privacyPolicyUrl: String =
     providers.gradleProperty("PRIVACY_POLICY_URL").orNull
