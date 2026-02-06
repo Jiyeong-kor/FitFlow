@@ -29,7 +29,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.Dispatchers
+import com.jeong.runninggoaltracker.domain.di.IoDispatcher
 import javax.inject.Inject
 import kotlin.coroutines.resume
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -39,7 +39,8 @@ class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val firebaseFunctions: FirebaseFunctions,
-    private val runningDatabase: com.jeong.runninggoaltracker.data.local.RunningDatabase
+    private val runningDatabase: com.jeong.runninggoaltracker.data.local.RunningDatabase,
+    @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
 ) : AuthRepository {
     override suspend fun signInAnonymously(): Result<Unit> =
         suspendCancellableCoroutine { continuation ->
@@ -220,7 +221,7 @@ class AuthRepositoryImpl @Inject constructor(
             if (usernameDocRef != null && usernameSnapshot?.exists() == true && usernameOwner == uid) {
                 usernameDocRef.delete().awaitResult()
             }
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 runningDatabase.clearAllTables()
             }
             user.delete().awaitResult()

@@ -19,13 +19,14 @@ import com.google.android.gms.location.Priority
 import android.content.pm.PackageManager
 import com.jeong.runninggoaltracker.domain.usecase.AddRunningRecordUseCase
 import com.jeong.runninggoaltracker.domain.util.DateProvider
+import com.jeong.runninggoaltracker.domain.di.IoDispatcher
+import com.jeong.runninggoaltracker.domain.di.MainDispatcher
 import com.jeong.runninggoaltracker.feature.record.contract.RunningTrackerServiceContract
 import com.jeong.runninggoaltracker.feature.record.contract.RecordNotificationContract
 import com.jeong.runninggoaltracker.shared.designsystem.config.AppNumericTokens
 import com.jeong.runninggoaltracker.shared.designsystem.notification.NotificationPermissionGate
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.delay
@@ -49,8 +50,16 @@ class RunningTrackerService : Service() {
     @Inject
     lateinit var notificationDispatcher: RunningNotificationDispatcher
 
+    @Inject
+    @MainDispatcher
+    lateinit var mainDispatcher: kotlinx.coroutines.CoroutineDispatcher
+
+    @Inject
+    @IoDispatcher
+    lateinit var ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
+
     private val serviceJob = SupervisorJob()
-    private val serviceScope = CoroutineScope(serviceJob + Dispatchers.Main.immediate)
+    private lateinit var serviceScope: CoroutineScope
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private var locationCallback: LocationCallback? = null
     private var startTimeMillis: Long? = null
@@ -63,6 +72,7 @@ class RunningTrackerService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        serviceScope = CoroutineScope(serviceJob + mainDispatcher)
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
         notificationDispatcher.ensureChannel()
     }
@@ -127,7 +137,7 @@ class RunningTrackerService : Service() {
             val zeroInt = AppNumericTokens.ZERO_INT
             val zeroDouble = AppNumericTokens.ZERO_DOUBLE
             if (distanceKm > zeroDouble && durationMinutes > zeroInt) {
-                withContext(Dispatchers.IO) {
+                withContext(ioDispatcher) {
                     addRunningRecordUseCase(
                         date = dateProvider.getToday(),
                         distanceKm = distanceKm,

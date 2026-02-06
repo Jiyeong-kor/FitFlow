@@ -18,14 +18,15 @@ import com.jeong.runninggoaltracker.data.util.toAuthError
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.AuthResult
 import com.jeong.runninggoaltracker.domain.repository.UserDataSyncRepository
-import kotlinx.coroutines.Dispatchers
+import com.jeong.runninggoaltracker.domain.di.IoDispatcher
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class UserDataSyncRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val runningDatabase: RunningDatabase
+    private val runningDatabase: RunningDatabase,
+    @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
 ) : UserDataSyncRepository {
 
     override suspend fun restoreUserDataFromRemote(): AuthResult<Unit> {
@@ -112,7 +113,7 @@ class UserDataSyncRepositoryImpl @Inject constructor(
                 null
             }
 
-            withContext(Dispatchers.IO) {
+            withContext(ioDispatcher) {
                 runningDatabase.withTransaction {
                     runningDatabase.clearAllTables()
                     recordEntities.forEach { runningDatabase.runningRecordDao().insertRecord(it) }
