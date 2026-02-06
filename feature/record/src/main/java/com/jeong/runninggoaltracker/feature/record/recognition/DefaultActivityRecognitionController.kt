@@ -100,5 +100,5 @@ class DefaultActivityRecognitionController @Inject constructor(
     private fun requestCode(): Int = ActivityRecognitionContract.REQUEST_CODE
 
     private fun intervalMillis(): Long =
-        AppNumericTokens.recordActivityRecognitionIntervalMillis
+        AppNumericTokens.RECORD_ACTIVITY_RECOGNITION_INTERVAL_MILLIS
 }

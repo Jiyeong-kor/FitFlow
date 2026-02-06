@@ -91,8 +91,8 @@ class RunningTrackerService : Service() {
             return
         }
 
-        val zeroDouble = AppNumericTokens.zeroDouble
-        val zeroLong = AppNumericTokens.zeroLong
+        val zeroDouble = AppNumericTokens.ZERO_DOUBLE
+        val zeroLong = AppNumericTokens.ZERO_LONG
         distanceMeters = zeroDouble
         lastLocation = null
         startTimeMillis = dateProvider.getToday()
@@ -116,16 +116,16 @@ class RunningTrackerService : Service() {
         isTrackingActive = false
         elapsedUpdateJob?.cancel()
         stopLocationUpdates()
-        val startMillis = startTimeMillis ?: AppNumericTokens.zeroLong
+        val startMillis = startTimeMillis ?: AppNumericTokens.ZERO_LONG
         val elapsed = dateProvider.getToday() - startMillis
         val distanceKm =
-            (distanceMeters ?: AppNumericTokens.zeroDouble) / metersInKm()
+            (distanceMeters ?: AppNumericTokens.ZERO_DOUBLE) / metersInKm()
         stateUpdater.stop()
 
         serviceScope.launch {
             val durationMinutes = TimeUnit.MILLISECONDS.toMinutes(elapsed).toInt()
-            val zeroInt = AppNumericTokens.zeroInt
-            val zeroDouble = AppNumericTokens.zeroDouble
+            val zeroInt = AppNumericTokens.ZERO_INT
+            val zeroDouble = AppNumericTokens.ZERO_DOUBLE
             if (distanceKm > zeroDouble && durationMinutes > zeroInt) {
                 withContext(Dispatchers.IO) {
                     addRunningRecordUseCase(
@@ -164,10 +164,10 @@ class RunningTrackerService : Service() {
                 val location = result.lastLocation ?: return
                 updateDistance(location)
                 val startMillis =
-                    startTimeMillis ?: AppNumericTokens.zeroLong
+                    startTimeMillis ?: AppNumericTokens.ZERO_LONG
                 val elapsed = dateProvider.getToday() - startMillis
                 val currentDistance =
-                    distanceMeters ?: AppNumericTokens.zeroDouble
+                    distanceMeters ?: AppNumericTokens.ZERO_DOUBLE
                 stateUpdater.update(currentDistance / metersInKmValue, elapsed)
                 handleNotificationUpdate(currentDistance / metersInKmValue, elapsed)
             }
@@ -201,10 +201,10 @@ class RunningTrackerService : Service() {
             val metersInKmValue = metersInKm()
             while (isTrackingActive) {
                 val startMillis =
-                    startTimeMillis ?: AppNumericTokens.zeroLong
+                    startTimeMillis ?: AppNumericTokens.ZERO_LONG
                 val elapsed = dateProvider.getToday() - startMillis
                 val currentDistance =
-                    distanceMeters ?: AppNumericTokens.zeroDouble
+                    distanceMeters ?: AppNumericTokens.ZERO_DOUBLE
                 stateUpdater.update(currentDistance / metersInKmValue, elapsed)
                 handleNotificationUpdate(currentDistance / metersInKmValue, elapsed)
                 delay(elapsedUpdateIntervalMillis())
@@ -214,7 +214,7 @@ class RunningTrackerService : Service() {
 
     private fun updateDistance(newLocation: Location) {
         lastLocation?.let { previous ->
-            val currentDistance = distanceMeters ?: AppNumericTokens.zeroDouble
+            val currentDistance = distanceMeters ?: AppNumericTokens.ZERO_DOUBLE
             distanceMeters = currentDistance + previous.distanceTo(newLocation).toDouble()
         }
         lastLocation = newLocation
@@ -243,14 +243,14 @@ class RunningTrackerService : Service() {
             }
     }
 
-    private fun metersInKm(): Double = AppNumericTokens.metersInKm.toDouble()
+    private fun metersInKm(): Double = AppNumericTokens.METERS_IN_KM.toDouble()
 
-    private fun updateIntervalMillis(): Long = AppNumericTokens.recordUpdateIntervalMillis
+    private fun updateIntervalMillis(): Long = AppNumericTokens.RECORD_UPDATE_INTERVAL_MILLIS
 
     private fun elapsedUpdateIntervalMillis(): Long =
-        AppNumericTokens.recordElapsedUpdateIntervalMillis
+        AppNumericTokens.RECORD_ELAPSED_UPDATE_INTERVAL_MILLIS
 
-    private fun minDistanceMeters(): Float = AppNumericTokens.recordMinDistanceMeters
+    private fun minDistanceMeters(): Float = AppNumericTokens.RECORD_MIN_DISTANCE_METERS
 
     private fun isForegroundStarted(notification: Notification): Boolean =
         try {

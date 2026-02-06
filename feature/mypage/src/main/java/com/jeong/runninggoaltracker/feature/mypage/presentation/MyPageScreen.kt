@@ -333,9 +333,9 @@ private fun SummaryStats(uiState: MyPageUiState) {
                 numberFormatFactory = NumberFormat::getNumberInstance
             )
         }
-        val distanceFractionDigits = AppNumericTokens.distanceFractionDigits
-        val percentageFractionDigits = AppNumericTokens.percentageFractionDigits
-        val percentageScale = AppNumericTokens.percentageScale
+        val distanceFractionDigits = AppNumericTokens.DISTANCE_FRACTION_DIGITS
+        val percentageFractionDigits = AppNumericTokens.PERCENTAGE_FRACTION_DIGITS
+        val percentageScale = AppNumericTokens.PERCENTAGE_SCALE
         val distanceText =
             distanceFormatter.formatDistanceKm(
                 distanceKm = uiState.summary?.totalThisWeekKm ?: zeroDouble,

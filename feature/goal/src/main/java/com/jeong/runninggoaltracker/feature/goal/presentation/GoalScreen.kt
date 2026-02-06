@@ -81,7 +81,7 @@ fun GoalScreen(
     }
     val goalDistanceLabel = distanceFormatter.formatDistanceKm(
         distanceKm = goalDistance,
-        fractionDigits = AppNumericTokens.distanceFractionDigits
+        fractionDigits = AppNumericTokens.DISTANCE_FRACTION_DIGITS
     )
 
     val onSaveThrottled = rememberThrottleClick(onClick = onSave)

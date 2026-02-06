@@ -32,7 +32,7 @@ class RunningNotificationDispatcher @Inject constructor(
         val channelId = RecordNotificationContract.NOTIFICATION_CHANNEL_ID
         val distanceFormatted = distanceFormatter.formatDistanceKm(
             distanceKm = distanceKm,
-            fractionDigits = AppNumericTokens.distanceFractionDigits
+            fractionDigits = AppNumericTokens.DISTANCE_FRACTION_DIGITS
         )
         val content = context.getString(
             R.string.record_notification_content,

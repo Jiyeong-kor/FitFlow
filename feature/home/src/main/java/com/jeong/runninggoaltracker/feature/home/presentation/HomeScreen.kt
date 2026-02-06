@@ -134,7 +134,7 @@ fun HomeScreen(
     val goalDescription = uiState.weeklyGoalKm?.let { goalKm ->
         val formattedDistance = distanceFormatter.formatDistanceKm(
             distanceKm = goalKm,
-            fractionDigits = AppNumericTokens.distanceFractionDigits
+            fractionDigits = AppNumericTokens.DISTANCE_FRACTION_DIGITS
         )
         stringResource(R.string.home_goal_summary_value, formattedDistance)
     } ?: stringResource(R.string.home_goal_summary_description)
