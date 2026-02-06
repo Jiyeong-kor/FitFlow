@@ -48,9 +48,8 @@ dependencies {
     implementation(project(":shared:navigation"))
     implementation(project(":shared:network"))
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.bundles.androidx.lifecycle.compose)
+    implementation(libs.bundles.core.lifecycle)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)

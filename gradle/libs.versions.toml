@@ -169,6 +169,12 @@ androidx-compose = [
     "androidx-navigation-compose"
 ]
 
+# AndroidX core / lifecycle
+core-lifecycle = [
+    "androidx-core-ktx",
+    "androidx-lifecycle-runtime-ktx"
+]
+
 androidx-lifecycle-compose = [
     "androidx-lifecycle-runtime-compose",
     "androidx-lifecycle-viewmodel-compose"
