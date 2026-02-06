@@ -47,7 +47,7 @@ private data class AlarmPayload(
 )
 
 private fun Intent.toAlarmPayload(): AlarmPayload {
-    val zeroInt = AppNumericTokens.zeroInt
+    val zeroInt = AppNumericTokens.ZERO_INT
 
     return AlarmPayload(
         id = getIntExtra(ReminderAlarmContract.EXTRA_ID, zeroInt),
@@ -58,9 +58,9 @@ private fun Intent.toAlarmPayload(): AlarmPayload {
 }
 
 private fun Intent.toRunningReminderOrNull(): RunningReminder? {
-    val zeroInt = AppNumericTokens.zeroInt
-    val minDay = AppNumericTokens.reminderDayOfWeekMin
-    val maxDay = AppNumericTokens.reminderDayOfWeekMax
+    val zeroInt = AppNumericTokens.ZERO_INT
+    val minDay = AppNumericTokens.REMINDER_DAY_OF_WEEK_MIN
+    val maxDay = AppNumericTokens.REMINDER_DAY_OF_WEEK_MAX
 
     val id = getIntExtra(ReminderAlarmContract.EXTRA_ID, zeroInt)
         .takeIf { it != zeroInt }

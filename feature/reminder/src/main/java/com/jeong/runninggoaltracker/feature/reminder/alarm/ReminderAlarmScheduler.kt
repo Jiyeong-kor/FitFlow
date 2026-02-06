@@ -65,8 +65,8 @@ class ReminderAlarmScheduler @Inject constructor(
             }
         }
 
-        val zeroInt = AppNumericTokens.zeroInt
-        val oneInt = AppNumericTokens.oneInt
+        val zeroInt = AppNumericTokens.ZERO_INT
+        val oneInt = AppNumericTokens.ONE_INT
 
         val nowMillis = dateProvider.getToday()
         days.forEach { dayOfWeek ->
