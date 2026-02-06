@@ -39,8 +39,7 @@ kotlin {
 dependencies {
     implementation(libs.androidx.core.ktx)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
+    testImplementation(libs.bundles.test.unit)
 
     androidTestImplementation(libs.bundles.androidx.test)
 }

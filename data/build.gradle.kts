@@ -65,12 +65,11 @@ dependencies {
     implementation(libs.kakao.sdk.user)
 
     ksp(libs.androidx.room.compiler)
-
     ksp(libs.hilt.compiler)
 
-    testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
-    testImplementation(libs.mockk)
+
+    testImplementation(libs.bundles.test.unit)
 
     androidTestImplementation(libs.bundles.androidx.test)
 }

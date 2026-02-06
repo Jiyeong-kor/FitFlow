@@ -50,8 +50,7 @@ dependencies {
 
     debugImplementation(libs.bundles.androidx.compose.debug)
 
-    testImplementation(libs.junit)
-    testImplementation(libs.mockk)
+    testImplementation(libs.bundles.test.unit)
 
     androidTestImplementation(libs.bundles.androidx.test)
 }
