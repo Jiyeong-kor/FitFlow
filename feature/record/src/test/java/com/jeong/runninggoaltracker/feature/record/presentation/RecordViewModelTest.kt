@@ -10,7 +10,7 @@ import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerMonitor
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityLogEntry
 import com.jeong.runninggoaltracker.feature.record.api.model.ActivityState
 import com.jeong.runninggoaltracker.feature.record.api.model.RunningTrackerState
-import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
+import com.jeong.runninggoaltracker.feature.record.presentation.RecordViewModel
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify

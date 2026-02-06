@@ -3,7 +3,7 @@ package com.jeong.runninggoaltracker.feature.record.presentation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.jeong.runninggoaltracker.feature.record.viewmodel.RecordViewModel
+import com.jeong.runninggoaltracker.feature.record.presentation.RecordViewModel
 
 @Composable
 fun RecordRoute(

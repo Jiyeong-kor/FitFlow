@@ -1,19 +1,14 @@
-package com.jeong.runninggoaltracker.feature.record.viewmodel
+package com.jeong.runninggoaltracker.feature.record.presentation
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
-import com.jeong.runninggoaltracker.feature.record.presentation.RecordUiState
-import com.jeong.runninggoaltracker.feature.record.presentation.RecordUiStateMapper
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionController
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerController
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,20 +18,18 @@ class RecordViewModel @Inject constructor(
     activityRecognitionMonitor: ActivityRecognitionMonitor,
     private val runningTrackerController: RunningTrackerController,
     runningTrackerMonitor: RunningTrackerMonitor,
-    private val uiStateMapper: RecordUiStateMapper
+    uiStateMapper: RecordUiStateMapper
 ) : ViewModel() {
 
-    val uiState: StateFlow<RecordUiState> = combine(
-        getRunningRecordsUseCase(),
-        activityRecognitionMonitor.activityState,
-        runningTrackerMonitor.trackerState
-    ) { records, activity, tracker ->
-        uiStateMapper.map(records, activity, tracker)
-    }.stateIn(
+    private val stateHolder = RecordStateHolder(
         scope = viewModelScope,
-        started = SharingStarted.Eagerly,
-        initialValue = RecordUiState()
+        getRunningRecordsUseCase = getRunningRecordsUseCase,
+        activityRecognitionMonitor = activityRecognitionMonitor,
+        runningTrackerMonitor = runningTrackerMonitor,
+        uiStateMapper = uiStateMapper
     )
+
+    val uiState: StateFlow<RecordUiState> = stateHolder.uiState
 
     fun startActivityRecognition() {
         activityRecognitionController.startUpdates()
