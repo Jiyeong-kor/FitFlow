@@ -76,6 +76,26 @@ class RunningPeriodDateCalculatorTest {
     }
 
     @Test
+    fun `shiftDateByPeriod는 시간 정보를 0으로 보정한다`() {
+        val base = Calendar.getInstance().apply {
+            set(2024, Calendar.MAY, 20, 23, 59, 59)
+            set(Calendar.MILLISECOND, 999)
+        }.timeInMillis
+
+        val shifted = calculator.shiftDateByPeriod(base, PeriodState.DAILY, 0)
+
+        val expected = Calendar.getInstance().apply {
+            timeInMillis = base
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        assertEquals(expected, shifted)
+    }
+
+    @Test
     fun `filterByPeriod는 일간 범위를 필터링한다`() {
         val selectedDate = Calendar.getInstance().apply {
             set(2024, Calendar.JUNE, 5, 9, 0, 0)

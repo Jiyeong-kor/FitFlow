@@ -18,6 +18,7 @@ import com.jeong.runninggoaltracker.domain.usecase.ValidateNicknameUseCase
 import com.jeong.runninggoaltracker.shared.network.NetworkMonitor
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -28,10 +29,10 @@ class OnboardingWorkflowTest {
     @Test
     fun `auth failure stops nickname availability check`() = runTest {
         val validateNicknameUseCase = mockk<ValidateNicknameUseCase> {
-            coEvery { invoke(any<String>()) } returns NicknameValidationResult.Valid("runner")
+            every { invoke(any<String>()) } returns NicknameValidationResult.Valid("runner")
         }
         val networkMonitor = mockk<NetworkMonitor> {
-            coEvery { isConnected() } returns true
+            every { isConnected() } returns true
         }
         val checkNicknameAvailabilityUseCase = mockk<CheckNicknameAvailabilityUseCase>()
         val signInAnonymouslyUseCase = mockk<SignInAnonymouslyUseCase>()
@@ -60,14 +61,14 @@ class OnboardingWorkflowTest {
 
         workflow.continueWithNickname("runner", AuthProvider.ANONYMOUS, null)
 
-        coVerify(exactly = 0) { checkNicknameAvailabilityUseCase.invoke(any()) }
+        coVerify(exactly = 0) { checkNicknameAvailabilityUseCase.invoke(any<String>()) }
     }
 
     @Test
     fun `kakao exchange sub is forwarded to auth ready state`() = runTest {
         val validateNicknameUseCase = mockk<ValidateNicknameUseCase>()
         val networkMonitor = mockk<NetworkMonitor> {
-            coEvery { isConnected() } returns true
+            every { isConnected() } returns true
         }
         val checkNicknameAvailabilityUseCase = mockk<CheckNicknameAvailabilityUseCase>()
         val signInAnonymouslyUseCase = mockk<SignInAnonymouslyUseCase>()

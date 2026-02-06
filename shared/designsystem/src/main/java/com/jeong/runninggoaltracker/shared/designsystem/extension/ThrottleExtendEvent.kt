@@ -36,7 +36,13 @@ fun Modifier.throttleClick(
     LaunchedEffect(Unit) {
         eventFlow.collect {
             val currentTime = System.currentTimeMillis()
-            if (currentTime - lastExecutionTime.longValue > intervalMillis) {
+            if (
+                ThrottleClickPolicy.isClickAllowed(
+                    currentTime,
+                    lastExecutionTime.longValue,
+                    intervalMillis
+                )
+            ) {
                 lastExecutionTime.longValue = currentTime
                 latestOnClick()
             } else {
@@ -70,7 +76,13 @@ fun rememberThrottleClick(
     LaunchedEffect(Unit) {
         eventFlow.collect {
             val currentTime = System.currentTimeMillis()
-            if (currentTime - lastExecutionTime.longValue > intervalMillis) {
+            if (
+                ThrottleClickPolicy.isClickAllowed(
+                    currentTime,
+                    lastExecutionTime.longValue,
+                    intervalMillis
+                )
+            ) {
                 lastExecutionTime.longValue = currentTime
                 latestOnClick()
             } else {

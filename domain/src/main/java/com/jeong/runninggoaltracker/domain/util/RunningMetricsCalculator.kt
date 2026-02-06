@@ -23,7 +23,7 @@ class RunningMetricsCalculator @Inject constructor() {
     }
 
     fun calculatePace(distanceKm: Double, elapsedMillis: Long): RunningPace {
-        if (distanceKm <= RunningTimeContract.ZERO_DOUBLE || elapsedMillis <= RunningTimeContract.ZERO_LONG) {
+        if (!isPaceAvailable(distanceKm, elapsedMillis)) {
             return RunningPace(
                 minutes = 0,
                 seconds = 0,
@@ -40,4 +40,8 @@ class RunningMetricsCalculator @Inject constructor() {
             isAvailable = true
         )
     }
+
+    private fun isPaceAvailable(distanceKm: Double, elapsedMillis: Long): Boolean =
+        distanceKm > RunningTimeContract.ZERO_DOUBLE &&
+            elapsedMillis > RunningTimeContract.ZERO_LONG
 }

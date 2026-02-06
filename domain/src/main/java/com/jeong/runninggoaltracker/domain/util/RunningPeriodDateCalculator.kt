@@ -12,10 +12,7 @@ class RunningPeriodDateCalculator @Inject constructor() {
     fun startOfDayMillis(dateMillis: Long): Long =
         Calendar.getInstance().apply {
             timeInMillis = dateMillis
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+            resetToStartOfDay(this)
         }.timeInMillis
 
     fun shiftDateByPeriod(
@@ -25,10 +22,7 @@ class RunningPeriodDateCalculator @Inject constructor() {
     ): Long {
         val calendar = Calendar.getInstance().apply {
             timeInMillis = selectedDateMillis
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+            resetToStartOfDay(this)
         }
         when (period) {
             PeriodState.DAILY -> calendar.add(Calendar.DAY_OF_YEAR, step)
@@ -62,10 +56,7 @@ class RunningPeriodDateCalculator @Inject constructor() {
             timeInMillis = selectedDateMillis
             firstDayOfWeek = DateTimeContract.WEEK_START_DAY
             set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+            resetToStartOfDay(this)
         }
         val start = calendar.timeInMillis
         calendar.add(Calendar.DAY_OF_YEAR, DateTimeContract.DAYS_IN_WEEK)
@@ -77,14 +68,18 @@ class RunningPeriodDateCalculator @Inject constructor() {
         val calendar = Calendar.getInstance().apply {
             timeInMillis = selectedDateMillis
             set(Calendar.DAY_OF_MONTH, 1)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+            resetToStartOfDay(this)
         }
         val start = calendar.timeInMillis
         calendar.add(Calendar.MONTH, 1)
         val end = calendar.timeInMillis
         return start to end
+    }
+
+    private fun resetToStartOfDay(calendar: Calendar) {
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
     }
 }

@@ -16,7 +16,7 @@ class RunningPeriodSummaryCalculator @Inject constructor(
         val totalDurationMinutes = records.sumOf { it.durationMinutes }
         val totalDurationMillis = totalDurationMinutes * RunningTimeContract.MILLIS_PER_MINUTE
         val pace = metricsCalculator.calculatePace(totalDistance, totalDurationMillis)
-        val calories = (totalDistance * RunningSummaryContract.CALORIES_PER_KM).roundToInt()
+        val calories = calculateCalories(totalDistance)
         return RunningPeriodSummary(
             totalDistanceKm = totalDistance,
             totalCalories = calories,
@@ -24,4 +24,7 @@ class RunningPeriodSummaryCalculator @Inject constructor(
             averagePace = pace
         )
     }
+
+    private fun calculateCalories(distanceKm: Double): Int =
+        (distanceKm * RunningSummaryContract.CALORIES_PER_KM).roundToInt()
 }
