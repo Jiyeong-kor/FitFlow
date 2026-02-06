@@ -84,4 +84,4 @@ fun rememberThrottleClick(
 
 @Composable
 private fun throttleClickIntervalMillis(): Long =
-    AppNumericTokens.throttleClickIntervalMillis
+    AppNumericTokens.THROTTLE_CLICK_INTERVAL_MILLIS
