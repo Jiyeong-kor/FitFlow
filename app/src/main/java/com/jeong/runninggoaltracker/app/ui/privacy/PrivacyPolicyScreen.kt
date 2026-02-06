@@ -18,7 +18,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -119,12 +122,12 @@ private fun PrivacyPolicyWebView(
     modifier: Modifier = Modifier
 ) {
     val url = BuildConfig.PRIVACY_POLICY_URL
-    val webViewHolder = remember { WebViewHolder() }
+    var webView by remember { mutableStateOf<WebView?>(null) }
 
     BackHandler {
-        val webView = webViewHolder.webView
-        if (webView?.canGoBack() == true) {
-            webView.goBack()
+        val activeWebView = webView
+        if (activeWebView?.canGoBack() == true) {
+            activeWebView.goBack()
         } else {
             onBack()
         }
@@ -132,13 +135,13 @@ private fun PrivacyPolicyWebView(
 
     DisposableEffect(Unit) {
         onDispose {
-            webViewHolder.webView?.apply {
+            webView?.apply {
                 stopLoading()
                 webViewClient = WebViewClient()
                 (parent as? ViewGroup)?.removeView(this)
                 destroy()
             }
-            webViewHolder.webView = null
+            webView = null
         }
     }
 
@@ -148,7 +151,7 @@ private fun PrivacyPolicyWebView(
         },
         factory = { context ->
             WebView(context).apply {
-                webViewHolder.webView = this
+                webView = this
                 settings.javaScriptEnabled = false
                 webViewClient = object : WebViewClient() {
 
@@ -199,8 +202,4 @@ private fun PrivacyPolicyWebView(
             }
         }
     )
-}
-
-private class WebViewHolder {
-    var webView: WebView? = null
 }
