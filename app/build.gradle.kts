@@ -12,9 +12,9 @@ val debugKeyAlias: String? = localProperties.getProperty("DEBUG_KEY_ALIAS")
 val debugStoreFile = rootProject.file("debug-custom.keystore")
 val useCustomDebugSigning: Boolean =
     debugStoreFile.exists() &&
-        !debugStorePassword.isNullOrBlank() &&
-        !debugKeyPassword.isNullOrBlank() &&
-        !debugKeyAlias.isNullOrBlank()
+            !debugStorePassword.isNullOrBlank() &&
+            !debugKeyPassword.isNullOrBlank() &&
+            !debugKeyAlias.isNullOrBlank()
 
 val kakaoNativeAppKey: String =
     localProperties.getProperty("KAKAO_NATIVE_APP_KEY") ?: ""
@@ -59,7 +59,7 @@ android {
 
         testInstrumentationRunner = "com.jeong.runninggoaltracker.app.HiltTestRunner"
 
-        defaultConfig.manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
+        manifestPlaceholders["KAKAO_NATIVE_APP_KEY"] = kakaoNativeAppKey
         buildConfigField("String", "PRIVACY_POLICY_URL", "\"$privacyPolicyUrl\"")
     }
 
