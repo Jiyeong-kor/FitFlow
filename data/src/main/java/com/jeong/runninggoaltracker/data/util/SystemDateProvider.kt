@@ -9,6 +9,7 @@ import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import java.util.Calendar
 
 class SystemDateProvider(private val context: Context) : DateProvider {
@@ -38,7 +39,7 @@ class SystemDateProvider(private val context: Context) : DateProvider {
         awaitClose {
             context.unregisterReceiver(receiver)
         }
-    }
+    }.distinctUntilChanged()
 
     override fun getStartOfWeek(timestamp: Long): Long =
         Calendar.getInstance().apply {

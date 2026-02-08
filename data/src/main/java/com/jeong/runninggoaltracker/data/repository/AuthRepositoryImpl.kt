@@ -27,6 +27,7 @@ import com.jeong.runninggoaltracker.domain.util.NicknameNormalizer
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import com.jeong.runninggoaltracker.domain.di.IoDispatcher
@@ -278,7 +279,7 @@ class AuthRepositoryImpl @Inject constructor(
         awaitClose {
             firebaseAuth.removeAuthStateListener(listener)
         }
-    }
+    }.distinctUntilChanged()
 
     override fun observeUserNickname(): Flow<String?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
@@ -289,7 +290,7 @@ class AuthRepositoryImpl @Inject constructor(
         awaitClose {
             firebaseAuth.removeAuthStateListener(listener)
         }
-    }
+    }.distinctUntilChanged()
 
     private fun Exception.toAuthErrorWithNickname(): AuthError =
         if (this is NicknameTakenException) {
