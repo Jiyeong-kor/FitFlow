@@ -21,9 +21,3 @@ data class HomeWeeklyRange(
     val startMillis: Long,
     val endMillis: Long
 )
-
-sealed interface HomeUiEffect {
-    data object NavigateToRecord : HomeUiEffect
-    data object NavigateToGoal : HomeUiEffect
-    data object NavigateToReminder : HomeUiEffect
-}

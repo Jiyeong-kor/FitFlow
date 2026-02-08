@@ -7,12 +7,9 @@ import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodDateCalculator
 import com.jeong.runninggoaltracker.feature.home.domain.HomeCalendarCalculator
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,9 +30,6 @@ class HomeViewModel @Inject constructor(
     private val selectedDateState = MutableStateFlow(initialSelectedDateState)
     private val calendarVisibility = MutableStateFlow(false)
     private val calendarMonthState = MutableStateFlow(initialCalendarMonthState)
-
-    private val _effect = MutableSharedFlow<HomeUiEffect>()
-    val effect = _effect.asSharedFlow()
 
     val uiState: StateFlow<HomeUiState> =
         stateHolder.uiState(
@@ -103,21 +97,5 @@ class HomeViewModel @Inject constructor(
         calendarMonthState.update { current ->
             calendarCalculator.shiftMonth(current, 1)
         }
-    }
-
-    fun onRecordClick() {
-        emitEffect(HomeUiEffect.NavigateToRecord)
-    }
-
-    fun onGoalClick() {
-        emitEffect(HomeUiEffect.NavigateToGoal)
-    }
-
-    fun onReminderClick() {
-        emitEffect(HomeUiEffect.NavigateToReminder)
-    }
-
-    private fun emitEffect(effect: HomeUiEffect) {
-        viewModelScope.launch { _effect.emit(effect) }
     }
 }
