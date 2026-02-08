@@ -16,28 +16,28 @@ class MyPageViewModel @Inject constructor(
     stateHolder: MyPageStateHolder
 ) : ViewModel() {
 
-    private val localUiState = MutableStateFlow(MyPageUiState())
+    private val _uiState = MutableStateFlow(MyPageUiState())
     val uiState: StateFlow<MyPageUiState> =
-        stateHolder.uiState(localUiState, viewModelScope)
+        stateHolder.uiState(_uiState, viewModelScope)
 
     private val _deleteAccountState =
         MutableStateFlow<DeleteAccountUiState>(DeleteAccountUiState.Idle)
     val deleteAccountState: StateFlow<DeleteAccountUiState> = _deleteAccountState.asStateFlow()
 
     fun toggleActivityRecognition(isEnabled: Boolean) {
-        localUiState.update { it.copy(isActivityRecognitionEnabled = isEnabled) }
+        _uiState.update { it.copy(isActivityRecognitionEnabled = isEnabled) }
     }
 
     fun showDeleteAccountDialog() {
-        localUiState.update { it.copy(isDeleteDialogVisible = true) }
+        _uiState.update { it.copy(isDeleteDialogVisible = true) }
     }
 
     fun dismissDeleteAccountDialog() {
-        localUiState.update { it.copy(isDeleteDialogVisible = false) }
+        _uiState.update { it.copy(isDeleteDialogVisible = false) }
     }
 
     fun confirmDeleteAccount() {
-        localUiState.update { it.copy(isDeleteDialogVisible = false) }
+        _uiState.update { it.copy(isDeleteDialogVisible = false) }
         deleteAccount()
     }
 
