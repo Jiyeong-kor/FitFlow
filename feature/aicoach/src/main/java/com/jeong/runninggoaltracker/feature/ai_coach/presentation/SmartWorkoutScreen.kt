@@ -630,8 +630,8 @@ private fun CameraPreview(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
-    val previewView = remember { PreviewView(context) }
-    val executor = remember { Executors.newSingleThreadExecutor() }
+    val previewView = remember(context) { PreviewView(context) }
+    val executor = remember(context) { Executors.newSingleThreadExecutor() }
     val cameraBindingState = remember { CameraBindingState() }
 
     LaunchedEffect(imageAnalyzer) {
@@ -656,7 +656,7 @@ private fun CameraPreview(
             analysis
         )
     }
-    DisposableEffect(lifecycleOwner) {
+    DisposableEffect(previewView, executor, lifecycleOwner) {
         onDispose {
             cameraBindingState.analysis?.clearAnalyzer()
             cameraBindingState.analysis = null
