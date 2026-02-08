@@ -45,7 +45,7 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
             status = smoothStatus
         )
 
-        getLogStore(context).add(
+        getLogBuffer(context).add(
             status = smoothStatus,
             timestamp = getDateProvider(context).getToday()
         )
@@ -80,12 +80,12 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
 
     private fun getStateUpdater(context: Context): ActivityStateUpdater = getStateHolder(context)
 
-    private fun getLogStore(context: Context): ActivityLogStore {
+    private fun getLogBuffer(context: Context): ActivityLogBuffer {
         val entryPoint = EntryPointAccessors.fromApplication(
             context.applicationContext,
             ActivityRecognitionEntryPoint::class.java
         )
-        return entryPoint.activityLogStore()
+        return entryPoint.activityLogBuffer()
     }
 
     private fun getSmoother(context: Context): ActivitySmoother {
@@ -108,7 +108,7 @@ class ActivityRecognitionReceiver : BroadcastReceiver() {
     @dagger.hilt.InstallIn(SingletonComponent::class)
     interface ActivityRecognitionEntryPoint {
         fun activityRecognitionStateHolder(): ActivityRecognitionStateHolder
-        fun activityLogStore(): ActivityLogStore
+        fun activityLogBuffer(): ActivityLogBuffer
         fun activitySmoother(): ActivitySmoother
         fun dateProvider(): DateProvider
     }

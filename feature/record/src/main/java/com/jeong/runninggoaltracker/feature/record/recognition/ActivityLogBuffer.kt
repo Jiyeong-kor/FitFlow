@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 
 @Singleton
-class ActivityLogStore @Inject constructor() {
+class ActivityLogBuffer @Inject constructor() {
 
     private val _logs = MutableStateFlow<List<ActivityLogEntry>>(emptyList())
     val logs: StateFlow<List<ActivityLogEntry>> = _logs
