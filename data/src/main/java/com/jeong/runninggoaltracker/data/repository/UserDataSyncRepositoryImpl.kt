@@ -4,17 +4,13 @@ import androidx.room.withTransaction
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
-import com.jeong.runninggoaltracker.data.contract.RunningGoalFirestoreFields
-import com.jeong.runninggoaltracker.data.contract.RunningRecordFirestoreFields
-import com.jeong.runninggoaltracker.data.contract.RunningReminderFirestoreFields
-import com.jeong.runninggoaltracker.data.contract.WorkoutRecordFirestoreFields
 import com.jeong.runninggoaltracker.data.local.RunningDatabase
-import com.jeong.runninggoaltracker.data.local.RunningGoalEntity
-import com.jeong.runninggoaltracker.data.local.RunningRecordEntity
-import com.jeong.runninggoaltracker.data.local.RunningReminderEntity
-import com.jeong.runninggoaltracker.data.local.WorkoutRecordEntity
 import com.jeong.runninggoaltracker.data.util.awaitResult
 import com.jeong.runninggoaltracker.data.util.toAuthError
+import com.jeong.runninggoaltracker.data.util.toRunningGoalEntity
+import com.jeong.runninggoaltracker.data.util.toRunningRecordEntity
+import com.jeong.runninggoaltracker.data.util.toRunningReminderEntity
+import com.jeong.runninggoaltracker.data.util.toWorkoutRecordEntity
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.AuthResult
 import com.jeong.runninggoaltracker.domain.repository.UserDataSyncRepository
@@ -56,62 +52,18 @@ class UserDataSyncRepositoryImpl @Inject constructor(
                 .awaitResult()
 
             val recordEntities = recordsSnapshot.documents.mapNotNull { doc ->
-                val id = doc.id.toLongOrNull() ?: return@mapNotNull null
-                val date = doc.getLong(RunningRecordFirestoreFields.DATE)
-                    ?: return@mapNotNull null
-                val distanceKm = doc.getDouble(RunningRecordFirestoreFields.DISTANCE_KM)
-                    ?: return@mapNotNull null
-                val durationMinutes =
-                    doc.getLong(RunningRecordFirestoreFields.DURATION_MINUTES)?.toInt()
-                        ?: return@mapNotNull null
-                RunningRecordEntity(
-                    id = id,
-                    date = date,
-                    distanceKm = distanceKm,
-                    durationMinutes = durationMinutes
-                )
+                doc.toRunningRecordEntity()
             }
 
             val reminderEntities = remindersSnapshot.documents.mapNotNull { doc ->
-                val id = doc.id.toIntOrNull() ?: return@mapNotNull null
-                val hour = doc.getLong(RunningReminderFirestoreFields.HOUR)?.toInt()
-                    ?: return@mapNotNull null
-                val minute = doc.getLong(RunningReminderFirestoreFields.MINUTE)?.toInt()
-                    ?: return@mapNotNull null
-                val isEnabled = doc.getBoolean(RunningReminderFirestoreFields.IS_ENABLED)
-                    ?: return@mapNotNull null
-                val days = doc.get(RunningReminderFirestoreFields.DAYS) as? List<*>
-                    ?: emptyList<Any>()
-                val daySet = days.mapNotNull { (it as? Number)?.toInt() }.toSet()
-                RunningReminderEntity(
-                    id = id,
-                    hour = hour,
-                    minute = minute,
-                    isEnabled = isEnabled,
-                    days = daySet
-                )
+                doc.toRunningReminderEntity()
             }
 
             val workoutEntities = workoutSnapshot.documents.mapNotNull { doc ->
-                val date = doc.getLong(WorkoutRecordFirestoreFields.DATE)
-                    ?: return@mapNotNull null
-                val exerciseType = doc.getString(WorkoutRecordFirestoreFields.EXERCISE_TYPE)
-                    ?: return@mapNotNull null
-                val repCount = doc.getLong(WorkoutRecordFirestoreFields.REP_COUNT)?.toInt()
-                    ?: return@mapNotNull null
-                WorkoutRecordEntity(
-                    date = date,
-                    exerciseType = exerciseType,
-                    repCount = repCount
-                )
+                doc.toWorkoutRecordEntity()
             }
 
-            val goalEntity = if (goalSnapshot.exists()) {
-                val weeklyGoalKm = goalSnapshot.getDouble(RunningGoalFirestoreFields.WEEKLY_GOAL_KM)
-                weeklyGoalKm?.let { RunningGoalEntity(weeklyGoalKm = it) }
-            } else {
-                null
-            }
+            val goalEntity = goalSnapshot.toRunningGoalEntity()
 
             withContext(ioDispatcher) {
                 runningDatabase.withTransaction {
