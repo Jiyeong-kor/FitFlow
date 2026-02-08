@@ -15,7 +15,7 @@ import javax.inject.Inject
 @HiltViewModel
 class OnboardingViewModel @Inject constructor(
     private val onboardingWorkflow: OnboardingWorkflow,
-    private val uiStateReducer: OnboardingUiStateReducer
+    private val uiStateMapper: OnboardingUiStateMapper
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(OnboardingUiState())
     val uiState: StateFlow<OnboardingUiState> = _uiState
@@ -26,7 +26,7 @@ class OnboardingViewModel @Inject constructor(
 
     fun onPermissionsResult(isGranted: Boolean, isPermanentlyDenied: Boolean) {
         _uiState.update { currentState ->
-            uiStateReducer.reducePermissionsResult(
+            uiStateMapper.applyPermissionsResult(
                 currentState = currentState,
                 isGranted = isGranted,
                 isPermanentlyDenied = isPermanentlyDenied
@@ -36,7 +36,7 @@ class OnboardingViewModel @Inject constructor(
 
     fun onOpenSettings() {
         viewModelScope.launch {
-            uiStateReducer.openSettingsEffects(_uiState.value).forEach { effect ->
+            uiStateMapper.openSettingsEffects(_uiState.value).forEach { effect ->
                 _effects.emit(effect)
             }
         }
@@ -44,7 +44,7 @@ class OnboardingViewModel @Inject constructor(
 
     fun onNicknameChanged(value: String) {
         _uiState.update { currentState ->
-            uiStateReducer.reduceNicknameChanged(currentState, value)
+            uiStateMapper.applyNicknameChanged(currentState, value)
         }
     }
 
@@ -54,7 +54,7 @@ class OnboardingViewModel @Inject constructor(
         val kakaoOidcSub = _uiState.value.kakaoOidcSub
         viewModelScope.launch {
             _uiState.update { currentState ->
-                uiStateReducer.reduceLoadingStart(currentState)
+                uiStateMapper.applyLoadingStart(currentState)
             }
             val result = onboardingWorkflow.continueWithNickname(
                 nickname = nickname,
@@ -62,21 +62,21 @@ class OnboardingViewModel @Inject constructor(
                 kakaoOidcSub = kakaoOidcSub
             )
             _uiState.update { currentState ->
-                uiStateReducer.reduceContinueResult(currentState, result)
+                uiStateMapper.applyContinueResult(currentState, result)
             }
         }
     }
 
     fun onRetryInternet() {
         _uiState.update { currentState ->
-            uiStateReducer.reduceNoInternetDismissed(currentState)
+            uiStateMapper.applyNoInternetDismissed(currentState)
         }
         onContinueWithNickname()
     }
 
     fun onDismissNoInternetDialog() {
         _uiState.update { currentState ->
-            uiStateReducer.reduceNoInternetDismissed(currentState)
+            uiStateMapper.applyNoInternetDismissed(currentState)
         }
     }
 
@@ -87,11 +87,11 @@ class OnboardingViewModel @Inject constructor(
     fun onContinueWithoutLogin() {
         viewModelScope.launch {
             _uiState.update { currentState ->
-                uiStateReducer.reduceLoadingStart(currentState)
+                uiStateMapper.applyLoadingStart(currentState)
             }
             val result = onboardingWorkflow.startAnonymousSession()
             _uiState.update { currentState ->
-                uiStateReducer.reduceAuthChoiceResult(currentState, result)
+                uiStateMapper.applyAuthChoiceResult(currentState, result)
             }
         }
     }
@@ -99,11 +99,11 @@ class OnboardingViewModel @Inject constructor(
     fun onKakaoLoginClicked() {
         viewModelScope.launch {
             _uiState.update { currentState ->
-                uiStateReducer.reduceLoadingStart(currentState)
+                uiStateMapper.applyLoadingStart(currentState)
             }
             val result = onboardingWorkflow.startKakaoSession()
             _uiState.update { currentState ->
-                uiStateReducer.reduceAuthChoiceResult(currentState, result)
+                uiStateMapper.applyAuthChoiceResult(currentState, result)
             }
         }
     }
