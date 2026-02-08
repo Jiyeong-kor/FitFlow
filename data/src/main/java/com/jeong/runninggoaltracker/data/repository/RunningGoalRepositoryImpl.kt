@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
+import com.jeong.runninggoaltracker.data.contract.RunningGoalFirestoreFields
 import com.jeong.runninggoaltracker.data.local.RunningGoalDao
 import com.jeong.runninggoaltracker.data.util.awaitResult
 import com.jeong.runninggoaltracker.data.local.toDomain
@@ -44,7 +45,7 @@ class RunningGoalRepositoryImpl @Inject constructor(
             .document(user.uid)
             .collection(FirestorePaths.COLLECTION_RUNNING_GOALS)
             .document(FirestorePaths.DOC_RUNNING_GOAL)
-        val data = mapOf("weeklyGoalKm" to goal.weeklyGoalKm)
+        val data = mapOf(RunningGoalFirestoreFields.WEEKLY_GOAL_KM to goal.weeklyGoalKm)
         try {
             docRef.set(data).awaitResult()
         } catch (_: Exception) {

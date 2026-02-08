@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
+import com.jeong.runninggoaltracker.data.contract.RunningRecordFirestoreFields
 import com.jeong.runninggoaltracker.data.local.RunningRecordDao
 import com.jeong.runninggoaltracker.data.util.awaitResult
 import com.jeong.runninggoaltracker.data.local.toDomain
@@ -47,9 +48,9 @@ class RunningRecordRepositoryImpl @Inject constructor(
             .collection(FirestorePaths.COLLECTION_RUNNING_RECORDS)
             .document(record.id.toString())
         val data = mapOf(
-            "date" to record.date,
-            "distanceKm" to record.distanceKm,
-            "durationMinutes" to record.durationMinutes
+            RunningRecordFirestoreFields.DATE to record.date,
+            RunningRecordFirestoreFields.DISTANCE_KM to record.distanceKm,
+            RunningRecordFirestoreFields.DURATION_MINUTES to record.durationMinutes
         )
         try {
             docRef.set(data).awaitResult()

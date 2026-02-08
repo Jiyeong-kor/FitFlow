@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
+import com.jeong.runninggoaltracker.data.contract.WorkoutRecordFirestoreFields
 import com.jeong.runninggoaltracker.data.local.WorkoutRecordDao
 import com.jeong.runninggoaltracker.data.util.awaitResult
 import com.jeong.runninggoaltracker.data.local.toEntity
@@ -34,9 +35,9 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
             .collection(FirestorePaths.COLLECTION_WORKOUT_RECORDS)
             .document(docId)
         val data = mapOf(
-            "date" to record.date,
-            "exerciseType" to record.exerciseType.name,
-            "repCount" to record.repCount
+            WorkoutRecordFirestoreFields.DATE to record.date,
+            WorkoutRecordFirestoreFields.EXERCISE_TYPE to record.exerciseType.name,
+            WorkoutRecordFirestoreFields.REP_COUNT to record.repCount
         )
         try {
             docRef.set(data).awaitResult()

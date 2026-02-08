@@ -10,6 +10,7 @@ import com.google.firebase.functions.FirebaseFunctions
 import com.kakao.sdk.auth.model.OAuthToken
 import com.kakao.sdk.user.UserApiClient
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
+import com.jeong.runninggoaltracker.data.contract.KakaoOidcExchangeFields
 import com.jeong.runninggoaltracker.data.contract.UserFirestoreFields
 import com.jeong.runninggoaltracker.data.contract.UsernameFirestoreFields
 import com.jeong.runninggoaltracker.data.util.awaitResult
@@ -107,14 +108,14 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun exchangeKakaoOidcToken(idToken: String): AuthResult<KakaoAuthExchange> {
         return try {
-            val data = mapOf("idToken" to idToken)
+            val data = mapOf(KakaoOidcExchangeFields.ID_TOKEN to idToken)
             val result = firebaseFunctions
                 .getHttpsCallable(FirestorePaths.FUNCTION_KAKAO_OIDC_EXCHANGE)
                 .call(data)
                 .awaitResult()
             val payload = result.data as? Map<*, *> ?: return AuthResult.Failure(AuthError.Unknown)
-            val customToken = payload["customToken"] as? String
-            val kakaoOidcSub = payload["kakaoOidcSub"] as? String
+            val customToken = payload[KakaoOidcExchangeFields.CUSTOM_TOKEN] as? String
+            val kakaoOidcSub = payload[KakaoOidcExchangeFields.KAKAO_OIDC_SUB] as? String
             if (customToken.isNullOrBlank() || kakaoOidcSub.isNullOrBlank()) {
                 AuthResult.Failure(AuthError.Unknown)
             } else {

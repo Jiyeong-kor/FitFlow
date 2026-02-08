@@ -48,3 +48,9 @@ object WorkoutRecordFirestoreFields {
 object RunningGoalFirestoreFields {
     const val WEEKLY_GOAL_KM = "weeklyGoalKm"
 }
+
+object KakaoOidcExchangeFields {
+    const val ID_TOKEN = "idToken"
+    const val CUSTOM_TOKEN = "customToken"
+    const val KAKAO_OIDC_SUB = "kakaoOidcSub"
+}

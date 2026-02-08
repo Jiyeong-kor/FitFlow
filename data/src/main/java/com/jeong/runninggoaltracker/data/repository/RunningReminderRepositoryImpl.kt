@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.data.repository
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
+import com.jeong.runninggoaltracker.data.contract.RunningReminderFirestoreFields
 import com.jeong.runninggoaltracker.data.local.RunningReminderDao
 import com.jeong.runninggoaltracker.data.util.awaitResult
 import com.jeong.runninggoaltracker.data.local.toDomain
@@ -65,10 +66,10 @@ class RunningReminderRepositoryImpl @Inject constructor(
             .collection(FirestorePaths.COLLECTION_RUNNING_REMINDERS)
             .document(reminderId.toString())
         val data = mapOf(
-            "hour" to reminder.hour,
-            "minute" to reminder.minute,
-            "enabled" to reminder.isEnabled,
-            "days" to reminder.days.toList()
+            RunningReminderFirestoreFields.HOUR to reminder.hour,
+            RunningReminderFirestoreFields.MINUTE to reminder.minute,
+            RunningReminderFirestoreFields.IS_ENABLED to reminder.isEnabled,
+            RunningReminderFirestoreFields.DAYS to reminder.days.toList()
         )
         try {
             docRef.set(data).awaitResult()
