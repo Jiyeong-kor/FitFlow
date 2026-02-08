@@ -169,7 +169,7 @@ private fun PrivacyPolicyWebView(
                         request: WebResourceRequest?,
                         error: WebResourceError?
                     ) {
-                        if (request?.isForMainFrame != false) {
+                        if (isMainFrameRequest(request)) {
                             onLoadError()
                         }
                     }
@@ -179,7 +179,7 @@ private fun PrivacyPolicyWebView(
                         request: WebResourceRequest?,
                         errorResponse: WebResourceResponse?
                     ) {
-                        if (request?.isForMainFrame != false) {
+                        if (isMainFrameRequest(request)) {
                             onLoadError()
                         }
                     }
@@ -197,3 +197,6 @@ private fun PrivacyPolicyWebView(
         }
     )
 }
+
+private fun isMainFrameRequest(request: WebResourceRequest?): Boolean =
+    request?.isForMainFrame != false
