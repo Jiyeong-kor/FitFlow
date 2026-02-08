@@ -38,6 +38,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -65,6 +66,7 @@ import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_TOTAL_DIS
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_PREVIEW_TOTAL_DURATION_MINUTES
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_SUMMARY_ANIMATION_LABEL
 import com.jeong.runninggoaltracker.feature.home.contract.HOME_WEIGHT_ONE
+import com.jeong.runninggoaltracker.feature.home.contract.HomeTestTagContract
 import com.jeong.runninggoaltracker.feature.home.domain.CalendarDay
 import com.jeong.runninggoaltracker.feature.home.domain.CalendarMonthState
 import com.jeong.runninggoaltracker.feature.home.domain.HomeCalendarCalculator
@@ -560,6 +562,7 @@ private fun SectionHeader(
                 .clickable(onClick = onViewAllClickThrottled)
                 .sizeIn(minWidth = minTouchTarget, minHeight = minTouchTarget)
                 .semantics { role = Role.Button }
+                .testTag(HomeTestTagContract.HOME_ACTIVITY_LOG_VIEW_ALL_TAG)
                 .padding(horizontal = appSpacingSm(), vertical = appSpacingSm())
         )
     }
