@@ -95,7 +95,7 @@ kotlin {
 
 dependencies {
     implementation(project(":data"))
-    implementation(project(":feature:ai-coach"))
+    implementation(project(":feature:aicoach"))
     implementation(project(":feature:auth"))
     implementation(project(":feature:goal"))
     implementation(project(":feature:home"))
