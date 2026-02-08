@@ -3,7 +3,10 @@ package com.jeong.runninggoaltracker.feature.ai_coach.presentation
 import androidx.camera.core.ImageAnalysis
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
+import com.jeong.runninggoaltracker.domain.contract.SQUAT_INT_ZERO
 import com.jeong.runninggoaltracker.domain.model.ExerciseType
+import com.jeong.runninggoaltracker.domain.model.PostureFeedbackType
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutLogContract
 import com.jeong.runninggoaltracker.feature.ai_coach.domain.WorkoutRecordSaver
@@ -27,8 +30,7 @@ class AiCoachViewModel @Inject constructor(
     private val poseFrameProcessor: PoseFrameProcessor,
     private val workoutRecordSaver: WorkoutRecordSaver,
     private val analyticsLogger: WorkoutAnalyticsLogger,
-    private val dateProvider: DateProvider,
-    private val stateReducer: SmartWorkoutStateReducer
+    private val dateProvider: DateProvider
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SmartWorkoutUiState())
@@ -66,11 +68,36 @@ class AiCoachViewModel @Inject constructor(
     }
 
     fun toggleDebugOverlay() {
-        _uiState.update { current -> stateReducer.toggleOverlay(current) }
+        _uiState.update { current ->
+            val nextMode = if (current.overlayMode == DebugOverlayMode.OFF) {
+                poseFrameProcessor.overlayModeFor(current.exerciseType)
+            } else {
+                DebugOverlayMode.OFF
+            }
+            current.copy(overlayMode = nextMode)
+        }
     }
 
     fun updateExerciseType(exerciseType: ExerciseType) {
-        _uiState.update { current -> stateReducer.updateExerciseType(current, exerciseType) }
+        _uiState.update { current ->
+            if (current.exerciseType == exerciseType) {
+                current
+            } else {
+                current.copy(
+                    exerciseType = exerciseType,
+                    repCount = SQUAT_INT_ZERO,
+                    feedbackType = PostureFeedbackType.UNKNOWN,
+                    feedbackKeys = emptyList(),
+                    accuracy = SQUAT_FLOAT_ZERO,
+                    isPerfectForm = false,
+                    overlayMode = if (current.overlayMode == DebugOverlayMode.OFF) {
+                        current.overlayMode
+                    } else {
+                        poseFrameProcessor.overlayModeFor(exerciseType)
+                    }
+                )
+            }
+        }
         poseFrameProcessor.resetSpeechState()
     }
 
