@@ -17,6 +17,7 @@ class SystemDateProvider(private val context: Context) : DateProvider {
     override fun getToday(): Long = System.currentTimeMillis()
 
     override fun getTodayFlow(): Flow<Long> = callbackFlow {
+        val appContext = context.applicationContext
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 if (intent?.action == Intent.ACTION_DATE_CHANGED ||
@@ -32,12 +33,12 @@ class SystemDateProvider(private val context: Context) : DateProvider {
             addAction(Intent.ACTION_TIMEZONE_CHANGED)
         }
 
-        context.registerReceiver(receiver, filter)
+        appContext.registerReceiver(receiver, filter)
 
         trySend(getToday())
 
         awaitClose {
-            context.unregisterReceiver(receiver)
+            appContext.unregisterReceiver(receiver)
         }
     }.distinctUntilChanged()
 
