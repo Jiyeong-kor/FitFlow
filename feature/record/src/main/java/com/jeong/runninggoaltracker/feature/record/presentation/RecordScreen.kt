@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -25,6 +26,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.record.R
@@ -241,17 +243,22 @@ private fun MetricItem(label: String, value: String, modifier: Modifier = Modifi
     ) {
         Text(
             text = label,
+            modifier = Modifier.fillMaxWidth(),
             color = appTextMutedColor(),
             style = typographyTokens.labelTiny,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
+            textAlign = TextAlign.Center
         )
         Text(
             text = value,
+            modifier = Modifier.wrapContentWidth(Alignment.CenterHorizontally, unbounded = true),
             color = appTextPrimaryColor(),
             style = typographyTokens.numericTitleMedium,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            softWrap = false,
+            overflow = TextOverflow.Visible,
+            textAlign = TextAlign.Center
         )
     }
 }
