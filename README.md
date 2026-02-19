@@ -38,30 +38,57 @@
 
 ## ✨ 주요 기능 (Core Features)
 
-- **🏃 활동 인식 모니터링**: `ActivityRecognitionMonitor`를 사용하여 사용자의 현재 상태(걷기, 달리기, 정지 등)와 활동 로그를 실시간으로 추적합니다.
-- **📊 러닝 기록 관리**: 사용자의 운동 시간, 거리, 평균 속도 등의 기록을 저장하고 언제든지 다시 확인할 수 있습니다.
-- **🎯 목표 설정**: 주간 단위 또는 개인의 운동 능력에 맞춘 러닝 목표(거리, 시간)를 설정하고 달성률을 시각적으로 확인할 수 있습니다.
-- **🔔 스마트 리마인더**: 사용자가 설정한 시간에 맞춰 운동을 독려하는 알림을 보냅니다.
+- **🤖 AI 코칭**: Pose Detection을 활용하여 런지, 스쿼트 등 운동 횟수를 측정합니다.
+- **🏃 활동 인식 모니터링**: 사용자의 현재 상태(걷기, 달리기, 정지 등)를 실시간으로 추적합니다.
+- **📊 러닝 기록 관리**: 운동 시간, 거리, 속도 등을 저장하고 시각화된 통계를 제공합니다.
+- **🎯 목표 설정**: 주간 단위 목표를 설정하고 달성률을 확인할 수 있습니다.
+- **🔔 스마트 리마인더**: 설정한 시간에 맞춰 운동 알림을 제공합니다.
 
 ---
 
 ## 📱 기능 시연 (Key Features)
 
-| 주간 목표 변경 | 실시간 활동 인식 및 상태 변화 |
-| :---: | :---: |
-| <img src="RunningGoalTracker_주간목표변경.gif" width="300"/> | <img src="RunningGoalTracker_실시간활동인식및상태변화.gif" width="300"/> |
-| 운동량에 따른 목표 수정 | 걷기/달리기 실시간 감지 |
+### 🤖 AI 코칭 (Pose Detection)
+| 전신 화면 요청 | 런지 측정 | 스쿼트 측정 |
+| :---: | :---: | :---: |
+| <img src="gifs/전신%20화면%20요청.gif" width="250"/> | <img src="gifs/런지.gif" width="250"/> | <img src="gifs/스쿼트.gif" width="250"/> |
 
-| 알림 설정 | 푸시 알림 수신 |
+### 🏃 러닝 및 활동 기록
+#### [활동 시작 및 목표 설정]
+| 러닝 시작 및 백그라운드 | 홈 화면 활동 기록 | 주간 목표 설정 |
+| :---: | :---: | :---: |
+| <img src="gifs/러닝%20시작%20버튼%20및%20백그라운드%20동작.gif" width="250"/> | <img src="gifs/홈%20화면%20활동%20기록.gif" width="250"/> | <img src="gifs/주간%20목표%20설정.gif" width="250"/> |
+
+#### [데이터 분석 및 통계]
+| 일간/주간/월간 통계 | 통계 달력 확인 |
 | :---: | :---: |
-| <img src="RunningGoalTracker_알림%20설정.gif" width="300"/> | <img src="RunningGoalTracker_알림.gif" width="300"/> |
-| 리마인더 요일 및 시간 설정 | 설정 시간 알림 제공 |
+| <img src="gifs/일간%20주간%20월간%20통계.gif" width="250"/> | <img src="gifs/통계%20달력%20확인.gif" width="250"/> |
+
+### 🔑 인증 및 초기 설정
+#### [권한 및 정책]
+| 개인정보처리방침 | 네트워크 권한 요청 | 권한 허용 |
+| :---: | :---: | :---: |
+| <img src="gifs/개인정보처리방침.gif" width="250"/> | <img src="gifs/네트워크%20권한%20요청.gif" width="250"/> | <img src="gifs/권한%20허용.gif" width="250"/> |
+
+#### [계정 생성 및 검사]
+| 닉네임 유효성 검사 | 중복 닉네임 처리 | 회원가입 완료 |
+| :---: | :---: | :---: |
+| <img src="gifs/닉네임%20유효성%20검사.gif" width="250"/> | <img src="gifs/중복%20닉네임%20처리.gif" width="250"/> | <img src="gifs/회원가입%20완료.gif" width="250"/> |
+
+### ⚙️ 설정 및 기타
+#### [알림 관리]
+| 알림 설정 | 알림 확인 |
+| :---: | :---: |
+| <img src="gifs/알림%20설정.gif" width="250"/> | <img src="gifs/알림%20확인.gif" width="250"/> |
+
+#### [앱 설정 및 계정]
+| 다크모드 | 마이페이지 회원 탈퇴 |
+| :---: | :---: |
+| <img src="gifs/다크모드.gif" width="250"/> | <img src="gifs/마이페이지%20회원%20탈퇴.gif" width="250"/> |
 
 ---
 
 ## 프로젝트 구조 (Module Architecture)
-
-본 프로젝트는 Clean Architecture 원칙에 따라 각 계층의 역할을 분리한 멀티 모듈 구조로 설계되었습니다.
 
 ```
 :app
@@ -69,12 +96,16 @@
  │   ├── :home
  │   ├── :goal
  │   ├── :record
- │   └── :reminder
+ │   ├── :reminder
+ │   ├── :aicoach
+ │   ├── :auth
+ │   └── :mypage
  ├── :data
  ├── :domain
  └── :shared
-     └── :designsystem
-     └── :navigation
+     ├── :designsystem
+     ├── :navigation
+     └── :network
 ```
 
 - **`:domain`**: 순수 Kotlin 모듈로, 앱의 핵심 비즈니스 로직(UseCase, Entity)을 포함합니다. 다른 모듈에 대한 의존성이 없습니다.
@@ -192,32 +223,16 @@ flowchart TD
 
 ## 🚀 설치 방법 (Installation)
 
-1.  **Repository 복제**:
-    ```bash
-    git clone https://github.com/your-username/RunningGoalTracker.git
-    ```
-2.  **Android Studio에서 열기**:
-    - Android Studio를 실행하고 `File > Open`을 선택합니다.
-    - 복제한 프로젝트 폴더를 선택합니다.
-3.  **Gradle 동기화**:
-    - 프로젝트를 열면 Android Studio가 자동으로 Gradle 동기화를 진행합니다.
+1. **Repository 복제**:
+   ```bash
+   git clone https://github.com/your-username/RunningGoalTracker.git
+   ```
+2. **Android Studio에서 열기** 및 **Gradle 동기화**
 
 ---
 
 ## 🔒 필수 권한 설정
 
-앱의 핵심 기능을 사용하기 위해 다음 권한이 필요합니다.
-
-1.  **활동 인식 (Activity Recognition)**:
-    - **목적**: 사용자의 현재 활동(걷기, 달리기 등)을 감지하여 자동으로 운동 상태를 추적합니다.
-    - **설정 방법**: `설정 > 애플리케이션 > RunningGoalTracker > 권한`에서 '신체 활동' 권한을 허용해주세요.
-
-2.  **위치 정보 기반 경로 측정(Location)**:
-    - **목적**: 러닝 경로 및 이동 거리를 정확하게 측정하기 위해 사용됩니다.
-    - **설정 방법**: 앱 실행 시 `앱 사용 중에만 허용`을 선택해 주세요. 더 높은 정확도를 위해 `정확한 위치 사용`을 권장합니다.
-
-3.  **알림 (Notification)**:
-    - **목적**: 운동 기록 상태 유지 및 설정된 시간에 알림을 보냅니다.
-    - **설정 방법**: `권한 > 알림`에서 허용을 선택해 주세요.
-
-앱 실행 시 권한 요청 대화상자가 나타나면 '허용'을 선택해주시기 바랍니다. 권한이 거부되면 일부 기능이 정상적으로 동작하지 않을 수 있습니다.
+1. **활동 인식 (Activity Recognition)**: 실시간 활동 추적
+2. **위치 정보 (Location)**: 경로 및 거리 측정
+3. **알림 (Notification)**: 운동 독려 및 서비스 상태 유지
