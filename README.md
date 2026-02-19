@@ -59,9 +59,11 @@
 ### 🏃 러닝 및 활동 기록
 #### [활동 시작 및 목표 설정]
 <div align="center">
+  
 | 러닝 시작 및 백그라운드 | 홈 화면 활동 기록 | 주간 목표 설정 |
 | :---: | :---: | :---: |
 | <img src="gifs/러닝%20시작%20버튼%20및%20백그라운드%20동작.gif" width="249"/> | <img src="gifs/홈%20화면%20활동%20기록.gif" width="249"/> | <img src="gifs/주간%20목표%20설정.gif" width="249"/> |
+
 </div>
 
 #### [데이터 분석 및 통계]
@@ -74,30 +76,39 @@
 ### 🔑 인증 및 초기 설정
 #### [권한 및 정책]
 <div align="center">
+  
 | 개인정보처리방침 | 네트워크 권한 요청 | 권한 허용 |
 | :---: | :---: | :---: |
 | <img src="gifs/개인정보처리방침.gif" width="249"/> | <img src="gifs/네트워크%20권한%20요청.gif" width="249"/> | <img src="gifs/권한%20허용.gif" width="249"/> |
 
+</div>
+
 #### [계정 생성 및 검사]
 <div align="center">
+  
 | 닉네임 유효성 검사 | 중복 닉네임 처리 | 회원가입 완료 |
 | :---: | :---: | :---: |
 | <img src="gifs/닉네임%20유효성%20검사.gif" width="249"/> | <img src="gifs/중복%20닉네임%20처리.gif" width="249"/> | <img src="gifs/회원가입%20완료.gif" width="249"/> |
+
 </div>
 
 ### ⚙️ 설정 및 기타
 #### [알림 관리]
 <div align="center">
+  
 | 알림 설정 | 알림 확인 |
 | :---: | :---: |
 | <img src="gifs/알림%20설정.gif" width="249"/> | <img src="gifs/알림%20확인.gif" width="249"/> |
+
 </div>
 
 #### [앱 설정 및 계정]
 <div align="center">
+  
 | 다크모드 | 마이페이지 회원 탈퇴 |
 | :---: | :---: |
 | <img src="gifs/다크모드.gif" width="249"/> | <img src="gifs/마이페이지%20회원%20탈퇴.gif" width="249"/> |
+
 </div>
 ---
 
