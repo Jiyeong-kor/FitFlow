@@ -143,43 +143,43 @@ flowchart TD
     AICOACH[":feature:aicoach"]
     MYPAGE[":feature:mypage"]
     
-    %% 투명 선을 이용한 수평 정렬 유도
+    %% Feature 노드들 가로 정렬 강제
     AUTH ~~~ HOME ~~~ GOAL ~~~ RECORD ~~~ REMINDER ~~~ AICOACH ~~~ MYPAGE
   end
 
+  subgraph Shared_Layer["Shared Layer"]
+    direction LR
+    DS[":shared:designsystem"]
+    NAV[":shared:navigation"]
+    NETWORK[":shared:network"]
+    
+    %% Shared 노드들 가로 정렬 강제
+    DS ~~~ NAV ~~~ NETWORK
+  end
+
   subgraph Core_Layer["Core Layer"]
+    direction LR
     DATA[":data"]
     DOMAIN[":domain"]
     DATA --> DOMAIN
   end
 
-  subgraph Shared_Layer["Shared Layer"]
-    NAV[":shared:navigation"]
-    DS[":shared:designsystem"]
-    NETWORK[":shared:network"]
-  end
-
-  %% App에서 Feature로의 연결
-  APP --> AUTH
-  APP --> HOME
-  APP --> GOAL
-  APP --> RECORD
-  APP --> REMINDER
-  APP --> AICOACH
-  APP --> MYPAGE
-
-  %% App에서 Core/Shared로의 직통 연결 (가독성을 위해 측면으로 우회하거나 하단 배치 유도)
+  %% App Connections
+  APP --> AUTH & HOME & GOAL & RECORD & REMINDER & AICOACH & MYPAGE
+  
+  %% 가독성을 위해 App에서 하단 레이어로 바로 가는 선은 점선(dotted) 처리
   APP -.-> DATA
   APP -.-> DS
   APP -.-> NAV
 
-  %% Feature에서 하위 레이어로의 연결
+  %% Feature Connections (묶음 처리로 선 꼬임 최소화)
   HOME & GOAL & RECORD & REMINDER & AICOACH & AUTH & MYPAGE --> DOMAIN
   HOME & GOAL & RECORD & REMINDER & AICOACH & AUTH & MYPAGE --> DS
   HOME & GOAL & RECORD & REMINDER & AICOACH & AUTH & MYPAGE --> NAV
   
   AUTH --> NETWORK
 
+  %% Styling
   classDef app fill:#e0e0e0,stroke:#2f2f2f,stroke-width:2px,color:#111;
   classDef feature fill:#f0f0f0,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
   classDef core fill:#fafafa,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
