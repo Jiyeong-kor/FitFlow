@@ -47,7 +47,7 @@
 ---
 
 ## 📱 기능 시연 (Key Features)
-
+<div align="center">
 ### 🤖 AI 코칭 (Pose Detection)
 | 전신 화면 요청 | 런지 측정 | 스쿼트 측정 |
 | :---: | :---: | :---: |
@@ -85,7 +85,7 @@
 | 다크모드 | 마이페이지 회원 탈퇴 |
 | :---: | :---: |
 | <img src="gifs/다크모드.gif" width="249"/> | <img src="gifs/마이페이지%20회원%20탈퇴.gif" width="249"/> |
-
+</div>
 ---
 
 ## 프로젝트 구조 (Module Architecture)
