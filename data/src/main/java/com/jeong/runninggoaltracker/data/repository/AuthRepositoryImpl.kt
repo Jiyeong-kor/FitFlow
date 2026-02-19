@@ -22,6 +22,7 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
 import com.jeong.runninggoaltracker.domain.di.IoDispatcher
@@ -189,6 +190,7 @@ class AuthRepositoryImpl @Inject constructor(
             firebaseAuth.removeAuthStateListener(listener)
         }
     }.distinctUntilChanged()
+        .flowOn(ioDispatcher)
 
     override fun observeUserNickname(): Flow<String?> = callbackFlow {
         val listener = FirebaseAuth.AuthStateListener { auth ->
@@ -200,6 +202,7 @@ class AuthRepositoryImpl @Inject constructor(
             firebaseAuth.removeAuthStateListener(listener)
         }
     }.distinctUntilChanged()
+        .flowOn(ioDispatcher)
 
     private fun Exception.toAuthErrorWithNickname(): AuthError =
         if (this is NicknameTakenException) {

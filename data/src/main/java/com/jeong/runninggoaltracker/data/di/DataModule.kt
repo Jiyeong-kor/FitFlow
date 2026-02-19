@@ -17,6 +17,7 @@ import com.jeong.runninggoaltracker.data.repository.WorkoutRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.util.SystemDateProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.jeong.runninggoaltracker.domain.di.IoDispatcher
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
@@ -27,6 +28,7 @@ import com.jeong.runninggoaltracker.domain.usecase.RunningSummaryCalculator
 import com.jeong.runninggoaltracker.domain.usecase.WeeklySummaryCalculator
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import dagger.Binds
+import kotlinx.coroutines.CoroutineDispatcher
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -62,8 +64,10 @@ object DataModule {
 
     @Provides
     @Singleton
-    fun provideDateProvider(@ApplicationContext context: Context): DateProvider =
-        SystemDateProvider(context)
+    fun provideDateProvider(
+        @ApplicationContext context: Context,
+        @IoDispatcher ioDispatcher: CoroutineDispatcher
+    ): DateProvider = SystemDateProvider(context, ioDispatcher)
 
     @Provides
     @Singleton

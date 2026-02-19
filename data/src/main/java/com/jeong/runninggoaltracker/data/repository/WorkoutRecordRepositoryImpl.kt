@@ -16,6 +16,7 @@ import com.jeong.runninggoaltracker.domain.model.WorkoutRecord
 import com.jeong.runninggoaltracker.domain.repository.WorkoutRecordRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -31,6 +32,7 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
         workoutRecordDao.getAllRecords().map { entities ->
             entities.map { entity -> entity.toDomain() }
         }.distinctUntilChanged()
+            .flowOn(ioDispatcher)
 
     override suspend fun upsertRecord(record: WorkoutRecord) {
         withContext(ioDispatcher) {

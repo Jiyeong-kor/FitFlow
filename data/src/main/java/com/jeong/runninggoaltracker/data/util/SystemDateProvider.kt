@@ -10,9 +10,15 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import java.util.Calendar
+import com.jeong.runninggoaltracker.domain.di.IoDispatcher
+import kotlinx.coroutines.CoroutineDispatcher
 
-class SystemDateProvider(private val context: Context) : DateProvider {
+class SystemDateProvider(
+    private val context: Context,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+) : DateProvider {
 
     override fun getToday(): Long = System.currentTimeMillis()
 
@@ -41,6 +47,7 @@ class SystemDateProvider(private val context: Context) : DateProvider {
             appContext.unregisterReceiver(receiver)
         }
     }.distinctUntilChanged()
+        .flowOn(ioDispatcher)
 
     override fun getStartOfWeek(timestamp: Long): Long =
         Calendar.getInstance().apply {
