@@ -11,7 +11,7 @@ class SmartWorkoutTextToSpeechController(context: Context) {
     private val textToSpeech: TextToSpeech = TextToSpeech(context.applicationContext) { status ->
         isReady = status == TextToSpeech.SUCCESS
         if (isReady) {
-            textToSpeech.setLanguage(Locale.KOREAN)
+            textToSpeech.language = Locale.KOREAN
             pendingMessage?.let { message ->
                 pendingMessage = null
                 speakInternal(message)

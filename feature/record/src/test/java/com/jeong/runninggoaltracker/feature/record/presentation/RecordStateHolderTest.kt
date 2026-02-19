@@ -73,7 +73,7 @@ class RecordStateHolderTest {
         override fun getAllRecords(): Flow<List<RunningRecord>> = records
 
         override suspend fun addRecord(record: RunningRecord): Long {
-            records.value = records.value + record
+            records.value += record
             return record.id
         }
     }
