@@ -42,8 +42,6 @@ cameraX = "1.5.3"
 # ML Kit (Pose Detection)
 mlkitPoseDetection = "18.0.0-beta5"
 
-# External SDK
-kakaoSdkUser = "2.23.2"
 
 # Debug Tooling
 leakcanary = "2.14"
@@ -122,8 +120,6 @@ kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-t
 # Serialization
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
-# External SDK
-kakao-sdk-user = { group = "com.kakao.sdk", name = "v2-user", version.ref = "kakaoSdkUser" }
 
 # Debug Tooling
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }

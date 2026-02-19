@@ -6,6 +6,8 @@ import com.jeong.runninggoaltracker.data.local.RunningRecordEntity
 import com.jeong.runninggoaltracker.data.local.RunningRecordDao
 import com.jeong.runninggoaltracker.data.local.RunningReminderDao
 import com.jeong.runninggoaltracker.data.local.RunningReminderEntity
+import com.jeong.runninggoaltracker.data.local.SyncOutboxDao
+import com.jeong.runninggoaltracker.data.local.SyncOutboxEntity
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
@@ -17,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -41,8 +44,11 @@ class RunningRepositoriesImplTest {
         every { currentUser } returns null
     }
     private val firestore = mockk<FirebaseFirestore>(relaxed = true)
+    private val syncOutboxDao = mockk<SyncOutboxDao>(relaxed = true) {
+        coEvery { getPending(any()) } returns emptyList<SyncOutboxEntity>()
+    }
     private val recordRepository =
-        RunningRecordRepositoryImpl(fakeDaos, firebaseAuth, firestore, testDispatcher)
+        RunningRecordRepositoryImpl(fakeDaos, syncOutboxDao, firebaseAuth, firestore, testDispatcher)
     private val goalRepository =
         RunningGoalRepositoryImpl(fakeDaos, firebaseAuth, firestore, testDispatcher)
     private val reminderRepository =
@@ -168,12 +174,14 @@ class RunningRepositoriesImplTest {
             return record.id
         }
 
+
         override fun getGoal(): Flow<RunningGoalEntity?> = goal
 
         override suspend fun upsertGoal(goal: RunningGoalEntity) {
             lastUpsertedGoal = goal
             this.goal.value = goal
         }
+
 
         override fun getAllReminders(): Flow<List<RunningReminderEntity>> = reminders
 
@@ -186,5 +194,11 @@ class RunningRepositoriesImplTest {
             deletedReminderIds += reminderId
             reminders.value = reminders.value.filterNot { it.id == reminderId }
         }
+
+        override suspend fun countAll(): Int = records.value.size +
+                (if (goal.value == null) 0 else 1) + reminders.value.size
+
+        override suspend fun countByDate(dateMillis: Long): Int =
+            records.value.count { it.date == dateMillis }
     }
 }

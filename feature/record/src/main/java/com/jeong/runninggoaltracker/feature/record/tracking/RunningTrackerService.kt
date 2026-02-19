@@ -113,7 +113,7 @@ class RunningTrackerService : Service() {
             return
         }
         isTrackingActive = true
-        stateUpdater.markTracking()
+        stateUpdater.markTracking(startedAtEpochMillis = startTimeMillis ?: AppNumericTokens.ZERO_LONG)
         startLocationUpdates()
         startElapsedUpdater()
     }
@@ -178,7 +178,7 @@ class RunningTrackerService : Service() {
                 val elapsed = dateProvider.getToday() - startMillis
                 val currentDistance =
                     distanceMeters ?: AppNumericTokens.ZERO_DOUBLE
-                stateUpdater.update(currentDistance / metersInKmValue, elapsed)
+                stateUpdater.update(currentDistance / metersInKmValue, elapsed, dateProvider.getToday())
                 handleNotificationUpdate(currentDistance / metersInKmValue, elapsed)
             }
         }
@@ -215,7 +215,7 @@ class RunningTrackerService : Service() {
                 val elapsed = dateProvider.getToday() - startMillis
                 val currentDistance =
                     distanceMeters ?: AppNumericTokens.ZERO_DOUBLE
-                stateUpdater.update(currentDistance / metersInKmValue, elapsed)
+                stateUpdater.update(currentDistance / metersInKmValue, elapsed, dateProvider.getToday())
                 handleNotificationUpdate(currentDistance / metersInKmValue, elapsed)
                 delay(elapsedUpdateIntervalMillis())
             }

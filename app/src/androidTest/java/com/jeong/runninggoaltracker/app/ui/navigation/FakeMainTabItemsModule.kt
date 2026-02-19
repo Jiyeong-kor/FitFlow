@@ -24,12 +24,12 @@ private class FakeMainTabItemsProvider : MainTabItemsProvider {
         MainTab.RECORD to MainTabItem(
             tab = MainTab.RECORD,
             titleResId = MainScreen.fromRoute(MainNavigationRoute.Record)!!.titleResId,
-            icon = BottomTabIcon.RECORD.asImageVector()!!
+            icon = BottomTabIcon.RECORD.asPainter()
         ),
         MainTab.AI_COACH to MainTabItem(
             tab = MainTab.AI_COACH,
             titleResId = MainScreen.fromRoute(MainNavigationRoute.AiCoach)!!.titleResId,
-            icon = BottomTabIcon.AI_COACH.asImageVector()!!
+            icon = BottomTabIcon.AI_COACH.asPainter()
         )
     )
 }

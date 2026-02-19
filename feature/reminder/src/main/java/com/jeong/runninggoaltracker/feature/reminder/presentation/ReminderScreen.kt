@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -52,7 +50,6 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppTypography
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appBackgroundColor
-import com.jeong.runninggoaltracker.shared.designsystem.theme.appOnAccentColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
 import java.util.Calendar
@@ -124,7 +121,6 @@ private fun ReminderListContent(
 ) {
     val accentColor = appAccentColor()
     val backgroundColor = appBackgroundColor()
-    val onAccentColor = appOnAccentColor()
     val textMuted = appTextMutedColor()
     val textPrimary = appTextPrimaryColor()
     val dimensions = LocalAppDimensions.current
@@ -148,13 +144,13 @@ private fun ReminderListContent(
             IconButton(
                 onClick = onAddReminderThrottled,
                 modifier = Modifier
-                    .background(accentColor, LocalAppShapes.current.roundedSm)
+                    .background(MaterialTheme.colorScheme.primaryContainer, LocalAppShapes.current.roundedSm)
                     .size(iconButtonSize)
             ) {
                 Icon(
                     AppIcons.add(),
                     contentDescription = stringResource(R.string.reminder_action_add),
-                    tint = onAccentColor,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(iconSize)
                 )
             }
@@ -323,12 +319,14 @@ private fun ReminderEditContent(
             }
             IconButton(
                 onClick = rememberThrottleClick(onClick = onSaveEdit),
-                modifier = Modifier.size(dimensions.reminderIconButtonSize)
+                modifier = Modifier
+                    .size(dimensions.reminderIconButtonSize)
+                    .background(MaterialTheme.colorScheme.primaryContainer, LocalAppShapes.current.roundedSm)
             ) {
                 Icon(
                     painter = AppIcons.check(),
                     contentDescription = stringResource(R.string.reminder_action_save),
-                    tint = textPrimary,
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
                     modifier = Modifier.size(dimensions.reminderIconSize)
                 )
             }
@@ -425,23 +423,6 @@ private fun ReminderEditContent(
 
             Spacer(modifier = Modifier.height(spacingLg))
 
-            Button(
-                onClick = rememberThrottleClick(onClick = onDeleteEdit),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(dimensions.goalSaveButtonHeight),
-                shape = shapes.roundedLg,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.error,
-                    contentColor = MaterialTheme.colorScheme.onError
-                )
-            ) {
-                Text(
-                    text = stringResource(R.string.reminder_edit_delete_button),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold
-                )
-            }
         }
     }
 

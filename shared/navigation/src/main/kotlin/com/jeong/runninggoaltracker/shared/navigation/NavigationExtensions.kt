@@ -27,6 +27,7 @@ inline fun <reified T : NavigationRoute> NavDestination?.isRouteInHierarchy(): B
 fun NavDestination?.isRouteInHierarchy(route: MainNavigationRoute): Boolean = when (route) {
     MainNavigationRoute.Main -> isRouteInHierarchy<MainNavigationRoute.Main>()
     MainNavigationRoute.Home -> isRouteInHierarchy<MainNavigationRoute.Home>()
+    MainNavigationRoute.HomeActivityLogs -> isRouteInHierarchy<MainNavigationRoute.HomeActivityLogs>()
     MainNavigationRoute.Record -> isRouteInHierarchy<MainNavigationRoute.Record>()
     MainNavigationRoute.AiCoach -> isRouteInHierarchy<MainNavigationRoute.AiCoach>()
     MainNavigationRoute.Goal -> isRouteInHierarchy<MainNavigationRoute.Goal>()

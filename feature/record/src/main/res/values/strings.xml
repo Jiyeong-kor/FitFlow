@@ -14,7 +14,7 @@
     <string name="record_tracking_permission_required">위치/활동 권한이 필요합니다</string>
     <string name="record_unit_kilometers">킬로미터</string>
     <string name="record_metric_time">시간</string>
-    <string name="record_metric_pace">페이스</string>
+    <string name="record_metric_speed">속력</string>
     <string name="record_metric_calories">칼로리</string>
     <string name="record_action_pause">일시정지</string>
     <string name="record_action_start">시작</string>
@@ -25,8 +25,8 @@
     <string name="record_distance_format">%.2f</string>
     <string name="record_elapsed_time_hms_format">%1$d:%2$02d:%3$02d</string>
     <string name="record_elapsed_time_ms_format">%1$02d:%2$02d</string>
-    <string name="record_pace_zero">0\'00\"</string>
-    <string name="record_pace_format">%1$d\'%2$02d\"</string>
+    <string name="record_speed_zero">0.0 km/h</string>
+    <string name="record_speed_format">%.1f km/h</string>
     <string name="record_calories_zero">0</string>
     <string name="record_notification_title">러닝 자동 측정 중</string>
     <string name="record_notification_content">%1$s km · %2$d분 경과</string>

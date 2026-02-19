@@ -15,4 +15,10 @@ interface RunningRecordDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecord(record: RunningRecordEntity): Long
+
+    @Query("SELECT COUNT(*) FROM ${RunningDatabaseContract.TABLE_RUNNING_RECORD}")
+    suspend fun countAll(): Int
+
+    @Query("SELECT COUNT(*) FROM ${RunningDatabaseContract.TABLE_RUNNING_RECORD} WHERE date = :dateMillis")
+    suspend fun countByDate(dateMillis: Long): Int
 }

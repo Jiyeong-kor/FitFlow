@@ -3,6 +3,7 @@ package com.jeong.runninggoaltracker.feature.record.presentation
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
+import com.jeong.runninggoaltracker.domain.usecase.EstimateActivityCaloriesUseCase
 import com.jeong.runninggoaltracker.domain.util.RunningMetricsCalculator
 import com.jeong.runninggoaltracker.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.runninggoaltracker.feature.record.api.RunningTrackerMonitor
@@ -63,7 +64,7 @@ class RecordStateHolderTest {
             getRunningRecordsUseCase = GetRunningRecordsUseCase(repository),
             activityRecognitionMonitor = activityMonitor,
             runningTrackerMonitor = trackerMonitor,
-            uiStateMapper = RecordUiStateMapper(RunningMetricsCalculator())
+            uiStateMapper = RecordUiStateMapper(RunningMetricsCalculator(), EstimateActivityCaloriesUseCase())
         )
 
     private class FakeRunningRecordRepository(

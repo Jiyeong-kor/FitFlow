@@ -11,7 +11,8 @@ data class CalendarMonthState(
 
 data class CalendarDay(
     val dayOfMonth: Int,
-    val timestampMillis: Long
+    val timestampMillis: Long,
+    val hasActivity: Boolean = false
 ) {
     fun isSameDay(otherMillis: Long): Boolean =
         Calendar.getInstance().apply { timeInMillis = timestampMillis }
@@ -44,7 +45,10 @@ class HomeCalendarCalculator @Inject constructor() {
         )
     }
 
-    fun buildCalendarDays(state: CalendarMonthState): List<CalendarDay?> {
+    fun buildCalendarDays(
+        state: CalendarMonthState,
+        activityDayStarts: Set<Long> = emptySet()
+    ): List<CalendarDay?> {
         val calendar = Calendar.getInstance().apply {
             set(Calendar.YEAR, state.year)
             set(Calendar.MONTH, state.month)
@@ -65,10 +69,12 @@ class HomeCalendarCalculator @Inject constructor() {
             repeat(offset) { add(null) }
             for (day in 1..daysInMonth) {
                 calendar.set(Calendar.DAY_OF_MONTH, day)
+                val dayStart = calendar.timeInMillis
                 add(
                     CalendarDay(
                         dayOfMonth = day,
-                        timestampMillis = calendar.timeInMillis
+                        timestampMillis = dayStart,
+                        hasActivity = activityDayStarts.contains(dayStart)
                     )
                 )
             }

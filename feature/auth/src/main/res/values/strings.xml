@@ -11,7 +11,7 @@
     <string name="permission_activity_title">활동 인식</string>
     <string name="permission_activity_description">달리기 시작과 종료를 자동으로 감지해 기록을 정확하게 남기기 위해 필요합니다.</string>
     <string name="permission_location_title">위치</string>
-    <string name="permission_location_description">이동 경로와 거리, 페이스를 측정해 운동 기록을 제공하기 위해 필요합니다.</string>
+    <string name="permission_location_description">이동 경로와 거리, 속력을 측정해 운동 기록을 제공하기 위해 필요합니다.</string>
     <string name="permission_camera_title">카메라</string>
     <string name="permission_camera_description">자세 교정이나 인증샷 저장 등 운동 코칭 기능과 기록을 위해 필요합니다.</string>
     <string name="permission_notification_title">알림</string>
@@ -35,8 +35,6 @@
     <string name="privacy_policy_agreement_link">개인정보처리방침</string>
     <string name="privacy_policy_agreement_suffix">에 동의합니다.</string>
     <string name="privacy_policy_agreement_full">개인정보처리방침에 동의합니다.</string>
-    <string name="kakao_login_button_text">카카오로 계속하기</string>
-    <string name="kakao_login_error">카카오 로그인에 실패했습니다. 다시 시도해 주세요.</string>
     <string name="anonymous_sign_in_error">익명 로그인에 실패했습니다. 다시 시도해 주세요.</string>
     <string name="auth_permission_denied_error">권한이 없어 요청을 처리할 수 없습니다. 다시 시도해 주세요.</string>
     <string name="auth_network_error">네트워크 오류로 요청을 처리할 수 없습니다. 연결 상태를 확인해 주세요.</string>

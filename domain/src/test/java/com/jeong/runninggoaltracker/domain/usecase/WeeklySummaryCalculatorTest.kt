@@ -2,6 +2,7 @@ package com.jeong.runninggoaltracker.domain.usecase
 
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
+import com.jeong.runninggoaltracker.domain.contract.RunningTimeContract
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -34,6 +35,30 @@ class WeeklySummaryCalculatorTest {
         assertEquals(7.0, summary.totalThisWeekKm, 0.0)
         assertEquals(2, summary.recordCountThisWeek)
         assertEquals(0.7f, summary.progress, 0.0001f)
+    }
+
+
+    @Test
+    fun calculateExcludesRecordsOutsideCurrentWeekUpperBound() {
+        val goal = RunningGoal(weeklyGoalKm = 20.0)
+        val recordInWeek =
+            RunningRecord(id = 1L, date = 1200L, distanceKm = 5.0, durationMinutes = 30)
+        val farFutureRecord = RunningRecord(
+            id = 2L,
+            date = 1000L + (RunningTimeContract.MILLIS_PER_DAY * 8),
+            distanceKm = 12.0,
+            durationMinutes = 70
+        )
+
+        val summary = calculator.calculate(
+            goal = goal,
+            records = listOf(recordInWeek, farFutureRecord),
+            todayMillis = 1600L
+        )
+
+        assertEquals(5.0, summary.totalThisWeekKm, 0.0)
+        assertEquals(1, summary.recordCountThisWeek)
+        assertEquals(0.25f, summary.progress, 0.0001f)
     }
 
     @Test

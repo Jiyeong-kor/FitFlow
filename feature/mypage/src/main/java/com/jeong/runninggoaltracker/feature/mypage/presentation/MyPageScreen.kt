@@ -13,7 +13,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -254,7 +253,7 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
                 painter = AppIcons.person(),
                 contentDescription = null,
                 modifier = Modifier.padding(dimensions.myPageProfileIconPadding),
-                tint = MaterialTheme.colorScheme.primary
+                tint = MaterialTheme.colorScheme.onPrimary
             )
         }
         Row(
@@ -278,7 +277,7 @@ private fun ProfileSection(name: String?, level: String?, isAnonymous: Boolean) 
                             vertical = appSpacingSm()
                         ),
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
                 }
             }
@@ -371,12 +370,13 @@ private fun StatItem(label: String, value: String, modifier: Modifier = Modifier
         ) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.outline
             )
+            Spacer(modifier = Modifier.size(appSpacingSm()))
             Text(
                 text = value,
-                style = MaterialTheme.typography.bodyMedium,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
         }
@@ -420,7 +420,7 @@ private fun SettingsList(
 ) {
     val dimensions = LocalAppDimensions.current
     AppContentCard(modifier = Modifier.fillMaxWidth()) {
-        Column {
+        Column(verticalArrangement = Arrangement.spacedBy(appSpacingSm())) {
             val activityToggleLabel = stringResource(id = R.string.mypage_setting_activity_toggle)
             SettingItem(
                 icon = AppIcons::notifications,
@@ -428,23 +428,11 @@ private fun SettingsList(
                 subTitle = stringResource(id = R.string.mypage_setting_notification_desc),
                 onClick = onNavigateToReminder
             )
-            HorizontalDivider(
-                modifier = Modifier.padding(
-                    horizontal = dimensions.myPageDividerHorizontalPadding
-                ),
-                color = MaterialTheme.colorScheme.surfaceVariant
-            )
             SettingItem(
                 icon = AppIcons::edit,
                 title = stringResource(id = R.string.mypage_setting_goal_title),
                 subTitle = stringResource(id = R.string.mypage_setting_goal_desc),
                 onClick = onNavigateToGoal
-            )
-            HorizontalDivider(
-                modifier = Modifier.padding(
-                    horizontal = dimensions.myPageDividerHorizontalPadding
-                ),
-                color = MaterialTheme.colorScheme.surfaceVariant
             )
             SettingItem(
                 icon = AppIcons::description,
@@ -452,46 +440,42 @@ private fun SettingsList(
                 subTitle = stringResource(id = R.string.mypage_setting_privacy_policy_desc),
                 onClick = onNavigateToPrivacyPolicy
             )
-            HorizontalDivider(
-                modifier = Modifier.padding(
-                    horizontal = dimensions.myPageDividerHorizontalPadding
-                ),
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.surfaceVariant
-            )
-            Row(
-                modifier = Modifier.padding(dimensions.myPageSettingRowPadding),
-                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(AppIcons.refresh(), null, tint = MaterialTheme.colorScheme.primary)
-                Column(
-                    modifier = Modifier
-                        .padding(start = dimensions.myPageSettingTitleSpacing)
-                        .weight(MYPAGE_WEIGHT_ONE)
+                Row(
+                    modifier = Modifier.padding(dimensions.myPageSettingRowPadding),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = stringResource(id = R.string.mypage_setting_activity_title),
-                        style = MaterialTheme.typography.bodyLarge
-                    )
-                    Text(
-                        text = stringResource(id = R.string.mypage_setting_activity_desc),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.outline
+                    Icon(AppIcons.refresh(), null, tint = MaterialTheme.colorScheme.primary)
+                    Column(
+                        modifier = Modifier
+                            .padding(start = dimensions.myPageSettingTitleSpacing)
+                            .weight(MYPAGE_WEIGHT_ONE)
+                    ) {
+                        Text(
+                            text = stringResource(id = R.string.mypage_setting_activity_title),
+                            style = MaterialTheme.typography.bodyLarge
+                        )
+                        Text(
+                            text = stringResource(id = R.string.mypage_setting_activity_desc),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.outline
+                        )
+                    }
+                    Switch(
+                        checked = uiState.isActivityRecognitionEnabled,
+                        onCheckedChange = { enabled ->
+                            onActivityToggle(enabled)
+                        },
+                        modifier = Modifier.semantics {
+                            contentDescription = activityToggleLabel
+                        }
                     )
                 }
-                Switch(
-                    checked = uiState.isActivityRecognitionEnabled,
-                    onCheckedChange = { enabled ->
-                        onActivityToggle(enabled)
-                    },
-                    modifier = Modifier.semantics {
-                        contentDescription = activityToggleLabel
-                    }
-                )
             }
-            HorizontalDivider(
-                modifier = Modifier.padding(horizontal = appSpacingLg()),
-                color = MaterialTheme.colorScheme.surfaceVariant
-            )
             SettingItem(
                 icon = AppIcons::delete,
                 title = stringResource(id = R.string.mypage_setting_delete_account_title),
@@ -515,7 +499,9 @@ private fun SettingItem(
         modifier = Modifier
             .fillMaxWidth()
             .semantics(mergeDescendants = true) { role = Role.Button }
-            .throttleClick(onClick = onClick)
+            .throttleClick(onClick = onClick),
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surfaceVariant
     ) {
         Row(
             modifier = Modifier.padding(dimensions.myPageSettingRowPadding),
@@ -526,7 +512,7 @@ private fun SettingItem(
                 Text(title, style = MaterialTheme.typography.bodyLarge)
                 Text(
                     subTitle,
-                    style = MaterialTheme.typography.bodySmall,
+                    style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.outline
                 )
             }

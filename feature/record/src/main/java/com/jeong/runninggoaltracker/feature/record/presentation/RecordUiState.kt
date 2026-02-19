@@ -24,5 +24,6 @@ data class RecordUiState(
     val elapsedMillis: Long = 0L,
     val elapsedTime: RecordElapsedTimeUiState = RecordElapsedTimeUiState(),
     val pace: RecordPaceUiState = RecordPaceUiState(),
+    val calories: Int = 0,
     val isPermissionRequired: Boolean = false
 )

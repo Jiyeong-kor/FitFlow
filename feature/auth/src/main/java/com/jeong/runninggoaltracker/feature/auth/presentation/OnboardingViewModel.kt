@@ -51,15 +51,13 @@ class OnboardingViewModel @Inject constructor(
     fun onContinueWithNickname() {
         val nickname = _uiState.value.nickname
         val authProvider = _uiState.value.authProvider
-        val kakaoOidcSub = _uiState.value.kakaoOidcSub
         viewModelScope.launch {
             _uiState.update { currentState ->
                 uiStateMapper.applyLoadingStart(currentState)
             }
             val result = onboardingWorkflow.continueWithNickname(
                 nickname = nickname,
-                authProvider = authProvider,
-                kakaoOidcSub = kakaoOidcSub
+                authProvider = authProvider
             )
             _uiState.update { currentState ->
                 uiStateMapper.applyContinueResult(currentState, result)
@@ -96,15 +94,4 @@ class OnboardingViewModel @Inject constructor(
         }
     }
 
-    fun onKakaoLoginClicked() {
-        viewModelScope.launch {
-            _uiState.update { currentState ->
-                uiStateMapper.applyLoadingStart(currentState)
-            }
-            val result = onboardingWorkflow.startKakaoSession()
-            _uiState.update { currentState ->
-                uiStateMapper.applyAuthChoiceResult(currentState, result)
-            }
-        }
-    }
 }

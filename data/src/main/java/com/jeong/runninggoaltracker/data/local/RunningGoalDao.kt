@@ -15,4 +15,7 @@ interface RunningGoalDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertGoal(goal: RunningGoalEntity)
+
+    @Query("SELECT COUNT(*) FROM ${RunningDatabaseContract.TABLE_RUNNING_GOAL}")
+    suspend fun countAll(): Int
 }

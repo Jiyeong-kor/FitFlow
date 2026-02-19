@@ -9,38 +9,6 @@ import org.junit.Test
 
 class HomeUiFormatterTest {
     @Test
-    fun paceTextReturnsFormattedArgsWhenAvailable() {
-        val text = HomeUiFormatter.paceText(
-            pace = HomePaceUiState(
-                minutes = 5,
-                seconds = 30,
-                isAvailable = true
-            ),
-            formatResId = R.string.home_pace_format,
-            placeholderResId = R.string.home_pace_placeholder
-        )
-
-        assertEquals(R.string.home_pace_format, text.resId)
-        assertEquals(listOf(5, 30), text.formatArgs)
-    }
-
-    @Test
-    fun paceTextReturnsPlaceholderWhenUnavailable() {
-        val text = HomeUiFormatter.paceText(
-            pace = HomePaceUiState(
-                minutes = 0,
-                seconds = 0,
-                isAvailable = false
-            ),
-            formatResId = R.string.home_pace_format,
-            placeholderResId = R.string.home_pace_placeholder
-        )
-
-        assertEquals(R.string.home_pace_placeholder, text.resId)
-        assertEquals(emptyList<Any>(), text.formatArgs)
-    }
-
-    @Test
     fun periodLabelTextFormatsDailyRangeAndMonth() {
         val originalTimeZone = TimeZone.getDefault()
         TimeZone.setDefault(TimeZone.getTimeZone("UTC"))

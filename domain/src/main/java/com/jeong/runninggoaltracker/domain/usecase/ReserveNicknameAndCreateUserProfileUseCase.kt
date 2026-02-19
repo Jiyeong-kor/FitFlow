@@ -10,12 +10,10 @@ class ReserveNicknameAndCreateUserProfileUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         nickname: String,
-        authProvider: AuthProvider,
-        kakaoOidcSub: String?
+        authProvider: AuthProvider
     ): AuthResult<Unit> =
         repository.reserveNicknameAndCreateUserProfile(
             nickname = nickname,
-            authProvider = authProvider,
-            kakaoOidcSub = kakaoOidcSub
+            authProvider = authProvider
         )
 }

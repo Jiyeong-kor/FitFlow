@@ -28,11 +28,8 @@ class DefaultSpeechCoordinator @Inject constructor() : SpeechCoordinator {
         exerciseType: ExerciseType,
         timestampMs: Long
     ): SpeechFeedbackResult? {
-        if (feedbackEventKey == null) {
-            return null
-        }
+        val key = feedbackEventKey ?: feedbackType.name
         val lastType = lastSpokenType
-        val key = feedbackEventKey
         val isChanged = lastType != feedbackType || lastSpokenKey != key
         val elapsedMs = timestampMs - lastSpokenTimestampMs
         val shouldEmit = if (exerciseType == ExerciseType.LUNGE && !isChanged) {

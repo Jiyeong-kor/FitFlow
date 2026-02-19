@@ -20,9 +20,10 @@ class RecordStateHolder(
     val uiState: StateFlow<RecordUiState> = combine(
         getRunningRecordsUseCase(),
         activityRecognitionMonitor.activityState,
-        runningTrackerMonitor.trackerState
-    ) { records, activity, tracker ->
-        uiStateMapper.map(records, activity, tracker)
+        runningTrackerMonitor.trackerState,
+        activityRecognitionMonitor.activityLogs
+    ) { records, activity, tracker, logs ->
+        uiStateMapper.map(records, activity, tracker, logs)
     }.stateIn(
         scope = scope,
         started = SharingStarted.Eagerly,

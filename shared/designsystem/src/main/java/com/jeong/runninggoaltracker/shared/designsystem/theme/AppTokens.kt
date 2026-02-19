@@ -24,8 +24,6 @@ fun appTextPrimaryColor(): Color = MaterialTheme.colorScheme.onSurface
 @Composable
 fun appTextMutedColor(): Color = MaterialTheme.colorScheme.onSurfaceVariant
 
-@Composable
-fun appKakaoYellow(): Color = kakaoYellow
 
 @Composable
 fun appBrandGradient(): Brush = Brush.linearGradient(

@@ -18,4 +18,7 @@ interface RunningReminderDao {
 
     @Query(RunningDatabaseContract.QUERY_DELETE_REMINDER)
     suspend fun deleteReminder(reminderId: Int)
+
+    @Query("SELECT COUNT(*) FROM ${RunningDatabaseContract.TABLE_RUNNING_REMINDER}")
+    suspend fun countAll(): Int
 }

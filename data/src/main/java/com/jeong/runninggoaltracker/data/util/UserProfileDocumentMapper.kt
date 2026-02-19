@@ -8,8 +8,7 @@ data class UserProfileDocumentPayload(
     val nickname: String,
     val createdAt: Timestamp,
     val lastActiveAt: Timestamp,
-    val authProvider: AuthProvider,
-    val kakaoOidcSub: String?
+    val authProvider: AuthProvider
 )
 
 fun UserProfileDocumentPayload.toFirestoreMap(): Map<String, Any> {
@@ -19,8 +18,5 @@ fun UserProfileDocumentPayload.toFirestoreMap(): Map<String, Any> {
         UserFirestoreFields.LAST_ACTIVE_AT to lastActiveAt,
         UserFirestoreFields.AUTH_PROVIDER to authProvider.rawValue
     )
-    if (authProvider == AuthProvider.KAKAO && !kakaoOidcSub.isNullOrBlank()) {
-        data[UserFirestoreFields.KAKAO_OIDC_SUB] = kakaoOidcSub
-    }
     return data
 }

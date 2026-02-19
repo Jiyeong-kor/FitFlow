@@ -19,7 +19,7 @@ class HomeScreenNavigationTest {
     val composeRule = createComposeRule()
 
     @Test
-    fun viewAllClickInvokesRecordCallback() {
+    fun viewAllClickInvokesActivityLogsCallback() {
         val calendarCalculator = HomeCalendarCalculator()
         val calendarMonthState = calendarCalculator.monthStateFromMillis(0L)
         val uiState = HomeUiState(
@@ -27,7 +27,7 @@ class HomeScreenNavigationTest {
             calendarMonthState = calendarMonthState,
             weeklyRange = HomeWeeklyRange(startMillis = 0L, endMillis = 0L)
         )
-        var recordClicks = 0
+        var viewAllClicks = 0
 
         composeRule.setContent {
             RunningGoalTrackerTheme {
@@ -41,9 +41,9 @@ class HomeScreenNavigationTest {
                     onCalendarDismiss = {},
                     onCalendarPreviousMonth = {},
                     onCalendarNextMonth = {},
-                    onRecordClick = { recordClicks += 1 },
                     onGoalClick = {},
-                    onReminderClick = {}
+                    onReminderClick = {},
+                    onViewAllActivitiesClick = { viewAllClicks += 1 }
                 )
             }
         }
@@ -53,7 +53,7 @@ class HomeScreenNavigationTest {
             .performClick()
 
         composeRule.runOnIdle {
-            assertEquals(1, recordClicks)
+            assertEquals(1, viewAllClicks)
         }
     }
 }

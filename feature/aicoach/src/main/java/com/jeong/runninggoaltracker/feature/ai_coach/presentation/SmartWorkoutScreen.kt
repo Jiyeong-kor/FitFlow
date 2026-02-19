@@ -21,7 +21,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -48,13 +47,9 @@ import androidx.core.content.ContextCompat
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ONE
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_TWO
 import com.jeong.runninggoaltracker.domain.contract.SQUAT_FLOAT_ZERO
-import com.jeong.runninggoaltracker.domain.contract.SQUAT_MILLIS_PER_SECOND
 import com.jeong.runninggoaltracker.domain.model.ExerciseType
 import com.jeong.runninggoaltracker.domain.model.PoseFrame
 import com.jeong.runninggoaltracker.domain.model.PoseLandmarkType
-import com.jeong.runninggoaltracker.domain.model.PoseSide
-import com.jeong.runninggoaltracker.domain.model.SquatPhase
-import com.jeong.runninggoaltracker.feature.ai_coach.BuildConfig
 import com.jeong.runninggoaltracker.feature.ai_coach.R
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SMART_WORKOUT_ACCURACY_PERCENT_MULTIPLIER
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutAnimationContract
@@ -86,7 +81,6 @@ fun SmartWorkoutScreen(
     uiState: SmartWorkoutUiState,
     imageAnalyzer: ImageAnalysis.Analyzer,
     onBack: () -> Unit,
-    onToggleDebugOverlay: () -> Unit,
     onExerciseTypeChange: (ExerciseType) -> Unit
 ) {
     val accentColor = appAccentColor()
@@ -99,8 +93,6 @@ fun SmartWorkoutScreen(
     val accuracyLabelTextStyle = MaterialTheme.typography.labelSmall
     val accuracyMultiplier = SMART_WORKOUT_ACCURACY_PERCENT_MULTIPLIER
     val onBackClick = rememberThrottleClick(onClick = onBack)
-    val onToggleDebugOverlayClick = rememberThrottleClick(onClick = onToggleDebugOverlay)
-    val debugToggleLabel = stringResource(R.string.smart_workout_debug_toggle)
     val cardTone =
         if (uiState.isPerfectForm) AppSurfaceCardTone.Emphasized else AppSurfaceCardTone.Default
     val accuracyProgress by animateFloatAsState(
@@ -114,11 +106,13 @@ fun SmartWorkoutScreen(
             modifier = Modifier.fillMaxSize()
         )
 
-        SkeletonOverlay(
-            poseFrame = uiState.poseFrame,
-            strokeColor = accentColor,
-            modifier = Modifier.fillMaxSize()
-        )
+        if (shouldShowLandmarkOverlay(uiState.exerciseType)) {
+            SkeletonOverlay(
+                poseFrame = uiState.poseFrame,
+                strokeColor = accentColor,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
 
         Row(
             modifier = Modifier
@@ -150,32 +144,6 @@ fun SmartWorkoutScreen(
             Box(modifier = Modifier.width(appSpacing2xl()))
         }
 
-        if (BuildConfig.DEBUG) {
-            Row(
-                modifier = Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(
-                        end = appSpacingLg(),
-                        top = appSpacingXl()
-                    ),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(appSpacingSm())
-            ) {
-                Text(
-                    text = debugToggleLabel,
-                    color = textMuted,
-                    style = accuracyLabelTextStyle
-                )
-                Switch(
-                    checked = uiState.overlayMode != DebugOverlayMode.OFF,
-                    onCheckedChange = { onToggleDebugOverlayClick() },
-                    modifier = Modifier.semantics {
-                        contentDescription = debugToggleLabel
-                    }
-                )
-            }
-        }
-
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
@@ -188,325 +156,6 @@ fun SmartWorkoutScreen(
                 fontStyle = FontStyle.Italic,
                 fontWeight = FontWeight.Black
             )
-        }
-
-        if (BuildConfig.DEBUG && uiState.overlayMode == DebugOverlayMode.LUNGE) {
-            LungeDebugOverlay(
-                debugInfo = uiState.lungeDebugInfo,
-                snapshot = uiState.lastLungeRepSnapshot,
-                frameMetrics = uiState.frameMetrics,
-                modifier = Modifier
-                    .align(Alignment.TopStart)
-                    .padding(
-                        horizontal = appSpacingLg(),
-                        vertical = appSpacingLg()
-                    )
-            )
-        }
-
-        if (BuildConfig.DEBUG && uiState.overlayMode == DebugOverlayMode.GENERAL) {
-            uiState.frameMetrics?.let { metrics ->
-                val phaseText = when (metrics.phase) {
-                    SquatPhase.UP -> stringResource(R.string.smart_workout_phase_up)
-                    SquatPhase.DOWN -> stringResource(R.string.smart_workout_phase_down)
-                }
-                val sideText = when (metrics.side) {
-                    PoseSide.LEFT -> stringResource(R.string.smart_workout_side_left)
-                    PoseSide.RIGHT -> stringResource(R.string.smart_workout_side_right)
-                }
-                val lockText = if (metrics.isSideLocked) {
-                    stringResource(R.string.smart_workout_debug_lock_true)
-                } else {
-                    stringResource(R.string.smart_workout_debug_lock_false)
-                }
-                val reliableText = if (metrics.isLandmarkReliable) {
-                    stringResource(R.string.smart_workout_reliable_true)
-                } else {
-                    stringResource(R.string.smart_workout_reliable_false)
-                }
-                val attemptActiveText = if (metrics.isAttemptActive) {
-                    stringResource(R.string.smart_workout_debug_on)
-                } else {
-                    stringResource(R.string.smart_workout_debug_off)
-                }
-                val depthReachedText = if (metrics.isDepthReached) {
-                    stringResource(R.string.smart_workout_debug_on)
-                } else {
-                    stringResource(R.string.smart_workout_debug_off)
-                }
-                val fullBodyVisibleText = if (metrics.isFullBodyVisible) {
-                    stringResource(R.string.smart_workout_debug_on)
-                } else {
-                    stringResource(R.string.smart_workout_debug_off)
-                }
-                val invisibleDurationSec =
-                    metrics.fullBodyInvisibleDurationMs.toFloat() / SQUAT_MILLIS_PER_SECOND
-                val frontCameraText = if (metrics.isFrontCamera) {
-                    stringResource(R.string.smart_workout_debug_on)
-                } else {
-                    stringResource(R.string.smart_workout_debug_off)
-                }
-                val mirroringText = if (metrics.isMirroringApplied) {
-                    stringResource(R.string.smart_workout_debug_on)
-                } else {
-                    stringResource(R.string.smart_workout_debug_off)
-                }
-                val cameraTiltText = if (metrics.isCameraTiltSuspected) {
-                    stringResource(R.string.smart_workout_debug_on)
-                } else {
-                    stringResource(R.string.smart_workout_debug_off)
-                }
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(
-                            horizontal = appSpacingLg(),
-                            vertical = appSpacingXl()
-                        ),
-                    verticalArrangement = Arrangement.spacedBy(appSpacingSm())
-                ) {
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_knee_angle_raw,
-                            metrics.kneeAngleRaw
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_knee_angle_ema,
-                            metrics.kneeAngleEma
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_trunk_tilt_raw,
-                            metrics.trunkTiltVerticalAngleRaw
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_trunk_tilt_ema,
-                            metrics.trunkTiltVerticalAngleEma
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_trunk_to_thigh_raw,
-                            metrics.trunkToThighAngleRaw
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_trunk_to_thigh_ema,
-                            metrics.trunkToThighAngleEma
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_rep_min_knee,
-                            metrics.repMinKneeAngle
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_rep_trunk_to_thigh_min,
-                            metrics.repMinTrunkToThighAngle
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_rep_trunk_tilt_max,
-                            metrics.repMaxTrunkTiltVerticalAngle
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_phase,
-                            phaseText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_side,
-                            sideText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_lock_state,
-                            lockText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_up_threshold,
-                            metrics.upThreshold
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_down_threshold,
-                            metrics.downThreshold
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_up_frames,
-                            metrics.upFramesRequired
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_down_frames,
-                            metrics.downFramesRequired
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_up_frames_count,
-                            metrics.upCandidateFrames
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_down_frames_count,
-                            metrics.downCandidateFrames
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_left_confidence,
-                            metrics.leftConfidenceSum
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_right_confidence,
-                            metrics.rightConfidenceSum
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_attempt_active,
-                            attemptActiveText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_depth_reached,
-                            depthReachedText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_attempt_knee_min,
-                            metrics.attemptMinKneeAngle
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_full_body_visible,
-                            fullBodyVisibleText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_invisible_duration,
-                            invisibleDurationSec
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_rotation,
-                            metrics.rotationDegrees
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_front_camera,
-                            frontCameraText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_mirroring,
-                            mirroringText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_camera_tilt,
-                            cameraTiltText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                    Text(
-                        text = stringResource(
-                            R.string.smart_workout_debug_reliable,
-                            reliableText
-                        ),
-                        color = textMuted,
-                        style = accuracyLabelTextStyle
-                    )
-                }
-            }
         }
 
         AppSurfaceCard(
@@ -750,6 +399,9 @@ private class CameraBindingState {
     var analysis: ImageAnalysis? = null
 }
 
+internal fun shouldShowLandmarkOverlay(exerciseType: ExerciseType): Boolean =
+    exerciseType == ExerciseType.PUSH_UP
+
 @Composable
 private fun exerciseTypeLabel(type: ExerciseType): String = when (type) {
     ExerciseType.SQUAT -> stringResource(R.string.smart_workout_exercise_squat)
@@ -776,7 +428,6 @@ private fun SmartWorkoutScreenPreview() {
             uiState = SmartWorkoutUiState(),
             imageAnalyzer = { image -> image.close() },
             onBack = {},
-            onToggleDebugOverlay = {},
             onExerciseTypeChange = {},
         )
     }

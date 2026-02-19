@@ -34,6 +34,7 @@ import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -106,9 +107,9 @@ fun HomeScreen(
     onCalendarDismiss: () -> Unit,
     onCalendarPreviousMonth: () -> Unit,
     onCalendarNextMonth: () -> Unit,
-    onRecordClick: () -> Unit,
     onGoalClick: () -> Unit,
-    onReminderClick: () -> Unit
+    onReminderClick: () -> Unit,
+    onViewAllActivitiesClick: () -> Unit
 ) {
     val locale = LocalConfiguration.current.locales[0]
     val distanceFormatter = remember(locale) {
@@ -135,7 +136,6 @@ fun HomeScreen(
         stringResource(R.string.home_goal_summary_value, formattedDistance)
     } ?: stringResource(R.string.home_goal_summary_description)
 
-    val onRecordClickThrottled = rememberThrottleClick(onClick = onRecordClick)
     val onGoalClickThrottled = rememberThrottleClick(onClick = onGoalClick)
     val onReminderClickThrottled = rememberThrottleClick(onClick = onReminderClick)
     val onCalendarClickThrottled = rememberThrottleClick(onClick = onCalendarOpen)
@@ -209,7 +209,7 @@ fun HomeScreen(
         item {
             SectionHeader(
                 titleResId = R.string.home_section_activity_log,
-                onViewAllClick = onRecordClickThrottled
+                onViewAllClick = onViewAllActivitiesClick
             )
         }
 
@@ -223,7 +223,11 @@ fun HomeScreen(
                 )
             }
         } else {
-            items(uiState.activityLogs, key = { it.id }) { activity ->
+            val visibleActivityLogs = uiState.activityLogs.take(5)
+            items(
+                items = visibleActivityLogs,
+                key = { activity -> "${activity.id}-${activity.timestamp}-${activity.type}" }
+            ) { activity ->
                 ActivityLogRow(activity = activity)
             }
         }
@@ -360,16 +364,45 @@ private fun SummaryCard(
                 color = textMuted,
                 style = MaterialTheme.typography.bodySmall
             )
-            Text(
-                text = stringResource(R.string.home_distance_value_format, summary.totalDistanceKm),
-                color = textPrimary,
-                style = typographyTokens.numericTitleLarge
-            )
-            Text(
-                text = stringResource(R.string.home_distance_unit_label),
-                color = textMuted,
-                style = MaterialTheme.typography.labelSmall
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(
+                    verticalAlignment = Alignment.Bottom,
+                    horizontalArrangement = Arrangement.spacedBy(appSpacingSm())
+                ) {
+                    Text(
+                        text = stringResource(R.string.home_distance_value_format, summary.totalDistanceKm),
+                        color = textPrimary,
+                        style = typographyTokens.numericTitleLarge
+                    )
+                    Text(
+                        text = stringResource(R.string.home_distance_unit_label),
+                        color = textMuted,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = stringResource(
+                            R.string.home_summary_squat_count,
+                            summary.totalSquatCount
+                        ),
+                        color = textMuted,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                    Text(
+                        text = stringResource(
+                            R.string.home_summary_lunge_count,
+                            summary.totalLungeCount
+                        ),
+                        color = textMuted,
+                        style = MaterialTheme.typography.labelSmall
+                    )
+                }
+            }
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -394,8 +427,11 @@ private fun SummaryCard(
                     textPrimary = textPrimary
                 )
                 SummaryMetricItem(
-                    labelResId = R.string.home_metric_avg_pace,
-                    value = paceLabel(summary.averagePace),
+                    labelResId = R.string.home_metric_avg_speed,
+                    value = speedLabel(
+                        distanceKm = summary.totalDistanceKm,
+                        durationMinutes = summary.totalDurationMinutes
+                    ),
                     accentColor = accentColor,
                     textPrimary = textPrimary
                 )
@@ -449,10 +485,10 @@ private fun ActivityLogRow(
     val dimensions = LocalAppDimensions.current
     val shapes = LocalAppShapes.current
     val weightOne = HOME_WEIGHT_ONE
-    val icon = when (activity.type) {
-        HomeWorkoutType.RUNNING -> AppIcons::directionsRun
-        HomeWorkoutType.SQUAT -> AppIcons::fitnessCenter
-        HomeWorkoutType.LUNGE -> AppIcons::directionsWalk
+    val iconPainter = when (activity.type) {
+        HomeWorkoutType.RUNNING -> AppIcons.directionsRun()
+        HomeWorkoutType.SQUAT -> AppIcons.fitnessCenter()
+        HomeWorkoutType.LUNGE -> AppIcons.directionsWalk()
     }
     val dateLabel = activityDateLabel(activity.timestamp)
     val distanceLabel = when (activity.type) {
@@ -494,28 +530,34 @@ private fun ActivityLogRow(
             contentAlignment = Alignment.Center
         ) {
             Icon(
-                painter = icon(),
+                painter = iconPainter,
                 contentDescription = null,
                 tint = textMuted
             )
         }
         Column(modifier = Modifier.weight(weightOne)) {
+            val titleText = stringResource(
+                R.string.home_activity_title_format,
+                stringResource(activityTypeLabelRes(activity.type)),
+                distanceLabel
+            )
+            val subtitleText = if (activity.type == HomeWorkoutType.RUNNING) {
+                stringResource(
+                    R.string.home_activity_subtitle_format,
+                    dateLabel,
+                    durationLabel
+                )
+            } else {
+                dateLabel
+            }
             Text(
-                text = stringResource(
-                    R.string.home_activity_title_format,
-                    distanceLabel,
-                    stringResource(activityTypeLabelRes(activity.type))
-                ),
+                text = titleText,
                 color = textPrimary,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.SemiBold
             )
             Text(
-                text = stringResource(
-                    R.string.home_activity_subtitle_format,
-                    dateLabel,
-                    durationLabel
-                ),
+                text = subtitleText,
                 color = textMuted,
                 style = MaterialTheme.typography.bodySmall
             )
@@ -585,6 +627,7 @@ private fun CalendarBottomSheet(
     val accentColor = appAccentColor()
     val onAccentColor = appOnAccentColor()
     val dimensions = LocalAppDimensions.current
+    val homeCalendarDotSize = dimensions.spacingXs
     val weightOne = HOME_WEIGHT_ONE
     val calendarColumnCount = HOME_CALENDAR_COLUMN_COUNT
     val onPreviousMonthClickThrottled = rememberThrottleClick(onClick = onPreviousMonth)
@@ -688,11 +731,28 @@ private fun CalendarBottomSheet(
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
-                            Text(
-                                text = day.dayOfMonth.toString(),
-                                color = if (isSelected) onAccentColor else textPrimary,
-                                style = MaterialTheme.typography.labelMedium
-                            )
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(appSpacingSm())
+                            ) {
+                                Text(
+                                    text = day.dayOfMonth.toString(),
+                                    color = if (isSelected) onAccentColor else textPrimary,
+                                    style = MaterialTheme.typography.labelMedium
+                                )
+                                Box(
+                                    modifier = Modifier
+                                        .size(homeCalendarDotSize)
+                                        .background(
+                                            color = if (day.hasActivity) {
+                                                if (isSelected) onAccentColor else accentColor
+                                            } else {
+                                                accentColor.copy(alpha = 0f)
+                                            },
+                                            shape = CircleShape
+                                        )
+                                )
+                            }
                         }
                     }
                 }
@@ -728,17 +788,12 @@ private fun periodLabel(
 }
 
 @Composable
-private fun paceLabel(pace: HomePaceUiState): String {
-    val paceText = HomeUiFormatter.paceText(
-        pace = pace,
-        formatResId = R.string.home_pace_format,
-        placeholderResId = R.string.home_pace_placeholder
-    )
-    return if (paceText.formatArgs.isEmpty()) {
-        stringResource(paceText.resId)
-    } else {
-        stringResource(paceText.resId, *paceText.formatArgs.toTypedArray())
+private fun speedLabel(distanceKm: Double, durationMinutes: Int): String {
+    if (distanceKm <= 0.0 || durationMinutes <= 0) {
+        return stringResource(R.string.home_speed_placeholder)
     }
+    val speedKmPerHour = distanceKm / (durationMinutes / 60.0)
+    return stringResource(R.string.home_speed_format, speedKmPerHour)
 }
 
 @Composable
@@ -839,9 +894,9 @@ private fun HomeScreenPreview() {
             onCalendarDismiss = {},
             onCalendarPreviousMonth = {},
             onCalendarNextMonth = {},
-            onRecordClick = {},
             onGoalClick = {},
-            onReminderClick = {}
+            onReminderClick = {},
+            onViewAllActivitiesClick = {}
         )
     }
 }

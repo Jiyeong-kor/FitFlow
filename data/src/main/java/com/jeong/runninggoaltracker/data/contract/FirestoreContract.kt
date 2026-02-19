@@ -5,7 +5,6 @@ object UserFirestoreFields {
     const val CREATED_AT = "createdAt"
     const val LAST_ACTIVE_AT = "lastActiveAt"
     const val AUTH_PROVIDER = "authProvider"
-    const val KAKAO_OIDC_SUB = "kakaoOidcSub"
 }
 
 object UsernameFirestoreFields {
@@ -23,7 +22,6 @@ object FirestorePaths {
     const val COLLECTION_RUNNING_REMINDERS = "runningReminders"
     const val COLLECTION_WORKOUT_RECORDS = "workoutRecords"
     const val DOC_RUNNING_GOAL = "default"
-    const val FUNCTION_KAKAO_OIDC_EXCHANGE = "exchangeKakaoOidcToken"
 }
 
 object RunningRecordFirestoreFields {
@@ -47,10 +45,4 @@ object WorkoutRecordFirestoreFields {
 
 object RunningGoalFirestoreFields {
     const val WEEKLY_GOAL_KM = "weeklyGoalKm"
-}
-
-object KakaoOidcExchangeFields {
-    const val ID_TOKEN = "idToken"
-    const val CUSTOM_TOKEN = "customToken"
-    const val KAKAO_OIDC_SUB = "kakaoOidcSub"
 }

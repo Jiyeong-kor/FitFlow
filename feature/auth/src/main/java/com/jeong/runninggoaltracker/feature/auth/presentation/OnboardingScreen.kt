@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -37,7 +36,6 @@ import androidx.compose.ui.window.Dialog
 import com.jeong.runninggoaltracker.feature.auth.R
 import com.jeong.runninggoaltracker.feature.auth.contract.ONBOARDING_WEIGHT_ONE
 import com.jeong.runninggoaltracker.feature.auth.contract.ONBOARDING_AUTH_CHOICE_ANONYMOUS_TAG
-import com.jeong.runninggoaltracker.feature.auth.contract.ONBOARDING_AUTH_CHOICE_KAKAO_TAG
 import com.jeong.runninggoaltracker.feature.auth.contract.ONBOARDING_PERMISSION_AGREE_TAG
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppContentCard
 import com.jeong.runninggoaltracker.shared.designsystem.common.AppSurfaceCard
@@ -46,7 +44,6 @@ import com.jeong.runninggoaltracker.shared.designsystem.icon.AppIcons
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.runninggoaltracker.shared.designsystem.theme.LocalAppShapes
 import com.jeong.runninggoaltracker.shared.designsystem.theme.RunningGoalTrackerTheme
-import com.jeong.runninggoaltracker.shared.designsystem.theme.appKakaoYellow
 
 @Composable
 fun OnboardingScreen(
@@ -57,7 +54,6 @@ fun OnboardingScreen(
     onNicknameChanged: (String) -> Unit,
     onPrivacyAcceptedChange: (Boolean) -> Unit,
     onContinue: () -> Unit,
-    onKakaoLogin: () -> Unit,
     onContinueWithoutLogin: () -> Unit,
     onPrivacyPolicyClick: () -> Unit,
     onRetryInternet: () -> Unit,
@@ -82,7 +78,6 @@ fun OnboardingScreen(
             modifier = modifier,
             errorMessageResId = uiState.errorMessageResId,
             isLoading = uiState.isLoading,
-            onKakaoLogin = onKakaoLogin,
             onContinueWithoutLogin = onContinueWithoutLogin
         )
 
@@ -114,15 +109,11 @@ fun OnboardingScreen(
 private fun AuthChoiceScreen(
     @StringRes errorMessageResId: Int?,
     isLoading: Boolean,
-    onKakaoLogin: () -> Unit,
     onContinueWithoutLogin: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val dimensions = LocalAppDimensions.current
-    val appShapes = LocalAppShapes.current
-    val kakaoLoginButtonText = stringResource(id = R.string.kakao_login_button_text)
     val anonymousButtonText = stringResource(id = R.string.anonymous_continue_button_text)
-    val onKakaoLoginThrottled = rememberThrottleClick(onClick = onKakaoLogin)
     val onContinueWithoutLoginThrottled = rememberThrottleClick(onClick = onContinueWithoutLogin)
 
     Column(
@@ -147,26 +138,6 @@ private fun AuthChoiceScreen(
                 text = stringResource(id = errorMessageResId),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.error
-            )
-        }
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dimensions.kakaoLoginButtonHeight)
-                .clip(appShapes.roundedXs)
-                .background(appKakaoYellow())
-                .clickable(
-                    enabled = !isLoading,
-                    role = Role.Button,
-                    onClick = onKakaoLoginThrottled
-                )
-                .testTag(ONBOARDING_AUTH_CHOICE_KAKAO_TAG)
-        ) {
-            Text(
-                text = kakaoLoginButtonText,
-                style = MaterialTheme.typography.titleMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.align(Alignment.Center)
             )
         }
         Button(

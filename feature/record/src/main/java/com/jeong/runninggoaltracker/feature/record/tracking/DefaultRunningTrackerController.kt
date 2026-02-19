@@ -21,7 +21,7 @@ class DefaultRunningTrackerController @Inject constructor(
             stateUpdater.markPermissionRequired()
             return
         }
-        stateUpdater.markTracking()
+        stateUpdater.markTracking(startedAtEpochMillis = System.currentTimeMillis())
         val intent = Intent(context, RunningTrackerService::class.java).apply {
             action = RunningTrackerServiceContract.ACTION_START
         }

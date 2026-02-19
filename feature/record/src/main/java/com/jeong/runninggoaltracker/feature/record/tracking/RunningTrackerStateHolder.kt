@@ -16,22 +16,25 @@ class RunningTrackerStateHolder @Inject constructor() :
     private val _state = MutableStateFlow(RunningTrackerState())
     override val trackerState: StateFlow<RunningTrackerState> = _state
 
-    override fun markTracking() {
+    override fun markTracking(startedAtEpochMillis: Long) {
         _state.update {
             it.copy(
                 isTracking = true,
                 isPermissionRequired = false,
                 distanceKm = 0.0,
-                elapsedMillis = 0L
+                elapsedMillis = 0L,
+                startedAtEpochMillis = startedAtEpochMillis,
+                updatedAtEpochMillis = startedAtEpochMillis
             )
         }
     }
 
-    override fun update(distanceKm: Double, elapsedMillis: Long) {
+    override fun update(distanceKm: Double, elapsedMillis: Long, updatedAtEpochMillis: Long) {
         _state.update {
             it.copy(
                 distanceKm = distanceKm,
-                elapsedMillis = elapsedMillis
+                elapsedMillis = elapsedMillis,
+                updatedAtEpochMillis = updatedAtEpochMillis
             )
         }
     }

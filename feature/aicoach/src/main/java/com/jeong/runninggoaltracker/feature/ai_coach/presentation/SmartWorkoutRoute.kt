@@ -49,7 +49,6 @@ fun SmartWorkoutRoute(
         uiState = uiState,
         imageAnalyzer = viewModel.imageAnalyzer,
         onBack = onBackClick,
-        onToggleDebugOverlay = viewModel::toggleDebugOverlay,
         onExerciseTypeChange = viewModel::updateExerciseType
     )
 }

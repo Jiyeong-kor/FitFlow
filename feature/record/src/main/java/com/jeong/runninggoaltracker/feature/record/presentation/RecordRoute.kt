@@ -7,6 +7,7 @@ import com.jeong.runninggoaltracker.feature.record.presentation.RecordViewModel
 
 @Composable
 fun RecordRoute(
+    onNavigateHome: () -> Unit,
     viewModel: RecordViewModel
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -16,6 +17,7 @@ fun RecordRoute(
         onStartActivityRecognition = viewModel::startActivityRecognition,
         onStopActivityRecognition = viewModel::stopActivityRecognition,
         onStartTracking = viewModel::startTracking,
-        onStopTracking = viewModel::stopTracking
+        onStopTracking = viewModel::stopTracking,
+        onNavigateHome = onNavigateHome
     )
 }

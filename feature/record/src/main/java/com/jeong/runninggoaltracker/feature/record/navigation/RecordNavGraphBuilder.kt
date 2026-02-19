@@ -7,9 +7,14 @@ import com.jeong.runninggoaltracker.feature.record.presentation.RecordViewModel
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.composable
 
-fun NavGraphBuilder.recordEntry() {
+fun NavGraphBuilder.recordEntry(
+    onNavigateHome: () -> Unit
+) {
     composable<MainNavigationRoute.Record> { backStackEntry ->
         val viewModel: RecordViewModel = hiltViewModel(backStackEntry)
-        RecordRoute(viewModel = viewModel)
+        RecordRoute(
+            onNavigateHome = onNavigateHome,
+            viewModel = viewModel
+        )
     }
 }

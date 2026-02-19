@@ -1,8 +1,10 @@
 package com.jeong.runninggoaltracker.feature.home.presentation
 
+import com.jeong.runninggoaltracker.domain.model.ExerciseType
 import com.jeong.runninggoaltracker.domain.model.PeriodState
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
+import com.jeong.runninggoaltracker.domain.model.WorkoutRecord
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodDateCalculator
 import com.jeong.runninggoaltracker.domain.util.RunningPeriodSummaryCalculator
 import com.jeong.runninggoaltracker.feature.home.domain.CalendarMonthState
@@ -19,6 +21,7 @@ class HomeUiStateMapper @Inject constructor(
     fun map(
         summary: RunningSummary,
         records: List<RunningRecord>,
+        workoutRecords: List<WorkoutRecord>,
         period: PeriodState,
         selectedDateState: SelectedDateState,
         isCalendarVisible: Boolean,
@@ -30,19 +33,20 @@ class HomeUiStateMapper @Inject constructor(
             selectedDateMillis = selectedDateState.dateMillis
         )
         val periodSummary = periodSummaryCalculator.calculate(filteredRecords)
-        val weeklyRange = dateRangeCalculator.weekRange(selectedDateState.dateMillis)
-        return HomeUiState(
-            periodState = period,
-            selectedDateState = selectedDateState,
-            isCalendarVisible = isCalendarVisible,
-            calendarMonthState = calendarMonthState,
-            calendarDays = calendarCalculator.buildCalendarDays(calendarMonthState),
-            weeklyRange = HomeWeeklyRange(
-                startMillis = weeklyRange.first,
-                endMillis = weeklyRange.second
-            ),
-            summary = periodSummary.toUiState(),
-            activityLogs = filteredRecords.map { record ->
+        val filteredWorkoutRecords = workoutRecords.filter { workoutRecord ->
+            periodDateCalculator.isDateInPeriod(
+                dateMillis = workoutRecord.date,
+                period = period,
+                selectedDateMillis = selectedDateState.dateMillis
+            )
+        }
+        val activityDayStarts = (records.map { record ->
+            periodDateCalculator.startOfDayMillis(record.date)
+        } + workoutRecords.map { workoutRecord ->
+            periodDateCalculator.startOfDayMillis(workoutRecord.date)
+        }).toSet()
+        val activityLogs = (
+            filteredRecords.map { record ->
                 HomeWorkoutLogUiModel(
                     id = record.id,
                     timestamp = record.date,
@@ -51,7 +55,46 @@ class HomeUiStateMapper @Inject constructor(
                     durationMinutes = record.durationMinutes,
                     type = HomeWorkoutType.RUNNING
                 )
-            },
+            } + filteredWorkoutRecords.mapNotNull { workoutRecord ->
+                val type = when (workoutRecord.exerciseType) {
+                    ExerciseType.SQUAT -> HomeWorkoutType.SQUAT
+                    ExerciseType.LUNGE -> HomeWorkoutType.LUNGE
+                    else -> null
+                } ?: return@mapNotNull null
+                HomeWorkoutLogUiModel(
+                    id = workoutRecord.date + workoutRecord.exerciseType.ordinal,
+                    timestamp = workoutRecord.date,
+                    distanceKm = 0.0,
+                    repCount = workoutRecord.repCount,
+                    durationMinutes = 0,
+                    type = type
+                )
+            }
+        ).sortedByDescending { it.timestamp }
+        val summaryUiState = periodSummary.toUiState().copy(
+            totalSquatCount = filteredWorkoutRecords
+                .filter { it.exerciseType == ExerciseType.SQUAT }
+                .sumOf { it.repCount },
+            totalLungeCount = filteredWorkoutRecords
+                .filter { it.exerciseType == ExerciseType.LUNGE }
+                .sumOf { it.repCount }
+        )
+        val weeklyRange = dateRangeCalculator.weekRange(selectedDateState.dateMillis)
+        return HomeUiState(
+            periodState = period,
+            selectedDateState = selectedDateState,
+            isCalendarVisible = isCalendarVisible,
+            calendarMonthState = calendarMonthState,
+            calendarDays = calendarCalculator.buildCalendarDays(
+                state = calendarMonthState,
+                activityDayStarts = activityDayStarts
+            ),
+            weeklyRange = HomeWeeklyRange(
+                startMillis = weeklyRange.first,
+                endMillis = weeklyRange.second
+            ),
+            summary = summaryUiState,
+            activityLogs = activityLogs,
             weeklyGoalKm = summary.weeklyGoalKm
         )
     }

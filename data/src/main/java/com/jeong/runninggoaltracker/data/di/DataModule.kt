@@ -7,6 +7,7 @@ import com.jeong.runninggoaltracker.data.local.RunningGoalDao
 import com.jeong.runninggoaltracker.data.local.RunningRecordDao
 import com.jeong.runninggoaltracker.data.local.RunningReminderDao
 import com.jeong.runninggoaltracker.data.local.WorkoutRecordDao
+import com.jeong.runninggoaltracker.data.local.SyncOutboxDao
 import com.jeong.runninggoaltracker.data.repository.AuthRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningGoalRepositoryImpl
 import com.jeong.runninggoaltracker.data.repository.RunningRecordRepositoryImpl
@@ -16,7 +17,6 @@ import com.jeong.runninggoaltracker.data.repository.WorkoutRecordRepositoryImpl
 import com.jeong.runninggoaltracker.data.util.SystemDateProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.functions.FirebaseFunctions
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
@@ -58,6 +58,9 @@ object DataModule {
     fun provideWorkoutRecordDao(db: RunningDatabase): WorkoutRecordDao = db.workoutRecordDao()
 
     @Provides
+    fun provideSyncOutboxDao(db: RunningDatabase): SyncOutboxDao = db.syncOutboxDao()
+
+    @Provides
     @Singleton
     fun provideDateProvider(@ApplicationContext context: Context): DateProvider =
         SystemDateProvider(context)
@@ -70,9 +73,6 @@ object DataModule {
     @Singleton
     fun provideFirebaseFirestore(): FirebaseFirestore = FirebaseFirestore.getInstance()
 
-    @Provides
-    @Singleton
-    fun provideFirebaseFunctions(): FirebaseFunctions = FirebaseFunctions.getInstance()
 }
 
 @Module

@@ -3,7 +3,7 @@
     <string name="app_name_full">Running Goal Tracker</string>
 
     <string name="title_home">홈</string>
-    <string name="title_record">러닝 기록</string>
+    <string name="title_record">러닝 타이머</string>
     <string name="title_ai_coach">AI 자세 코치</string>
     <string name="title_goal">주간 목표</string>
     <string name="title_reminder">알림 설정</string>

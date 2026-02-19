@@ -5,13 +5,9 @@ import com.jeong.runninggoaltracker.domain.model.AuthProvider
 import com.jeong.runninggoaltracker.domain.model.AuthResult
 import com.jeong.runninggoaltracker.domain.usecase.CheckNicknameAvailabilityUseCase
 import com.jeong.runninggoaltracker.domain.usecase.EnsureSignedInUseCase
-import com.jeong.runninggoaltracker.domain.usecase.ExchangeKakaoOidcTokenUseCase
-import com.jeong.runninggoaltracker.domain.usecase.RestoreUserDataUseCase
 import com.jeong.runninggoaltracker.domain.usecase.NicknameValidationResult
 import com.jeong.runninggoaltracker.domain.usecase.ReserveNicknameAndCreateUserProfileUseCase
 import com.jeong.runninggoaltracker.domain.usecase.SignInAnonymouslyUseCase
-import com.jeong.runninggoaltracker.domain.usecase.SignInWithCustomTokenUseCase
-import com.jeong.runninggoaltracker.domain.usecase.SignInWithKakaoUseCase
 import com.jeong.runninggoaltracker.domain.usecase.ValidateNicknameUseCase
 import com.jeong.runninggoaltracker.shared.network.NetworkMonitor
 import javax.inject.Inject
@@ -22,11 +18,7 @@ class OnboardingWorkflow @Inject constructor(
     private val checkNicknameAvailabilityUseCase: CheckNicknameAvailabilityUseCase,
     private val signInAnonymouslyUseCase: SignInAnonymouslyUseCase,
     private val ensureSignedInUseCase: EnsureSignedInUseCase,
-    private val reserveNicknameAndCreateUserProfileUseCase: ReserveNicknameAndCreateUserProfileUseCase,
-    private val signInWithKakaoUseCase: SignInWithKakaoUseCase,
-    private val exchangeKakaoOidcTokenUseCase: ExchangeKakaoOidcTokenUseCase,
-    private val signInWithCustomTokenUseCase: SignInWithCustomTokenUseCase,
-    private val restoreUserDataUseCase: RestoreUserDataUseCase
+    private val reserveNicknameAndCreateUserProfileUseCase: ReserveNicknameAndCreateUserProfileUseCase
 ) {
     suspend fun startAnonymousSession(): OnboardingResult {
         if (!networkMonitor.isConnected()) {
@@ -36,40 +28,13 @@ class OnboardingWorkflow @Inject constructor(
         return if (signInResult.isFailure) {
             OnboardingResult.Failure(OnboardingFailure.AnonymousSignIn)
         } else {
-            OnboardingResult.AuthReady(AuthProvider.ANONYMOUS, null)
+            OnboardingResult.AuthReady(AuthProvider.ANONYMOUS)
         }
-    }
-
-    suspend fun startKakaoSession(): OnboardingResult {
-        if (!networkMonitor.isConnected()) {
-            return OnboardingResult.NoInternet
-        }
-        val kakaoResult = signInWithKakaoUseCase()
-        val kakaoToken = kakaoResult.getOrNull()
-        if (kakaoResult.isFailure || kakaoToken?.idToken.isNullOrBlank()) {
-            return OnboardingResult.Failure(OnboardingFailure.KakaoLogin)
-        }
-        val exchangeResult = exchangeKakaoOidcTokenUseCase(kakaoToken.idToken)
-        val exchangePayload = if (exchangeResult is AuthResult.Success) {
-            exchangeResult.data
-        } else {
-            return OnboardingResult.Failure(OnboardingFailure.KakaoLogin)
-        }
-        val signInResult = signInWithCustomTokenUseCase(exchangePayload.customToken)
-        if (signInResult is AuthResult.Failure) {
-            return OnboardingResult.Failure(OnboardingFailure.Auth(signInResult.error))
-        }
-        val restoreResult = restoreUserDataUseCase()
-        if (restoreResult is AuthResult.Failure) {
-            return OnboardingResult.Failure(OnboardingFailure.Auth(restoreResult.error))
-        }
-        return OnboardingResult.AuthReady(AuthProvider.KAKAO, exchangePayload.kakaoOidcSub)
     }
 
     suspend fun continueWithNickname(
         nickname: String,
-        authProvider: AuthProvider?,
-        kakaoOidcSub: String?
+        authProvider: AuthProvider?
     ): OnboardingResult {
         if (authProvider == null) {
             return OnboardingResult.Failure(OnboardingFailure.Auth(AuthError.PermissionDenied))
@@ -94,8 +59,7 @@ class OnboardingWorkflow @Inject constructor(
         }
         val nicknameResult = reserveNicknameAndCreateUserProfileUseCase(
             nickname = nickname,
-            authProvider = authProvider,
-            kakaoOidcSub = kakaoOidcSub
+            authProvider = authProvider
         )
         return when (nicknameResult) {
             is AuthResult.Success -> OnboardingResult.Success
@@ -106,9 +70,7 @@ class OnboardingWorkflow @Inject constructor(
 
 sealed interface OnboardingResult {
     data object Success : OnboardingResult
-    data class AuthReady(val authProvider: AuthProvider, val kakaoOidcSub: String?) :
-        OnboardingResult
-
+    data class AuthReady(val authProvider: AuthProvider) : OnboardingResult
     data class ValidationFailed(val result: NicknameValidationResult) : OnboardingResult
     data object NoInternet : OnboardingResult
     data class Failure(val reason: OnboardingFailure) : OnboardingResult
@@ -117,5 +79,4 @@ sealed interface OnboardingResult {
 sealed interface OnboardingFailure {
     data class Auth(val error: AuthError) : OnboardingFailure
     data object AnonymousSignIn : OnboardingFailure
-    data object KakaoLogin : OnboardingFailure
 }

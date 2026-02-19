@@ -25,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.feature.record.R
 import com.jeong.runninggoaltracker.feature.record.contract.RECORD_PREVIEW_DISTANCE_HUNDREDTHS
@@ -54,6 +55,7 @@ fun RecordScreen(
     onStopActivityRecognition: () -> Unit,
     onStartTracking: () -> Unit,
     onStopTracking: () -> Unit,
+    onNavigateHome: () -> Unit,
 ) {
     val displayLabel = uiState.activityStatus.toRecordLabel()
     val fullWeight = RECORD_WEIGHT_FULL
@@ -74,6 +76,7 @@ fun RecordScreen(
     val onStopClick = rememberThrottleClick(onClick = {
         onStopActivityRecognition()
         onStopTracking()
+        onNavigateHome()
     })
 
     val distanceValue = stringResource(R.string.record_distance_format, uiState.distanceKm)
@@ -83,14 +86,11 @@ fun RecordScreen(
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
     appOnAccentColor()
-    val paceLabel = if (uiState.pace.isAvailable) {
-        stringResource(
-            R.string.record_pace_format,
-            uiState.pace.minutes,
-            uiState.pace.seconds
-        )
+    val speedLabel = if (uiState.elapsedMillis > 0L && uiState.distanceKm > 0.0) {
+        val speedKmPerHour = uiState.distanceKm / (uiState.elapsedMillis / 3_600_000.0)
+        stringResource(R.string.record_speed_format, speedKmPerHour)
     } else {
-        stringResource(R.string.record_pace_zero)
+        stringResource(R.string.record_speed_zero)
     }
     val elapsedTimeLabel = if (uiState.elapsedTime.shouldShowHours) {
         stringResource(
@@ -129,16 +129,18 @@ fun RecordScreen(
             ) {}
 
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                Text(
-                    displayLabel.uppercase(Locale.getDefault()),
-                    color = accentColor,
-                    style = typographyTokens.recordLabel
-                )
-                Spacer(
-                    modifier = Modifier.height(
-                        dimensions.recordLabelSpacerHeight
+                if (displayLabel.isNotBlank()) {
+                    Text(
+                        displayLabel.uppercase(Locale.getDefault()),
+                        color = accentColor,
+                        style = typographyTokens.recordLabel
                     )
-                )
+                    Spacer(
+                        modifier = Modifier.height(
+                            dimensions.recordLabelSpacerHeight
+                        )
+                    )
+                }
                 Text(
                     distanceValue,
                     color = textPrimary,
@@ -163,13 +165,13 @@ fun RecordScreen(
                 modifier = Modifier.weight(fullWeight)
             )
             MetricItem(
-                label = stringResource(R.string.record_metric_pace),
-                value = paceLabel,
+                label = stringResource(R.string.record_metric_speed),
+                value = speedLabel,
                 modifier = Modifier.weight(fullWeight)
             )
             MetricItem(
                 label = stringResource(R.string.record_metric_calories),
-                value = stringResource(R.string.record_calories_zero),
+                value = uiState.calories.toString(),
                 modifier = Modifier.weight(fullWeight)
             )
         }
@@ -234,22 +236,22 @@ private fun MetricItem(label: String, value: String, modifier: Modifier = Modifi
                 appShapes.roundedLg
             )
             .padding(dimensions.recordMetricItemPadding),
+        verticalArrangement = Arrangement.spacedBy(dimensions.recordMetricLabelSpacing),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            label,
+            text = label,
             color = appTextMutedColor(),
-            style = typographyTokens.labelTiny
-        )
-        Spacer(
-            modifier = Modifier.height(
-                dimensions.recordMetricLabelSpacing
-            )
+            style = typographyTokens.labelTiny,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
         Text(
-            value,
+            text = value,
             color = appTextPrimaryColor(),
-            style = typographyTokens.numericTitleMedium
+            style = typographyTokens.numericTitleMedium,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
@@ -334,7 +336,7 @@ private fun ActivityRecognitionStatus.toRecordLabel(): String =
         ActivityRecognitionStatus.NoResult,
         ActivityRecognitionStatus.NoActivity,
         ActivityRecognitionStatus.Unknown ->
-            stringResource(R.string.activity_unknown)
+            ""
 
         ActivityRecognitionStatus.Running ->
             stringResource(R.string.activity_running)
@@ -373,7 +375,8 @@ private fun RecordScreenPreview() {
             onStartActivityRecognition = {},
             onStopActivityRecognition = {},
             onStartTracking = {},
-            onStopTracking = {}
+            onStopTracking = {},
+            onNavigateHome = {}
         )
     }
 }

@@ -32,6 +32,19 @@ class RunningPeriodDateCalculator @Inject constructor() {
         return calendar.timeInMillis
     }
 
+    fun isDateInPeriod(
+        dateMillis: Long,
+        period: PeriodState,
+        selectedDateMillis: Long
+    ): Boolean {
+        val range = when (period) {
+            PeriodState.DAILY -> dateRangeForDay(selectedDateMillis)
+            PeriodState.WEEKLY -> dateRangeForWeek(selectedDateMillis)
+            PeriodState.MONTHLY -> dateRangeForMonth(selectedDateMillis)
+        }
+        return dateMillis in range.first until range.second
+    }
+
     fun filterByPeriod(
         records: List<RunningRecord>,
         period: PeriodState,

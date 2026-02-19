@@ -64,11 +64,23 @@ fun AppNavGraph(
                 )
             }
             homeEntry(
-                onNavigateToRecord = { navController.navigateTo(MainNavigationRoute.Record) },
                 onNavigateToGoal = { navController.navigateTo(MainNavigationRoute.Goal) },
-                onNavigateToReminder = { navController.navigateTo(MainNavigationRoute.Reminder) }
+                onNavigateToReminder = { navController.navigateTo(MainNavigationRoute.Reminder) },
+                onNavigateToActivityLogs = {
+                    navController.navigateTo(MainNavigationRoute.HomeActivityLogs)
+                },
+                onBackFromActivityLogs = { navController.popBackStack() }
             )
-            recordEntry()
+            recordEntry(
+                onNavigateHome = {
+                    navController.navigateTo(MainNavigationRoute.Home) {
+                        popUpTo(MainNavigationRoute.Home) {
+                            inclusive = false
+                        }
+                        launchSingleTop = true
+                    }
+                }
+            )
             aiCoachEntry(onBack = { navController.popBackStack() })
             goalEntry(onBack = { navController.popBackStack() })
             reminderEntry()

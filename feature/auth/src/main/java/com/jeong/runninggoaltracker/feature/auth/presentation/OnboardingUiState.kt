@@ -23,8 +23,7 @@ data class OnboardingUiState(
     @field:StringRes val permissionErrorResId: Int? = null,
     val isPermissionPermanentlyDenied: Boolean = false,
     val shouldShowNoInternetDialog: Boolean = false,
-    val authProvider: AuthProvider? = null,
-    val kakaoOidcSub: String? = null
+    val authProvider: AuthProvider? = null
 )
 
 sealed interface OnboardingEffect {

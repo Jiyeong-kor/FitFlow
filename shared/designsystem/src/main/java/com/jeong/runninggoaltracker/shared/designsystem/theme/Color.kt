@@ -37,7 +37,6 @@ val surfaceContainerLowLight = Color(0xFFF8FAFC)
 val surfaceContainerLight = Color(0xFFF8FAFC)
 val surfaceContainerHighLight = Color(0xFFF1F5F9)
 val surfaceContainerHighestLight = Color(0xFFF1F5F9)
-val kakaoYellow = Color(0xFFFEE500)
 
 val brandGradientStart = Color(0xFF3B82F6)
 val brandGradientEnd = Color(0xFF2563EB)

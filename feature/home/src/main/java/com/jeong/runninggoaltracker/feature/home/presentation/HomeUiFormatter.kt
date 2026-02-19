@@ -12,20 +12,6 @@ data class HomeTextSpec(
 )
 
 object HomeUiFormatter {
-    fun paceText(
-        pace: HomePaceUiState,
-        formatResId: Int,
-        placeholderResId: Int
-    ): HomeTextSpec =
-        if (pace.isAvailable) {
-            HomeTextSpec(
-                resId = formatResId,
-                formatArgs = listOf(pace.minutes, pace.seconds)
-            )
-        } else {
-            HomeTextSpec(resId = placeholderResId)
-        }
-
     fun periodLabelText(
         periodState: PeriodState,
         selectedDateMillis: Long,

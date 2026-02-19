@@ -18,6 +18,9 @@ sealed interface MainNavigationRoute : FeatureNavigationRoute {
     data object Home : MainNavigationRoute
 
     @Serializable
+    data object HomeActivityLogs : MainNavigationRoute
+
+    @Serializable
     data object Record : MainNavigationRoute
 
     @Serializable

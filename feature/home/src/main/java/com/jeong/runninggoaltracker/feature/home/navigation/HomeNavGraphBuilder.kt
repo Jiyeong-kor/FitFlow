@@ -2,23 +2,33 @@ package com.jeong.runninggoaltracker.feature.home.navigation
 
 import androidx.navigation.NavGraphBuilder
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import com.jeong.runninggoaltracker.feature.home.presentation.HomeActivityLogsRoute
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeRoute
 import com.jeong.runninggoaltracker.feature.home.presentation.HomeViewModel
 import com.jeong.runninggoaltracker.shared.navigation.MainNavigationRoute
 import com.jeong.runninggoaltracker.shared.navigation.composable
 
 fun NavGraphBuilder.homeEntry(
-    onNavigateToRecord: () -> Unit,
     onNavigateToGoal: () -> Unit,
-    onNavigateToReminder: () -> Unit
+    onNavigateToReminder: () -> Unit,
+    onNavigateToActivityLogs: () -> Unit,
+    onBackFromActivityLogs: () -> Unit
 ) {
     composable<MainNavigationRoute.Home> { backStackEntry ->
         val viewModel: HomeViewModel = hiltViewModel(backStackEntry)
         HomeRoute(
             viewModel = viewModel,
-            onNavigateToRecord = onNavigateToRecord,
             onNavigateToGoal = onNavigateToGoal,
-            onNavigateToReminder = onNavigateToReminder
+            onNavigateToReminder = onNavigateToReminder,
+            onNavigateToActivityLogs = onNavigateToActivityLogs
+        )
+    }
+
+    composable<MainNavigationRoute.HomeActivityLogs> { backStackEntry ->
+        val viewModel: HomeViewModel = hiltViewModel(backStackEntry)
+        HomeActivityLogsRoute(
+            onBack = onBackFromActivityLogs,
+            viewModel = viewModel
         )
     }
 }

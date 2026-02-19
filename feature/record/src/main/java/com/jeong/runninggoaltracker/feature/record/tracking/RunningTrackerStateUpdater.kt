@@ -1,8 +1,8 @@
 package com.jeong.runninggoaltracker.feature.record.tracking
 
 interface RunningTrackerStateUpdater {
-    fun markTracking()
-    fun update(distanceKm: Double, elapsedMillis: Long)
+    fun markTracking(startedAtEpochMillis: Long)
+    fun update(distanceKm: Double, elapsedMillis: Long, updatedAtEpochMillis: Long)
     fun stop()
     fun markPermissionRequired()
 }

@@ -1,16 +1,11 @@
 package com.jeong.runninggoaltracker.data.repository
 
-import android.content.Context
 import com.google.firebase.Timestamp
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.UserProfileChangeRequest
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
-import com.google.firebase.functions.FirebaseFunctions
-import com.kakao.sdk.auth.model.OAuthToken
-import com.kakao.sdk.user.UserApiClient
 import com.jeong.runninggoaltracker.data.contract.FirestorePaths
-import com.jeong.runninggoaltracker.data.contract.KakaoOidcExchangeFields
 import com.jeong.runninggoaltracker.data.contract.UserFirestoreFields
 import com.jeong.runninggoaltracker.data.contract.UsernameFirestoreFields
 import com.jeong.runninggoaltracker.data.util.awaitResult
@@ -21,8 +16,6 @@ import com.jeong.runninggoaltracker.data.util.UsernameReservationPolicy
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.AuthProvider
 import com.jeong.runninggoaltracker.domain.model.AuthResult
-import com.jeong.runninggoaltracker.domain.model.KakaoAuthExchange
-import com.jeong.runninggoaltracker.domain.model.KakaoOidcToken
 import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import com.jeong.runninggoaltracker.domain.util.NicknameNormalizer
 import kotlinx.coroutines.channels.awaitClose
@@ -34,13 +27,10 @@ import kotlinx.coroutines.withContext
 import com.jeong.runninggoaltracker.domain.di.IoDispatcher
 import javax.inject.Inject
 import kotlin.coroutines.resume
-import dagger.hilt.android.qualifiers.ApplicationContext
 
 class AuthRepositoryImpl @Inject constructor(
-    @ApplicationContext private val context: Context,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val firebaseFunctions: FirebaseFunctions,
     private val runningDatabase: com.jeong.runninggoaltracker.data.local.RunningDatabase,
     @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
 ) : AuthRepository {
@@ -55,90 +45,9 @@ class AuthRepositoryImpl @Inject constructor(
                 }
         }
 
-    override suspend fun signInWithKakao(): Result<KakaoOidcToken> =
-        suspendCancellableCoroutine { continuation ->
-            val callback: (OAuthToken?, Throwable?) -> Unit = { token, error ->
-                if (error != null) {
-                    continuation.resume(Result.failure(error))
-                } else {
-                    val idToken = token?.idToken
-                    if (idToken != null) {
-                        continuation.resume(Result.success(KakaoOidcToken(idToken)))
-                    } else {
-                        continuation.resume(Result.failure(IllegalStateException()))
-                    }
-                }
-            }
-            val client = UserApiClient.instance
-            val scopes = listOf("openid")
-            if (client.isKakaoTalkLoginAvailable(context)) {
-                if (!client.tryLoginWithScopes("loginWithKakaoTalk", context, scopes, callback)) {
-                    client.loginWithKakaoTalk(context, callback = callback)
-                }
-            } else {
-                if (!client.tryLoginWithScopes(
-                        "loginWithKakaoAccount",
-                        context,
-                        scopes,
-                        callback
-                    )
-                ) {
-                    client.loginWithKakaoAccount(context, callback = callback)
-                }
-            }
-        }
-
-    private fun UserApiClient.tryLoginWithScopes(
-        methodName: String,
-        context: Context,
-        scopes: List<String>,
-        callback: (OAuthToken?, Throwable?) -> Unit
-    ): Boolean {
-        val method = javaClass.methods.firstOrNull { candidate ->
-            candidate.name == methodName
-                    && candidate.parameterTypes.size == 3
-                    && Context::class.java.isAssignableFrom(candidate.parameterTypes[0])
-                    && List::class.java.isAssignableFrom(candidate.parameterTypes[1])
-        } ?: return false
-        return runCatching {
-            method.invoke(this, context, scopes, callback)
-            true
-        }.getOrElse { false }
-    }
-
-    override suspend fun exchangeKakaoOidcToken(idToken: String): AuthResult<KakaoAuthExchange> {
-        return try {
-            val data = mapOf(KakaoOidcExchangeFields.ID_TOKEN to idToken)
-            val result = firebaseFunctions
-                .getHttpsCallable(FirestorePaths.FUNCTION_KAKAO_OIDC_EXCHANGE)
-                .call(data)
-                .awaitResult()
-            val payload = result.data as? Map<*, *> ?: return AuthResult.Failure(AuthError.Unknown)
-            val customToken = payload[KakaoOidcExchangeFields.CUSTOM_TOKEN] as? String
-            val kakaoOidcSub = payload[KakaoOidcExchangeFields.KAKAO_OIDC_SUB] as? String
-            if (customToken.isNullOrBlank() || kakaoOidcSub.isNullOrBlank()) {
-                AuthResult.Failure(AuthError.Unknown)
-            } else {
-                AuthResult.Success(KakaoAuthExchange(customToken, kakaoOidcSub))
-            }
-        } catch (error: Exception) {
-            AuthResult.Failure(error.toAuthErrorWithNickname())
-        }
-    }
-
-    override suspend fun signInWithCustomToken(customToken: String): AuthResult<Unit> {
-        return try {
-            firebaseAuth.signInWithCustomToken(customToken).awaitResult()
-            AuthResult.Success(Unit)
-        } catch (error: Exception) {
-            AuthResult.Failure(error.toAuthErrorWithNickname())
-        }
-    }
-
     override suspend fun reserveNicknameAndCreateUserProfile(
         nickname: String,
-        authProvider: AuthProvider,
-        kakaoOidcSub: String?
+        authProvider: AuthProvider
     ): AuthResult<Unit> {
         val user = firebaseAuth.currentUser ?: return AuthResult.Failure(AuthError.PermissionDenied)
         val uid = user.uid
@@ -170,8 +79,7 @@ class AuthRepositoryImpl @Inject constructor(
                     nickname = nickname,
                     createdAt = now,
                     lastActiveAt = now,
-                    authProvider = authProvider,
-                    kakaoOidcSub = kakaoOidcSub
+                    authProvider = authProvider
                 ).toFirestoreMap()
                 transaction.set(usernameDocRef, usernameData)
                 transaction.set(userDocRef, userData, SetOptions.merge())

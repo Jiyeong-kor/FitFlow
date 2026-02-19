@@ -11,12 +11,14 @@ import com.jeong.runninggoaltracker.data.contract.RunningDatabaseContract
         RunningRecordEntity::class,
         RunningGoalEntity::class,
         RunningReminderEntity::class,
-        WorkoutRecordEntity::class
+        WorkoutRecordEntity::class,
+        SyncOutboxEntity::class
     ],
     version = RunningDatabaseContract.DATABASE_VERSION,
     autoMigrations = [
         AutoMigration(from = 1, to = 2),
-        AutoMigration(from = 2, to = RunningDatabaseContract.DATABASE_VERSION)
+        AutoMigration(from = 2, to = 3),
+        AutoMigration(from = 3, to = RunningDatabaseContract.DATABASE_VERSION)
     ],
     exportSchema = true
 )
@@ -30,5 +32,6 @@ abstract class RunningDatabase : RoomDatabase() {
     abstract fun runningGoalDao(): RunningGoalDao
     abstract fun runningReminderDao(): RunningReminderDao
     abstract fun workoutRecordDao(): WorkoutRecordDao
+    abstract fun syncOutboxDao(): SyncOutboxDao
 
 }

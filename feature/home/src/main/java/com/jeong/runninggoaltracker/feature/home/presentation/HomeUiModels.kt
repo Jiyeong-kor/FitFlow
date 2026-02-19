@@ -34,7 +34,9 @@ data class HomeSummaryUiState(
     val totalDistanceKm: Double = 0.0,
     val totalCalories: Int = 0,
     val totalDurationMinutes: Int = 0,
-    val averagePace: HomePaceUiState = HomePaceUiState()
+    val averagePace: HomePaceUiState = HomePaceUiState(),
+    val totalSquatCount: Int = 0,
+    val totalLungeCount: Int = 0
 )
 
 data class HomePaceUiState(

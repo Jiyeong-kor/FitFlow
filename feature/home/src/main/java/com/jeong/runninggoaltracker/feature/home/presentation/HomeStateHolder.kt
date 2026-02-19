@@ -3,8 +3,10 @@ package com.jeong.runninggoaltracker.feature.home.presentation
 import com.jeong.runninggoaltracker.domain.model.PeriodState
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
+import com.jeong.runninggoaltracker.domain.model.WorkoutRecord
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningRecordsUseCase
 import com.jeong.runninggoaltracker.domain.usecase.GetRunningSummaryUseCase
+import com.jeong.runninggoaltracker.domain.usecase.GetWorkoutRecordsUseCase
 import com.jeong.runninggoaltracker.feature.home.domain.CalendarMonthState
 import javax.inject.Inject
 import kotlinx.coroutines.CoroutineScope
@@ -12,15 +14,18 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.catch
 
 private data class HomeSummaryRecords(
     val summary: RunningSummary,
-    val records: List<RunningRecord>
+    val records: List<RunningRecord>,
+    val workoutRecords: List<WorkoutRecord>
 )
 
 class HomeStateHolder @Inject constructor(
     private val getRunningSummaryUseCase: GetRunningSummaryUseCase,
     private val getRunningRecordsUseCase: GetRunningRecordsUseCase,
+    private val getWorkoutRecordsUseCase: GetWorkoutRecordsUseCase,
     private val uiStateMapper: HomeUiStateMapper
 ) {
     fun initialState(
@@ -32,6 +37,7 @@ class HomeStateHolder @Inject constructor(
         uiStateMapper.map(
             summary = RunningSummary(),
             records = emptyList(),
+            workoutRecords = emptyList(),
             period = period,
             selectedDateState = selectedDateState,
             isCalendarVisible = isCalendarVisible,
@@ -49,9 +55,14 @@ class HomeStateHolder @Inject constructor(
         combine(
             combine(
                 getRunningSummaryUseCase(),
-                getRunningRecordsUseCase()
-            ) { summary, records ->
-                HomeSummaryRecords(summary = summary, records = records)
+                getRunningRecordsUseCase(),
+                getWorkoutRecordsUseCase()
+            ) { summary, records, workoutRecords ->
+                HomeSummaryRecords(
+                    summary = summary,
+                    records = records,
+                    workoutRecords = workoutRecords
+                )
             },
             periodState,
             selectedDateState,
@@ -61,11 +72,14 @@ class HomeStateHolder @Inject constructor(
             uiStateMapper.map(
                 summary = summaryRecords.summary,
                 records = summaryRecords.records,
+                workoutRecords = summaryRecords.workoutRecords,
                 period = period,
                 selectedDateState = selectedDate,
                 isCalendarVisible = isCalendarVisible,
                 calendarMonthState = calendarMonth
             )
+        }.catch {
+            emit(initialState)
         }.stateIn(
             scope = scope,
             started = SharingStarted.Eagerly,

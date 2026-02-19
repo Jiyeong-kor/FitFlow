@@ -56,13 +56,19 @@ class RecordViewModelTest {
         every { runningTrackerMonitor.trackerState } returns trackerState
 
         every {
-            uiStateMapper.map(any(), any(), any())
+            uiStateMapper.map(
+                records = any(),
+                activity = any(),
+                tracker = any(),
+                logs = any()
+            )
         } answers {
             val tracker = thirdArg<RunningTrackerState>()
             RecordUiState(
                 isTracking = tracker.isTracking,
                 distanceKm = tracker.distanceKm,
                 elapsedMillis = tracker.elapsedMillis,
+                calories = 0,
                 isPermissionRequired = tracker.isPermissionRequired
             )
         }

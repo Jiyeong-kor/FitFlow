@@ -67,36 +67,31 @@ class AiCoachViewModel @Inject constructor(
         )
     }
 
-    fun toggleDebugOverlay() {
-        _uiState.update { current ->
-            val nextMode = if (current.overlayMode == DebugOverlayMode.OFF) {
-                poseFrameProcessor.overlayModeFor(current.exerciseType)
-            } else {
-                DebugOverlayMode.OFF
-            }
-            current.copy(overlayMode = nextMode)
-        }
-    }
-
     fun updateExerciseType(exerciseType: ExerciseType) {
+        val currentState = _uiState.value
+        if (currentState.exerciseType == exerciseType) {
+            return
+        }
+        viewModelScope.launch {
+            workoutRecordSaver.persistIfNeeded(
+                exerciseType = currentState.exerciseType,
+                repCount = currentState.repCount
+            )
+        }
         _uiState.update { current ->
-            if (current.exerciseType == exerciseType) {
-                current
-            } else {
-                current.copy(
-                    exerciseType = exerciseType,
-                    repCount = SQUAT_INT_ZERO,
-                    feedbackType = PostureFeedbackType.UNKNOWN,
-                    feedbackKeys = emptyList(),
-                    accuracy = SQUAT_FLOAT_ZERO,
-                    isPerfectForm = false,
-                    overlayMode = if (current.overlayMode == DebugOverlayMode.OFF) {
-                        current.overlayMode
-                    } else {
-                        poseFrameProcessor.overlayModeFor(exerciseType)
-                    }
-                )
-            }
+            current.copy(
+                exerciseType = exerciseType,
+                repCount = SQUAT_INT_ZERO,
+                feedbackType = PostureFeedbackType.UNKNOWN,
+                feedbackKeys = emptyList(),
+                accuracy = SQUAT_FLOAT_ZERO,
+                isPerfectForm = false,
+                overlayMode = if (current.overlayMode == DebugOverlayMode.OFF) {
+                    current.overlayMode
+                } else {
+                    poseFrameProcessor.overlayModeFor(exerciseType)
+                }
+            )
         }
         poseFrameProcessor.resetSpeechState()
     }

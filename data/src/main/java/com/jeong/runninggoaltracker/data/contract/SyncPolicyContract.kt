@@ -19,25 +19,25 @@ object SyncPolicyRegistry {
             roomEntity = "RunningRecordEntity",
             firestorePath = "users/{uid}/runningRecords/{recordId}",
             policy = SyncPolicy.MUST_SYNC,
-            conflictStrategy = "Firestore overwrite after Kakao restore"
+            conflictStrategy = "Firestore overwrite after auth restore"
         ),
         SyncEntityInfo(
             roomEntity = "RunningGoalEntity",
             firestorePath = "users/{uid}/runningGoals/default",
             policy = SyncPolicy.MUST_SYNC,
-            conflictStrategy = "Firestore overwrite after Kakao restore"
+            conflictStrategy = "Firestore overwrite after auth restore"
         ),
         SyncEntityInfo(
             roomEntity = "RunningReminderEntity",
             firestorePath = "users/{uid}/runningReminders/{reminderId}",
             policy = SyncPolicy.MUST_SYNC,
-            conflictStrategy = "Firestore overwrite after Kakao restore"
+            conflictStrategy = "Firestore overwrite after auth restore"
         ),
         SyncEntityInfo(
             roomEntity = "WorkoutRecordEntity",
             firestorePath = "users/{uid}/workoutRecords/{recordId}",
             policy = SyncPolicy.MUST_SYNC,
-            conflictStrategy = "Firestore overwrite after Kakao restore"
+            conflictStrategy = "Firestore overwrite after auth restore"
         )
     )
 }

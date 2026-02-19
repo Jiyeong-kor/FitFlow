@@ -3,6 +3,8 @@ package com.jeong.runninggoaltracker.domain.usecase
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
+import com.jeong.runninggoaltracker.domain.contract.DateTimeContract
+import com.jeong.runninggoaltracker.domain.contract.RunningTimeContract
 import com.jeong.runninggoaltracker.domain.util.DateProvider
 import javax.inject.Inject
 
@@ -28,8 +30,10 @@ class WeeklySummaryCalculator @Inject constructor(private val dateProvider: Date
         todayMillis: Long
     ): RunningSummary {
         val startOfWeek = dateProvider.getStartOfWeek(todayMillis)
+        val endOfWeekExclusive = startOfWeek +
+            DateTimeContract.DAYS_IN_WEEK * RunningTimeContract.MILLIS_PER_DAY
         val thisWeekRecords = records.filter { record ->
-            record.date >= startOfWeek
+            record.date >= startOfWeek && record.date < endOfWeekExclusive
         }
 
         val totalKm = thisWeekRecords.sumOf { it.distanceKm }

@@ -89,11 +89,6 @@ class OnboardingUiStateMapper @Inject constructor() {
                 errorMessageResId = R.string.anonymous_sign_in_error
             )
 
-            is OnboardingFailure.KakaoLogin -> currentState.copy(
-                isLoading = false,
-                errorMessageResId = R.string.kakao_login_error
-            )
-
             is OnboardingFailure.Auth -> {
                 if (reason.error == AuthError.NicknameTaken) {
                     currentState.copy(
@@ -120,7 +115,6 @@ class OnboardingUiStateMapper @Inject constructor() {
             isLoading = false,
             step = OnboardingStep.Nickname,
             authProvider = result.authProvider,
-            kakaoOidcSub = result.kakaoOidcSub
         )
 
         is OnboardingResult.NoInternet -> currentState.copy(
@@ -131,11 +125,6 @@ class OnboardingUiStateMapper @Inject constructor() {
         is OnboardingResult.Success -> currentState.copy(isLoading = false)
 
         is OnboardingResult.Failure -> when (val reason = result.reason) {
-            is OnboardingFailure.KakaoLogin -> currentState.copy(
-                isLoading = false,
-                errorMessageResId = R.string.kakao_login_error
-            )
-
             is OnboardingFailure.AnonymousSignIn -> currentState.copy(
                 isLoading = false,
                 errorMessageResId = R.string.anonymous_sign_in_error

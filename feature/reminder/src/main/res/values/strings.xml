@@ -5,7 +5,7 @@
     <string name="reminder_add_title">알림 추가</string>
     <string name="reminder_action_add">알림 추가</string>
     <string name="reminder_action_close">편집 닫기</string>
-    <string name="reminder_action_save">편집 저장</string>
+    <string name="reminder_action_save">알림 저장</string>
     <string name="reminder_action_delete">알림 삭제</string>
     <string name="reminder_time_edit_accessibility">알림 시간 변경</string>
     <string name="reminder_edit_switch_accessibility">알림 활성화 토글: %1$s</string>

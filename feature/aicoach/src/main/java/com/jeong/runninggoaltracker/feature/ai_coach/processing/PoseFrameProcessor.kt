@@ -6,6 +6,7 @@ import com.jeong.runninggoaltracker.domain.model.SquatFrameMetrics
 import com.jeong.runninggoaltracker.domain.usecase.ProcessPoseUseCase
 import com.jeong.runninggoaltracker.feature.ai_coach.contract.SmartWorkoutLogContract
 import com.jeong.runninggoaltracker.feature.ai_coach.data.pose.PoseDetector
+import com.jeong.runninggoaltracker.feature.ai_coach.logging.SmartWorkoutLogger
 import com.jeong.runninggoaltracker.feature.ai_coach.logging.WorkoutAnalyticsLogger
 import com.jeong.runninggoaltracker.feature.ai_coach.presentation.DebugOverlayMode
 import com.jeong.runninggoaltracker.feature.ai_coach.presentation.FeedbackStringMapper
@@ -90,6 +91,11 @@ class PoseFrameProcessor @Inject constructor(
             analysis.warningEvent?.let { event ->
                 analyticsLogger.logWarningEvent(event)
             }
+            logDebugFrame(
+                frameTimestampMs = frame.timestampMs,
+                exerciseType = exerciseType,
+                analysis = analysis
+            )
             val updatedState = currentState.copy(
                 repCount = analysis.repCount.value,
                 feedbackType = feedbackTypeForUi ?: currentState.feedbackType,
@@ -184,6 +190,56 @@ class PoseFrameProcessor @Inject constructor(
             analyticsLogger.logFullBodyVisibility(metrics, timestampMs)
         }
         isLastFullBodyVisible = isFullBodyVisible
+    }
+
+    private fun logDebugFrame(
+        frameTimestampMs: Long,
+        exerciseType: ExerciseType,
+        analysis: com.jeong.runninggoaltracker.domain.model.PoseAnalysisResult
+    ) {
+        SmartWorkoutLogger.logDebug {
+            buildString {
+                append("frameAnalysis")
+                append(" timestamp=")
+                append(frameTimestampMs)
+                append(" exercise=")
+                append(exerciseType.name)
+                append(" rep=")
+                append(analysis.repCount.value)
+                append(" feedbackType=")
+                append(analysis.feedback.type.name)
+                append(" feedbackKey=")
+                append(analysis.feedbackEventKey ?: "none")
+                append(" accuracy=")
+                append(analysis.feedback.accuracy)
+                append(" perfect=")
+                append(analysis.feedback.isPerfectForm)
+                analysis.frameMetrics?.let { metrics ->
+                    append(" phase=")
+                    append(metrics.phase.name)
+                    append(" side=")
+                    append(metrics.side.name)
+                    append(" kneeRaw=")
+                    append(metrics.kneeAngleRaw)
+                    append(" kneeEma=")
+                    append(metrics.kneeAngleEma)
+                    append(" trunkTiltRaw=")
+                    append(metrics.trunkTiltVerticalAngleRaw)
+                    append(" trunkTiltEma=")
+                    append(metrics.trunkTiltVerticalAngleEma)
+                    append(" trunkToThighRaw=")
+                    append(metrics.trunkToThighAngleRaw)
+                    append(" trunkToThighEma=")
+                    append(metrics.trunkToThighAngleEma)
+                    append(" attemptActive=")
+                    append(metrics.isAttemptActive)
+                    append(" depthReached=")
+                    append(metrics.isDepthReached)
+                    append(" fullBodyVisible=")
+                    append(metrics.isFullBodyVisible)
+                }
+            }
+        }
     }
 
     fun overlayModeFor(exerciseType: ExerciseType): DebugOverlayMode = when (exerciseType) {
