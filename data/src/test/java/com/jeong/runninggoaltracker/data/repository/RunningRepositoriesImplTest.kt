@@ -1,27 +1,26 @@
 package com.jeong.runninggoaltracker.data.repository
 
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.data.local.RunningGoalDao
 import com.jeong.runninggoaltracker.data.local.RunningGoalEntity
-import com.jeong.runninggoaltracker.data.local.RunningRecordEntity
 import com.jeong.runninggoaltracker.data.local.RunningRecordDao
+import com.jeong.runninggoaltracker.data.local.RunningRecordEntity
 import com.jeong.runninggoaltracker.data.local.RunningReminderDao
 import com.jeong.runninggoaltracker.data.local.RunningReminderEntity
 import com.jeong.runninggoaltracker.data.local.SyncOutboxDao
-import com.jeong.runninggoaltracker.data.local.SyncOutboxEntity
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.mockk
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import io.mockk.coEvery
-import io.mockk.every
-import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
@@ -37,10 +36,16 @@ class RunningRepositoriesImplTest {
     }
     private val firestore = mockk<FirebaseFirestore>(relaxed = true)
     private val syncOutboxDao = mockk<SyncOutboxDao>(relaxed = true) {
-        coEvery { getPending(any()) } returns emptyList<SyncOutboxEntity>()
+        coEvery { getPending(any()) } returns emptyList()
     }
     private val recordRepository =
-        RunningRecordRepositoryImpl(fakeDaos, syncOutboxDao, firebaseAuth, firestore, testDispatcher)
+        RunningRecordRepositoryImpl(
+            fakeDaos,
+            syncOutboxDao,
+            firebaseAuth,
+            firestore,
+            testDispatcher
+        )
     private val goalRepository =
         RunningGoalRepositoryImpl(fakeDaos, firebaseAuth, firestore, testDispatcher)
     private val reminderRepository =
