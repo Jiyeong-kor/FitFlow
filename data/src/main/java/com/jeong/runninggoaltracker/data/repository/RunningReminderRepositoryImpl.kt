@@ -71,10 +71,9 @@ class RunningReminderRepositoryImpl @Inject constructor(
             RunningReminderFirestoreFields.IS_ENABLED to reminder.isEnabled,
             RunningReminderFirestoreFields.DAYS to reminder.days.toList()
         )
-        try {
+        runCatching {
             docRef.set(data).awaitResult()
-        } catch (_: Exception) {
-        }
+        }.onFailure(::ignoreRemoteSyncFailure)
     }
 
     private suspend fun deleteReminderRemoteIfNeeded(reminderId: Int) {
@@ -84,9 +83,10 @@ class RunningReminderRepositoryImpl @Inject constructor(
             .document(user.uid)
             .collection(FirestorePaths.COLLECTION_RUNNING_REMINDERS)
             .document(reminderId.toString())
-        try {
+        runCatching {
             docRef.delete().awaitResult()
-        } catch (_: Exception) {
-        }
+        }.onFailure(::ignoreRemoteSyncFailure)
     }
+
+    private fun ignoreRemoteSyncFailure(ignored: Throwable) = Unit
 }
