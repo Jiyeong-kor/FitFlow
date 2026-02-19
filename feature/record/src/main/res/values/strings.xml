@@ -2,7 +2,6 @@
 
     <string name="activity_permission_needed">활동 권한이 필요합니다</string>
     <string name="activity_recognition_failed">활동 인식에 실패했습니다</string>
-    <string name="activity_unknown">활동 알 수 없음</string>
     <string name="activity_stopped">활동 인식 중지</string>
     <string name="activity_running">달리기</string>
     <string name="activity_walking">걷기</string>
@@ -27,7 +26,6 @@
     <string name="record_elapsed_time_ms_format">%1$02d:%2$02d</string>
     <string name="record_speed_zero">0.0 km/h</string>
     <string name="record_speed_format">%.1f km/h</string>
-    <string name="record_calories_zero">0</string>
     <string name="record_notification_title">러닝 자동 측정 중</string>
     <string name="record_notification_content">%1$s km · %2$d분 경과</string>
     <string name="record_notification_channel_name">러닝 측정</string>

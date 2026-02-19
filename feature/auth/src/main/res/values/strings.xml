@@ -29,9 +29,7 @@
     <string name="nickname_continue">완료</string>
     <string name="nickname_preview_value">러너</string>
     <string name="nickname_required_error">닉네임을 입력해 주세요.</string>
-    <string name="nickname_invalid_error">2~10자의 한글/영문/숫자만 입력할 수 있어요.</string>
     <string name="nickname_taken_error">이미 사용 중인 닉네임이에요. 다른 닉네임을 입력해 주세요.</string>
-    <string name="nickname_available">사용 가능한 닉네임이에요.</string>
     <string name="privacy_policy_agreement_link">개인정보처리방침</string>
     <string name="privacy_policy_agreement_suffix">에 동의합니다.</string>
     <string name="privacy_policy_agreement_full">개인정보처리방침에 동의합니다.</string>
