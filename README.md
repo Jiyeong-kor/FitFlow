@@ -134,62 +134,50 @@ flowchart TD
   end
 
   subgraph Feature_Layer["Feature Layer"]
+    direction TB
+    AUTH[":feature:auth"]
     HOME[":feature:home"]
     GOAL[":feature:goal"]
     RECORD[":feature:record"]
     REMINDER[":feature:reminder"]
     AICOACH[":feature:aicoach"]
-    AUTH[":feature:auth"]
     MYPAGE[":feature:mypage"]
+    
+    %% 투명 선을 이용한 수평 정렬 유도
+    AUTH ~~~ HOME ~~~ GOAL ~~~ RECORD ~~~ REMINDER ~~~ AICOACH ~~~ MYPAGE
   end
 
   subgraph Core_Layer["Core Layer"]
-    DOMAIN[":domain"]
     DATA[":data"]
+    DOMAIN[":domain"]
+    DATA --> DOMAIN
   end
 
   subgraph Shared_Layer["Shared Layer"]
-    DS[":shared:designsystem"]
     NAV[":shared:navigation"]
+    DS[":shared:designsystem"]
     NETWORK[":shared:network"]
   end
 
-  APP --> DATA
-  APP --> DS
-  APP --> NAV
+  %% App에서 Feature로의 연결
+  APP --> AUTH
   APP --> HOME
   APP --> GOAL
   APP --> RECORD
   APP --> REMINDER
   APP --> AICOACH
-  APP --> AUTH
   APP --> MYPAGE
 
-  HOME --> DOMAIN
-  GOAL --> DOMAIN
-  RECORD --> DOMAIN
-  REMINDER --> DOMAIN
-  AICOACH --> DOMAIN
-  AUTH --> DOMAIN
-  MYPAGE --> DOMAIN
+  %% App에서 Core/Shared로의 직통 연결 (가독성을 위해 측면으로 우회하거나 하단 배치 유도)
+  APP -.-> DATA
+  APP -.-> DS
+  APP -.-> NAV
 
-  HOME --> DS
-  GOAL --> DS
-  RECORD --> DS
-  REMINDER --> DS
-  AICOACH --> DS
-  AUTH --> DS
-  MYPAGE --> DS
-
-  HOME --> NAV
-  GOAL --> NAV
-  RECORD --> NAV
-  REMINDER --> NAV
-  AICOACH --> NAV
-  AUTH --> NAV
-  MYPAGE --> NAV
-
-  DATA --> DOMAIN
+  %% Feature에서 하위 레이어로의 연결
+  HOME & GOAL & RECORD & REMINDER & AICOACH & AUTH & MYPAGE --> DOMAIN
+  HOME & GOAL & RECORD & REMINDER & AICOACH & AUTH & MYPAGE --> DS
+  HOME & GOAL & RECORD & REMINDER & AICOACH & AUTH & MYPAGE --> NAV
+  
   AUTH --> NETWORK
 
   classDef app fill:#e0e0e0,stroke:#2f2f2f,stroke-width:2px,color:#111;
