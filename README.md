@@ -10,11 +10,12 @@
 [![Hilt](https://img.shields.io/badge/DI-Hilt-blue?logo=dagger)](https://dagger.dev/hilt/)
 
 **RunningGoalTracker**는 사용자의 러닝 목표를 설정하고 관리하며, 안드로이드의 활동 인식 기능을 통해 러닝 상태를 실시간으로 모니터링하는 앱입니다. MVVM을 적용한 Clean Architecture를 준수하였습니다.
-발표 자료: https://www.figma.com/deck/vx8fbnPPDtoaYrsddBK4Kb
+
 ---
 
 ## 📝 프로젝트 개요
 
+- **발표 자료**: https://www.figma.com/deck/vx8fbnPPDtoaYrsddBK4Kb
 - **앱 이름**: `RunningGoalTracker`
 - **목적**: 사용자가 꾸준히 러닝 습관을 형성하고 목표를 달성할 수 있도록 돕는 동기부여 앱입니다. 실시간 활동 인식을 통해 정확한 운동 상태를 추적하고, 개인화된 목표 설정과 스마트 리마인더 기능이 있습니다.
 - **개발 기간**: 2025.12.-2026.01.
