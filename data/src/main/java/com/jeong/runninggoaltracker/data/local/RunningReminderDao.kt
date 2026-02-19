@@ -16,6 +16,9 @@ interface RunningReminderDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun upsertReminder(reminder: RunningReminderEntity)
 
+    @Query("SELECT COALESCE(MAX(id), 0) + 1 FROM ${RunningDatabaseContract.TABLE_RUNNING_REMINDER}")
+    suspend fun getNextReminderId(): Int
+
     @Query(RunningDatabaseContract.QUERY_DELETE_REMINDER)
     suspend fun deleteReminder(reminderId: Int)
 

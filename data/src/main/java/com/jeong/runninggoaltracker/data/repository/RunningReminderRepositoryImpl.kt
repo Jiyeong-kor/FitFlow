@@ -11,21 +11,23 @@ import com.jeong.runninggoaltracker.data.local.toEntity
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
 import com.jeong.runninggoaltracker.domain.di.IoDispatcher
-import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 class RunningReminderRepositoryImpl @Inject constructor(
     private val reminderDao: RunningReminderDao,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    private val dateProvider: DateProvider,
     @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
 ) : RunningReminderRepository {
+
+    private val reminderWriteMutex = Mutex()
 
     override fun getAllReminders(): Flow<List<RunningReminder>> =
         reminderDao.getAllReminders().map { reminders ->
@@ -34,9 +36,12 @@ class RunningReminderRepositoryImpl @Inject constructor(
             .flowOn(ioDispatcher)
 
     override suspend fun upsertReminder(reminder: RunningReminder) {
-        val reminderWithId = ensureReminderId(reminder)
-        withContext(ioDispatcher) {
-            reminderDao.upsertReminder(reminderWithId.toEntity())
+        val reminderWithId = reminderWriteMutex.withLock {
+            withContext(ioDispatcher) {
+                ensureReminderId(reminder).also { reminderWithId ->
+                    reminderDao.upsertReminder(reminderWithId.toEntity())
+                }
+            }
         }
         uploadReminderIfNeeded(reminderWithId)
     }
@@ -48,14 +53,9 @@ class RunningReminderRepositoryImpl @Inject constructor(
         deleteReminderRemoteIfNeeded(reminderId)
     }
 
-    private fun ensureReminderId(reminder: RunningReminder): RunningReminder {
-        val existingId = reminder.id
-        if (existingId != null) {
-            return reminder
-        }
-        val generatedId = (dateProvider.getToday() % Int.MAX_VALUE).toInt()
-        return reminder.copy(id = generatedId)
-    }
+    private suspend fun ensureReminderId(reminder: RunningReminder): RunningReminder =
+        reminder.id?.let { reminder }
+            ?: reminder.copy(id = reminderDao.getNextReminderId())
 
     private suspend fun uploadReminderIfNeeded(reminder: RunningReminder) {
         val user = firebaseAuth.currentUser ?: return

@@ -13,7 +13,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
-import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -33,13 +32,6 @@ class RunningRepositoriesImplTest {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     private val testDispatcher = UnconfinedTestDispatcher()
-    private val dateProvider = object : DateProvider {
-        override fun getTodayFlow(): Flow<Long> = MutableStateFlow(1720000000000L)
-
-        override fun getToday(): Long = 1720000000000L
-
-        override fun getStartOfWeek(timestamp: Long): Long = timestamp
-    }
     private val firebaseAuth = mockk<FirebaseAuth> {
         every { currentUser } returns null
     }
@@ -56,7 +48,6 @@ class RunningRepositoriesImplTest {
             fakeDaos,
             firebaseAuth,
             firestore,
-            dateProvider,
             testDispatcher
         )
 
@@ -144,7 +135,7 @@ class RunningRepositoriesImplTest {
         assertTrue(
             fakeDaos.upsertedReminders.contains(
                 RunningReminderEntity(
-                    id = (dateProvider.getToday() % Int.MAX_VALUE).toInt(),
+                    id = 4,
                     hour = 7,
                     minute = 15,
                     isEnabled = true,
@@ -189,6 +180,9 @@ class RunningRepositoriesImplTest {
             upsertedReminders += reminder
             reminders.value = reminders.value.filterNot { it.id == reminder.id } + reminder
         }
+
+        override suspend fun getNextReminderId(): Int =
+            (reminders.value.mapNotNull { it.id }.maxOrNull() ?: 0) + 1
 
         override suspend fun deleteReminder(reminderId: Int) {
             deletedReminderIds += reminderId
