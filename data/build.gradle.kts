@@ -62,8 +62,6 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase.data)
 
-    implementation(libs.kakao.sdk.user)
-
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.compiler)
 
