@@ -1,12 +1,16 @@
 package com.jeong.runninggoaltracker.feature.mypage.presentation
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -34,6 +38,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import com.jeong.runninggoaltracker.domain.model.AuthError
 import com.jeong.runninggoaltracker.domain.model.RunningSummary
@@ -306,8 +311,13 @@ private fun SummaryStats(uiState: MyPageUiState) {
     val zeroFloat = zeroInt.toFloat()
     val weightOne = MYPAGE_WEIGHT_ONE
     val locale = LocalConfiguration.current.locales[0]
+    val scrollState = rememberScrollState()
+
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(IntrinsicSize.Min)
+            .horizontalScroll(scrollState),
         horizontalArrangement = Arrangement.spacedBy(
             dimensions.myPageSummarySpacing
         )
@@ -340,12 +350,12 @@ private fun SummaryStats(uiState: MyPageUiState) {
                 percentScale = percentageScale
             )
         StatItem(
-            modifier = Modifier.weight(weightOne),
+            modifier = Modifier.fillMaxHeight(),
             label = stringResource(id = R.string.mypage_summary_distance_label),
             value = stringResource(id = R.string.mypage_summary_distance_value, distanceText)
         )
         StatItem(
-            modifier = Modifier.weight(weightOne),
+            modifier = Modifier.fillMaxHeight(),
             label = stringResource(id = R.string.mypage_summary_count_label),
             value = stringResource(
                 id = R.string.mypage_summary_count_value,
@@ -353,7 +363,7 @@ private fun SummaryStats(uiState: MyPageUiState) {
             )
         )
         StatItem(
-            modifier = Modifier.weight(weightOne),
+            modifier = Modifier.fillMaxHeight(),
             label = stringResource(id = R.string.mypage_summary_progress_label),
             value = stringResource(id = R.string.mypage_summary_progress_value, progressText)
         )
@@ -366,18 +376,24 @@ private fun StatItem(label: String, value: String, modifier: Modifier = Modifier
     AppContentCard(modifier = modifier) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(dimensions.myPageStatItemPadding)
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .padding(dimensions.myPageStatItemPadding)
+                .fillMaxHeight()
         ) {
             Text(
                 text = label,
-                style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.outline
+                style = MaterialTheme.typography.titleMedium,
+                softWrap = false,
+                maxLines = 1
             )
             Spacer(modifier = Modifier.size(appSpacingSm()))
             Text(
                 text = value,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                softWrap = false,
+                maxLines = 1
             )
         }
     }
@@ -394,6 +410,7 @@ private fun GoalProgressCard(uiState: MyPageUiState, onClick: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = stringResource(id = R.string.mypage_goal_progress_title),
+                    style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold
                 )
                 Spacer(Modifier.weight(weightOne))
@@ -461,8 +478,7 @@ private fun SettingsList(
                         )
                         Text(
                             text = stringResource(id = R.string.mypage_setting_activity_desc),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.outline
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                     Switch(
@@ -512,15 +528,13 @@ private fun SettingItem(
                 Text(title, style = MaterialTheme.typography.bodyLarge)
                 Text(
                     subTitle,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.outline
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
             Spacer(Modifier.weight(weightOne))
             Icon(
                 AppIcons.keyboardArrowRight(),
-                null,
-                tint = MaterialTheme.colorScheme.outline
+                null
             )
         }
     }
