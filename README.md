@@ -51,40 +51,40 @@
 ### 🤖 AI 코칭 (Pose Detection)
 | 전신 화면 요청 | 런지 측정 | 스쿼트 측정 |
 | :---: | :---: | :---: |
-| <img src="gifs/전신%20화면%20요청.gif" width="250"/> | <img src="gifs/런지.gif" width="250"/> | <img src="gifs/스쿼트.gif" width="250"/> |
+| <img src="gifs/전신%20화면%20요청.gif" width="210"/> | <img src="gifs/런지.gif" width="210"/> | <img src="gifs/스쿼트.gif" width="210"/> |
 
 ### 🏃 러닝 및 활동 기록
 #### [활동 시작 및 목표 설정]
 | 러닝 시작 및 백그라운드 | 홈 화면 활동 기록 | 주간 목표 설정 |
 | :---: | :---: | :---: |
-| <img src="gifs/러닝%20시작%20버튼%20및%20백그라운드%20동작.gif" width="250"/> | <img src="gifs/홈%20화면%20활동%20기록.gif" width="250"/> | <img src="gifs/주간%20목표%20설정.gif" width="250"/> |
+| <img src="gifs/러닝%20시작%20버튼%20및%20백그라운드%20동작.gif" width="210"/> | <img src="gifs/홈%20화면%20활동%20기록.gif" width="210"/> | <img src="gifs/주간%20목표%20설정.gif" width="210"/> |
 
 #### [데이터 분석 및 통계]
 | 일간/주간/월간 통계 | 통계 달력 확인 |
 | :---: | :---: |
-| <img src="gifs/일간%20주간%20월간%20통계.gif" width="250"/> | <img src="gifs/통계%20달력%20확인.gif" width="250"/> |
+| <img src="gifs/일간%20주간%20월간%20통계.gif" width="210"/> | <img src="gifs/통계%20달력%20확인.gif" width="210"/> |
 
 ### 🔑 인증 및 초기 설정
 #### [권한 및 정책]
 | 개인정보처리방침 | 네트워크 권한 요청 | 권한 허용 |
 | :---: | :---: | :---: |
-| <img src="gifs/개인정보처리방침.gif" width="250"/> | <img src="gifs/네트워크%20권한%20요청.gif" width="250"/> | <img src="gifs/권한%20허용.gif" width="250"/> |
+| <img src="gifs/개인정보처리방침.gif" width="210"/> | <img src="gifs/네트워크%20권한%20요청.gif" width="210"/> | <img src="gifs/권한%20허용.gif" width="210"/> |
 
 #### [계정 생성 및 검사]
 | 닉네임 유효성 검사 | 중복 닉네임 처리 | 회원가입 완료 |
 | :---: | :---: | :---: |
-| <img src="gifs/닉네임%20유효성%20검사.gif" width="250"/> | <img src="gifs/중복%20닉네임%20처리.gif" width="250"/> | <img src="gifs/회원가입%20완료.gif" width="250"/> |
+| <img src="gifs/닉네임%20유효성%20검사.gif" width="210"/> | <img src="gifs/중복%20닉네임%20처리.gif" width="210"/> | <img src="gifs/회원가입%20완료.gif" width="210"/> |
 
 ### ⚙️ 설정 및 기타
 #### [알림 관리]
 | 알림 설정 | 알림 확인 |
 | :---: | :---: |
-| <img src="gifs/알림%20설정.gif" width="250"/> | <img src="gifs/알림%20확인.gif" width="250"/> |
+| <img src="gifs/알림%20설정.gif" width="210"/> | <img src="gifs/알림%20확인.gif" width="210"/> |
 
 #### [앱 설정 및 계정]
 | 다크모드 | 마이페이지 회원 탈퇴 |
 | :---: | :---: |
-| <img src="gifs/다크모드.gif" width="250"/> | <img src="gifs/마이페이지%20회원%20탈퇴.gif" width="250"/> |
+| <img src="gifs/다크모드.gif" width="210"/> | <img src="gifs/마이페이지%20회원%20탈퇴.gif" width="210"/> |
 
 ---
 
@@ -129,95 +129,80 @@
 }}%%
 
 flowchart TD
-  %% =========================
-  %% App Layer
-  %% =========================
   subgraph App_Layer["App Layer"]
     APP[":app"]
   end
 
-  %% =========================
-  %% Feature Layer
-  %% =========================
   subgraph Feature_Layer["Feature Layer"]
     HOME[":feature:home"]
     GOAL[":feature:goal"]
     RECORD[":feature:record"]
     REMINDER[":feature:reminder"]
-
-    %% layout only (no semantic meaning)
-    HOME ~~~ GOAL
-    GOAL ~~~ RECORD
-    RECORD ~~~ REMINDER
+    AICOACH[":feature:aicoach"]
+    AUTH[":feature:auth"]
+    MYPAGE[":feature:mypage"]
   end
 
-  %% =========================
-  %% Domain Layer
-  %% =========================
-  subgraph Domain_Layer["Domain Layer"]
+  subgraph Core_Layer["Core Layer"]
     DOMAIN[":domain"]
-  end
-
-  %% =========================
-  %% Data Layer
-  %% =========================
-  subgraph Data_Layer["Data Layer"]
     DATA[":data"]
   end
 
-  %% =========================
-  %% Shared Layer
-  %% =========================
   subgraph Shared_Layer["Shared Layer"]
     DS[":shared:designsystem"]
     NAV[":shared:navigation"]
-    
-    DS ~~~ NAV
+    NETWORK[":shared:network"]
   end
 
-  %% =========================
-  %% Dependencies (semantic)
-  %% =========================
+  APP --> DATA
+  APP --> DS
+  APP --> NAV
   APP --> HOME
   APP --> GOAL
   APP --> RECORD
   APP --> REMINDER
-  APP --> DATA
-  APP --> DS
-  APP --> NAV
+  APP --> AICOACH
+  APP --> AUTH
+  APP --> MYPAGE
 
   HOME --> DOMAIN
   GOAL --> DOMAIN
   RECORD --> DOMAIN
   REMINDER --> DOMAIN
+  AICOACH --> DOMAIN
+  AUTH --> DOMAIN
+  MYPAGE --> DOMAIN
 
   HOME --> DS
   GOAL --> DS
   RECORD --> DS
   REMINDER --> DS
+  AICOACH --> DS
+  AUTH --> DS
+  MYPAGE --> DS
+
+  HOME --> NAV
+  GOAL --> NAV
+  RECORD --> NAV
+  REMINDER --> NAV
+  AICOACH --> NAV
+  AUTH --> NAV
+  MYPAGE --> NAV
 
   DATA --> DOMAIN
+  AUTH --> NETWORK
 
-  %% =========================
-  %% Monotone Styling (lightness only)
-  %% =========================
   classDef app fill:#e0e0e0,stroke:#2f2f2f,stroke-width:2px,color:#111;
   classDef feature fill:#f0f0f0,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
-  classDef domain fill:#fafafa,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
-  classDef data fill:#f6f6f6,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
+  classDef core fill:#fafafa,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
   classDef shared fill:#ededed,stroke:#3a3a3a,stroke-width:1.5px,color:#111;
 
   class APP app;
-  class HOME,GOAL,RECORD,REMINDER feature;
-  class DOMAIN domain;
-  class DATA data;
-  class DS,NAV shared;
-  %% =========================
-  %% Hide layout-only links
-  %% (HOME~GOAL, GOAL~RECORD, RECORD~REMINDER)
-  %% =========================
-  linkStyle 0,1,2 stroke-width:0px;
+  class HOME,GOAL,RECORD,REMINDER,AICOACH,AUTH,MYPAGE feature;
+  class DOMAIN,DATA core;
+  class DS,NAV,NETWORK shared;
 ```
+
 
 ---
 
