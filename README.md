@@ -49,9 +49,11 @@
 ## 📱 기능 시연 (Key Features)
 ### 🤖 AI 코칭 (Pose Detection)
 <div align="center">
+  
 | 전신 화면 요청 | 런지 측정 | 스쿼트 측정 |
 | :---: | :---: | :---: |
 | <img src="gifs/전신%20화면%20요청.gif" width="249"/> | <img src="gifs/런지.gif" width="249"/> | <img src="gifs/스쿼트.gif" width="249"/> |
+
 </div>
 
 ### 🏃 러닝 및 활동 기록
