@@ -38,7 +38,7 @@ class AddRunningRecordUseCaseTest {
 
         override suspend fun addRecord(record: RunningRecord): Long {
             added += record
-            records.value = records.value + record
+            records.value += record
             return record.id
         }
     }

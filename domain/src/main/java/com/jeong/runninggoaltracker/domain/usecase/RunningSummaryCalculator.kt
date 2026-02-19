@@ -33,7 +33,7 @@ class WeeklySummaryCalculator @Inject constructor(private val dateProvider: Date
         val endOfWeekExclusive = startOfWeek +
             DateTimeContract.DAYS_IN_WEEK * RunningTimeContract.MILLIS_PER_DAY
         val thisWeekRecords = records.filter { record ->
-            record.date >= startOfWeek && record.date < endOfWeekExclusive
+            record.date in startOfWeek..<endOfWeekExclusive
         }
 
         val totalKm = thisWeekRecords.sumOf { it.distanceKm }
