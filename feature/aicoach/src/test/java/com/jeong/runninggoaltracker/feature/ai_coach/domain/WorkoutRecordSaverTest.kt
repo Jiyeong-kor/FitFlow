@@ -8,6 +8,7 @@ import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -30,6 +31,28 @@ class WorkoutRecordSaverTest {
         assertEquals(12, repository.saved[0].repCount)
         assertEquals(ExerciseType.LUNGE, repository.saved[1].exerciseType)
         assertEquals(8, repository.saved[1].repCount)
+    }
+
+    @Test
+    fun persistIfNeeded_saves_once_for_same_snapshot_under_concurrency() = runBlocking {
+        val repository = FakeWorkoutRecordRepository()
+        val saver = WorkoutRecordSaver(
+            addWorkoutRecordUseCase = AddWorkoutRecordUseCase(repository),
+            dateProvider = FakeDateProvider(1_700_000_000_000L)
+        )
+
+        repeat(50) {
+            val workers = List(8) {
+                launch {
+                    saver.persistIfNeeded(exerciseType = ExerciseType.SQUAT, repCount = 10)
+                }
+            }
+            workers.forEach { it.join() }
+        }
+
+        assertEquals(1, repository.saved.size)
+        assertEquals(ExerciseType.SQUAT, repository.saved.single().exerciseType)
+        assertEquals(10, repository.saved.single().repCount)
     }
 
     private class FakeWorkoutRecordRepository : WorkoutRecordRepository {
