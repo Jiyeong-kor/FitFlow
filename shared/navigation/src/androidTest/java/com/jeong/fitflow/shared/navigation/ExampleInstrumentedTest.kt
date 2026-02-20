@@ -14,6 +14,6 @@ class ExampleInstrumentedTest {
     fun useAppContext() {
 
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.jeong.runninggoaltracker.shared.navigation.test", appContext.packageName)
+        assertEquals("com.jeong.fitflow.shared.navigation.test", appContext.packageName)
     }
 }

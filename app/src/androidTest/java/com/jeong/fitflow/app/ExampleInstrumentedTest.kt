@@ -11,9 +11,9 @@ class ExampleInstrumentedTest {
     @Test
     fun useAppContext() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
-        assertEquals("com.jeong.runninggoaltracker", appContext.packageName)
+        assertEquals("com.jeong.fitflow", appContext.packageName)
         assertEquals(
-            "com.jeong.runninggoaltracker.app.HiltTestRunner",
+            "com.jeong.fitflow.app.HiltTestRunner",
             HiltTestRunner::class.java.name
         )
     }

@@ -10,14 +10,14 @@ import com.jeong.fitflow.feature.reminder.contract.ReminderNotificationContract
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class RunningGoalTrackerApp : Application() {
-
+class FitFlowApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
         createNotificationChannel()
     }
+
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channelId = ReminderNotificationContract.NOTIFICATION_CHANNEL_ID
