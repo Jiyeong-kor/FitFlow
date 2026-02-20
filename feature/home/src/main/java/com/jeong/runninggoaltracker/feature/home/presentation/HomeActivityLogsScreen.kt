@@ -16,6 +16,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.platform.LocalConfiguration
@@ -27,7 +28,6 @@ import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingLg
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appSpacingMd
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextMutedColor
 import com.jeong.runninggoaltracker.shared.designsystem.theme.appTextPrimaryColor
-import java.text.SimpleDateFormat
 import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +40,7 @@ fun HomeActivityLogsScreen(
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
     val locale = LocalConfiguration.current.locales[0] ?: Locale.getDefault()
+    val dateFormatter = remember { HomeActivityDateFormatter() }
 
     Scaffold(
         topBar = {
@@ -92,7 +93,8 @@ fun HomeActivityLogsScreen(
                 ) { activity ->
                     HomeActivityLogListItem(
                         activity = activity,
-                        locale = locale
+                        locale = locale,
+                        dateFormatter = dateFormatter
                     )
                 }
             }
@@ -103,7 +105,8 @@ fun HomeActivityLogsScreen(
 @Composable
 private fun HomeActivityLogListItem(
     activity: HomeWorkoutLogUiModel,
-    locale: Locale
+    locale: Locale,
+    dateFormatter: HomeActivityDateFormatter
 ) {
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
@@ -139,7 +142,7 @@ private fun HomeActivityLogListItem(
             fontWeight = FontWeight.SemiBold
         )
         Text(
-            text = SimpleDateFormat("M월 d일", locale).format(activity.timestamp),
+            text = dateFormatter.format(activity.timestamp, locale),
             color = textMuted,
             style = MaterialTheme.typography.bodySmall
         )
