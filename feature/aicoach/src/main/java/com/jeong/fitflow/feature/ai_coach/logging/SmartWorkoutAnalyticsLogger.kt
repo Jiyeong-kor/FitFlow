@@ -7,46 +7,47 @@ import com.jeong.fitflow.domain.model.SquatPhaseTransition
 import javax.inject.Inject
 
 class SmartWorkoutAnalyticsLogger @Inject constructor(
-    private val formatter: SmartWorkoutLogFormatter
+    private val formatter: SmartWorkoutLogFormatter,
+    private val smartWorkoutLogger: SmartWorkoutLogger
 ) : WorkoutAnalyticsLogger {
     override fun logTransition(transition: SquatPhaseTransition, frameMetrics: SquatFrameMetrics) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             formatter.formatTransition(transition, frameMetrics)
         }
     }
 
     override fun logRepCountUpdate(source: String, repCount: Int, timestampMs: Long) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             formatter.formatRepCountUpdate(source, repCount, timestampMs)
         }
     }
 
     override fun logWarningEvent(event: PostureWarningEvent) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             formatter.formatWarningEvent(event)
         }
     }
 
     override fun logAttemptStart(metrics: SquatFrameMetrics, timestampMs: Long) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             formatter.formatAttemptStart(metrics, timestampMs)
         }
     }
 
     override fun logAttemptEnd(metrics: SquatFrameMetrics, timestampMs: Long) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             formatter.formatAttemptEnd(metrics, timestampMs)
         }
     }
 
     override fun logDepthReached(metrics: SquatFrameMetrics, timestampMs: Long) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             formatter.formatDepthReached(metrics, timestampMs)
         }
     }
 
     override fun logFullBodyVisibility(metrics: SquatFrameMetrics, timestampMs: Long) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             formatter.formatFullBodyVisibility(metrics, timestampMs)
         }
     }
@@ -56,13 +57,13 @@ class SmartWorkoutAnalyticsLogger @Inject constructor(
         feedbackKey: String,
         timestampMs: Long
     ) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             formatter.formatFeedbackEvent(feedbackType, feedbackKey, timestampMs)
         }
     }
 
     override fun logSkippedFrame(timestampMs: Long) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             formatter.formatSkippedFrame(timestampMs)
         }
     }

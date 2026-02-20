@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.fitflow.data"
+    namespace = "com.jeong.fitflow.shared.logging"
     compileSdk {
         version = release(36)
     }
@@ -33,37 +33,23 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    testOptions {
-        unitTests.isReturnDefaultValues = true
+    buildFeatures {
+        buildConfig = true
     }
 }
+
 kotlin {
     jvmToolchain(21)
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_21)
-        freeCompilerArgs.add("-Xannotation-default-target=param-property")
     }
 }
-ksp {
-    arg("room.schemaLocation", "$projectDir/schemas")
-}
+
 dependencies {
-    implementation(project(":domain"))
-    implementation(project(":shared:logging"))
-
-    implementation(libs.kotlinx.coroutines.core)
-
     implementation(libs.androidx.core.ktx)
 
     implementation(libs.hilt.android)
-    implementation(libs.javax.inject)
 
-    implementation(libs.bundles.room)
-
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.bundles.firebase.data)
-
-    ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.compiler)
 
     testImplementation(libs.bundles.test.unit)

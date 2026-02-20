@@ -11,7 +11,7 @@ import com.jeong.fitflow.data.local.toEntity
 import com.jeong.fitflow.domain.model.RunningReminder
 import com.jeong.fitflow.domain.repository.RunningReminderRepository
 import com.jeong.fitflow.domain.di.IoDispatcher
-import android.util.Log
+import com.jeong.fitflow.shared.logging.AppLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -26,7 +26,8 @@ class RunningReminderRepositoryImpl @Inject constructor(
     private val reminderDao: RunningReminderDao,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val appLogger: AppLogger
 ) : RunningReminderRepository {
 
     private val reminderWriteMutex = Mutex()
@@ -91,7 +92,7 @@ class RunningReminderRepositoryImpl @Inject constructor(
     }
 
     private fun handleRemoteSyncFailure(throwable: Throwable) {
-        Log.w(LOG_TAG, REMOTE_SYNC_FAILURE_MESSAGE, throwable)
+        appLogger.warning(LOG_TAG, REMOTE_SYNC_FAILURE_MESSAGE, throwable)
     }
 
     private companion object {

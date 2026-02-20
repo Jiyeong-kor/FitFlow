@@ -37,9 +37,9 @@ object AiCoachModule {
 
     @Provides
     @ViewModelScoped
-    fun provideLungeAnalyzer(): LungeAnalyzer {
+    fun provideLungeAnalyzer(smartWorkoutLogger: SmartWorkoutLogger): LungeAnalyzer {
         val debugLogger: (Any) -> Unit = { payload ->
-            SmartWorkoutLogger.logDebug { payload.toString() }
+            smartWorkoutLogger.logDebug { payload.toString() }
         }
         return LungeAnalyzer(debugLogger = debugLogger)
     }
@@ -71,8 +71,9 @@ object AiCoachModule {
     @Provides
     @ViewModelScoped
     fun provideAnalyticsLogger(
-        formatter: SmartWorkoutLogFormatter
-    ): WorkoutAnalyticsLogger = SmartWorkoutAnalyticsLogger(formatter)
+        formatter: SmartWorkoutLogFormatter,
+        smartWorkoutLogger: SmartWorkoutLogger
+    ): WorkoutAnalyticsLogger = SmartWorkoutAnalyticsLogger(formatter, smartWorkoutLogger)
 
     @Provides
     @ViewModelScoped
@@ -80,11 +81,13 @@ object AiCoachModule {
         poseDetector: PoseDetector,
         processPoseUseCase: ProcessPoseUseCase,
         speechCoordinator: SpeechCoordinator,
-        analyticsLogger: WorkoutAnalyticsLogger
+        analyticsLogger: WorkoutAnalyticsLogger,
+        smartWorkoutLogger: SmartWorkoutLogger
     ): PoseFrameProcessor = PoseFrameProcessor(
         poseDetector = poseDetector,
         processPoseUseCase = processPoseUseCase,
         speechCoordinator = speechCoordinator,
-        analyticsLogger = analyticsLogger
+        analyticsLogger = analyticsLogger,
+        smartWorkoutLogger = smartWorkoutLogger
     )
 }

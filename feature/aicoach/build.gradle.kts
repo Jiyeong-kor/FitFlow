@@ -46,6 +46,7 @@ kotlin {
 
 dependencies {
     implementation(project(":domain"))
+    implementation(project(":shared:logging"))
     implementation(project(":shared:designsystem"))
     implementation(project(":shared:navigation"))
 

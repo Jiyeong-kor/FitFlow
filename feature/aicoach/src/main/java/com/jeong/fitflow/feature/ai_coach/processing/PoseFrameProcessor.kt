@@ -23,7 +23,8 @@ class PoseFrameProcessor @Inject constructor(
     private val poseDetector: PoseDetector,
     private val processPoseUseCase: ProcessPoseUseCase,
     private val speechCoordinator: SpeechCoordinator,
-    private val analyticsLogger: WorkoutAnalyticsLogger
+    private val analyticsLogger: WorkoutAnalyticsLogger,
+    private val smartWorkoutLogger: SmartWorkoutLogger
 ) {
     private var isLastAttemptActive: Boolean? = null
     private var isLastDepthReached: Boolean? = null
@@ -197,7 +198,7 @@ class PoseFrameProcessor @Inject constructor(
         exerciseType: ExerciseType,
         analysis: com.jeong.fitflow.domain.model.PoseAnalysisResult
     ) {
-        SmartWorkoutLogger.logDebug {
+        smartWorkoutLogger.logDebug {
             buildString {
                 append("frameAnalysis")
                 append(" timestamp=")
