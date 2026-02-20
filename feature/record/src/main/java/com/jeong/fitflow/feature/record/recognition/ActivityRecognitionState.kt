@@ -1,0 +1,24 @@
+package com.jeong.fitflow.feature.record.recognition
+
+import com.jeong.fitflow.feature.record.api.model.ActivityState
+import com.jeong.fitflow.feature.record.api.model.ActivityRecognitionStatus
+import javax.inject.Inject
+import javax.inject.Singleton
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
+
+interface ActivityStateUpdater {
+    fun update(status: ActivityRecognitionStatus)
+}
+
+@Singleton
+class ActivityRecognitionStateHolder @Inject constructor() : ActivityStateUpdater {
+
+    private val _state = MutableStateFlow(ActivityState())
+    val state: StateFlow<ActivityState> = _state
+
+    override fun update(status: ActivityRecognitionStatus) {
+        _state.update { ActivityState(status = status) }
+    }
+}

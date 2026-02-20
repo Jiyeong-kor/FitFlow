@@ -1,0 +1,104 @@
+package com.jeong.fitflow.feature.record.recognition
+
+import android.Manifest
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.annotation.RequiresPermission
+import androidx.core.content.ContextCompat
+import com.jeong.fitflow.feature.record.api.ActivityRecognitionController
+import com.google.android.gms.location.ActivityRecognition
+import com.google.android.gms.location.ActivityRecognitionClient
+import javax.inject.Inject
+import com.jeong.fitflow.feature.record.api.model.ActivityRecognitionStatus
+import com.jeong.fitflow.feature.record.contract.ActivityRecognitionContract
+import com.jeong.fitflow.shared.designsystem.config.AppNumericTokens
+
+class DefaultActivityRecognitionController @Inject constructor(
+    private val context: Context,
+    private val activityStateUpdater: ActivityStateUpdater
+) : ActivityRecognitionController {
+
+    private val client: ActivityRecognitionClient =
+        ActivityRecognition.getClient(context)
+
+    private fun hasPermission(): Boolean =
+        Build.VERSION.SDK_INT < Build.VERSION_CODES.Q ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACTIVITY_RECOGNITION
+                ) == PackageManager.PERMISSION_GRANTED
+
+    private fun createPendingIntent(): PendingIntent {
+        val intent = Intent(
+            context.applicationContext, ActivityRecognitionReceiver::class.java
+        )
+        return PendingIntent.getBroadcast(
+            context.applicationContext,
+            requestCode(),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
+        )
+    }
+
+    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
+    override fun startUpdates() {
+        if (!hasPermission()) {
+            activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
+            return
+        }
+
+        requestUpdatesWithPermission()
+    }
+
+    @RequiresPermission(Manifest.permission.ACTIVITY_RECOGNITION)
+    override fun stopUpdates() {
+        if (!hasPermission()) {
+            activityStateUpdater.update(ActivityRecognitionStatus.NoPermission)
+            activityStateUpdater.update(ActivityRecognitionStatus.Stopped)
+            return
+        }
+        removeUpdatesWithPermission()
+    }
+
+    @RequiresPermission(
+        anyOf = [
+            Manifest.permission.ACTIVITY_RECOGNITION,
+            ActivityRecognitionContract.LEGACY_ACTIVITY_RECOGNITION_PERMISSION
+        ]
+    )
+    private fun requestUpdatesWithPermission() {
+        try {
+            client.requestActivityUpdates(
+                intervalMillis(),
+                createPendingIntent()
+            ).addOnSuccessListener {
+            }.addOnFailureListener {
+                activityStateUpdater.update(ActivityRecognitionStatus.RequestFailed)
+            }
+        } catch (_: SecurityException) {
+            activityStateUpdater.update(ActivityRecognitionStatus.SecurityException)
+        }
+    }
+
+    @RequiresPermission(
+        anyOf = [
+            Manifest.permission.ACTIVITY_RECOGNITION,
+            ActivityRecognitionContract.LEGACY_ACTIVITY_RECOGNITION_PERMISSION
+        ]
+    )
+    private fun removeUpdatesWithPermission() {
+        try {
+            client.removeActivityUpdates(createPendingIntent())
+        } catch (_: SecurityException) {
+        }
+        activityStateUpdater.update(ActivityRecognitionStatus.Stopped)
+    }
+
+    private fun requestCode(): Int = ActivityRecognitionContract.REQUEST_CODE
+
+    private fun intervalMillis(): Long =
+        AppNumericTokens.RECORD_ACTIVITY_RECOGNITION_INTERVAL_MILLIS
+}

@@ -1,0 +1,58 @@
+package com.jeong.fitflow.domain.usecase
+
+import com.jeong.fitflow.domain.model.RunningGoal
+import com.jeong.fitflow.domain.model.RunningRecord
+import com.jeong.fitflow.domain.model.RunningSummary
+import com.jeong.fitflow.domain.contract.DateTimeContract
+import com.jeong.fitflow.domain.contract.RunningTimeContract
+import com.jeong.fitflow.domain.util.DateProvider
+import javax.inject.Inject
+
+private const val MIN_WEEKLY_GOAL_KM = 0.0
+private const val MIN_PROGRESS_BOUND = 0.0
+private const val MAX_PROGRESS_BOUND = 1.0
+private const val ZERO_PROGRESS = 0f
+
+interface RunningSummaryCalculator {
+    fun calculate(
+        goal: RunningGoal?,
+        records: List<RunningRecord>,
+        todayMillis: Long
+    ): RunningSummary
+}
+
+class WeeklySummaryCalculator @Inject constructor(private val dateProvider: DateProvider) :
+    RunningSummaryCalculator {
+
+    override fun calculate(
+        goal: RunningGoal?,
+        records: List<RunningRecord>,
+        todayMillis: Long
+    ): RunningSummary {
+        val startOfWeek = dateProvider.getStartOfWeek(todayMillis)
+        val endOfWeekExclusive = startOfWeek +
+            DateTimeContract.DAYS_IN_WEEK * RunningTimeContract.MILLIS_PER_DAY
+        val thisWeekRecords = records.filter { record ->
+            record.date in startOfWeek..<endOfWeekExclusive
+        }
+
+        val totalKm = thisWeekRecords.sumOf { it.distanceKm }
+        val count = thisWeekRecords.size
+        val weeklyGoalKm = goal?.weeklyGoalKm
+
+        val progress = if (weeklyGoalKm != null && weeklyGoalKm > MIN_WEEKLY_GOAL_KM) {
+            (totalKm / weeklyGoalKm)
+                .coerceIn(MIN_PROGRESS_BOUND, MAX_PROGRESS_BOUND)
+                .toFloat()
+        } else {
+            ZERO_PROGRESS
+        }
+
+        return RunningSummary(
+            weeklyGoalKm = weeklyGoalKm,
+            totalThisWeekKm = totalKm,
+            recordCountThisWeek = count,
+            progress = progress
+        )
+    }
+}

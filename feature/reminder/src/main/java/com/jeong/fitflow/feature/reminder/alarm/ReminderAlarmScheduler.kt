@@ -1,0 +1,108 @@
+package com.jeong.fitflow.feature.reminder.alarm
+
+import android.Manifest
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.os.Build
+import androidx.annotation.RequiresPermission
+import com.jeong.fitflow.domain.util.DateProvider
+import com.jeong.fitflow.feature.reminder.contract.ReminderAlarmContract
+import com.jeong.fitflow.shared.designsystem.config.AppNumericTokens
+import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Calendar
+import javax.inject.Inject
+import javax.inject.Singleton
+
+@Singleton
+class ReminderAlarmScheduler @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val dateProvider: DateProvider
+) {
+    private val alarmManager: AlarmManager =
+        context.getSystemService(AlarmManager::class.java)
+
+    private fun getUniqueRequestCode(id: Int, hour: Int, minute: Int, dayOfWeek: Int): Int =
+        ReminderAlarmContract.REQUEST_CODE_BASE +
+                id * ReminderAlarmContract.REQUEST_CODE_ID_MULTIPLIER +
+                hour * ReminderAlarmContract.REQUEST_CODE_HOUR_MULTIPLIER +
+                minute * ReminderAlarmContract.REQUEST_CODE_MINUTE_MULTIPLIER +
+                dayOfWeek
+
+    private fun createPendingIntent(
+        id: Int,
+        hour: Int,
+        minute: Int,
+        dayOfWeek: Int
+    ): PendingIntent {
+        val intent = Intent(context, ReminderAlarmReceiver::class.java).apply {
+            action = reminderAction(id, dayOfWeek)
+
+            putExtra(ReminderAlarmContract.EXTRA_ID, id)
+            putExtra(ReminderAlarmContract.EXTRA_HOUR, hour)
+            putExtra(ReminderAlarmContract.EXTRA_MINUTE, minute)
+            putExtra(ReminderAlarmContract.EXTRA_DAY_OF_WEEK, dayOfWeek)
+        }
+
+        return PendingIntent.getBroadcast(
+            context,
+            getUniqueRequestCode(id, hour, minute, dayOfWeek),
+            intent,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+        )
+    }
+
+    @RequiresPermission(Manifest.permission.SCHEDULE_EXACT_ALARM)
+    fun schedule(id: Int?, hour: Int, minute: Int, days: Set<Int>) {
+        val nonNullId = id ?: return
+        if (days.isEmpty()) return
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            val canExact = alarmManager.canScheduleExactAlarms()
+            if (!canExact) {
+                return
+            }
+        }
+
+        val zeroInt = AppNumericTokens.ZERO_INT
+        val oneInt = AppNumericTokens.ONE_INT
+
+        val nowMillis = dateProvider.getToday()
+        days.forEach { dayOfWeek ->
+            val calendar = Calendar.getInstance().apply {
+                timeInMillis = nowMillis
+                set(Calendar.HOUR_OF_DAY, hour)
+                set(Calendar.MINUTE, minute)
+                set(Calendar.SECOND, zeroInt)
+                set(Calendar.MILLISECOND, zeroInt)
+                set(Calendar.DAY_OF_WEEK, dayOfWeek)
+
+                if (timeInMillis <= nowMillis) {
+                    add(Calendar.WEEK_OF_YEAR, oneInt)
+                }
+            }
+
+            val triggerAtMillis = calendar.timeInMillis
+            val pendingIntent = createPendingIntent(nonNullId, hour, minute, dayOfWeek)
+
+            alarmManager.setExactAndAllowWhileIdle(
+                AlarmManager.RTC_WAKEUP,
+                triggerAtMillis,
+                pendingIntent
+            )
+        }
+    }
+
+    fun cancel(id: Int?, hour: Int, minute: Int, days: Set<Int>) {
+        val nonNullId = id ?: return
+
+        days.forEach { dayOfWeek ->
+            val pendingIntent = createPendingIntent(nonNullId, hour, minute, dayOfWeek)
+            alarmManager.cancel(pendingIntent)
+        }
+    }
+
+    private fun reminderAction(id: Int, dayOfWeek: Int): String =
+        ReminderAlarmContract.ACTION_REMINDER_ALARM_FORMAT.format(id, dayOfWeek)
+}

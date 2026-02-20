@@ -1,0 +1,6 @@
+package com.jeong.fitflow.feature.record.contract
+
+const val RECORD_WEIGHT_FULL = 1f
+const val RECORD_PREVIEW_DISTANCE_SCALE_HUNDREDTHS = 100.0
+const val RECORD_PREVIEW_DISTANCE_HUNDREDTHS = 345
+const val RECORD_PREVIEW_ELAPSED_MILLIS = 1_245_000L

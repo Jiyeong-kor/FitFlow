@@ -1,0 +1,47 @@
+package com.jeong.fitflow.feature.record.tracking
+
+import android.Manifest
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import androidx.core.content.ContextCompat
+import com.jeong.fitflow.feature.record.api.RunningTrackerController
+import com.jeong.fitflow.feature.record.contract.RunningTrackerServiceContract
+import com.jeong.fitflow.shared.designsystem.notification.NotificationPermissionGate
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+
+class DefaultRunningTrackerController @Inject constructor(
+    @param:ApplicationContext private val context: Context,
+    private val stateUpdater: RunningTrackerStateUpdater
+) : RunningTrackerController {
+
+    override fun startTracking() {
+        if (!hasLocationPermission() || !NotificationPermissionGate.canPostNotifications(context)) {
+            stateUpdater.markPermissionRequired()
+            return
+        }
+        stateUpdater.markTracking(startedAtEpochMillis = System.currentTimeMillis())
+        val intent = Intent(context, RunningTrackerService::class.java).apply {
+            action = RunningTrackerServiceContract.ACTION_START
+        }
+        ContextCompat.startForegroundService(context, intent)
+    }
+
+    override fun stopTracking() {
+        val intent = Intent(context, RunningTrackerService::class.java).apply {
+            action = RunningTrackerServiceContract.ACTION_STOP
+        }
+        context.startService(intent)
+    }
+
+    private fun hasLocationPermission(): Boolean =
+        ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED ||
+                ContextCompat.checkSelfPermission(
+                    context,
+                    Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED
+}
