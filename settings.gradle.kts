@@ -19,7 +19,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "RunningGoalTracker"
+rootProject.name = "FitFlow"
 include(":app")
 include(":domain")
 include(":shared:designsystem")

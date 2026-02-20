@@ -29,7 +29,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.runninggoaltracker"
+    namespace = "com.jeong.fitflow"
     compileSdk {
         version = release(36)
     }
@@ -46,13 +46,13 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.jeong.runninggoaltracker"
+        applicationId = "com.jeong.fitflow"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
-        testInstrumentationRunner = "com.jeong.runninggoaltracker.app.HiltTestRunner"
+        testInstrumentationRunner = "com.jeong.fitflow.app.HiltTestRunner"
 
         buildConfigField("String", "PRIVACY_POLICY_URL", "\"$privacyPolicyUrl\"")
     }

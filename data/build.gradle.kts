@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.runninggoaltracker.data"
+    namespace = "com.jeong.fitflow.data"
     compileSdk {
         version = release(36)
     }

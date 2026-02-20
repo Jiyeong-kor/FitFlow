@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.runninggoaltracker.shared.designsystem"
+    namespace = "com.jeong.fitflow.shared.designsystem"
     compileSdk {
         version = release(36)
     }

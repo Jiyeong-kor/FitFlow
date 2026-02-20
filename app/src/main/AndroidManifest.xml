@@ -18,7 +18,7 @@
         android:required="false" />
 
     <application
-        android:name=".app.RunningGoalTrackerApp"
+        android:name=".app.FitFlowApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -29,7 +29,7 @@
         android:theme="@style/Theme.RunningGoalTracker">
 
         <service
-            android:name="com.jeong.runninggoaltracker.feature.record.tracking.RunningTrackerService"
+            android:name="com.jeong.fitflow.feature.record.tracking.RunningTrackerService"
             android:enabled="true"
             android:exported="false"
             android:foregroundServiceType="location"

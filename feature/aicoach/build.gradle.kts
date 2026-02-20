@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.runninggoaltracker.feature.ai_coach"
+    namespace = "com.jeong.fitflow.feature.ai_coach"
     compileSdk {
         version = release(36)
     }

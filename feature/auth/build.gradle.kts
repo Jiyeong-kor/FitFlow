@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.runninggoaltracker.feature.auth"
+    namespace = "com.jeong.fitflow.feature.auth"
     compileSdk {
         version = release(36)
     }

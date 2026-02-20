@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.runninggoaltracker.shared.navigation"
+    namespace = "com.jeong.fitflow.shared.navigation"
     compileSdk {
         version = release(36)
     }

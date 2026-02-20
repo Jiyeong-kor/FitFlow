@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.runninggoaltracker.shared.network"
+    namespace = "com.jeong.fitflow.shared.network"
     compileSdk {
         version = release(36)
     }

@@ -7,7 +7,7 @@ plugins {
 }
 
 android {
-    namespace = "com.jeong.runninggoaltracker.feature.reminder"
+    namespace = "com.jeong.fitflow.feature.reminder"
     compileSdk {
         version = release(36)
     }
