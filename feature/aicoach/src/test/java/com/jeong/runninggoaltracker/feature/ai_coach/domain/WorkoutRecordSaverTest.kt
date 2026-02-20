@@ -8,6 +8,7 @@ import com.jeong.runninggoaltracker.domain.util.DateProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.joinAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -47,7 +48,7 @@ class WorkoutRecordSaverTest {
                     saver.persistIfNeeded(exerciseType = ExerciseType.SQUAT, repCount = 10)
                 }
             }
-            workers.forEach { it.join() }
+            workers.joinAll()
         }
 
         assertEquals(1, repository.saved.size)
