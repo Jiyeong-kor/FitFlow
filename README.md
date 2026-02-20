@@ -9,7 +9,7 @@
 [![Jetpack Compose](https://img.shields.io/badge/UI-Jetpack_Compose-blue?logo=jetpackcompose)](https://developer.android.com/jetpack/compose)
 [![Hilt](https://img.shields.io/badge/DI-Hilt-blue?logo=dagger)](https://dagger.dev/hilt/)
 
-**FitFlow는 러닝 트래킹과 AI 자세 코칭을 동등한 핵심 축으로 갖는 통합 운동 관리 앱입니다.**
+**FitFlow는 러닝과 AI 자세 코칭을 통한 운동 기능을 통합한 건강 관리 앱입니다.**
 
 ---
 
