@@ -12,6 +12,7 @@ import com.jeong.runninggoaltracker.domain.model.RunningGoal
 import com.jeong.runninggoaltracker.domain.repository.RunningGoalRepository
 import com.jeong.runninggoaltracker.domain.di.IoDispatcher
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -22,7 +23,7 @@ class RunningGoalRepositoryImpl @Inject constructor(
     private val goalDao: RunningGoalDao,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : RunningGoalRepository {
 
     override fun getGoal(): Flow<RunningGoal?> =

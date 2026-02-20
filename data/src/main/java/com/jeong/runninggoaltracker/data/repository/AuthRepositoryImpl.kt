@@ -20,6 +20,7 @@ import com.jeong.runninggoaltracker.domain.repository.AuthRepository
 import com.jeong.runninggoaltracker.domain.util.NicknameNormalizer
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
@@ -33,7 +34,7 @@ class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val runningDatabase: com.jeong.runninggoaltracker.data.local.RunningDatabase,
-    @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : AuthRepository {
     override suspend fun signInAnonymously(): Result<Unit> =
         suspendCancellableCoroutine { continuation ->

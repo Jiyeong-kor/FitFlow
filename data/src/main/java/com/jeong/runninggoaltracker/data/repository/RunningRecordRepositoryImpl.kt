@@ -15,6 +15,7 @@ import com.jeong.runninggoaltracker.domain.di.IoDispatcher
 import com.jeong.runninggoaltracker.domain.model.RunningRecord
 import com.jeong.runninggoaltracker.domain.repository.RunningRecordRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -26,7 +27,7 @@ class RunningRecordRepositoryImpl @Inject constructor(
     private val syncOutboxDao: SyncOutboxDao,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    @IoDispatcher private val ioDispatcher: kotlinx.coroutines.CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : RunningRecordRepository {
 
     override fun getAllRecords(): Flow<List<RunningRecord>> =
