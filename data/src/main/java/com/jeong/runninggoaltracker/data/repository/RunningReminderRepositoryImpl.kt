@@ -11,6 +11,7 @@ import com.jeong.runninggoaltracker.data.local.toEntity
 import com.jeong.runninggoaltracker.domain.model.RunningReminder
 import com.jeong.runninggoaltracker.domain.repository.RunningReminderRepository
 import com.jeong.runninggoaltracker.domain.di.IoDispatcher
+import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -74,7 +75,7 @@ class RunningReminderRepositoryImpl @Inject constructor(
         )
         runCatching {
             docRef.set(data).awaitResult()
-        }.onFailure(::ignoreRemoteSyncFailure)
+        }.onFailure(::handleRemoteSyncFailure)
     }
 
     private suspend fun deleteReminderRemoteIfNeeded(reminderId: Int) {
@@ -86,8 +87,15 @@ class RunningReminderRepositoryImpl @Inject constructor(
             .document(reminderId.toString())
         runCatching {
             docRef.delete().awaitResult()
-        }.onFailure(::ignoreRemoteSyncFailure)
+        }.onFailure(::handleRemoteSyncFailure)
     }
 
-    private fun ignoreRemoteSyncFailure(ignored: Throwable) = Unit
+    private fun handleRemoteSyncFailure(throwable: Throwable) {
+        Log.w(LOG_TAG, REMOTE_SYNC_FAILURE_MESSAGE, throwable)
+    }
+
+    private companion object {
+        const val LOG_TAG = "RunningReminderRepo"
+        const val REMOTE_SYNC_FAILURE_MESSAGE = "Remote sync failed; using local data"
+    }
 }
