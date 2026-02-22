@@ -4,7 +4,8 @@ import android.util.Log
 import javax.inject.Inject
 
 class LogcatAppLogger @Inject constructor(
-    private val appLogSanitizer: AppLogSanitizer
+    private val appLogSanitizer: AppLogSanitizer,
+    private val nonFatalExceptionRecorder: NonFatalExceptionRecorder
 ) : AppLogger {
     override fun debug(tag: String, message: String) {
         if (BuildConfig.DEBUG) {
@@ -30,6 +31,7 @@ class LogcatAppLogger @Inject constructor(
         if (BuildConfig.DEBUG) {
             Log.w(sanitizedTag, sanitizedMessage, throwable)
         } else {
+            throwable?.let(nonFatalExceptionRecorder::record)
             Log.w(sanitizedTag, sanitizedMessage)
         }
     }
