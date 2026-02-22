@@ -24,6 +24,26 @@ class LogcatAppLoggerTest {
         assertNull(recorder.recordedThrowable)
     }
 
+
+    @Test
+    fun `debug lambda is not evaluated when debug build is disabled`() {
+        val androidLogSink = FakeAndroidLogSink()
+        val recorder = FakeNonFatalExceptionRecorder()
+        val logger = LogcatAppLogger(
+            appLogSanitizer = AppLogSanitizer(),
+            appBuildInfo = FakeAppBuildInfo(isDebug = false),
+            androidLogSink = androidLogSink,
+            nonFatalExceptionRecorder = recorder
+        )
+
+        logger.debug(tag = "FeatureAuth") {
+            throw IllegalStateException("must not evaluate in release")
+        }
+
+        assertEquals(0, androidLogSink.debugLogs.size)
+        assertNull(recorder.recordedThrowable)
+    }
+
     @Test
     fun `warning records non-fatal exception in release build and skips logcat warning`() {
         val androidLogSink = FakeAndroidLogSink()

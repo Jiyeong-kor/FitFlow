@@ -13,7 +13,9 @@ class LogcatAppLogger @Inject constructor(
     }
 
     override fun debug(tag: String, message: () -> String) {
-        emitDebugLog(tag, message())
+        if (appBuildInfo.isDebugBuild()) {
+            emitDebugLog(tag, message())
+        }
     }
 
     override fun warning(tag: String, message: String, throwable: Throwable?) {

@@ -100,4 +100,12 @@ class AppLogSanitizerTest {
 
         assertEquals("ThisTagNameIsWayTooLong", sanitized)
     }
+
+    @Test
+    fun sanitizeTag_returnsDefaultWhenBlank() {
+        val sanitized = sanitizer.sanitizeTag("   ")
+
+        assertEquals("App", sanitized)
+    }
+
 }
