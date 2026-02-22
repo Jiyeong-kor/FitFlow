@@ -16,6 +16,15 @@ class AppLogSanitizerTest {
     }
 
     @Test
+    fun sanitizeMessage_redactsUserIdentifiersAndFirestorePaths() {
+        val source = "uid=test-uid userId=user-123 records/test-uid/goals/goal-1"
+
+        val sanitized = sanitizer.sanitizeMessage(source)
+
+        assertEquals("[REDACTED] [REDACTED] [REDACTED]", sanitized)
+    }
+
+    @Test
     fun sanitizeMessage_returnsPlaceholderWhenBlank() {
         val sanitized = sanitizer.sanitizeMessage("  ")
 
