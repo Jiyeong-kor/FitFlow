@@ -15,6 +15,15 @@ class LogcatAppLogger @Inject constructor(
         }
     }
 
+    override fun debug(tag: String, message: () -> String) {
+        if (BuildConfig.DEBUG) {
+            Log.d(
+                appLogSanitizer.sanitizeTag(tag),
+                appLogSanitizer.sanitizeMessage(message())
+            )
+        }
+    }
+
     override fun warning(tag: String, message: String, throwable: Throwable?) {
         Log.w(
             appLogSanitizer.sanitizeTag(tag),
