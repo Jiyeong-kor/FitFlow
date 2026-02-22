@@ -6,12 +6,11 @@ class AppLogSanitizer @Inject constructor() {
     fun sanitizeTag(tag: String): String =
         tag.take(TAG_MAX_LENGTH).ifBlank { DEFAULT_TAG }
 
-    fun sanitizeMessage(message: String): String {
-        if (message.isBlank()) return EMPTY_MESSAGE
-        return SENSITIVE_PATTERNS.fold(message) { current, pattern ->
+    fun sanitizeMessage(message: String): String =
+        if (message.isBlank()) EMPTY_MESSAGE
+        else SENSITIVE_PATTERNS.fold(message) { current, pattern ->
             pattern.replace(current, REDACTED_VALUE)
         }
-    }
 
     private companion object {
         const val DEFAULT_TAG = "App"
