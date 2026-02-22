@@ -19,8 +19,9 @@ class AppLogSanitizer @Inject constructor() {
         const val TAG_MAX_LENGTH = 23
 
         val SENSITIVE_PATTERNS = listOf(
-            Regex("(?i)(api[_-]?key|token|secret|authorization)\\s*[:=]\\s*[^,\\s]+"),
+            Regex("(?i)\\b(api[_-]?key|token|secret|authorization|client[_-]?secret)\\b\\s*[:=]\\s*[^,\\s]+"),
             Regex("(?i)bearer\\s+[a-z0-9._\\-]+"),
+            Regex("(?i)(access|refresh)[_-]?token\\s*[:=]\\s*[^,\\s]+"),
             Regex("(?i)(uid|user[_-]?id)\\s*[:=]\\s*[^,\\s]+"),
             Regex("(?i)(?<!\\S)(?:users|usernames|records|goals|sessions)/[a-z0-9_-]+(?:/[a-z0-9_-]+)*")
         )

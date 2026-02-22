@@ -25,6 +25,15 @@ class AppLogSanitizerTest {
     }
 
     @Test
+    fun sanitizeMessage_redactsClientSecretAccessTokenAndRefreshToken() {
+        val source = "clientSecret=my-secret accessToken=my-access-token refreshToken=my-refresh-token"
+
+        val sanitized = sanitizer.sanitizeMessage(source)
+
+        assertEquals("[REDACTED] [REDACTED] [REDACTED]", sanitized)
+    }
+
+    @Test
     fun sanitizeMessage_returnsPlaceholderWhenBlank() {
         val sanitized = sanitizer.sanitizeMessage("  ")
 
