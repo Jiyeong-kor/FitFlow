@@ -43,6 +43,8 @@ kotlin {
 }
 
 dependencies {
+    implementation(project(":shared:logging"))
+
     implementation(libs.kotlinx.coroutines.core)
 
     implementation(libs.androidx.core.ktx)

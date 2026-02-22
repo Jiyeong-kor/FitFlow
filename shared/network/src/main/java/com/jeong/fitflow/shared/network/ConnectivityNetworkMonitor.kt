@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.Network
 import android.net.NetworkCapabilities
+import com.jeong.fitflow.shared.logging.AppLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Singleton
 import javax.inject.Inject
@@ -15,7 +16,8 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Singleton
 class ConnectivityNetworkMonitor @Inject constructor(
-    @ApplicationContext context: Context
+    @ApplicationContext context: Context,
+    private val appLogger: AppLogger
 ) : NetworkMonitor {
     private val connectivityManager =
         context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -38,8 +40,27 @@ class ConnectivityNetworkMonitor @Inject constructor(
                 trySend(isConnected(networkCapabilities))
             }
         }
-        connectivityManager.registerDefaultNetworkCallback(callback)
-        awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
+        runCatching {
+            connectivityManager.registerDefaultNetworkCallback(callback)
+        }.onFailure { throwable ->
+            appLogger.warning(
+                TAG,
+                "Network callback registration failed",
+                throwable
+            )
+            close(throwable)
+        }
+        awaitClose {
+            runCatching {
+                connectivityManager.unregisterNetworkCallback(callback)
+            }.onFailure { throwable ->
+                appLogger.warning(
+                    TAG,
+                    "Network callback unregistration failed",
+                    throwable
+                )
+            }
+        }
     }.conflate()
         .distinctUntilChanged()
 
@@ -53,4 +74,8 @@ class ConnectivityNetworkMonitor @Inject constructor(
             networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) &&
                     networkCapabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED)
         } ?: false
+
+    private companion object {
+        const val TAG = "ConnectivityNetworkMonitor"
+    }
 }
