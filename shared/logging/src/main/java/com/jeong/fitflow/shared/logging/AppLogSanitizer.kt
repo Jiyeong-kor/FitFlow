@@ -21,7 +21,7 @@ class AppLogSanitizer @Inject constructor() {
         val SENSITIVE_PATTERNS = listOf(
             Regex("(?i)(?<![\\w-])(?:api[_-]?key|token|secret|client[_-]?secret)\\b\\s*[:=]\\s*[^,\\s]+"),
             Regex("(?i)(?<![\\w-])authorization\\b(?!\\s*[:=]\\s*bearer\\b)\\s*[:=]\\s*[^,\\s]+"),
-            Regex("(?i)bearer\\s+[a-z0-9._~+\\-/]+=*"),
+            Regex("(?i)bearer\\s*[:=]?\\s*[a-z0-9._~+\\-/]+=*"),
             Regex("(?i)(access|refresh)[_-]?token\\s*[:=]\\s*[^,\\s]+"),
             Regex("(?i)(?<![\\w-])(?:uid|user[_-]?id|email)\\s*[:=]\\s*[^,\\s]+"),
             Regex("(?i)(?<![\\w.-])/?(?:users|usernames|records|goals|sessions|running_reminders)/[a-z0-9._-]+(?:/[a-z0-9._-]+)*(?![\\w/.-])"),

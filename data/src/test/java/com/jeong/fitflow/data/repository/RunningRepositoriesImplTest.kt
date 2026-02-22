@@ -55,7 +55,7 @@ class RunningRepositoriesImplTest {
             dateProvider
         )
     private val goalRepository =
-        RunningGoalRepositoryImpl(fakeDaos, firebaseAuth, firestore, testDispatcher)
+        RunningGoalRepositoryImpl(fakeDaos, firebaseAuth, firestore, testDispatcher, appLogger)
     private val reminderRepository =
         RunningReminderRepositoryImpl(
             fakeDaos,

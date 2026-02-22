@@ -14,6 +14,7 @@ import com.jeong.fitflow.data.util.awaitResult
 import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.domain.model.WorkoutRecord
 import com.jeong.fitflow.domain.repository.WorkoutRecordRepository
+import com.jeong.fitflow.shared.logging.AppLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -27,7 +28,8 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
     private val syncOutboxDao: SyncOutboxDao,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val appLogger: AppLogger
 ) : WorkoutRecordRepository {
     override fun getAllRecords(): Flow<List<WorkoutRecord>> =
         workoutRecordDao.getAllRecords().map { entities ->
@@ -62,7 +64,8 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
                 .set(data)
                 .awaitResult()
             syncOutboxDao.delete(SyncOutboxType.WORKOUT_RECORD, docId)
-        } catch (_: Exception) {
+        } catch (exception: Exception) {
+            handleRemoteSyncFailure(exception)
             syncOutboxDao.upsert(
                 SyncOutboxEntity(
                     syncType = SyncOutboxType.WORKOUT_RECORD,
@@ -93,9 +96,23 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
                     .set(payload)
                     .awaitResult()
                 syncOutboxDao.delete(entry.syncType, entry.docId)
-            } catch (_: Exception) {
+            } catch (exception: Exception) {
+                handleRemoteSyncFailure(exception)
                 syncOutboxDao.incrementRetry(entry.syncType, entry.docId)
             }
         }
+    }
+
+    private fun handleRemoteSyncFailure(exception: Exception) {
+        appLogger.warning(
+            tag = LOG_TAG,
+            message = WORKOUT_SYNC_FAILURE_LOG,
+            throwable = exception
+        )
+    }
+
+    private companion object {
+        const val LOG_TAG = "WorkoutRecordRepository"
+        const val WORKOUT_SYNC_FAILURE_LOG = "Workout record remote sync failed"
     }
 }

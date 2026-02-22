@@ -11,6 +11,7 @@ import com.jeong.fitflow.data.local.toEntity
 import com.jeong.fitflow.domain.model.RunningGoal
 import com.jeong.fitflow.domain.repository.RunningGoalRepository
 import com.jeong.fitflow.domain.di.IoDispatcher
+import com.jeong.fitflow.shared.logging.AppLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -23,7 +24,8 @@ class RunningGoalRepositoryImpl @Inject constructor(
     private val goalDao: RunningGoalDao,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val appLogger: AppLogger
 ) : RunningGoalRepository {
 
     override fun getGoal(): Flow<RunningGoal?> =
@@ -49,7 +51,21 @@ class RunningGoalRepositoryImpl @Inject constructor(
         val data = mapOf(RunningGoalFirestoreFields.WEEKLY_GOAL_KM to goal.weeklyGoalKm)
         try {
             docRef.set(data).awaitResult()
-        } catch (_: Exception) {
+        } catch (exception: Exception) {
+            handleRemoteSyncFailure(exception)
         }
+    }
+
+    private fun handleRemoteSyncFailure(exception: Exception) {
+        appLogger.warning(
+            tag = LOG_TAG,
+            message = GOAL_SYNC_FAILURE_LOG,
+            throwable = exception
+        )
+    }
+
+    private companion object {
+        const val LOG_TAG = "RunningGoalRepository"
+        const val GOAL_SYNC_FAILURE_LOG = "Running goal remote sync failed"
     }
 }
