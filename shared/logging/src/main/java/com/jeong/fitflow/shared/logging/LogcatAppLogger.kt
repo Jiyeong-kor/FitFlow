@@ -9,21 +9,11 @@ class LogcatAppLogger @Inject constructor(
     private val nonFatalExceptionRecorder: NonFatalExceptionRecorder
 ) : AppLogger {
     override fun debug(tag: String, message: String) {
-        if (appBuildInfo.isDebugBuild()) {
-            androidLogSink.debug(
-                appLogSanitizer.sanitizeTag(tag),
-                appLogSanitizer.sanitizeMessage(message)
-            )
-        }
+        emitDebugLog(tag, message)
     }
 
     override fun debug(tag: String, message: () -> String) {
-        if (appBuildInfo.isDebugBuild()) {
-            androidLogSink.debug(
-                appLogSanitizer.sanitizeTag(tag),
-                appLogSanitizer.sanitizeMessage(message())
-            )
-        }
+        emitDebugLog(tag, message())
     }
 
     override fun warning(tag: String, message: String, throwable: Throwable?) {
@@ -33,6 +23,15 @@ class LogcatAppLogger @Inject constructor(
             androidLogSink.warning(sanitizedTag, sanitizedMessage, throwable)
         } else {
             throwable?.let(nonFatalExceptionRecorder::record)
+        }
+    }
+
+    private fun emitDebugLog(tag: String, message: String) {
+        if (appBuildInfo.isDebugBuild()) {
+            androidLogSink.debug(
+                appLogSanitizer.sanitizeTag(tag),
+                appLogSanitizer.sanitizeMessage(message)
+            )
         }
     }
 }
