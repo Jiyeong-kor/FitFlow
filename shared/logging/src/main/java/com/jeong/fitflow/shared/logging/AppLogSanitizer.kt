@@ -19,11 +19,13 @@ class AppLogSanitizer @Inject constructor() {
         const val TAG_MAX_LENGTH = 23
 
         val SENSITIVE_PATTERNS = listOf(
-            Regex("(?i)\\b(api[_-]?key|token|secret|authorization|client[_-]?secret)\\b\\s*[:=]\\s*[^,\\s]+"),
-            Regex("(?i)bearer\\s+[a-z0-9._\\-]+"),
+            Regex("(?i)(?<![\\w-])(?:api[_-]?key|token|secret|client[_-]?secret)\\b\\s*[:=]\\s*[^,\\s]+"),
+            Regex("(?i)(?<![\\w-])authorization\\b(?!\\s*[:=]\\s*bearer\\b)\\s*[:=]\\s*[^,\\s]+"),
+            Regex("(?i)bearer\\s+[a-z0-9._~+\\-/]+=*"),
             Regex("(?i)(access|refresh)[_-]?token\\s*[:=]\\s*[^,\\s]+"),
-            Regex("(?i)(uid|user[_-]?id)\\s*[:=]\\s*[^,\\s]+"),
-            Regex("(?i)(?<!\\S)(?:users|usernames|records|goals|sessions)/[a-z0-9_-]+(?:/[a-z0-9_-]+)*")
+            Regex("(?i)(?<![\\w-])(?:uid|user[_-]?id|email)\\s*[:=]\\s*[^,\\s]+"),
+            Regex("(?i)(?<![\\w.-])/?(?:users|usernames|records|goals|sessions|running_reminders)/[a-z0-9._-]+(?:/[a-z0-9._-]+)*(?![\\w/.-])"),
+            Regex("(?i)(?<![\\w.%+-])[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,}(?![\\w-])")
         )
     }
 }
