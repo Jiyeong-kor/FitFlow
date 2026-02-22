@@ -1,7 +1,7 @@
 package com.jeong.fitflow.data.contract
 
 object RunningDatabaseContract {
-    const val DATABASE_VERSION = 4
+    const val DATABASE_VERSION = 5
     const val DATABASE_NAME = "running_goal_tracker.db"
     const val TABLE_RUNNING_REMINDER = "running_reminder"
     const val TABLE_RUNNING_GOAL = "running_goal"

@@ -69,6 +69,7 @@ object DataModule {
         @IoDispatcher ioDispatcher: CoroutineDispatcher
     ): DateProvider = SystemDateProvider(context, ioDispatcher)
 
+
     @Provides
     @Singleton
     fun provideFirebaseAuth(): FirebaseAuth = FirebaseAuth.getInstance()

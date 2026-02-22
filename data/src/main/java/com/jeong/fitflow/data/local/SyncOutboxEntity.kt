@@ -20,6 +20,7 @@ data class SyncOutboxEntity(
     val exerciseType: String? = null,
     val repCount: Int? = null,
     val retryCount: Int = 0,
+    val nextRetryAt: Long = 0L,
     val createdAt: Long = System.currentTimeMillis(),
 )
 

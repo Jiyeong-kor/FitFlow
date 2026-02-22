@@ -14,6 +14,8 @@ import com.jeong.fitflow.data.util.awaitResult
 import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.domain.model.RunningRecord
 import com.jeong.fitflow.domain.repository.RunningRecordRepository
+import com.jeong.fitflow.domain.util.DateProvider
+import com.jeong.fitflow.shared.logging.AppLogger
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -27,7 +29,9 @@ class RunningRecordRepositoryImpl @Inject constructor(
     private val syncOutboxDao: SyncOutboxDao,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val appLogger: AppLogger,
+    private val dateProvider: DateProvider
 ) : RunningRecordRepository {
 
     override fun getAllRecords(): Flow<List<RunningRecord>> =
@@ -80,24 +84,27 @@ class RunningRecordRepositoryImpl @Inject constructor(
 
     private suspend fun flushPendingUploads(uid: String) {
         val pending = syncOutboxDao.getPending(50)
-        for (entry in pending) {
-            if (entry.syncType != SyncOutboxType.RUNNING_RECORD) continue
-            val payload = mapOf(
-                RunningRecordFirestoreFields.DATE to entry.date,
-                RunningRecordFirestoreFields.DISTANCE_KM to (entry.distanceKm ?: 0.0),
-                RunningRecordFirestoreFields.DURATION_MINUTES to (entry.durationMinutes ?: 0)
-            )
-            try {
+        RunningRecordOutboxSyncProcessor(appLogger, dateProvider).flush(
+            pending = pending,
+            upload = { entry ->
+                val payload = mapOf(
+                    RunningRecordFirestoreFields.DATE to entry.date,
+                    RunningRecordFirestoreFields.DISTANCE_KM to (entry.distanceKm ?: 0.0),
+                    RunningRecordFirestoreFields.DURATION_MINUTES to (entry.durationMinutes ?: 0)
+                )
                 firestore.collection(FirestorePaths.COLLECTION_USERS)
                     .document(uid)
                     .collection(FirestorePaths.COLLECTION_RUNNING_RECORDS)
                     .document(entry.docId)
                     .set(payload)
                     .awaitResult()
+            },
+            onDelete = { entry ->
                 syncOutboxDao.delete(entry.syncType, entry.docId)
-            } catch (_: Exception) {
-                syncOutboxDao.incrementRetry(entry.syncType, entry.docId)
+            },
+            onUpdateRetry = { entry, retryCount, nextRetryAt ->
+                syncOutboxDao.updateRetry(entry.syncType, entry.docId, retryCount, nextRetryAt)
             }
-        }
+        )
     }
 }

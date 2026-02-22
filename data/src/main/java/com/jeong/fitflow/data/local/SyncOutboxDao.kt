@@ -25,7 +25,20 @@ interface SyncOutboxDao {
 
     @Query(
         "UPDATE ${RunningDatabaseContract.TABLE_SYNC_OUTBOX} " +
+            "SET retryCount = :retryCount, nextRetryAt = :nextRetryAt " +
+            "WHERE syncType = :syncType AND docId = :docId"
+    )
+    suspend fun updateRetry(
+        syncType: String,
+        docId: String,
+        retryCount: Int,
+        nextRetryAt: Long
+    )
+    @Query(
+        "UPDATE ${RunningDatabaseContract.TABLE_SYNC_OUTBOX} " +
             "SET retryCount = retryCount + 1 WHERE syncType = :syncType AND docId = :docId"
     )
     suspend fun incrementRetry(syncType: String, docId: String)
+
 }
+

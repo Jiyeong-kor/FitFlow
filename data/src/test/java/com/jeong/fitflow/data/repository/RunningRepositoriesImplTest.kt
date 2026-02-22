@@ -12,6 +12,8 @@ import com.jeong.fitflow.data.local.SyncOutboxDao
 import com.jeong.fitflow.domain.model.RunningGoal
 import com.jeong.fitflow.domain.model.RunningRecord
 import com.jeong.fitflow.domain.model.RunningReminder
+import com.jeong.fitflow.domain.util.DateProvider
+import com.jeong.fitflow.shared.logging.AppLogger
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.mockk
@@ -35,6 +37,10 @@ class RunningRepositoriesImplTest {
         every { currentUser } returns null
     }
     private val firestore = mockk<FirebaseFirestore>(relaxed = true)
+    private val appLogger = mockk<AppLogger>(relaxed = true)
+    private val dateProvider = mockk<DateProvider> {
+        every { getToday() } returns 0L
+    }
     private val syncOutboxDao = mockk<SyncOutboxDao>(relaxed = true) {
         coEvery { getPending(any()) } returns emptyList()
     }
@@ -44,7 +50,9 @@ class RunningRepositoriesImplTest {
             syncOutboxDao,
             firebaseAuth,
             firestore,
-            testDispatcher
+            testDispatcher,
+            appLogger,
+            dateProvider
         )
     private val goalRepository =
         RunningGoalRepositoryImpl(fakeDaos, firebaseAuth, firestore, testDispatcher)
@@ -53,7 +61,8 @@ class RunningRepositoriesImplTest {
             fakeDaos,
             firebaseAuth,
             firestore,
-            testDispatcher
+            testDispatcher,
+            appLogger
         )
 
     @Test

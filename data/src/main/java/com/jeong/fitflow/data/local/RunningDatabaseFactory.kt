@@ -12,6 +12,7 @@ class RunningDatabaseFactory @Inject constructor() {
             context,
             RunningDatabase::class.java,
             RunningDatabaseContract.DATABASE_NAME
-        ).fallbackToDestructiveMigration(false)
+        ).addMigrations(RunningDatabaseMigrations.MIGRATION_4_5)
+            .fallbackToDestructiveMigration(false)
             .build()
 }
