@@ -25,10 +25,12 @@ class LogcatAppLogger @Inject constructor(
     }
 
     override fun warning(tag: String, message: String, throwable: Throwable?) {
-        Log.w(
-            appLogSanitizer.sanitizeTag(tag),
-            appLogSanitizer.sanitizeMessage(message),
-            throwable
-        )
+        val sanitizedTag = appLogSanitizer.sanitizeTag(tag)
+        val sanitizedMessage = appLogSanitizer.sanitizeMessage(message)
+        if (BuildConfig.DEBUG) {
+            Log.w(sanitizedTag, sanitizedMessage, throwable)
+        } else {
+            Log.w(sanitizedTag, sanitizedMessage)
+        }
     }
 }
