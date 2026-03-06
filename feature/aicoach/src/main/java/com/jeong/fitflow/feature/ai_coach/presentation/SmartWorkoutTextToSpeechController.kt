@@ -36,6 +36,10 @@ class SmartWorkoutTextToSpeechController(context: Context) {
         )
     }
 
+    fun stop() {
+        textToSpeech.stop()
+    }
+
     fun shutdown() {
         textToSpeech.stop()
         textToSpeech.shutdown()

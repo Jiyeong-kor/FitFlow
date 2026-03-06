@@ -61,6 +61,7 @@ private fun SmartWorkoutEffectHandler(
 ) {
     val context = LocalContext.current.applicationContext
     val latestContext by rememberUpdatedState(context)
+    val lifecycleOwner = LocalLifecycleOwner.current
     val textToSpeechController = remember { SmartWorkoutTextToSpeechController(context) }
 
     LaunchedEffect(cooldownMs) {
@@ -78,8 +79,15 @@ private fun SmartWorkoutEffectHandler(
         }
     }
 
-    DisposableEffect(textToSpeechController) {
+    DisposableEffect(lifecycleOwner, textToSpeechController) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_PAUSE) {
+                textToSpeechController.stop()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
         onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
             textToSpeechController.shutdown()
         }
     }
