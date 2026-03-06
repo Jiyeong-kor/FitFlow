@@ -51,7 +51,7 @@ dependencies {
     implementation(project(":domain"))
     implementation(project(":shared:logging"))
 
-    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.bundles.kotlinx.full)
 
     implementation(libs.androidx.core.ktx)
 

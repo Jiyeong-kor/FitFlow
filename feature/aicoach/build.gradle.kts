@@ -50,8 +50,8 @@ dependencies {
     implementation(project(":shared:designsystem"))
     implementation(project(":shared:navigation"))
 
-    implementation(libs.bundles.androidx.lifecycle.compose)
     implementation(libs.bundles.core.lifecycle)
+    implementation(libs.bundles.androidx.lifecycle.compose)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)

@@ -12,7 +12,7 @@ kotlin {
     }
 }
 dependencies {
-    implementation(libs.kotlinx.coroutines.core)
+    implementation(libs.bundles.kotlinx.full)
 
     implementation(libs.javax.inject)
 

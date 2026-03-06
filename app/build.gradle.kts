@@ -15,6 +15,17 @@ val hasDebugCredentials: Boolean =
         .all { !it.isNullOrBlank() }
 val useCustomDebugSigning: Boolean = debugStoreFile.exists() && hasDebugCredentials
 
+val releaseStorePassword: String? = localProperties.getProperty("RELEASE_STORE_PASSWORD")
+val releaseKeyPassword: String? = localProperties.getProperty("RELEASE_KEY_PASSWORD")
+val releaseKeyAlias: String? = localProperties.getProperty("RELEASE_KEY_ALIAS")
+val releaseStoreFilePath: String? = localProperties.getProperty("RELEASE_STORE_FILE")
+val releaseStoreFile = releaseStoreFilePath?.let { rootProject.file(it) }
+
+val hasReleaseCredentials: Boolean =
+    listOf(releaseStorePassword, releaseKeyPassword, releaseKeyAlias, releaseStoreFilePath)
+        .all { !it.isNullOrBlank() }
+val useReleaseSigning: Boolean = hasReleaseCredentials && (releaseStoreFile?.exists() == true)
+
 val privacyPolicyUrl: String =
     providers.gradleProperty("PRIVACY_POLICY_URL").orNull
         ?: error("gradle.properties에 PRIVACY_POLICY_URL이 없습니다.")
@@ -43,6 +54,15 @@ android {
                 keyPassword = debugKeyPassword
             }
         }
+
+        create("release") {
+            if (useReleaseSigning) {
+                storeFile = releaseStoreFile
+                storePassword = releaseStorePassword
+                keyAlias = releaseKeyAlias
+                keyPassword = releaseKeyPassword
+            }
+        }
     }
 
     defaultConfig {
@@ -62,13 +82,17 @@ android {
             signingConfig = signingConfigs.getByName("debug")
         }
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.getByName("release")
+
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
@@ -98,9 +122,7 @@ dependencies {
     implementation(project(":shared:designsystem"))
     implementation(project(":shared:navigation"))
 
-    implementation(libs.androidx.activity.compose)
-    implementation(libs.bundles.androidx.lifecycle.compose)
-    implementation(libs.bundles.core.lifecycle)
+    implementation(libs.bundles.lifecycle.full)
 
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.bundles.androidx.compose)

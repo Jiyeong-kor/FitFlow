@@ -1,190 +1,186 @@
 [versions]
-# Gradle / Kotlin
+# Build System & Kotlin
 agp = "8.13.2"
 comGoogleGmsGoogleServicesGradlePlugin = "4.4.4"
 kotlin = "2.2.21"
 ksp = "2.2.21-2.0.4"
 
-# Serialization
-kotlinxSerializationJson = "1.9.0"
-
-# Coroutines
-kotlinxCoroutinesCore = "1.10.2"
-
-# DI / Hilt
-hilt = "2.57.2"
-hiltNavigationCompose = "1.3.0"
-
-# DI core
-javaxInject = "1"
-
-# AndroidX core / lifecycle / activity
-activityCompose = "1.12.4"
+# AndroidX & Lifecycle
 coreKtx = "1.17.0"
 lifecycleRuntimeKtx = "2.10.0"
+activityCompose = "1.12.4"
 
 # Compose
-composeBom = "2026.02.00"
+composeBom = "2026.02.01"
 navigationCompose = "2.9.7"
 
-# Room
+# Kotlinx (Coroutines & Serialization)
+kotlinxCoroutinesCore = "1.10.2"
+kotlinxSerializationJson = "1.9.0"
+
+# Data & Persistence (Room, Firebase)
 roomRuntime = "2.8.4"
+firebaseBom = "34.10.0"
 
-# Firebase
-firebaseBom = "34.9.0"
-
-# Location
-playServicesLocation = "21.3.0"
-
-# CameraX
+# Hardware & System Services (Camera, Location, ML Kit)
 cameraX = "1.5.3"
-
-# ML Kit (Pose Detection)
+playServicesLocation = "21.3.0"
 mlkitPoseDetection = "18.0.0-beta5"
 
+# Dependency Injection (Hilt)
+hilt = "2.57.2"
+hiltNavigationCompose = "1.3.0"
+javaxInject = "1"
 
-# Debug Tooling
+# Static Analysis & Debugging
+ktlint = "14.0.1"
+composeRules = "0.5.6"
 leakcanary = "2.14"
 
-# Test
-mockk = "1.14.9"
-androidxTestRunner = "1.7.0"
-espressoCore = "3.7.0"
+# Testing
 junit = "4.13.2"
 junitVersion = "1.3.0"
-
+androidxTestRunner = "1.7.0"
+espressoCore = "3.7.0"
+mockk = "1.14.9"
 
 [libraries]
-# AndroidX Core
+# AndroidX & Lifecycle
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
-
-# Lifecycle / ViewModel / Activity
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-runtime-compose = { group = "androidx.lifecycle", name = "lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
 
-# Compose BOM
+# Compose
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
-
-# Compose UI
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
 androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
 androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
 androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
 androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
-androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
-androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
-
-# Navigation (Compose)
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 
-# DI / Hilt
-androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
-hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
-hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
-hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+# Kotlinx (Coroutines & Serialization)
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
 
-# DI core
-javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
-
-# Room
+# Data & Persistence (Room, Firebase)
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "roomRuntime" }
 androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "roomRuntime" }
 androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "roomRuntime" }
-
-# Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebaseBom" }
 firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore" }
 firebase-functions = { module = "com.google.firebase:firebase-functions" }
 
-# Location
-androidx-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
-
-# CameraX
+# Hardware & System Services (Camera, Location, ML Kit)
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraX" }
 androidx-camera-camera2 = { group = "androidx.camera", name = "camera-camera2", version.ref = "cameraX" }
 androidx-camera-lifecycle = { group = "androidx.camera", name = "camera-lifecycle", version.ref = "cameraX" }
 androidx-camera-view = { group = "androidx.camera", name = "camera-view", version.ref = "cameraX" }
-
-# ML Kit (Pose Detection)
+androidx-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
 mlkit-pose-detection = { group = "com.google.mlkit", name = "pose-detection", version.ref = "mlkitPoseDetection" }
 
-# Coroutines
-kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutinesCore" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinxCoroutinesCore" }
+# Dependency Injection (Hilt)
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hiltNavigationCompose" }
+javax-inject = { group = "javax.inject", name = "javax.inject", version.ref = "javaxInject" }
 
-# Serialization
-kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinxSerializationJson" }
-
-
-# Debug Tooling
+# Static Analysis & Debugging
+compose-rules-ktlint = { module = "io.nlopez.compose.rules:ktlint", version.ref = "composeRules" }
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakcanary" }
 
-# Test
-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+# Testing
+junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }
 androidx-test-runner = { group = "androidx.test", name = "runner", version.ref = "androidxTestRunner" }
-junit = { group = "junit", name = "junit", version.ref = "junit" }
-
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
 
 [plugins]
-# Android
+# Android & Kotlin Base
 android-application = { id = "com.android.application", version.ref = "agp" }
 android-library = { id = "com.android.library", version.ref = "agp" }
-
-# Google Services
-com-google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "comGoogleGmsGoogleServicesGradlePlugin" }
-
-# Kotlin
 jetbrains-kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+
+# Google Services & Firebase
+com-google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "comGoogleGmsGoogleServicesGradlePlugin" }
+
+# Kotlin Extensions
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin" }
-
-# Annotation Processing
 ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 
-# DI
+# Dependency Injection
 hilt-android = { id = "com.google.dagger.hilt.android", version.ref = "hilt" }
 
+# Static Analysis
+ktlint = { id = "org.jlleitschuh.gradle.ktlint", version.ref = "ktlint" }
 
 [bundles]
-# Compose (prod)
+# AndroidX & Lifecycle
+lifecycle-full = [
+    "androidx-core-ktx",
+    "androidx-lifecycle-runtime-ktx",
+    "androidx-lifecycle-runtime-compose",
+    "androidx-lifecycle-viewmodel-compose"
+]
+androidx-lifecycle-compose = [
+    "androidx-lifecycle-runtime-compose",
+    "androidx-lifecycle-viewmodel-compose"
+]
+core-lifecycle = [
+    "androidx-core-ktx",
+    "androidx-lifecycle-runtime-ktx"
+]
+
+# Compose
 androidx-compose = [
+    "androidx-activity-compose",
     "androidx-compose-material3",
     "androidx-compose-ui",
     "androidx-compose-ui-graphics",
     "androidx-compose-ui-tooling-preview",
     "androidx-navigation-compose"
 ]
-
-# AndroidX core / lifecycle
-core-lifecycle = [
-    "androidx-core-ktx",
-    "androidx-lifecycle-runtime-ktx"
-]
-
-androidx-lifecycle-compose = [
-    "androidx-lifecycle-runtime-compose",
-    "androidx-lifecycle-viewmodel-compose"
-]
-
-# Compose (debug)
 androidx-compose-debug = [
     "androidx-compose-ui-tooling",
     "androidx-compose-ui-test-manifest"
 ]
-
-# Compose (androidTest)
 androidx-compose-test = [
     "androidx-compose-ui-test-junit4"
 ]
 
-# CameraX
+# Kotlinx
+kotlinx-full = [
+    "kotlinx-coroutines-core",
+    "kotlinx-serialization-json"
+]
+
+# Data (Room, Firebase)
+room = [
+    "androidx-room-ktx",
+    "androidx-room-runtime"
+]
+firebase-app = [
+    "firebase-analytics",
+    "firebase-auth"
+]
+firebase-data = [
+    "firebase-auth",
+    "firebase-firestore",
+    "firebase-functions"
+]
+
+# Hardware (CameraX)
 camerax = [
     "androidx-camera-camera2",
     "androidx-camera-core",
@@ -192,38 +188,18 @@ camerax = [
     "androidx-camera-view"
 ]
 
-# Room
-room = [
-    "androidx-room-ktx",
-    "androidx-room-runtime"
-]
-
-# AndroidX Test (JUnit / Espresso)
-androidx-test = [
-    "androidx-espresso-core",
-    "androidx-junit",
-    "androidx-test-runner"
-]
-
-# Firebase
-firebase-app = [
-    "firebase-analytics",
-    "firebase-auth"
-]
-
-firebase-data = [
-    "firebase-auth",
-    "firebase-firestore",
-    "firebase-functions"
-]
-
-# Hilt
+# Dependency Injection
 hilt-compose = [
     "androidx-hilt-navigation-compose",
     "hilt-android"
 ]
 
-# Unit Test
+# Testing
+androidx-test = [
+    "androidx-espresso-core",
+    "androidx-junit",
+    "androidx-test-runner"
+]
 test-unit = [
     "junit",
     "kotlinx-coroutines-test",
