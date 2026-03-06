@@ -9,3 +9,7 @@
 /local.properties
 google-services.json
 *.keystore
+
+# Build Outputs
+**/build/
+app/release/
