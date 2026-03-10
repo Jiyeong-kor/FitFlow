@@ -4,9 +4,9 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import com.jeong.fitflow.app.ui.screen.EntryPointRoute
 import com.jeong.fitflow.app.ui.navigation.AppNavGraphViewModel
 import com.jeong.fitflow.app.ui.navigation.MainNavigationViewModel
+import com.jeong.fitflow.app.ui.screen.EntryPointRoute
 import com.jeong.fitflow.feature.record.api.ActivityRecognitionMonitor
 import com.jeong.fitflow.shared.designsystem.theme.RunningGoalTrackerTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
             RunningGoalTrackerTheme {
                 EntryPointRoute(
                     mainNavigationViewModel = mainNavigationViewModel,
-                    appNavGraphViewModel = appNavGraphViewModel
+                    appNavGraphViewModel = appNavGraphViewModel,
                 )
             }
         }

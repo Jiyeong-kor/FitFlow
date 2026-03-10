@@ -11,7 +11,5 @@ import dagger.hilt.components.SingletonComponent
 @InstallIn(SingletonComponent::class)
 abstract class MainTabItemsModule {
     @Binds
-    abstract fun bindMainTabItemsProvider(
-        impl: DefaultMainTabItemsProvider
-    ): MainTabItemsProvider
+    abstract fun bindMainTabItemsProvider(impl: DefaultMainTabItemsProvider): MainTabItemsProvider
 }

@@ -11,11 +11,11 @@ import com.jeong.fitflow.shared.navigation.NavigationRoute
 fun EntryPointScreen(
     tabItemsByTab: Map<MainTab, MainTabItem>,
     startDestination: NavigationRoute,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     AppNavGraph(
         tabItemsByTab = tabItemsByTab,
         startDestination = startDestination,
-        modifier = modifier
+        modifier = modifier,
     )
 }

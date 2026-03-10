@@ -1,8 +1,8 @@
 package com.jeong.fitflow.app.ui.navigation
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.padding
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.rememberNavController
@@ -26,25 +26,26 @@ import com.jeong.fitflow.shared.navigation.navigateTo
 fun AppNavGraph(
     tabItemsByTab: Map<MainTab, MainTabItem>,
     startDestination: NavigationRoute,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val navController = rememberNavController()
     val navigationState = rememberMainNavigationState(
         navController = navController,
-        tabItemsByTab = tabItemsByTab
+        tabItemsByTab = tabItemsByTab,
     )
 
     MainContainerRoute(
         navController = navController,
         navigationState = navigationState,
         tabItemsByTab = tabItemsByTab,
-        shouldShowNavigationBars = navigationState.currentScreen != null || navigationState.activeTab != null,
-        modifier = modifier
+        shouldShowNavigationBars =
+        navigationState.currentScreen != null || navigationState.activeTab != null,
+        modifier = modifier,
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = startDestination,
-            modifier = Modifier.padding(innerPadding)
+            modifier = Modifier.padding(innerPadding),
         ) {
             authEntry(
                 onComplete = {
@@ -54,13 +55,13 @@ fun AppNavGraph(
                 },
                 onPrivacyPolicyClick = {
                     navController.navigateTo(MainNavigationRoute.PrivacyPolicy)
-                }
+                },
             )
             composable<MainNavigationRoute.PrivacyPolicy> { backStackEntry ->
                 val viewModel: PrivacyPolicyViewModel = hiltViewModel(backStackEntry)
                 PrivacyPolicyRoute(
                     onBack = { navController.popBackStack() },
-                    viewModel = viewModel
+                    viewModel = viewModel,
                 )
             }
             homeEntry(
@@ -69,7 +70,7 @@ fun AppNavGraph(
                 onNavigateToActivityLogs = {
                     navController.navigateTo(MainNavigationRoute.HomeActivityLogs)
                 },
-                onBackFromActivityLogs = { navController.popBackStack() }
+                onBackFromActivityLogs = { navController.popBackStack() },
             )
             recordEntry(
                 onNavigateHome = {
@@ -79,7 +80,7 @@ fun AppNavGraph(
                         }
                         launchSingleTop = true
                     }
-                }
+                },
             )
             aiCoachEntry(onBack = { navController.popBackStack() })
             goalEntry(onBack = { navController.popBackStack() })
@@ -89,7 +90,7 @@ fun AppNavGraph(
                 onNavigateToReminder = { navController.navigateTo(MainNavigationRoute.Reminder) },
                 onNavigateToPrivacyPolicy = {
                     navController.navigateTo(MainNavigationRoute.PrivacyPolicy)
-                }
+                },
             )
         }
     }

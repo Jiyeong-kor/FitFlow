@@ -11,25 +11,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-data class AppNavGraphUiState(
-    val startDestination: NavigationRoute = AuthRoute.Onboarding
-)
+data class AppNavGraphUiState(val startDestination: NavigationRoute = AuthRoute.Onboarding)
 
 @HiltViewModel
-class AppNavGraphViewModel @Inject constructor(
-    startDestinationProvider: StartDestinationProvider
-) : ViewModel() {
+class AppNavGraphViewModel @Inject constructor(startDestinationProvider: StartDestinationProvider) :
+    ViewModel() {
 
     private val _uiState =
         MutableStateFlow(
-            AppNavGraphUiState(startDestination = startDestinationProvider.startDestination())
+            AppNavGraphUiState(startDestination = startDestinationProvider.startDestination()),
         )
     val uiState: StateFlow<AppNavGraphUiState> = _uiState.asStateFlow()
 }
 
-class StartDestinationProvider @Inject constructor(
-    private val firebaseAuth: FirebaseAuth
-) {
+class StartDestinationProvider @Inject constructor(private val firebaseAuth: FirebaseAuth) {
     fun startDestination(): NavigationRoute =
         if (firebaseAuth.currentUser?.displayName?.isNotBlank() == true) {
             MainNavigationRoute.Home

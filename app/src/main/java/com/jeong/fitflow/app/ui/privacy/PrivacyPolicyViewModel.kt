@@ -2,11 +2,11 @@ package com.jeong.fitflow.app.ui.privacy
 
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import javax.inject.Inject
 
 @HiltViewModel
 class PrivacyPolicyViewModel @Inject constructor() : ViewModel() {
@@ -18,7 +18,7 @@ class PrivacyPolicyViewModel @Inject constructor() : ViewModel() {
             current.copy(
                 hasError = false,
                 isLoading = true,
-                reloadToken = current.reloadToken + 1
+                reloadToken = current.reloadToken + 1,
             )
         }
     }

@@ -16,7 +16,7 @@ fun MainContainerRoute(
     tabItemsByTab: Map<MainTab, MainTabItem>,
     shouldShowNavigationBars: Boolean,
     modifier: Modifier = Modifier,
-    content: @Composable (PaddingValues) -> Unit
+    content: @Composable (PaddingValues) -> Unit,
 ) {
     Scaffold(
         modifier = modifier,
@@ -29,7 +29,7 @@ fun MainContainerRoute(
                         { navController.popBackStack() }
                     } else {
                         null
-                    }
+                    },
                 )
             }
         },
@@ -37,10 +37,10 @@ fun MainContainerRoute(
             if (shouldShowNavigationBars) {
                 BottomAndTopBar(
                     tabItemsByTab = tabItemsByTab,
-                    navController = navController
+                    navController = navController,
                 )
             }
-        }
+        },
     ) { innerPadding ->
         content(innerPadding)
     }

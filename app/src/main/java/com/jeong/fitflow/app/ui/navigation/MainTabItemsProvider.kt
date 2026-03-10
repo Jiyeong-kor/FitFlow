@@ -12,17 +12,16 @@ interface MainTabItemsProvider {
 }
 
 class DefaultMainTabItemsProvider @Inject constructor() : MainTabItemsProvider {
-    override fun tabItemsByTab(): Map<MainTab, MainTabItem> =
-        MainTab.entries.mapNotNull { tab ->
-            val screen = MainScreen.fromRoute(tab.route) ?: return@mapNotNull null
-            val icon = tab.icon.asPainter()
+    override fun tabItemsByTab(): Map<MainTab, MainTabItem> = MainTab.entries.mapNotNull { tab ->
+        val screen = MainScreen.fromRoute(tab.route) ?: return@mapNotNull null
+        val icon = tab.icon.asPainter()
 
-            MainTabItem(
-                tab = tab,
-                titleResId = screen.titleResId,
-                icon = icon
-            )
-        }.associateBy { it.tab }
+        MainTabItem(
+            tab = tab,
+            titleResId = screen.titleResId,
+            icon = icon,
+        )
+    }.associateBy { it.tab }
 }
 
 fun BottomTabIcon.asPainter(): @Composable () -> Painter = when (this) {

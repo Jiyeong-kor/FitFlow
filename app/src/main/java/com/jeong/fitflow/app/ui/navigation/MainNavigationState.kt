@@ -13,7 +13,7 @@ import com.jeong.fitflow.shared.navigation.isRouteInHierarchy
 @Composable
 fun rememberMainNavigationState(
     navController: NavHostController,
-    tabItemsByTab: Map<MainTab, MainTabItem>
+    tabItemsByTab: Map<MainTab, MainTabItem>,
 ): MainNavigationState {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -32,7 +32,7 @@ fun rememberMainNavigationState(
             currentScreen = currentScreen,
             activeTab = activeTab,
             titleResId = currentScreen?.titleResId ?: activeTab?.titleResId,
-            shouldShowBackInTopBar = currentScreen?.shouldShowBackInTopBar == true
+            shouldShowBackInTopBar = currentScreen?.shouldShowBackInTopBar == true,
         )
     }
 }

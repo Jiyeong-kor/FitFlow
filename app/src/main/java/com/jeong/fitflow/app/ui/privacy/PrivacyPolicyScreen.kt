@@ -41,7 +41,7 @@ fun PrivacyPolicyScreen(
     onLoadFinished: () -> Unit,
     onLoadError: () -> Unit,
     onReloadHandled: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val webViewDescription = stringResource(id = R.string.privacy_policy_webview_description)
     val errorMessage = stringResource(id = R.string.privacy_policy_load_error)
@@ -54,14 +54,14 @@ fun PrivacyPolicyScreen(
             AppTopBar(
                 titleResId = R.string.privacy_policy_title,
                 fallbackTitleResId = R.string.privacy_policy_title,
-                onBack = onBack
+                onBack = onBack,
             )
-        }
+        },
     ) { padding ->
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
+                .padding(padding),
         ) {
             if (uiState.hasError) {
                 Column(
@@ -69,12 +69,12 @@ fun PrivacyPolicyScreen(
                         .fillMaxSize()
                         .padding(appSpacingLg()),
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center
+                    verticalArrangement = Arrangement.Center,
                 ) {
                     Text(text = errorMessage)
                     Button(
                         modifier = Modifier.padding(top = appSpacingMd()),
-                        onClick = onRetry
+                        onClick = onRetry,
                     ) {
                         Text(text = retryLabel)
                     }
@@ -88,19 +88,19 @@ fun PrivacyPolicyScreen(
                     onLoadError = onLoadError,
                     onReloadHandled = onReloadHandled,
                     webViewDescription = webViewDescription,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize(),
                 )
             }
 
             if (uiState.isLoading && !uiState.hasError) {
                 Box(
                     modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center
+                    contentAlignment = Alignment.Center,
                 ) {
                     CircularProgressIndicator(
                         modifier = Modifier.semantics {
                             contentDescription = loadingDescription
-                        }
+                        },
                     )
                 }
             }
@@ -117,7 +117,7 @@ private fun PrivacyPolicyWebView(
     onLoadError: () -> Unit,
     onReloadHandled: () -> Unit,
     webViewDescription: String,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val url = BuildConfig.PRIVACY_POLICY_URL
     val context = LocalContext.current
@@ -152,22 +152,19 @@ private fun PrivacyPolicyWebView(
                     override fun onPageStarted(
                         view: WebView?,
                         url: String?,
-                        favicon: android.graphics.Bitmap?
+                        favicon: android.graphics.Bitmap?,
                     ) {
                         onLoadStarted()
                     }
 
-                    override fun onPageFinished(
-                        view: WebView?,
-                        url: String?
-                    ) {
+                    override fun onPageFinished(view: WebView?, url: String?) {
                         onLoadFinished()
                     }
 
                     override fun onReceivedError(
                         view: WebView?,
                         request: WebResourceRequest?,
-                        error: WebResourceError?
+                        error: WebResourceError?,
                     ) {
                         if (isMainFrameRequest(request)) {
                             onLoadError()
@@ -177,7 +174,7 @@ private fun PrivacyPolicyWebView(
                     override fun onReceivedHttpError(
                         view: WebView?,
                         request: WebResourceRequest?,
-                        errorResponse: WebResourceResponse?
+                        errorResponse: WebResourceResponse?,
                     ) {
                         if (isMainFrameRequest(request)) {
                             onLoadError()
@@ -194,7 +191,7 @@ private fun PrivacyPolicyWebView(
             } else if (webView.url != url) {
                 webView.loadUrl(url)
             }
-        }
+        },
     )
 }
 

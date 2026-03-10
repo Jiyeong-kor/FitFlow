@@ -9,7 +9,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 fun PrivacyPolicyRoute(
     onBack: () -> Unit,
     viewModel: PrivacyPolicyViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     PrivacyPolicyScreen(
@@ -20,6 +20,6 @@ fun PrivacyPolicyRoute(
         onLoadFinished = viewModel::onLoadFinished,
         onLoadError = viewModel::onLoadError,
         onReloadHandled = viewModel::onReloadHandled,
-        modifier = modifier
+        modifier = modifier,
     )
 }

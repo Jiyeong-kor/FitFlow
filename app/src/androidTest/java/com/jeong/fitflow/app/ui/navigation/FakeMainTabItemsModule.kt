@@ -12,7 +12,7 @@ import dagger.hilt.testing.TestInstallIn
 @Module
 @TestInstallIn(
     components = [SingletonComponent::class],
-    replaces = [MainTabItemsModule::class]
+    replaces = [MainTabItemsModule::class],
 )
 object FakeMainTabItemsModule {
     @Provides
@@ -24,12 +24,12 @@ private class FakeMainTabItemsProvider : MainTabItemsProvider {
         MainTab.RECORD to MainTabItem(
             tab = MainTab.RECORD,
             titleResId = MainScreen.fromRoute(MainNavigationRoute.Record)!!.titleResId,
-            icon = BottomTabIcon.RECORD.asPainter()
+            icon = BottomTabIcon.RECORD.asPainter(),
         ),
         MainTab.AI_COACH to MainTabItem(
             tab = MainTab.AI_COACH,
             titleResId = MainScreen.fromRoute(MainNavigationRoute.AiCoach)!!.titleResId,
-            icon = BottomTabIcon.AI_COACH.asPainter()
-        )
+            icon = BottomTabIcon.AI_COACH.asPainter(),
+        ),
     )
 }

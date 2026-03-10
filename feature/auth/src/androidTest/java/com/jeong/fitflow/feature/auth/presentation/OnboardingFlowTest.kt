@@ -38,7 +38,7 @@ class OnboardingFlowTest {
                     onPrivacyPolicyClick = {},
                     onRetryInternet = {},
                     onDismissNoInternetDialog = {},
-                    onComplete = {}
+                    onComplete = {},
                 )
             }
         }

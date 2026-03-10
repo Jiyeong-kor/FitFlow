@@ -13,7 +13,7 @@ class MainScreenEntriesTest {
             MainScreen.AiCoach,
             MainScreen.Goal,
             MainScreen.Reminder,
-            MainScreen.MyPage
+            MainScreen.MyPage,
         )
 
         assertEquals(expected, MainScreen.entries)

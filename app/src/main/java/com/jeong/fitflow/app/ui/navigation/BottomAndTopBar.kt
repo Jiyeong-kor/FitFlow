@@ -8,22 +8,24 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.jeong.fitflow.shared.designsystem.extension.rememberThrottleClick
+import com.jeong.fitflow.shared.designsystem.theme.LocalAppDimensions
 import com.jeong.fitflow.shared.navigation.MainTab
 import com.jeong.fitflow.shared.navigation.isBottomTab
 import com.jeong.fitflow.shared.navigation.isRouteInHierarchy
 import com.jeong.fitflow.shared.navigation.navigateTo
-import com.jeong.fitflow.shared.designsystem.extension.rememberThrottleClick
-import com.jeong.fitflow.shared.designsystem.theme.LocalAppDimensions
 
 @Composable
 fun BottomAndTopBar(
     tabItemsByTab: Map<MainTab, MainTabItem>,
     navController: NavHostController,
+    modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
     val dimensions = LocalAppDimensions.current
@@ -31,7 +33,10 @@ fun BottomAndTopBar(
         dimensions.sizeZero.roundToPx()
     }
 
-    NavigationBar(windowInsets = WindowInsets(insetPx, insetPx, insetPx, insetPx)) {
+    NavigationBar(
+        modifier = modifier,
+        windowInsets = WindowInsets(insetPx, insetPx, insetPx, insetPx),
+    ) {
         val navBackStackEntry by navController.currentBackStackEntryAsState()
         val currentDestination = navBackStackEntry?.destination
         val isCurrentBottomTab = MainTab.entries.any { tab ->
@@ -61,15 +66,15 @@ fun BottomAndTopBar(
                 icon = {
                     Icon(
                         painter = tabItem.icon(),
-                        contentDescription = stringResource(tabItem.titleResId)
+                        contentDescription = stringResource(tabItem.titleResId),
                     )
                 },
                 label = {
                     Text(
                         text = stringResource(tabItem.titleResId),
-                        style = typography.labelSmall
+                        style = typography.labelSmall,
                     )
-                }
+                },
             )
         }
     }

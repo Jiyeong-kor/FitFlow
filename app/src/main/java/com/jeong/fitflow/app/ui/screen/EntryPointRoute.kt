@@ -11,13 +11,13 @@ import com.jeong.fitflow.app.ui.navigation.MainNavigationViewModel
 fun EntryPointRoute(
     mainNavigationViewModel: MainNavigationViewModel,
     appNavGraphViewModel: AppNavGraphViewModel,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val tabItemsByTab by mainNavigationViewModel.tabItemsByTab.collectAsStateWithLifecycle()
     val navGraphState by appNavGraphViewModel.uiState.collectAsStateWithLifecycle()
     EntryPointScreen(
         tabItemsByTab = tabItemsByTab,
         startDestination = navGraphState.startDestination,
-        modifier = modifier
+        modifier = modifier,
     )
 }

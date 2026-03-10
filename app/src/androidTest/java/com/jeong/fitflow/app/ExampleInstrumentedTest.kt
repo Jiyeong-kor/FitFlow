@@ -2,9 +2,9 @@ package com.jeong.fitflow.app
 
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Assert.assertEquals
 import org.junit.Test
 import org.junit.runner.RunWith
-import org.junit.Assert.assertEquals
 
 @RunWith(AndroidJUnit4::class)
 class ExampleInstrumentedTest {
@@ -14,7 +14,7 @@ class ExampleInstrumentedTest {
         assertEquals("com.jeong.fitflow", appContext.packageName)
         assertEquals(
             "com.jeong.fitflow.app.HiltTestRunner",
-            HiltTestRunner::class.java.name
+            HiltTestRunner::class.java.name,
         )
     }
 }
