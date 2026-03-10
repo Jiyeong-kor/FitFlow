@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class SmartWorkoutAnalyticsLogger @Inject constructor(
     private val formatter: SmartWorkoutLogFormatter,
-    private val smartWorkoutLogger: SmartWorkoutLogger
+    private val smartWorkoutLogger: SmartWorkoutLogger,
 ) : WorkoutAnalyticsLogger {
     override fun logTransition(transition: SquatPhaseTransition, frameMetrics: SquatFrameMetrics) {
         smartWorkoutLogger.logDebug {
@@ -55,7 +55,7 @@ class SmartWorkoutAnalyticsLogger @Inject constructor(
     override fun logFeedbackEvent(
         feedbackType: PostureFeedbackType,
         feedbackKey: String,
-        timestampMs: Long
+        timestampMs: Long,
     ) {
         smartWorkoutLogger.logDebug {
             formatter.formatFeedbackEvent(feedbackType, feedbackKey, timestampMs)

@@ -16,14 +16,15 @@ import com.jeong.fitflow.domain.model.PoseFrame
 import com.jeong.fitflow.domain.model.PoseLandmark
 import com.jeong.fitflow.domain.model.PoseLandmarkType
 import com.jeong.fitflow.feature.ai_coach.contract.SmartWorkoutPoseContract
+import java.util.concurrent.TimeUnit
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
-import java.util.concurrent.TimeUnit
 
 class MlKitPoseDetector(
     private val poseDetector: MlKitPoseDetector,
-    private val isFrontCamera: Boolean
-) : PoseDetector, ImageAnalysis.Analyzer {
+    private val isFrontCamera: Boolean,
+) : PoseDetector,
+    ImageAnalysis.Analyzer {
     private val frameFlow = MutableSharedFlow<PoseFrame>(extraBufferCapacity = 1)
 
     override val poseFrames: Flow<PoseFrame> = frameFlow
@@ -50,8 +51,8 @@ class MlKitPoseDetector(
                         imageHeight = image.height,
                         rotationDegrees = rotationDegrees,
                         isFrontCamera = isFrontCamera,
-                        timestampMs = timestampMs
-                    )
+                        timestampMs = timestampMs,
+                    ),
                 )
             }
             .addOnCompleteListener {
@@ -69,10 +70,10 @@ private fun Pose.toPoseFrame(
     imageHeight: Int,
     rotationDegrees: Int,
     isFrontCamera: Boolean,
-    timestampMs: Long
+    timestampMs: Long,
 ): PoseFrame {
     val isRightAngle = rotationDegrees % SmartWorkoutPoseContract.ROTATION_HALF_TURN_DEGREES !=
-            SmartWorkoutPoseContract.ROTATION_ZERO_DEGREES
+        SmartWorkoutPoseContract.ROTATION_ZERO_DEGREES
     val rotatedWidth = if (isRightAngle) imageHeight else imageWidth
     val rotatedHeight = if (isRightAngle) imageWidth else imageHeight
     val width = rotatedWidth.takeIf { it > SQUAT_INT_ZERO } ?: SQUAT_INT_ONE
@@ -87,7 +88,7 @@ private fun Pose.toPoseFrame(
             x = mappedX,
             y = normalizedY,
             z = landmark.position3D.z,
-            confidence = landmark.inFrameLikelihood
+            confidence = landmark.inFrameLikelihood,
         )
     }
     return PoseFrame(
@@ -97,7 +98,7 @@ private fun Pose.toPoseFrame(
         imageHeight = height,
         rotationDegrees = rotationDegrees,
         isFrontCamera = isFrontCamera,
-        isMirrored = isFrontCamera
+        isMirrored = isFrontCamera,
     )
 }
 

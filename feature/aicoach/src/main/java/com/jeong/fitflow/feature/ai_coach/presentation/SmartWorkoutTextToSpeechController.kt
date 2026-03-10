@@ -32,7 +32,7 @@ class SmartWorkoutTextToSpeechController(context: Context) {
             message,
             TextToSpeech.QUEUE_FLUSH,
             null,
-            SmartWorkoutSpeechContract.TEXT_TO_SPEECH_UTTERANCE_ID
+            SmartWorkoutSpeechContract.TEXT_TO_SPEECH_UTTERANCE_ID,
         )
     }
 

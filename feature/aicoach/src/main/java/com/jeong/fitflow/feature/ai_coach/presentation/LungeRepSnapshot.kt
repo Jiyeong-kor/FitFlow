@@ -17,5 +17,5 @@ data class LungeRepSnapshot(
     val stabilityStdDev: Float?,
     val maxKneeForwardRatio: Float?,
     val maxKneeCollapseRatio: Float?,
-    val goodFormReason: LungeGoodFormReason
+    val goodFormReason: LungeGoodFormReason,
 )

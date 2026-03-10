@@ -11,11 +11,8 @@ interface SpeechCoordinator {
         feedbackType: PostureFeedbackType,
         feedbackEventKey: String?,
         exerciseType: ExerciseType,
-        timestampMs: Long
+        timestampMs: Long,
     ): SpeechFeedbackResult?
 }
 
-data class SpeechFeedbackResult(
-    val speechEvent: SmartWorkoutSpeechEvent,
-    val feedbackResId: Int
-)
+data class SpeechFeedbackResult(val speechEvent: SmartWorkoutSpeechEvent, val feedbackResId: Int)

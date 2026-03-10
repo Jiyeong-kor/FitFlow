@@ -21,7 +21,7 @@ class WorkoutRecordSaverTest {
         val repository = FakeWorkoutRecordRepository()
         val saver = WorkoutRecordSaver(
             addWorkoutRecordUseCase = AddWorkoutRecordUseCase(repository),
-            dateProvider = FakeDateProvider(1_700_000_000_000L)
+            dateProvider = FakeDateProvider(1_700_000_000_000L),
         )
 
         saver.persistIfNeeded(exerciseType = ExerciseType.SQUAT, repCount = 12)
@@ -39,7 +39,7 @@ class WorkoutRecordSaverTest {
         val repository = FakeWorkoutRecordRepository()
         val saver = WorkoutRecordSaver(
             addWorkoutRecordUseCase = AddWorkoutRecordUseCase(repository),
-            dateProvider = FakeDateProvider(1_700_000_000_000L)
+            dateProvider = FakeDateProvider(1_700_000_000_000L),
         )
 
         repeat(50) {

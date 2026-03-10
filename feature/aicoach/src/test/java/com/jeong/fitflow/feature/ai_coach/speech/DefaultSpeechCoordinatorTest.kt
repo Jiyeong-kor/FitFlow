@@ -18,7 +18,7 @@ class DefaultSpeechCoordinatorTest {
             feedbackType = PostureFeedbackType.KNEE_FORWARD,
             feedbackEventKey = null,
             exerciseType = ExerciseType.SQUAT,
-            timestampMs = 1_000L
+            timestampMs = 1_000L,
         )
 
         assertNotNull(result)
@@ -34,13 +34,13 @@ class DefaultSpeechCoordinatorTest {
             feedbackType = PostureFeedbackType.STAND_TALL,
             feedbackEventKey = null,
             exerciseType = ExerciseType.SQUAT,
-            timestampMs = 1_000L
+            timestampMs = 1_000L,
         )
         val suppressed = coordinator.handleFeedback(
             feedbackType = PostureFeedbackType.STAND_TALL,
             feedbackEventKey = null,
             exerciseType = ExerciseType.SQUAT,
-            timestampMs = 1_500L
+            timestampMs = 1_500L,
         )
 
         assertNotNull(first)

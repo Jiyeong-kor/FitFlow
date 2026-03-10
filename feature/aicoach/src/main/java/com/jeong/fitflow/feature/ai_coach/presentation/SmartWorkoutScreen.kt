@@ -4,6 +4,7 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview as CameraPreview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.core.animateFloatAsState
@@ -41,6 +42,7 @@ import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview as ComposePreview
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import com.jeong.fitflow.domain.contract.SQUAT_FLOAT_ONE
@@ -68,19 +70,17 @@ import com.jeong.fitflow.shared.designsystem.theme.appSpacingSm
 import com.jeong.fitflow.shared.designsystem.theme.appSpacingXl
 import com.jeong.fitflow.shared.designsystem.theme.appTextMutedColor
 import com.jeong.fitflow.shared.designsystem.theme.appTextPrimaryColor
-import kotlinx.coroutines.suspendCancellableCoroutine
 import java.util.concurrent.Executors
 import kotlin.coroutines.resume
 import kotlin.math.max
-import androidx.camera.core.Preview as CameraPreview
-import androidx.compose.ui.tooling.preview.Preview as ComposePreview
+import kotlinx.coroutines.suspendCancellableCoroutine
 
 @Composable
 fun SmartWorkoutScreen(
     uiState: SmartWorkoutUiState,
     imageAnalyzer: ImageAnalysis.Analyzer,
     onBack: () -> Unit,
-    onExerciseTypeChange: (ExerciseType) -> Unit
+    onExerciseTypeChange: (ExerciseType) -> Unit,
 ) {
     val accentColor = appAccentColor()
     val textPrimary = appTextPrimaryColor()
@@ -96,20 +96,20 @@ fun SmartWorkoutScreen(
         if (uiState.isPerfectForm) AppSurfaceCardTone.Emphasized else AppSurfaceCardTone.Default
     val accuracyProgress by animateFloatAsState(
         targetValue = uiState.accuracy,
-        label = SmartWorkoutAnimationContract.ACCURACY_PROGRESS_ANIMATION_LABEL
+        label = SmartWorkoutAnimationContract.ACCURACY_PROGRESS_ANIMATION_LABEL,
     )
 
     Box(modifier = Modifier.fillMaxSize()) {
         CameraPreview(
             imageAnalyzer = imageAnalyzer,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
 
         if (shouldShowLandmarkOverlay(uiState.exerciseType)) {
             SkeletonOverlay(
                 poseFrame = uiState.poseFrame,
                 strokeColor = accentColor,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
 
@@ -119,25 +119,25 @@ fun SmartWorkoutScreen(
                 .fillMaxWidth()
                 .padding(
                     horizontal = appSpacingLg(),
-                    vertical = appSpacingXl()
+                    vertical = appSpacingXl(),
                 ),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             IconButton(onClick = onBackClick) {
                 Icon(
                     painter = AppIcons.close(),
                     contentDescription = stringResource(R.string.smart_workout_close),
-                    tint = textPrimary
+                    tint = textPrimary,
                 )
             }
             Box(
                 modifier = Modifier.weight(SQUAT_FLOAT_ONE),
-                contentAlignment = Alignment.Center
+                contentAlignment = Alignment.Center,
             ) {
                 ExerciseTypeSelector(
                     exerciseType = uiState.exerciseType,
-                    onSelect = onExerciseTypeChange
+                    onSelect = onExerciseTypeChange,
                 )
             }
             Box(modifier = Modifier.width(appSpacing2xl()))
@@ -146,14 +146,14 @@ fun SmartWorkoutScreen(
         Box(
             modifier = Modifier
                 .align(Alignment.CenterEnd)
-                .padding(end = appSpacingXl())
+                .padding(end = appSpacingXl()),
         ) {
             Text(
                 text = stringResource(R.string.smart_workout_rep_count_value, uiState.repCount),
                 color = textPrimary,
                 style = repCountTextStyle,
                 fontStyle = FontStyle.Italic,
-                fontWeight = FontWeight.Black
+                fontWeight = FontWeight.Black,
             )
         }
 
@@ -162,37 +162,37 @@ fun SmartWorkoutScreen(
                 .align(Alignment.BottomCenter)
                 .padding(
                     horizontal = appSpacingLg(),
-                    vertical = appSpacingXl()
+                    vertical = appSpacingXl(),
                 ),
             tone = cardTone,
-            padding = AppSurfaceCardPadding.Large
+            padding = AppSurfaceCardPadding.Large,
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(appSpacingSm())) {
                 Text(
                     text = stringResource(R.string.smart_workout_feedback_title),
                     color = textMuted,
                     style = feedbackTitleTextStyle,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 )
                 Text(
                     text = stringResource(uiState.feedbackResId),
                     color = textPrimary,
                     style = feedbackBodyTextStyle,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 )
                 LinearProgressIndicator(
                     modifier = Modifier.fillMaxWidth(),
                     progress = { accuracyProgress },
                     color = accentColor,
-                    trackColor = MaterialTheme.colorScheme.surfaceVariant
+                    trackColor = MaterialTheme.colorScheme.surfaceVariant,
                 )
                 Text(
                     text = stringResource(
                         R.string.smart_workout_accuracy_label,
-                        (accuracyProgress * accuracyMultiplier).toInt()
+                        (accuracyProgress * accuracyMultiplier).toInt(),
                     ),
                     color = textMuted,
-                    style = accuracyLabelTextStyle
+                    style = accuracyLabelTextStyle,
                 )
             }
         }
@@ -203,7 +203,7 @@ fun SmartWorkoutScreen(
 private fun ExerciseTypeSelector(
     exerciseType: ExerciseType,
     onSelect: (ExerciseType) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val onSelectSquat = rememberThrottleClick {
         onSelect(ExerciseType.SQUAT)
@@ -214,17 +214,17 @@ private fun ExerciseTypeSelector(
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(appSpacingSm())
+        horizontalArrangement = Arrangement.spacedBy(appSpacingSm()),
     ) {
         ExerciseTypeOption(
             label = exerciseTypeLabel(ExerciseType.SQUAT),
             isSelected = exerciseType == ExerciseType.SQUAT,
-            onClick = onSelectSquat
+            onClick = onSelectSquat,
         )
         ExerciseTypeOption(
             label = exerciseTypeLabel(ExerciseType.LUNGE),
             isSelected = exerciseType == ExerciseType.LUNGE,
-            onClick = onSelectLunge
+            onClick = onSelectLunge,
         )
     }
 }
@@ -234,7 +234,7 @@ private fun ExerciseTypeOption(
     label: String,
     isSelected: Boolean,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val containerColor = if (isSelected) {
         MaterialTheme.colorScheme.primaryContainer
@@ -254,28 +254,25 @@ private fun ExerciseTypeOption(
         },
         color = containerColor,
         contentColor = contentColor,
-        shape = MaterialTheme.shapes.large
+        shape = MaterialTheme.shapes.large,
     ) {
         Row(
             modifier = Modifier
                 .padding(horizontal = appSpacingMd(), vertical = appSpacingSm()),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center
+            horizontalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = label,
                 style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.SemiBold
+                fontWeight = FontWeight.SemiBold,
             )
         }
     }
 }
 
 @Composable
-private fun CameraPreview(
-    imageAnalyzer: ImageAnalysis.Analyzer,
-    modifier: Modifier = Modifier
-) {
+private fun CameraPreview(imageAnalyzer: ImageAnalysis.Analyzer, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
     val previewView = remember(context) { PreviewView(context) }
@@ -301,7 +298,7 @@ private fun CameraPreview(
             lifecycleOwner,
             CameraSelector.DEFAULT_FRONT_CAMERA,
             preview,
-            analysis
+            analysis,
         )
     }
     DisposableEffect(previewView, executor, lifecycleOwner) {
@@ -317,7 +314,7 @@ private fun CameraPreview(
 
     AndroidView(
         modifier = modifier,
-        factory = { previewView }
+        factory = { previewView },
     )
 }
 
@@ -325,7 +322,7 @@ private fun CameraPreview(
 private fun SkeletonOverlay(
     poseFrame: PoseFrame?,
     strokeColor: Color,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val density = LocalDensity.current
     val dimensions = LocalAppDimensions.current
@@ -344,7 +341,7 @@ private fun SkeletonOverlay(
             PoseLandmarkType.LEFT_HIP to PoseLandmarkType.LEFT_KNEE,
             PoseLandmarkType.LEFT_KNEE to PoseLandmarkType.LEFT_ANKLE,
             PoseLandmarkType.RIGHT_HIP to PoseLandmarkType.RIGHT_KNEE,
-            PoseLandmarkType.RIGHT_KNEE to PoseLandmarkType.RIGHT_ANKLE
+            PoseLandmarkType.RIGHT_KNEE to PoseLandmarkType.RIGHT_ANKLE,
         )
     }
 
@@ -366,7 +363,7 @@ private fun SkeletonOverlay(
 
         fun toOffset(landmarkX: Float, landmarkY: Float): Offset = Offset(
             x = landmarkX * scaledWidth + offsetX,
-            y = landmarkY * scaledHeight + offsetY
+            y = landmarkY * scaledHeight + offsetY,
         )
 
         connections.forEach { (startType, endType) ->
@@ -378,7 +375,7 @@ private fun SkeletonOverlay(
                     start = toOffset(start.x, start.y),
                     end = toOffset(end.x, end.y),
                     strokeWidth = skeletonStrokeWidthPx,
-                    cap = StrokeCap.Round
+                    cap = StrokeCap.Round,
                 )
             }
         }
@@ -387,7 +384,7 @@ private fun SkeletonOverlay(
             drawCircle(
                 color = strokeColor,
                 radius = skeletonDotRadiusPx,
-                center = toOffset(landmark.x, landmark.y)
+                center = toOffset(landmark.x, landmark.y),
             )
         }
     }
@@ -415,7 +412,7 @@ private suspend fun Context.awaitCameraProvider(): ProcessCameraProvider =
             {
                 continuation.resume(future.get())
             },
-            ContextCompat.getMainExecutor(this)
+            ContextCompat.getMainExecutor(this),
         )
     }
 

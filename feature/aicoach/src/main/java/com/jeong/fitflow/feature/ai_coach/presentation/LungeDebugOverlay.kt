@@ -1,9 +1,9 @@
 package com.jeong.fitflow.feature.ai_coach.presentation
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -32,7 +32,7 @@ fun LungeDebugOverlay(
     debugInfo: LungeDebugInfo?,
     snapshot: LungeRepSnapshot?,
     frameMetrics: SquatFrameMetrics?,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val textPrimary = appTextPrimaryColor()
     val textMuted = appTextMutedColor()
@@ -46,65 +46,67 @@ fun LungeDebugOverlay(
         modifier = modifier,
         shape = appShapes.roundedXl,
         colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(alpha = alphas.debugOverlaySurface)
-        )
+            containerColor = MaterialTheme.colorScheme.surfaceContainer.copy(
+                alpha = alphas.debugOverlaySurface,
+            ),
+        ),
     ) {
         Box(modifier = Modifier.padding(PaddingValues(dimensions.spacingMd))) {
             Column(verticalArrangement = Arrangement.spacedBy(dimensions.spacingSm)) {
                 Text(
                     text = stringResource(R.string.smart_workout_debug_lunge_title),
                     color = textPrimary,
-                    style = typographyTokens.titleLargeAlt
+                    style = typographyTokens.titleLargeAlt,
                 )
 
                 frameMetrics?.let { metrics ->
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_live_knee_raw,
-                            metrics.kneeAngleRaw
+                            metrics.kneeAngleRaw,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_live_knee_ema,
-                            metrics.kneeAngleEma
+                            metrics.kneeAngleEma,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_live_trunk_raw,
-                            metrics.trunkTiltVerticalAngleRaw
+                            metrics.trunkTiltVerticalAngleRaw,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_live_trunk_ema,
-                            metrics.trunkTiltVerticalAngleEma
+                            metrics.trunkTiltVerticalAngleEma,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_rep_min_knee_tracking,
-                            metrics.repMinKneeAngle
+                            metrics.repMinKneeAngle,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_rep_trunk_max_tracking,
-                            metrics.repMaxTrunkTiltVerticalAngle
+                            metrics.repMaxTrunkTiltVerticalAngle,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                 }
 
@@ -112,92 +114,92 @@ fun LungeDebugOverlay(
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_active_side,
-                            poseSideText(info.activeSide)
+                            poseSideText(info.activeSide),
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_state,
-                            info.state.name
+                            info.state.name,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_phase,
-                            info.phase.name
+                            info.phase.name,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_reliable,
-                            booleanText(info.isReliable)
+                            booleanText(info.isReliable),
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_counting_side,
-                            poseSideText(info.countingSide)
+                            poseSideText(info.countingSide),
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_last_knee_angles,
                             info.lastLeftKneeAngle ?: 0f,
-                            info.lastRightKneeAngle ?: 0f
+                            info.lastRightKneeAngle ?: 0f,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_feedback_key,
-                            info.feedbackEventKey?.let { lungeFeedbackLabel(it) } ?: emptyText
+                            info.feedbackEventKey?.let { lungeFeedbackLabel(it) } ?: emptyText,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_stability_eligible,
-                            booleanText(info.isStabilityEligible)
+                            booleanText(info.isStabilityEligible),
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_hip_samples,
-                            info.hipSampleCount
+                            info.hipSampleCount,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_shoulder_samples,
-                            info.shoulderSampleCount
+                            info.shoulderSampleCount,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_metrics_null_rate,
                             info.metricsNullRate,
-                            info.metricsNullStreak
+                            info.metricsNullStreak,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
@@ -206,18 +208,18 @@ fun LungeDebugOverlay(
                             info.descendingThreshold,
                             info.bottomThreshold,
                             info.ascendingThreshold,
-                            info.repCompleteThreshold
+                            info.repCompleteThreshold,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_hysteresis_frames,
-                            info.hysteresisFrames
+                            info.hysteresisFrames,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
@@ -228,10 +230,10 @@ fun LungeDebugOverlay(
                             info.bottomToAscendingCount,
                             info.ascendingToCompleteCount,
                             info.repCompleteToStandingCount,
-                            info.repCompleteToDescendingCount
+                            info.repCompleteToDescendingCount,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     info.hipCenterX?.let { hipCenterX ->
                         val hipMin = info.hipCenterMin ?: hipCenterX
@@ -241,10 +243,10 @@ fun LungeDebugOverlay(
                                 R.string.smart_workout_debug_lunge_hip_center,
                                 hipCenterX,
                                 hipMin,
-                                hipMax
+                                hipMax,
                             ),
                             color = textMuted,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     info.shoulderCenterX?.let { shoulderCenterX ->
@@ -255,30 +257,32 @@ fun LungeDebugOverlay(
                                 R.string.smart_workout_debug_lunge_shoulder_center,
                                 shoulderCenterX,
                                 shoulderMin,
-                                shoulderMax
+                                shoulderMax,
                             ),
                             color = textMuted,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     if (!info.isStabilityNormalized) {
                         Text(
-                            text = stringResource(R.string.smart_workout_debug_lunge_normalization_warning),
+                            text = stringResource(
+                                R.string.smart_workout_debug_lunge_normalization_warning,
+                            ),
                             color = MaterialTheme.colorScheme.error,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     val outlierLabels = mutableListOf<String>()
                     info.leftOutlierReason?.let { reason ->
                         outlierLabels += stringResource(
                             R.string.smart_workout_debug_lunge_outlier_left,
-                            outlierReasonText(reason)
+                            outlierReasonText(reason),
                         )
                     }
                     info.rightOutlierReason?.let { reason ->
                         outlierLabels += stringResource(
                             R.string.smart_workout_debug_lunge_outlier_right,
-                            outlierReasonText(reason)
+                            outlierReasonText(reason),
                         )
                     }
                     val outlierText = if (outlierLabels.isEmpty()) {
@@ -286,25 +290,25 @@ fun LungeDebugOverlay(
                     } else {
                         outlierLabels.joinToString(
                             separator = stringResource(
-                                R.string.smart_workout_debug_lunge_outlier_separator
-                            )
+                                R.string.smart_workout_debug_lunge_outlier_separator,
+                            ),
                         )
                     }
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_outlier_reason,
-                            outlierText
+                            outlierText,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_rep_min_update,
-                            booleanText(info.isRepMinUpdated)
+                            booleanText(info.isRepMinUpdated),
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                 }
 
@@ -312,54 +316,54 @@ fun LungeDebugOverlay(
                     text = stringResource(R.string.smart_workout_debug_lunge_last_rep_title),
                     color = textPrimary,
                     style = typographyTokens.titleLargeAlt,
-                    fontWeight = FontWeight.SemiBold
+                    fontWeight = FontWeight.SemiBold,
                 )
                 if (snapshot == null) {
                     Text(
                         text = emptyText,
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                 } else {
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_rep_timestamp,
-                            snapshot.timestampMs
+                            snapshot.timestampMs,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_active_side,
-                            poseSideText(snapshot.activeSide)
+                            poseSideText(snapshot.activeSide),
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_counting_side,
-                            poseSideText(snapshot.countingSide)
+                            poseSideText(snapshot.countingSide),
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_feedback_event,
-                            snapshot.feedbackType?.name ?: emptyText
+                            snapshot.feedbackType?.name ?: emptyText,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_feedback_key,
-                            snapshot.feedbackEventKey?.let { lungeFeedbackLabel(it) } ?: emptyText
+                            snapshot.feedbackEventKey?.let { lungeFeedbackLabel(it) } ?: emptyText,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     val feedbackLabels = mutableListOf<String>()
                     snapshot.feedbackKeys.forEach { key ->
@@ -370,95 +374,95 @@ fun LungeDebugOverlay(
                     } else {
                         feedbackLabels.joinToString(
                             separator = stringResource(
-                                R.string.smart_workout_debug_lunge_key_separator
-                            )
+                                R.string.smart_workout_debug_lunge_key_separator,
+                            ),
                         )
                     }
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_feedback_keys,
-                            feedbackKeysText
+                            feedbackKeysText,
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                     snapshot.overallScore?.let { score ->
                         Text(
                             text = stringResource(
                                 R.string.smart_workout_debug_lunge_overall_score,
-                                score
+                                score,
                             ),
                             color = textMuted,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     snapshot.frontKneeMinAngle?.let { angle ->
                         Text(
                             text = stringResource(
                                 R.string.smart_workout_debug_lunge_front_knee_min,
-                                angle
+                                angle,
                             ),
                             color = textMuted,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     snapshot.backKneeMinAngle?.let { angle ->
                         Text(
                             text = stringResource(
                                 R.string.smart_workout_debug_lunge_back_knee_min,
-                                angle
+                                angle,
                             ),
                             color = textMuted,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     snapshot.maxTorsoLeanAngle?.let { angle ->
                         Text(
                             text = stringResource(
                                 R.string.smart_workout_debug_lunge_max_torso_lean,
-                                angle
+                                angle,
                             ),
                             color = textMuted,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     snapshot.stabilityStdDev?.let { value ->
                         Text(
                             text = stringResource(
                                 R.string.smart_workout_debug_lunge_stability_stddev,
-                                value
+                                value,
                             ),
                             color = textMuted,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     snapshot.maxKneeForwardRatio?.let { ratio ->
                         Text(
                             text = stringResource(
                                 R.string.smart_workout_debug_lunge_knee_forward_max,
-                                ratio
+                                ratio,
                             ),
                             color = textMuted,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     snapshot.maxKneeCollapseRatio?.let { ratio ->
                         Text(
                             text = stringResource(
                                 R.string.smart_workout_debug_lunge_knee_collapse_max,
-                                ratio
+                                ratio,
                             ),
                             color = textMuted,
-                            style = typographyTokens.labelTiny
+                            style = typographyTokens.labelTiny,
                         )
                     }
                     Text(
                         text = stringResource(
                             R.string.smart_workout_debug_lunge_good_form_reason,
-                            goodFormReasonText(snapshot.goodFormReason)
+                            goodFormReasonText(snapshot.goodFormReason),
                         ),
                         color = textMuted,
-                        style = typographyTokens.labelTiny
+                        style = typographyTokens.labelTiny,
                     )
                 }
             }
@@ -474,32 +478,37 @@ private fun poseSideText(side: PoseSide?): String = when (side) {
 }
 
 @Composable
-private fun booleanText(isEnabled: Boolean): String =
-    if (isEnabled) {
-        stringResource(R.string.smart_workout_debug_on)
-    } else {
-        stringResource(R.string.smart_workout_debug_off)
-    }
+private fun booleanText(isEnabled: Boolean): String = if (isEnabled) {
+    stringResource(R.string.smart_workout_debug_on)
+} else {
+    stringResource(R.string.smart_workout_debug_off)
+}
 
 @Composable
 private fun outlierReasonText(reason: LungeKneeAngleOutlierReason): String = when (reason) {
-    LungeKneeAngleOutlierReason.LOW_RANGE -> stringResource(R.string.smart_workout_debug_lunge_outlier_low)
-    LungeKneeAngleOutlierReason.HIGH_RANGE -> stringResource(R.string.smart_workout_debug_lunge_outlier_high)
-    LungeKneeAngleOutlierReason.JUMP -> stringResource(R.string.smart_workout_debug_lunge_outlier_jump)
+    LungeKneeAngleOutlierReason.LOW_RANGE -> stringResource(
+        R.string.smart_workout_debug_lunge_outlier_low,
+    )
+    LungeKneeAngleOutlierReason.HIGH_RANGE -> stringResource(
+        R.string.smart_workout_debug_lunge_outlier_high,
+    )
+    LungeKneeAngleOutlierReason.JUMP -> stringResource(
+        R.string.smart_workout_debug_lunge_outlier_jump,
+    )
 }
 
 @Composable
 private fun goodFormReasonText(reason: LungeGoodFormReason): String = when (reason) {
     LungeGoodFormReason.NO_SUMMARY -> stringResource(
-        R.string.smart_workout_debug_lunge_good_form_reason_no_summary
+        R.string.smart_workout_debug_lunge_good_form_reason_no_summary,
     )
 
     LungeGoodFormReason.FEEDBACK_KEYS_PRESENT -> stringResource(
-        R.string.smart_workout_debug_lunge_good_form_reason_keys
+        R.string.smart_workout_debug_lunge_good_form_reason_keys,
     )
 
     LungeGoodFormReason.GOOD_FORM -> stringResource(
-        R.string.smart_workout_debug_lunge_good_form_reason_good
+        R.string.smart_workout_debug_lunge_good_form_reason_good,
     )
 }
 
@@ -509,12 +518,12 @@ private fun lungeFeedbackLabel(key: String): String {
         FeedbackStringMapper.feedbackResId(
             exerciseType = ExerciseType.LUNGE,
             feedbackType = PostureFeedbackType.UNKNOWN,
-            feedbackKey = key
-        )
+            feedbackKey = key,
+        ),
     )
     return stringResource(
         R.string.smart_workout_debug_lunge_feedback_label,
         key,
-        feedbackLabel
+        feedbackLabel,
     )
 }

@@ -31,7 +31,7 @@ object AiCoachModule {
             .build()
         return MlKitPoseDetector(
             poseDetector = PoseDetection.getClient(options),
-            isFrontCamera = true
+            isFrontCamera = true,
         )
     }
 
@@ -52,13 +52,12 @@ object AiCoachModule {
     @ViewModelScoped
     fun provideProcessPoseUseCase(
         lungeAnalyzer: LungeAnalyzer,
-        squatAnalyzer: SquatAnalyzer
-    ): ProcessPoseUseCase =
-        ProcessPoseUseCase(
-            lungeAnalyzer = lungeAnalyzer,
-            squatAnalyzer = squatAnalyzer,
-            pushUpAnalyzer = squatAnalyzer
-        )
+        squatAnalyzer: SquatAnalyzer,
+    ): ProcessPoseUseCase = ProcessPoseUseCase(
+        lungeAnalyzer = lungeAnalyzer,
+        squatAnalyzer = squatAnalyzer,
+        pushUpAnalyzer = squatAnalyzer,
+    )
 
     @Provides
     @ViewModelScoped
@@ -72,7 +71,7 @@ object AiCoachModule {
     @ViewModelScoped
     fun provideAnalyticsLogger(
         formatter: SmartWorkoutLogFormatter,
-        smartWorkoutLogger: SmartWorkoutLogger
+        smartWorkoutLogger: SmartWorkoutLogger,
     ): WorkoutAnalyticsLogger = SmartWorkoutAnalyticsLogger(formatter, smartWorkoutLogger)
 
     @Provides
@@ -82,12 +81,12 @@ object AiCoachModule {
         processPoseUseCase: ProcessPoseUseCase,
         speechCoordinator: SpeechCoordinator,
         analyticsLogger: WorkoutAnalyticsLogger,
-        smartWorkoutLogger: SmartWorkoutLogger
+        smartWorkoutLogger: SmartWorkoutLogger,
     ): PoseFrameProcessor = PoseFrameProcessor(
         poseDetector = poseDetector,
         processPoseUseCase = processPoseUseCase,
         speechCoordinator = speechCoordinator,
         analyticsLogger = analyticsLogger,
-        smartWorkoutLogger = smartWorkoutLogger
+        smartWorkoutLogger = smartWorkoutLogger,
     )
 }

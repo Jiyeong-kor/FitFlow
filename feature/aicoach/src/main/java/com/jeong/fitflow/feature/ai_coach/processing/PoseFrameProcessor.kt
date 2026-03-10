@@ -24,7 +24,7 @@ class PoseFrameProcessor @Inject constructor(
     private val processPoseUseCase: ProcessPoseUseCase,
     private val speechCoordinator: SpeechCoordinator,
     private val analyticsLogger: WorkoutAnalyticsLogger,
-    private val smartWorkoutLogger: SmartWorkoutLogger
+    private val smartWorkoutLogger: SmartWorkoutLogger,
 ) {
     private var isLastAttemptActive: Boolean? = null
     private var isLastDepthReached: Boolean? = null
@@ -56,7 +56,7 @@ class PoseFrameProcessor @Inject constructor(
                 analyticsLogger.logRepCountUpdate(
                     source = SmartWorkoutLogContract.SOURCE_ANALYZER,
                     repCount = analysis.repCount.value,
-                    timestampMs = frame.timestampMs
+                    timestampMs = frame.timestampMs,
                 )
             }
             val exerciseType = currentState.exerciseType
@@ -66,7 +66,7 @@ class PoseFrameProcessor @Inject constructor(
                     feedbackType = feedbackType,
                     feedbackEventKey = feedbackEventKey,
                     exerciseType = exerciseType,
-                    timestampMs = frame.timestampMs
+                    timestampMs = frame.timestampMs,
                 )
             }
             if (speechResult != null && feedbackEventKey != null) {
@@ -74,7 +74,7 @@ class PoseFrameProcessor @Inject constructor(
                     analyticsLogger.logFeedbackEvent(
                         feedbackType = feedbackType,
                         feedbackKey = feedbackEventKey,
-                        timestampMs = frame.timestampMs
+                        timestampMs = frame.timestampMs,
                     )
                 }
             }
@@ -95,7 +95,7 @@ class PoseFrameProcessor @Inject constructor(
             logDebugFrame(
                 frameTimestampMs = frame.timestampMs,
                 exerciseType = exerciseType,
-                analysis = analysis
+                analysis = analysis,
             )
             val updatedState = currentState.copy(
                 repCount = analysis.repCount.value,
@@ -107,7 +107,7 @@ class PoseFrameProcessor @Inject constructor(
                     FeedbackStringMapper.feedbackResId(
                         exerciseType = exerciseType,
                         feedbackType = feedbackTypeForUi ?: analysis.feedback.type,
-                        feedbackKey = feedbackEventKey
+                        feedbackKey = feedbackEventKey,
                     )
                 },
                 accuracy = analysis.feedback.accuracy,
@@ -120,12 +120,12 @@ class PoseFrameProcessor @Inject constructor(
                     analysis = analysis,
                     exerciseType = exerciseType,
                     timestampMs = frame.timestampMs,
-                    current = currentState.lastLungeRepSnapshot
-                )
+                    current = currentState.lastLungeRepSnapshot,
+                ),
             )
             PoseFrameProcessingResult(
                 uiState = updatedState,
-                speechEvent = speechResult?.speechEvent
+                speechEvent = speechResult?.speechEvent,
             )
         }
 
@@ -133,7 +133,7 @@ class PoseFrameProcessor @Inject constructor(
         analysis: com.jeong.fitflow.domain.model.PoseAnalysisResult,
         exerciseType: ExerciseType,
         timestampMs: Long,
-        current: LungeRepSnapshot?
+        current: LungeRepSnapshot?,
     ): LungeRepSnapshot? {
         if (exerciseType != ExerciseType.LUNGE || !analysis.repCount.isIncremented) {
             return current
@@ -160,7 +160,7 @@ class PoseFrameProcessor @Inject constructor(
             stabilityStdDev = summary?.stabilityStdDev,
             maxKneeForwardRatio = summary?.maxKneeForwardRatio,
             maxKneeCollapseRatio = summary?.maxKneeCollapseRatio,
-            goodFormReason = goodFormReason
+            goodFormReason = goodFormReason,
         )
     }
 
@@ -196,7 +196,7 @@ class PoseFrameProcessor @Inject constructor(
     private fun logDebugFrame(
         frameTimestampMs: Long,
         exerciseType: ExerciseType,
-        analysis: com.jeong.fitflow.domain.model.PoseAnalysisResult
+        analysis: com.jeong.fitflow.domain.model.PoseAnalysisResult,
     ) {
         smartWorkoutLogger.logDebug {
             buildString {
@@ -251,5 +251,5 @@ class PoseFrameProcessor @Inject constructor(
 
 data class PoseFrameProcessingResult(
     val uiState: SmartWorkoutUiState,
-    val speechEvent: com.jeong.fitflow.feature.ai_coach.presentation.SmartWorkoutSpeechEvent?
+    val speechEvent: com.jeong.fitflow.feature.ai_coach.presentation.SmartWorkoutSpeechEvent?,
 )

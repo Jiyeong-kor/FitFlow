@@ -7,5 +7,5 @@ import com.jeong.fitflow.domain.model.PostureFeedbackType
 data class SmartWorkoutSpeechEvent(
     val feedbackType: PostureFeedbackType,
     @field:StringRes val feedbackResId: Int,
-    val exerciseType: ExerciseType
+    val exerciseType: ExerciseType,
 )

@@ -9,15 +9,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.jeong.fitflow.feature.ai_coach.contract.SMART_WORKOUT_FEEDBACK_COOLDOWN_MS
 
 @Composable
-fun SmartWorkoutRoute(
-    onBack: () -> Unit,
-    viewModel: AiCoachViewModel
-) {
+fun SmartWorkoutRoute(onBack: () -> Unit, viewModel: AiCoachViewModel) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val cooldownMs = SMART_WORKOUT_FEEDBACK_COOLDOWN_MS
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -29,7 +26,7 @@ fun SmartWorkoutRoute(
     SmartWorkoutEffectHandler(
         viewModel = viewModel,
         cooldownMs = cooldownMs,
-        repCount = uiState.repCount
+        repCount = uiState.repCount,
     )
 
     DisposableEffect(lifecycleOwner, viewModel) {
@@ -49,7 +46,7 @@ fun SmartWorkoutRoute(
         uiState = uiState,
         imageAnalyzer = viewModel.imageAnalyzer,
         onBack = onBackClick,
-        onExerciseTypeChange = viewModel::updateExerciseType
+        onExerciseTypeChange = viewModel::updateExerciseType,
     )
 }
 
@@ -57,7 +54,7 @@ fun SmartWorkoutRoute(
 private fun SmartWorkoutEffectHandler(
     viewModel: AiCoachViewModel,
     cooldownMs: Long,
-    repCount: Int
+    repCount: Int,
 ) {
     val context = LocalContext.current.applicationContext
     val latestContext by rememberUpdatedState(context)

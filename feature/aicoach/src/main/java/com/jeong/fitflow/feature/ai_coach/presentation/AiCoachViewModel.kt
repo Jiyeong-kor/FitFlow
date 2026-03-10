@@ -30,14 +30,14 @@ class AiCoachViewModel @Inject constructor(
     private val poseFrameProcessor: PoseFrameProcessor,
     private val workoutRecordSaver: WorkoutRecordSaver,
     private val analyticsLogger: WorkoutAnalyticsLogger,
-    private val dateProvider: DateProvider
+    private val dateProvider: DateProvider,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(SmartWorkoutUiState())
     val uiState: StateFlow<SmartWorkoutUiState> = _uiState.asStateFlow()
     private val _speechEvents = MutableSharedFlow<SmartWorkoutSpeechEvent>(
         extraBufferCapacity = 2,
-        onBufferOverflow = BufferOverflow.DROP_OLDEST
+        onBufferOverflow = BufferOverflow.DROP_OLDEST,
     )
     val speechEvents = _speechEvents.asSharedFlow()
 
@@ -63,7 +63,7 @@ class AiCoachViewModel @Inject constructor(
         analyticsLogger.logRepCountUpdate(
             source = SmartWorkoutLogContract.SOURCE_UI,
             repCount = repCount,
-            timestampMs = dateProvider.getToday()
+            timestampMs = dateProvider.getToday(),
         )
     }
 
@@ -75,7 +75,7 @@ class AiCoachViewModel @Inject constructor(
         viewModelScope.launch {
             workoutRecordSaver.persistIfNeeded(
                 exerciseType = currentState.exerciseType,
-                repCount = currentState.repCount
+                repCount = currentState.repCount,
             )
         }
         _uiState.update { current ->
@@ -90,7 +90,7 @@ class AiCoachViewModel @Inject constructor(
                     current.overlayMode
                 } else {
                     poseFrameProcessor.overlayModeFor(exerciseType)
-                }
+                },
             )
         }
         poseFrameProcessor.resetSpeechState()

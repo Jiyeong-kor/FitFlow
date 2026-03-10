@@ -17,13 +17,12 @@ object FeedbackStringMapper {
     fun feedbackResId(
         exerciseType: ExerciseType,
         feedbackType: PostureFeedbackType,
-        feedbackKey: String?
-    ): Int =
-        if (exerciseType == ExerciseType.LUNGE && feedbackKey != null) {
-            lungeFeedbackTextResId(feedbackKey)
-        } else {
-            postureFeedbackTextResId(feedbackType)
-        }
+        feedbackKey: String?,
+    ): Int = if (exerciseType == ExerciseType.LUNGE && feedbackKey != null) {
+        lungeFeedbackTextResId(feedbackKey)
+    } else {
+        postureFeedbackTextResId(feedbackType)
+    }
 
     @StringRes
     private fun postureFeedbackTextResId(type: PostureFeedbackType): Int = when (type) {

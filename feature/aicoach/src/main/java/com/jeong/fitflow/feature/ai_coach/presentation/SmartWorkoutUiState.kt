@@ -24,5 +24,5 @@ data class SmartWorkoutUiState(
     val repSummary: SquatRepSummary? = null,
     val lungeDebugInfo: LungeDebugInfo? = null,
     val lastLungeRepSnapshot: LungeRepSnapshot? = null,
-    val overlayMode: DebugOverlayMode = DebugOverlayMode.GENERAL
+    val overlayMode: DebugOverlayMode = DebugOverlayMode.GENERAL,
 )

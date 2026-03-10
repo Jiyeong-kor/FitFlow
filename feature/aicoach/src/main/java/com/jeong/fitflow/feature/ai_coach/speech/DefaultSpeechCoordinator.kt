@@ -26,7 +26,7 @@ class DefaultSpeechCoordinator @Inject constructor() : SpeechCoordinator {
         feedbackType: PostureFeedbackType,
         feedbackEventKey: String?,
         exerciseType: ExerciseType,
-        timestampMs: Long
+        timestampMs: Long,
     ): SpeechFeedbackResult? {
         val key = feedbackEventKey ?: feedbackType.name
         val lastType = lastSpokenType
@@ -43,12 +43,12 @@ class DefaultSpeechCoordinator @Inject constructor() : SpeechCoordinator {
         val feedbackResId = FeedbackStringMapper.feedbackResId(
             exerciseType = exerciseType,
             feedbackType = feedbackType,
-            feedbackKey = feedbackEventKey
+            feedbackKey = feedbackEventKey,
         )
         val speechEvent = SmartWorkoutSpeechEvent(
             feedbackType = feedbackType,
             feedbackResId = feedbackResId,
-            exerciseType = exerciseType
+            exerciseType = exerciseType,
         )
         lastSpokenType = feedbackType
         lastSpokenKey = key
