@@ -16,6 +16,6 @@ fun DocumentSnapshot.toRunningReminderEntity(): RunningReminderEntity? {
         hour = hour,
         minute = minute,
         isEnabled = isEnabled,
-        days = daySet
+        days = daySet,
     )
 }

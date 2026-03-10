@@ -7,7 +7,7 @@ import com.jeong.fitflow.data.contract.RunningDatabaseContract
 
 @Entity(
     tableName = RunningDatabaseContract.TABLE_SYNC_OUTBOX,
-    indices = [Index(value = ["syncType", "docId"], unique = true)]
+    indices = [Index(value = ["syncType", "docId"], unique = true)],
 )
 data class SyncOutboxEntity(
     @PrimaryKey(autoGenerate = true)

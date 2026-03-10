@@ -8,33 +8,33 @@ import com.google.firebase.firestore.SetOptions
 import com.jeong.fitflow.data.contract.FirestorePaths
 import com.jeong.fitflow.data.contract.UserFirestoreFields
 import com.jeong.fitflow.data.contract.UsernameFirestoreFields
-import com.jeong.fitflow.data.util.awaitResult
 import com.jeong.fitflow.data.util.UserProfileDocumentPayload
+import com.jeong.fitflow.data.util.UsernameReservationPolicy
+import com.jeong.fitflow.data.util.awaitResult
 import com.jeong.fitflow.data.util.toAuthError
 import com.jeong.fitflow.data.util.toFirestoreMap
-import com.jeong.fitflow.data.util.UsernameReservationPolicy
+import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.domain.model.AuthError
 import com.jeong.fitflow.domain.model.AuthProvider
 import com.jeong.fitflow.domain.model.AuthResult
 import com.jeong.fitflow.domain.repository.AuthRepository
 import com.jeong.fitflow.domain.util.NicknameNormalizer
+import javax.inject.Inject
+import kotlin.coroutines.resume
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withContext
-import com.jeong.fitflow.domain.di.IoDispatcher
-import javax.inject.Inject
-import kotlin.coroutines.resume
 
 class AuthRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val runningDatabase: com.jeong.fitflow.data.local.RunningDatabase,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : AuthRepository {
     override suspend fun signInAnonymously(): Result<Unit> =
         suspendCancellableCoroutine { continuation ->
@@ -49,7 +49,7 @@ class AuthRepositoryImpl @Inject constructor(
 
     override suspend fun reserveNicknameAndCreateUserProfile(
         nickname: String,
-        authProvider: AuthProvider
+        authProvider: AuthProvider,
     ): AuthResult<Unit> {
         val user = firebaseAuth.currentUser ?: return AuthResult.Failure(AuthError.PermissionDenied)
         val uid = user.uid
@@ -65,7 +65,7 @@ class AuthRepositoryImpl @Inject constructor(
                 val canReserve = UsernameReservationPolicy.shouldAllowReservation(
                     isExisting = usernameSnapshot.exists(),
                     ownerUid = usernameOwner,
-                    currentUid = uid
+                    currentUid = uid,
                 )
                 if (!canReserve) {
                     throw NicknameTakenException()
@@ -75,13 +75,13 @@ class AuthRepositoryImpl @Inject constructor(
                     UsernameFirestoreFields.UID to uid,
                     UsernameFirestoreFields.CREATED_AT to now,
                     UsernameFirestoreFields.LAST_ACTIVE_AT to now,
-                    UsernameFirestoreFields.IS_ANONYMOUS to user.isAnonymous
+                    UsernameFirestoreFields.IS_ANONYMOUS to user.isAnonymous,
                 )
                 val userData = UserProfileDocumentPayload(
                     nickname = nickname,
                     createdAt = now,
                     lastActiveAt = now,
-                    authProvider = authProvider
+                    authProvider = authProvider,
                 ).toFirestoreMap()
                 transaction.set(usernameDocRef, usernameData)
                 transaction.set(userDocRef, userData, SetOptions.merge())
@@ -130,7 +130,10 @@ class AuthRepositoryImpl @Inject constructor(
             if (userSnapshot.exists()) {
                 userDocRef.delete().awaitResult()
             }
-            if (usernameDocRef != null && usernameSnapshot?.exists() == true && usernameOwner == uid) {
+            if (usernameDocRef != null &&
+                usernameSnapshot?.exists() == true &&
+                usernameOwner == uid
+            ) {
                 usernameDocRef.delete().awaitResult()
             }
             withContext(ioDispatcher) {
@@ -143,15 +146,19 @@ class AuthRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun deleteUserSubcollections(userDocRef: com.google.firebase.firestore.DocumentReference) {
+    private suspend fun deleteUserSubcollections(
+        userDocRef: com.google.firebase.firestore.DocumentReference,
+    ) {
         deleteCollectionDocuments(userDocRef.collection(FirestorePaths.COLLECTION_RUNNING_RECORDS))
         deleteCollectionDocuments(userDocRef.collection(FirestorePaths.COLLECTION_RUNNING_GOALS))
-        deleteCollectionDocuments(userDocRef.collection(FirestorePaths.COLLECTION_RUNNING_REMINDERS))
+        deleteCollectionDocuments(
+            userDocRef.collection(FirestorePaths.COLLECTION_RUNNING_REMINDERS),
+        )
         deleteCollectionDocuments(userDocRef.collection(FirestorePaths.COLLECTION_WORKOUT_RECORDS))
     }
 
     private suspend fun deleteCollectionDocuments(
-        collection: com.google.firebase.firestore.CollectionReference
+        collection: com.google.firebase.firestore.CollectionReference,
     ) {
         val snapshots = collection.get().awaitResult()
         val documents = snapshots.documents
@@ -213,5 +220,4 @@ class AuthRepositoryImpl @Inject constructor(
         }
 
     private class NicknameTakenException : IllegalStateException()
-
 }

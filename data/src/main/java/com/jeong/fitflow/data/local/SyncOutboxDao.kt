@@ -13,32 +13,26 @@ interface SyncOutboxDao {
 
     @Query(
         "SELECT * FROM ${RunningDatabaseContract.TABLE_SYNC_OUTBOX} " +
-            "ORDER BY createdAt ASC LIMIT :limit"
+            "ORDER BY createdAt ASC LIMIT :limit",
     )
     suspend fun getPending(limit: Int): List<SyncOutboxEntity>
 
     @Query(
         "DELETE FROM ${RunningDatabaseContract.TABLE_SYNC_OUTBOX} " +
-            "WHERE syncType = :syncType AND docId = :docId"
+            "WHERE syncType = :syncType AND docId = :docId",
     )
     suspend fun delete(syncType: String, docId: String)
 
     @Query(
         "UPDATE ${RunningDatabaseContract.TABLE_SYNC_OUTBOX} " +
             "SET retryCount = :retryCount, nextRetryAt = :nextRetryAt " +
-            "WHERE syncType = :syncType AND docId = :docId"
+            "WHERE syncType = :syncType AND docId = :docId",
     )
-    suspend fun updateRetry(
-        syncType: String,
-        docId: String,
-        retryCount: Int,
-        nextRetryAt: Long
-    )
+    suspend fun updateRetry(syncType: String, docId: String, retryCount: Int, nextRetryAt: Long)
+
     @Query(
         "UPDATE ${RunningDatabaseContract.TABLE_SYNC_OUTBOX} " +
-            "SET retryCount = retryCount + 1 WHERE syncType = :syncType AND docId = :docId"
+            "SET retryCount = retryCount + 1 WHERE syncType = :syncType AND docId = :docId",
     )
     suspend fun incrementRetry(syncType: String, docId: String)
-
 }
-

@@ -11,7 +11,7 @@ class UsernameReservationPolicyTest {
         val allowed = UsernameReservationPolicy.shouldAllowReservation(
             isExisting = false,
             ownerUid = null,
-            currentUid = "uid-1"
+            currentUid = "uid-1",
         )
 
         assertTrue(allowed)
@@ -22,7 +22,7 @@ class UsernameReservationPolicyTest {
         val allowed = UsernameReservationPolicy.shouldAllowReservation(
             isExisting = true,
             ownerUid = "uid-2",
-            currentUid = "uid-1"
+            currentUid = "uid-1",
         )
 
         assertFalse(allowed)

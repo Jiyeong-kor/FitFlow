@@ -52,7 +52,7 @@ class RunningRepositoriesImplTest {
             firestore,
             testDispatcher,
             appLogger,
-            dateProvider
+            dateProvider,
         )
     private val goalRepository =
         RunningGoalRepositoryImpl(fakeDaos, firebaseAuth, firestore, testDispatcher, appLogger)
@@ -62,7 +62,7 @@ class RunningRepositoriesImplTest {
             firebaseAuth,
             firestore,
             testDispatcher,
-            appLogger
+            appLogger,
         )
 
     @Test
@@ -73,8 +73,8 @@ class RunningRepositoriesImplTest {
                 id = 1L,
                 date = recordDate,
                 distanceKm = 4.2,
-                durationMinutes = 25
-            )
+                durationMinutes = 25,
+            ),
         )
 
         val records = recordRepository.getAllRecords().first()
@@ -87,7 +87,7 @@ class RunningRepositoriesImplTest {
             id = 2L,
             date = 1717286400000L,
             distanceKm = 10.0,
-            durationMinutes = 50
+            durationMinutes = 50,
         )
 
         recordRepository.addRecord(newRecord)
@@ -97,9 +97,9 @@ class RunningRepositoriesImplTest {
                 id = 2L,
                 date = 1717286400000L,
                 distanceKm = 10.0,
-                durationMinutes = 50
+                durationMinutes = 50,
             ),
-            fakeDaos.lastInsertedRecord
+            fakeDaos.lastInsertedRecord,
         )
     }
 
@@ -125,8 +125,8 @@ class RunningRepositoriesImplTest {
                 hour = 6,
                 minute = 45,
                 isEnabled = true,
-                days = setOf(1, 5)
-            )
+                days = setOf(1, 5),
+            ),
         )
 
         val reminders = reminderRepository.getAllReminders().first()
@@ -140,7 +140,7 @@ class RunningRepositoriesImplTest {
             hour = 7,
             minute = 15,
             isEnabled = true,
-            days = setOf(2)
+            days = setOf(2),
         )
 
         reminderRepository.upsertReminder(newReminder)
@@ -153,15 +153,18 @@ class RunningRepositoriesImplTest {
                     hour = 7,
                     minute = 15,
                     isEnabled = true,
-                    days = setOf(2)
-                )
-            )
+                    days = setOf(2),
+                ),
+            ),
         )
         assertEquals(listOf(3), fakeDaos.deletedReminderIds)
         assertTrue(fakeDaos.reminders.value.none { it.id == 3 })
     }
 
-    private class FakeRunningDaos : RunningRecordDao, RunningGoalDao, RunningReminderDao {
+    private class FakeRunningDaos :
+        RunningRecordDao,
+        RunningGoalDao,
+        RunningReminderDao {
         val records = MutableStateFlow<List<RunningRecordEntity>>(emptyList())
         val goal = MutableStateFlow<RunningGoalEntity?>(null)
         val reminders = MutableStateFlow<List<RunningReminderEntity>>(emptyList())
@@ -179,14 +182,12 @@ class RunningRepositoriesImplTest {
             return record.id
         }
 
-
         override fun getGoal(): Flow<RunningGoalEntity?> = goal
 
         override suspend fun upsertGoal(goal: RunningGoalEntity) {
             lastUpsertedGoal = goal
             this.goal.value = goal
         }
-
 
         override fun getAllReminders(): Flow<List<RunningReminderEntity>> = reminders
 
@@ -204,7 +205,7 @@ class RunningRepositoriesImplTest {
         }
 
         override suspend fun countAll(): Int = records.value.size +
-                (if (goal.value == null) 0 else 1) + reminders.value.size
+            (if (goal.value == null) 0 else 1) + reminders.value.size
 
         override suspend fun countByDate(dateMillis: Long): Int =
             records.value.count { it.date == dateMillis }

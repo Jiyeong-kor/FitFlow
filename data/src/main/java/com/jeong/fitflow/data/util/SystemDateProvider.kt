@@ -5,19 +5,19 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import com.jeong.fitflow.domain.contract.DateTimeContract
+import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.domain.util.DateProvider
+import java.util.Calendar
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
-import java.util.Calendar
-import com.jeong.fitflow.domain.di.IoDispatcher
-import kotlinx.coroutines.CoroutineDispatcher
 
 class SystemDateProvider(
     private val context: Context,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : DateProvider {
 
     override fun getToday(): Long = System.currentTimeMillis()
@@ -49,14 +49,13 @@ class SystemDateProvider(
     }.distinctUntilChanged()
         .flowOn(ioDispatcher)
 
-    override fun getStartOfWeek(timestamp: Long): Long =
-        Calendar.getInstance().apply {
-            timeInMillis = timestamp
-            firstDayOfWeek = DateTimeContract.WEEK_START_DAY
-            set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
+    override fun getStartOfWeek(timestamp: Long): Long = Calendar.getInstance().apply {
+        timeInMillis = timestamp
+        firstDayOfWeek = DateTimeContract.WEEK_START_DAY
+        set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
 }

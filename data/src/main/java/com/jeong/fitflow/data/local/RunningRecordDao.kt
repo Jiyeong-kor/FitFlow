@@ -19,6 +19,8 @@ interface RunningRecordDao {
     @Query("SELECT COUNT(*) FROM ${RunningDatabaseContract.TABLE_RUNNING_RECORD}")
     suspend fun countAll(): Int
 
-    @Query("SELECT COUNT(*) FROM ${RunningDatabaseContract.TABLE_RUNNING_RECORD} WHERE date = :dateMillis")
+    @Query(
+        "SELECT COUNT(*) FROM ${RunningDatabaseContract.TABLE_RUNNING_RECORD} WHERE date = :dateMillis",
+    )
     suspend fun countByDate(dateMillis: Long): Int
 }

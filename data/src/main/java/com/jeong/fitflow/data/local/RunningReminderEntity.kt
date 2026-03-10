@@ -1,7 +1,7 @@
 package com.jeong.fitflow.data.local
 
-import androidx.room.Entity
 import androidx.room.ColumnInfo
+import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.jeong.fitflow.data.contract.RunningDatabaseContract
 
@@ -12,5 +12,5 @@ data class RunningReminderEntity(
     val minute: Int,
     @ColumnInfo(name = "enabled")
     val isEnabled: Boolean,
-    val days: Set<Int>
+    val days: Set<Int>,
 )

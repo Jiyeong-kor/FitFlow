@@ -15,13 +15,13 @@ import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.domain.model.WorkoutRecord
 import com.jeong.fitflow.domain.repository.WorkoutRecordRepository
 import com.jeong.fitflow.shared.logging.AppLogger
-import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 class WorkoutRecordRepositoryImpl @Inject constructor(
     private val workoutRecordDao: WorkoutRecordDao,
@@ -29,7 +29,7 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val appLogger: AppLogger
+    private val appLogger: AppLogger,
 ) : WorkoutRecordRepository {
     override fun getAllRecords(): Flow<List<WorkoutRecord>> =
         workoutRecordDao.getAllRecords().map { entities ->
@@ -54,7 +54,7 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
         val data = mapOf(
             WorkoutRecordFirestoreFields.DATE to record.date,
             WorkoutRecordFirestoreFields.EXERCISE_TYPE to record.exerciseType.name,
-            WorkoutRecordFirestoreFields.REP_COUNT to record.repCount
+            WorkoutRecordFirestoreFields.REP_COUNT to record.repCount,
         )
         try {
             firestore.collection(FirestorePaths.COLLECTION_USERS)
@@ -72,8 +72,8 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
                     docId = docId,
                     date = record.date,
                     exerciseType = record.exerciseType.name,
-                    repCount = record.repCount
-                )
+                    repCount = record.repCount,
+                ),
             )
         }
     }
@@ -86,7 +86,7 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
             val payload = mapOf(
                 WorkoutRecordFirestoreFields.DATE to entry.date,
                 WorkoutRecordFirestoreFields.EXERCISE_TYPE to exerciseType,
-                WorkoutRecordFirestoreFields.REP_COUNT to (entry.repCount ?: 0)
+                WorkoutRecordFirestoreFields.REP_COUNT to (entry.repCount ?: 0),
             )
             try {
                 firestore.collection(FirestorePaths.COLLECTION_USERS)
@@ -107,7 +107,7 @@ class WorkoutRecordRepositoryImpl @Inject constructor(
         appLogger.warning(
             tag = LOG_TAG,
             message = WORKOUT_SYNC_FAILURE_LOG,
-            throwable = exception
+            throwable = exception,
         )
     }
 

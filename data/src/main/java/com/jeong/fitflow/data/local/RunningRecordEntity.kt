@@ -9,5 +9,5 @@ data class RunningRecordEntity(
     @PrimaryKey(autoGenerate = true) val id: Long = 0L,
     val date: Long,
     val distanceKm: Double,
-    val durationMinutes: Int
+    val durationMinutes: Int,
 )

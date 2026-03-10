@@ -12,7 +12,7 @@ interface WorkoutRecordDao {
 
     @Query(
         "SELECT * FROM ${RunningDatabaseContract.TABLE_WORKOUT_RECORD} " +
-            "ORDER BY date DESC"
+            "ORDER BY date DESC",
     )
     fun getAllRecords(): Flow<List<WorkoutRecordEntity>>
 

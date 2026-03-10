@@ -5,34 +5,33 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.fitflow.data.contract.FirestorePaths
 import com.jeong.fitflow.data.contract.RunningGoalFirestoreFields
 import com.jeong.fitflow.data.local.RunningGoalDao
-import com.jeong.fitflow.data.util.awaitResult
 import com.jeong.fitflow.data.local.toDomain
 import com.jeong.fitflow.data.local.toEntity
+import com.jeong.fitflow.data.util.awaitResult
+import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.domain.model.RunningGoal
 import com.jeong.fitflow.domain.repository.RunningGoalRepository
-import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.shared.logging.AppLogger
-import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 class RunningGoalRepositoryImpl @Inject constructor(
     private val goalDao: RunningGoalDao,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val appLogger: AppLogger
+    private val appLogger: AppLogger,
 ) : RunningGoalRepository {
 
-    override fun getGoal(): Flow<RunningGoal?> =
-        goalDao.getGoal()
-            .map { it?.toDomain() }
-            .distinctUntilChanged()
-            .flowOn(ioDispatcher)
+    override fun getGoal(): Flow<RunningGoal?> = goalDao.getGoal()
+        .map { it?.toDomain() }
+        .distinctUntilChanged()
+        .flowOn(ioDispatcher)
 
     override suspend fun upsertGoal(goal: RunningGoal) {
         withContext(ioDispatcher) {
@@ -60,7 +59,7 @@ class RunningGoalRepositoryImpl @Inject constructor(
         appLogger.warning(
             tag = LOG_TAG,
             message = GOAL_SYNC_FAILURE_LOG,
-            throwable = exception
+            throwable = exception,
         )
     }
 

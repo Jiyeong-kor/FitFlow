@@ -11,6 +11,6 @@ fun DocumentSnapshot.toWorkoutRecordEntity(): WorkoutRecordEntity? {
     return WorkoutRecordEntity(
         date = date,
         exerciseType = exerciseType,
-        repCount = repCount
+        repCount = repCount,
     )
 }

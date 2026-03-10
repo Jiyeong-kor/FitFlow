@@ -9,7 +9,7 @@ object RunningDatabaseMigrations {
         override fun migrate(db: SupportSQLiteDatabase) {
             db.execSQL(
                 "ALTER TABLE ${RunningDatabaseContract.TABLE_SYNC_OUTBOX} " +
-                    "ADD COLUMN nextRetryAt INTEGER NOT NULL DEFAULT 0"
+                    "ADD COLUMN nextRetryAt INTEGER NOT NULL DEFAULT 0",
             )
         }
     }

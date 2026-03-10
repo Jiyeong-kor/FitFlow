@@ -16,13 +16,13 @@ import com.jeong.fitflow.domain.model.RunningRecord
 import com.jeong.fitflow.domain.repository.RunningRecordRepository
 import com.jeong.fitflow.domain.util.DateProvider
 import com.jeong.fitflow.shared.logging.AppLogger
-import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 class RunningRecordRepositoryImpl @Inject constructor(
     private val recordDao: RunningRecordDao,
@@ -31,7 +31,7 @@ class RunningRecordRepositoryImpl @Inject constructor(
     private val firestore: FirebaseFirestore,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val appLogger: AppLogger,
-    private val dateProvider: DateProvider
+    private val dateProvider: DateProvider,
 ) : RunningRecordRepository {
 
     override fun getAllRecords(): Flow<List<RunningRecord>> =
@@ -59,7 +59,7 @@ class RunningRecordRepositoryImpl @Inject constructor(
         val data = mapOf(
             RunningRecordFirestoreFields.DATE to record.date,
             RunningRecordFirestoreFields.DISTANCE_KM to record.distanceKm,
-            RunningRecordFirestoreFields.DURATION_MINUTES to record.durationMinutes
+            RunningRecordFirestoreFields.DURATION_MINUTES to record.durationMinutes,
         )
         try {
             firestore.collection(FirestorePaths.COLLECTION_USERS)
@@ -76,8 +76,8 @@ class RunningRecordRepositoryImpl @Inject constructor(
                     docId = docId,
                     date = record.date,
                     distanceKm = record.distanceKm,
-                    durationMinutes = record.durationMinutes
-                )
+                    durationMinutes = record.durationMinutes,
+                ),
             )
         }
     }
@@ -90,7 +90,7 @@ class RunningRecordRepositoryImpl @Inject constructor(
                 val payload = mapOf(
                     RunningRecordFirestoreFields.DATE to entry.date,
                     RunningRecordFirestoreFields.DISTANCE_KM to (entry.distanceKm ?: 0.0),
-                    RunningRecordFirestoreFields.DURATION_MINUTES to (entry.durationMinutes ?: 0)
+                    RunningRecordFirestoreFields.DURATION_MINUTES to (entry.durationMinutes ?: 0),
                 )
                 firestore.collection(FirestorePaths.COLLECTION_USERS)
                     .document(uid)
@@ -104,7 +104,7 @@ class RunningRecordRepositoryImpl @Inject constructor(
             },
             onUpdateRetry = { entry, retryCount, nextRetryAt ->
                 syncOutboxDao.updateRetry(entry.syncType, entry.docId, retryCount, nextRetryAt)
-            }
+            },
         )
     }
 }

@@ -5,29 +5,29 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.jeong.fitflow.data.contract.FirestorePaths
 import com.jeong.fitflow.data.contract.RunningReminderFirestoreFields
 import com.jeong.fitflow.data.local.RunningReminderDao
-import com.jeong.fitflow.data.util.awaitResult
 import com.jeong.fitflow.data.local.toDomain
 import com.jeong.fitflow.data.local.toEntity
+import com.jeong.fitflow.data.util.awaitResult
+import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.domain.model.RunningReminder
 import com.jeong.fitflow.domain.repository.RunningReminderRepository
-import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.shared.logging.AppLogger
-import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.withContext
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import javax.inject.Inject
+import kotlinx.coroutines.withContext
 
 class RunningReminderRepositoryImpl @Inject constructor(
     private val reminderDao: RunningReminderDao,
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val appLogger: AppLogger
+    private val appLogger: AppLogger,
 ) : RunningReminderRepository {
 
     private val reminderWriteMutex = Mutex()
@@ -72,7 +72,7 @@ class RunningReminderRepositoryImpl @Inject constructor(
             RunningReminderFirestoreFields.HOUR to reminder.hour,
             RunningReminderFirestoreFields.MINUTE to reminder.minute,
             RunningReminderFirestoreFields.IS_ENABLED to reminder.isEnabled,
-            RunningReminderFirestoreFields.DAYS to reminder.days.toList()
+            RunningReminderFirestoreFields.DAYS to reminder.days.toList(),
         )
         runCatching {
             docRef.set(data).awaitResult()

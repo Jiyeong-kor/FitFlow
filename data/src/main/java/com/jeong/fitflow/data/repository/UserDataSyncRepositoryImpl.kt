@@ -11,19 +11,19 @@ import com.jeong.fitflow.data.util.toRunningGoalEntity
 import com.jeong.fitflow.data.util.toRunningRecordEntity
 import com.jeong.fitflow.data.util.toRunningReminderEntity
 import com.jeong.fitflow.data.util.toWorkoutRecordEntity
+import com.jeong.fitflow.domain.di.IoDispatcher
 import com.jeong.fitflow.domain.model.AuthError
 import com.jeong.fitflow.domain.model.AuthResult
 import com.jeong.fitflow.domain.repository.UserDataSyncRepository
-import com.jeong.fitflow.domain.di.IoDispatcher
+import javax.inject.Inject
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 class UserDataSyncRepositoryImpl @Inject constructor(
     private val firebaseAuth: FirebaseAuth,
     private val firestore: FirebaseFirestore,
     private val runningDatabase: RunningDatabase,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) : UserDataSyncRepository {
 
     override suspend fun restoreUserDataFromRemote(): AuthResult<Unit> {

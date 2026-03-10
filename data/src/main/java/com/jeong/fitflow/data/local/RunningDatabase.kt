@@ -11,13 +11,13 @@ import com.jeong.fitflow.data.contract.RunningDatabaseContract
         RunningGoalEntity::class,
         RunningReminderEntity::class,
         WorkoutRecordEntity::class,
-        SyncOutboxEntity::class
+        SyncOutboxEntity::class,
     ],
     version = RunningDatabaseContract.DATABASE_VERSION,
-    exportSchema = true
+    exportSchema = true,
 )
 @TypeConverters(
-    DayOfWeekConverter::class
+    DayOfWeekConverter::class,
 )
 abstract class RunningDatabase : RoomDatabase() {
     abstract fun runningRecordDao(): RunningRecordDao

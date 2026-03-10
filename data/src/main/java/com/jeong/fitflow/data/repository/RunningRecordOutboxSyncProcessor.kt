@@ -2,18 +2,18 @@ package com.jeong.fitflow.data.repository
 
 import com.jeong.fitflow.data.local.SyncOutboxEntity
 import com.jeong.fitflow.data.local.SyncOutboxType
-import com.jeong.fitflow.shared.logging.AppLogger
 import com.jeong.fitflow.domain.util.DateProvider
+import com.jeong.fitflow.shared.logging.AppLogger
 
 internal class RunningRecordOutboxSyncProcessor(
     private val appLogger: AppLogger,
-    private val dateProvider: DateProvider
+    private val dateProvider: DateProvider,
 ) {
     suspend fun flush(
         pending: List<SyncOutboxEntity>,
         upload: suspend (SyncOutboxEntity) -> Unit,
         onDelete: suspend (SyncOutboxEntity) -> Unit,
-        onUpdateRetry: suspend (SyncOutboxEntity, Int, Long) -> Unit
+        onUpdateRetry: suspend (SyncOutboxEntity, Int, Long) -> Unit,
     ) {
         val nowMs = dateProvider.getToday()
         for (entry in pending) {
@@ -22,7 +22,14 @@ internal class RunningRecordOutboxSyncProcessor(
                 appLogger.warning(LOG_TAG, RETRY_LIMIT_REACHED_MESSAGE, null)
                 continue
             }
-            if (!SyncRetryPolicy.isRetryAllowed(entry.retryCount, nowMs, entry.nextRetryAt)) continue
+            if (!SyncRetryPolicy.isRetryAllowed(
+                    entry.retryCount,
+                    nowMs,
+                    entry.nextRetryAt,
+                )
+            ) {
+                continue
+            }
             try {
                 upload(entry)
                 onDelete(entry)

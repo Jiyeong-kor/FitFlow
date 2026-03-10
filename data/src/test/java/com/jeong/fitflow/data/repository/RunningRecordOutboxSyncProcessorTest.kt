@@ -2,8 +2,8 @@ package com.jeong.fitflow.data.repository
 
 import com.jeong.fitflow.data.local.SyncOutboxEntity
 import com.jeong.fitflow.data.local.SyncOutboxType
-import com.jeong.fitflow.shared.logging.AppLogger
 import com.jeong.fitflow.domain.util.DateProvider
+import com.jeong.fitflow.shared.logging.AppLogger
 import io.mockk.mockk
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
@@ -24,7 +24,7 @@ class RunningRecordOutboxSyncProcessorTest {
         val allowed = SyncRetryPolicy.isRetryAllowed(
             SyncRetryPolicy.MAX_RETRY_LIMIT,
             nowMs = 1_000L,
-            nextRetryAt = 0L
+            nextRetryAt = 0L,
         )
         assertEquals(false, allowed)
     }
@@ -52,7 +52,7 @@ class RunningRecordOutboxSyncProcessorTest {
             pending = listOf(entry),
             upload = {},
             onDelete = { deleted += it },
-            onUpdateRetry = { _, _, _ -> throw AssertionError("retry should not update") }
+            onUpdateRetry = { _, _, _ -> throw AssertionError("retry should not update") },
         )
 
         assertEquals(listOf(entry), deleted)
@@ -73,7 +73,7 @@ class RunningRecordOutboxSyncProcessorTest {
             onUpdateRetry = { _, retryCount, nextRetryAt ->
                 updatedRetryCount = retryCount
                 updatedNextRetryAt = nextRetryAt
-            }
+            },
         )
 
         assertEquals(2, updatedRetryCount)
@@ -88,7 +88,7 @@ class RunningRecordOutboxSyncProcessorTest {
         durationMinutes = 10,
         retryCount = retryCount,
         nextRetryAt = 0L,
-        createdAt = 0L
+        createdAt = 0L,
     )
 
     private class FakeDateProvider(private val nowMs: Long) : DateProvider {

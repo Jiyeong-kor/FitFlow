@@ -15,7 +15,7 @@ class RunningMappersTest {
             id = 10L,
             date = 1710460800000L,
             distanceKm = 7.5,
-            durationMinutes = 42
+            durationMinutes = 42,
         )
 
         val domain = entity.toDomain()
@@ -42,7 +42,7 @@ class RunningMappersTest {
             hour = 6,
             minute = 30,
             isEnabled = true,
-            days = setOf(1, 6)
+            days = setOf(1, 6),
         )
 
         val entity = reminder.toEntity()
@@ -57,7 +57,7 @@ class RunningMappersTest {
         val workoutRecord = WorkoutRecord(
             date = 1700000000000L,
             exerciseType = ExerciseType.SQUAT,
-            repCount = 12
+            repCount = 12,
         )
 
         val entity = workoutRecord.toEntity()

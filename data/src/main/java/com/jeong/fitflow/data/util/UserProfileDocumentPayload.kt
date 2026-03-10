@@ -8,7 +8,7 @@ data class UserProfileDocumentPayload(
     val nickname: String,
     val createdAt: Timestamp,
     val lastActiveAt: Timestamp,
-    val authProvider: AuthProvider
+    val authProvider: AuthProvider,
 )
 
 fun UserProfileDocumentPayload.toFirestoreMap(): Map<String, Any> {
@@ -16,7 +16,7 @@ fun UserProfileDocumentPayload.toFirestoreMap(): Map<String, Any> {
         UserFirestoreFields.NICKNAME to nickname,
         UserFirestoreFields.CREATED_AT to createdAt,
         UserFirestoreFields.LAST_ACTIVE_AT to lastActiveAt,
-        UserFirestoreFields.AUTH_PROVIDER to authProvider.rawValue
+        UserFirestoreFields.AUTH_PROVIDER to authProvider.rawValue,
     )
     return data
 }

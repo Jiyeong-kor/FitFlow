@@ -4,7 +4,6 @@ object UsernameReservationPolicy {
     fun shouldAllowReservation(
         isExisting: Boolean,
         ownerUid: String?,
-        currentUid: String
-    ): Boolean =
-        !isExisting || ownerUid == currentUid
+        currentUid: String,
+    ): Boolean = !isExisting || ownerUid == currentUid
 }
