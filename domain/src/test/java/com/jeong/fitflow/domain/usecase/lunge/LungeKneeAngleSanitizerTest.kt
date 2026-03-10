@@ -58,7 +58,7 @@ class LungeKneeAngleSanitizerTest {
         val result = sanitizer.sanitize(
             rawAngle = rawAngle,
             lastValidAngle = lastValidAngle,
-            side = PoseSide.RIGHT
+            side = PoseSide.RIGHT,
         )
 
         assertNull(result.angle)
@@ -76,7 +76,7 @@ class LungeKneeAngleSanitizerTest {
         val result = sanitizer.sanitize(
             rawAngle = rawAngle,
             lastValidAngle = lastValidAngle,
-            side = PoseSide.LEFT
+            side = PoseSide.LEFT,
         )
 
         assertEquals(rawAngle, result.angle)

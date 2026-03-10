@@ -11,7 +11,6 @@ import com.jeong.fitflow.domain.contract.SQUAT_UP_FRAMES_REQUIRED
 import com.jeong.fitflow.domain.model.SquatPhase
 import com.jeong.fitflow.domain.model.SquatPhaseTransition
 
-
 data class SquatRepCounterResult(
     val repCount: Int,
     val phase: SquatPhase,
@@ -25,14 +24,14 @@ data class SquatRepCounterResult(
     val isReliable: Boolean,
     val transition: SquatPhaseTransition?,
     val upCandidateFrames: Int,
-    val downCandidateFrames: Int
+    val downCandidateFrames: Int,
 )
 
 class SquatRepCounter(
     private val upThreshold: Float = SQUAT_STANDING_KNEE_ANGLE_THRESHOLD,
     private val downThreshold: Float = SQUAT_BOTTOM_KNEE_ANGLE_THRESHOLD,
     private val upFramesRequired: Int = SQUAT_UP_FRAMES_REQUIRED,
-    private val downFramesRequired: Int = SQUAT_DOWN_FRAMES_REQUIRED
+    private val downFramesRequired: Int = SQUAT_DOWN_FRAMES_REQUIRED,
 ) {
     private val kneeFilter = EmaFilter()
     private val trunkTiltFilter = EmaFilter()
@@ -83,7 +82,7 @@ class SquatRepCounter(
                                 from = phase,
                                 to = SquatPhase.DOWN,
                                 timestampMs = timestampMs,
-                                reason = SQUAT_REASON_DOWN_THRESHOLD
+                                reason = SQUAT_REASON_DOWN_THRESHOLD,
                             )
                             phase = SquatPhase.DOWN
                             resetDownCandidate()
@@ -101,7 +100,7 @@ class SquatRepCounter(
                                 from = phase,
                                 to = SquatPhase.UP,
                                 timestampMs = timestampMs,
-                                reason = SQUAT_REASON_UP_THRESHOLD
+                                reason = SQUAT_REASON_UP_THRESHOLD,
                             )
                             phase = SquatPhase.UP
                             repCount += SQUAT_INT_ONE
@@ -129,7 +128,7 @@ class SquatRepCounter(
             isReliable = isReliable,
             transition = transition,
             upCandidateFrames = upCandidateFrames,
-            downCandidateFrames = downCandidateFrames
+            downCandidateFrames = downCandidateFrames,
         )
     }
 

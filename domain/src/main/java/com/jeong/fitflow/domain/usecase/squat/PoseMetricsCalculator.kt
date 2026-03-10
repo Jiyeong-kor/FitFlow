@@ -19,17 +19,17 @@ data class PoseRawSquatMetrics(
     val legLength: Float,
     val ankleY: Float,
     val kneeX: Float,
-    val side: PoseSide
+    val side: PoseSide,
 )
 
 class PoseMetricsCalculator(
     private val minConfidence: Float = SQUAT_MIN_LANDMARK_CONFIDENCE,
-    private val angleCalculator: AngleCalculator = AngleCalculator()
+    private val angleCalculator: AngleCalculator = AngleCalculator(),
 ) {
     fun calculate(
         frame: PoseFrame,
         calibration: PoseCalibration?,
-        side: PoseSide
+        side: PoseSide,
     ): PoseRawSquatMetrics? {
         val landmarks = createSideLandmarks(frame, side) ?: return null
         val kneeAngle =
@@ -40,7 +40,7 @@ class PoseMetricsCalculator(
             angleCalculator.trunkToThighAngle(
                 landmarks.shoulder,
                 landmarks.hip,
-                landmarks.knee
+                landmarks.knee,
             ) ?: return null
         val legLength = distance(landmarks.hip, landmarks.ankle)
         val normalizedLength = calibration?.baselineLegLength ?: legLength
@@ -57,7 +57,7 @@ class PoseMetricsCalculator(
             legLength = legLength,
             ankleY = landmarks.ankle.y,
             kneeX = landmarks.knee.x,
-            side = side
+            side = side,
         )
     }
 
@@ -105,5 +105,5 @@ data class SideLandmarks(
     val shoulder: PoseLandmark,
     val hip: PoseLandmark,
     val knee: PoseLandmark,
-    val ankle: PoseLandmark
+    val ankle: PoseLandmark,
 )

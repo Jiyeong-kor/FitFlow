@@ -16,14 +16,14 @@ class PoseMetricsCalculatorTest {
                 landmark(PoseLandmarkType.LEFT_SHOULDER, 0f, -1f, 1f),
                 landmark(PoseLandmarkType.LEFT_HIP, 0f, 0f, 1f),
                 landmark(PoseLandmarkType.LEFT_KNEE, 0f, 1f, 1f),
-                landmark(PoseLandmarkType.LEFT_ANKLE, 1f, 1f, 1f)
+                landmark(PoseLandmarkType.LEFT_ANKLE, 1f, 1f, 1f),
             ),
             timestampMs = 0L,
             imageWidth = 100,
             imageHeight = 100,
             rotationDegrees = 0,
             isFrontCamera = true,
-            isMirrored = true
+            isMirrored = true,
         )
         val calculator = PoseMetricsCalculator()
 
@@ -41,14 +41,14 @@ class PoseMetricsCalculatorTest {
                 landmark(PoseLandmarkType.LEFT_SHOULDER, 0f, -1f, 0.1f),
                 landmark(PoseLandmarkType.LEFT_HIP, 0f, 0f, 0.1f),
                 landmark(PoseLandmarkType.LEFT_KNEE, 0f, 1f, 0.1f),
-                landmark(PoseLandmarkType.LEFT_ANKLE, 1f, 1f, 0.1f)
+                landmark(PoseLandmarkType.LEFT_ANKLE, 1f, 1f, 0.1f),
             ),
             timestampMs = 0L,
             imageWidth = 100,
             imageHeight = 100,
             rotationDegrees = 0,
             isFrontCamera = true,
-            isMirrored = true
+            isMirrored = true,
         )
         val calculator = PoseMetricsCalculator()
 
@@ -61,7 +61,6 @@ class PoseMetricsCalculatorTest {
         type: PoseLandmarkType,
         x: Float,
         y: Float,
-        confidence: Float
-    ): PoseLandmark =
-        PoseLandmark(type = type, x = x, y = y, z = 0f, confidence = confidence)
+        confidence: Float,
+    ): PoseLandmark = PoseLandmark(type = type, x = x, y = y, z = 0f, confidence = confidence)
 }

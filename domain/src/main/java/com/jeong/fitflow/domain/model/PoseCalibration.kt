@@ -5,5 +5,5 @@ data class PoseCalibration(
     val baselineTrunkTiltVerticalAngle: Float,
     val baselineLegLength: Float,
     val baselineAnkleY: Float,
-    val baselineKneeX: Float
+    val baselineKneeX: Float,
 )

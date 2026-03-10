@@ -3,9 +3,9 @@ package com.jeong.fitflow.domain.usecase.squat
 import com.jeong.fitflow.domain.contract.SQUAT_GOOD_DEPTH_ANGLE_THRESHOLD
 import com.jeong.fitflow.domain.contract.SQUAT_HEEL_RISE_RATIO_THRESHOLD
 import com.jeong.fitflow.domain.contract.SQUAT_KNEE_FORWARD_RATIO_THRESHOLD
+import com.jeong.fitflow.domain.contract.SQUAT_SHALLOW_DEPTH_ANGLE_THRESHOLD
 import com.jeong.fitflow.domain.contract.SQUAT_TRUNK_TO_THIGH_ANGLE_HARD_THRESHOLD
 import com.jeong.fitflow.domain.contract.SQUAT_TRUNK_TO_THIGH_ANGLE_SOFT_THRESHOLD
-import com.jeong.fitflow.domain.contract.SQUAT_SHALLOW_DEPTH_ANGLE_THRESHOLD
 import com.jeong.fitflow.domain.model.SquatFormGrade
 import com.jeong.fitflow.domain.model.SquatFormIssue
 import com.jeong.fitflow.domain.model.SquatHeuristicConfig
@@ -16,7 +16,7 @@ data class SquatRepMetrics(
     val minTrunkToThighAngle: Float,
     val maxTrunkTiltVerticalAngle: Float,
     val maxHeelRiseRatio: Float?,
-    val maxKneeForwardRatio: Float?
+    val maxKneeForwardRatio: Float?,
 )
 
 class SquatFormScorer(
@@ -24,7 +24,7 @@ class SquatFormScorer(
     private val shallowDepthAngle: Float = SQUAT_SHALLOW_DEPTH_ANGLE_THRESHOLD,
     private val trunkToThighSoftThreshold: Float = SQUAT_TRUNK_TO_THIGH_ANGLE_SOFT_THRESHOLD,
     private val trunkToThighHardThreshold: Float = SQUAT_TRUNK_TO_THIGH_ANGLE_HARD_THRESHOLD,
-    private val heuristicConfig: SquatHeuristicConfig = defaultHeuristicConfig()
+    private val heuristicConfig: SquatHeuristicConfig = defaultHeuristicConfig(),
 ) {
     fun score(metrics: SquatRepMetrics): SquatRepSummary {
         val issues = mutableListOf<SquatFormIssue>()
@@ -72,15 +72,14 @@ class SquatFormScorer(
             maxHeelRiseRatio = metrics.maxHeelRiseRatio,
             maxKneeForwardRatio = metrics.maxKneeForwardRatio,
             grade = grade,
-            issues = issues
+            issues = issues,
         )
     }
 }
 
-private fun defaultHeuristicConfig(): SquatHeuristicConfig =
-    SquatHeuristicConfig(
-        isHeelRiseProxyEnabled = true,
-        heelRiseRatioThreshold = SQUAT_HEEL_RISE_RATIO_THRESHOLD,
-        isKneeForwardProxyEnabled = true,
-        kneeForwardRatioThreshold = SQUAT_KNEE_FORWARD_RATIO_THRESHOLD
-    )
+private fun defaultHeuristicConfig(): SquatHeuristicConfig = SquatHeuristicConfig(
+    isHeelRiseProxyEnabled = true,
+    heelRiseRatioThreshold = SQUAT_HEEL_RISE_RATIO_THRESHOLD,
+    isKneeForwardProxyEnabled = true,
+    kneeForwardRatioThreshold = SQUAT_KNEE_FORWARD_RATIO_THRESHOLD,
+)

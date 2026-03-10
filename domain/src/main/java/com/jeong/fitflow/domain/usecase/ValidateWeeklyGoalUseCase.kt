@@ -4,13 +4,11 @@ import javax.inject.Inject
 
 sealed interface WeeklyGoalValidationResult {
 
-    data class Valid(
-        val weeklyGoalKm: Double
-    ) : WeeklyGoalValidationResult
+    data class Valid(val weeklyGoalKm: Double) : WeeklyGoalValidationResult
 
     enum class Error : WeeklyGoalValidationResult {
         INVALID_NUMBER,
-        NON_POSITIVE
+        NON_POSITIVE,
     }
 }
 

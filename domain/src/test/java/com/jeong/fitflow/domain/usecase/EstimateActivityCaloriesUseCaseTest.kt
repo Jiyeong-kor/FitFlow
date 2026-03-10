@@ -21,7 +21,7 @@ class EstimateActivityCaloriesUseCaseTest {
         val kcal = useCase.estimateSegmentCalories(
             activityType = CardioActivityType.Other,
             durationSeconds = 600,
-            userWeightKg = 70.0
+            userWeightKg = 70.0,
         )
 
         assertEquals(0.0, kcal, 0.0)
@@ -33,9 +33,9 @@ class EstimateActivityCaloriesUseCaseTest {
             segments = listOf(
                 ActivityCaloriesSegment(CardioActivityType.Running, durationSeconds = 600),
                 ActivityCaloriesSegment(CardioActivityType.Walking, durationSeconds = 300),
-                ActivityCaloriesSegment(CardioActivityType.OnBicycle, durationSeconds = 120)
+                ActivityCaloriesSegment(CardioActivityType.OnBicycle, durationSeconds = 120),
             ),
-            userWeightKg = 70.0
+            userWeightKg = 70.0,
         )
 
         val expected =
@@ -51,7 +51,7 @@ class EstimateActivityCaloriesUseCaseTest {
         val calories = useCase.estimateSegmentCalories(
             activityType = CardioActivityType.Walking,
             durationSeconds = 61,
-            userWeightKg = 64.3
+            userWeightKg = 64.3,
         )
 
         val expected = (61.0 / 60.0) * (3.5 * 3.5 * 64.3) / 200.0

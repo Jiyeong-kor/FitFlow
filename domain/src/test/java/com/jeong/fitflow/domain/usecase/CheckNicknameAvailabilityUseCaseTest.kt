@@ -15,7 +15,7 @@ class CheckNicknameAvailabilityUseCaseTest {
     @Test
     fun `닉네임 요청을 리포지토리에 전달`() = runBlocking {
         val repository = FakeAuthRepository(
-            result = AuthResult.Success(true)
+            result = AuthResult.Success(true),
         )
         val useCase = CheckNicknameAvailabilityUseCase(repository)
 
@@ -29,7 +29,7 @@ class CheckNicknameAvailabilityUseCaseTest {
     fun `오류 결과를 그대로 반환`() = runBlocking {
         val failure = AuthResult.Failure(AuthError.NicknameTaken)
         val repository = FakeAuthRepository(
-            result = failure
+            result = failure,
         )
         val useCase = CheckNicknameAvailabilityUseCase(repository)
 
@@ -39,16 +39,14 @@ class CheckNicknameAvailabilityUseCaseTest {
         assertEquals(failure, result)
     }
 
-    private class FakeAuthRepository(
-        private val result: AuthResult<Boolean>
-    ) : AuthRepository {
+    private class FakeAuthRepository(private val result: AuthResult<Boolean>) : AuthRepository {
         var requestedNickname: String? = null
 
         override suspend fun signInAnonymously(): Result<Unit> = error("Not used")
 
         override suspend fun reserveNicknameAndCreateUserProfile(
             nickname: String,
-            authProvider: AuthProvider
+            authProvider: AuthProvider,
         ): AuthResult<Unit> = error("Not used")
 
         override suspend fun checkNicknameAvailability(nickname: String): AuthResult<Boolean> {

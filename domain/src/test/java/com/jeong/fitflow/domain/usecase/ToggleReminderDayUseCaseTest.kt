@@ -15,7 +15,7 @@ class ToggleReminderDayUseCaseTest {
             hour = 6,
             minute = 30,
             isEnabled = true,
-            days = setOf(1)
+            days = setOf(1),
         )
 
         val result = useCase(reminder, 2)
@@ -30,7 +30,7 @@ class ToggleReminderDayUseCaseTest {
             hour = 6,
             minute = 30,
             isEnabled = true,
-            days = setOf(1, 2)
+            days = setOf(1, 2),
         )
 
         val result = useCase(reminder, 2)

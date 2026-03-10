@@ -5,5 +5,5 @@ enum class SquatState {
     DESCENDING,
     BOTTOM,
     ASCENDING,
-    REP_COMPLETE
+    REP_COMPLETE,
 }

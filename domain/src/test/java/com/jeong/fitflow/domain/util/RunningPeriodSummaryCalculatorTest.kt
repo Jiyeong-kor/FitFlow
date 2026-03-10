@@ -24,7 +24,7 @@ class RunningPeriodSummaryCalculatorTest {
     fun `calculate aggregates totals and pace`() {
         val records = listOf(
             RunningRecord(id = 1, date = 1L, distanceKm = 2.0, durationMinutes = 30),
-            RunningRecord(id = 2, date = 2L, distanceKm = 1.0, durationMinutes = 15)
+            RunningRecord(id = 2, date = 2L, distanceKm = 1.0, durationMinutes = 15),
         )
 
         val summary = calculator.calculate(records)

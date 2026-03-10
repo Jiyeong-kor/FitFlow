@@ -1,10 +1,10 @@
 package com.jeong.fitflow.domain.usecase
 
+import com.jeong.fitflow.domain.contract.DateTimeContract
+import com.jeong.fitflow.domain.contract.RunningTimeContract
 import com.jeong.fitflow.domain.model.RunningGoal
 import com.jeong.fitflow.domain.model.RunningRecord
 import com.jeong.fitflow.domain.model.RunningSummary
-import com.jeong.fitflow.domain.contract.DateTimeContract
-import com.jeong.fitflow.domain.contract.RunningTimeContract
 import com.jeong.fitflow.domain.util.DateProvider
 import javax.inject.Inject
 
@@ -17,7 +17,7 @@ interface RunningSummaryCalculator {
     fun calculate(
         goal: RunningGoal?,
         records: List<RunningRecord>,
-        todayMillis: Long
+        todayMillis: Long,
     ): RunningSummary
 }
 
@@ -27,7 +27,7 @@ class WeeklySummaryCalculator @Inject constructor(private val dateProvider: Date
     override fun calculate(
         goal: RunningGoal?,
         records: List<RunningRecord>,
-        todayMillis: Long
+        todayMillis: Long,
     ): RunningSummary {
         val startOfWeek = dateProvider.getStartOfWeek(todayMillis)
         val endOfWeekExclusive = startOfWeek +
@@ -52,7 +52,7 @@ class WeeklySummaryCalculator @Inject constructor(private val dateProvider: Date
             weeklyGoalKm = weeklyGoalKm,
             totalThisWeekKm = totalKm,
             recordCountThisWeek = count,
-            progress = progress
+            progress = progress,
         )
     }
 }

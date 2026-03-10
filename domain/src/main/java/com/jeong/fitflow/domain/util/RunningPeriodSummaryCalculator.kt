@@ -4,11 +4,11 @@ import com.jeong.fitflow.domain.contract.RunningSummaryContract
 import com.jeong.fitflow.domain.contract.RunningTimeContract
 import com.jeong.fitflow.domain.model.RunningPeriodSummary
 import com.jeong.fitflow.domain.model.RunningRecord
-import kotlin.math.roundToInt
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 class RunningPeriodSummaryCalculator @Inject constructor(
-    private val metricsCalculator: RunningMetricsCalculator
+    private val metricsCalculator: RunningMetricsCalculator,
 ) {
 
     fun calculate(records: List<RunningRecord>): RunningPeriodSummary {
@@ -21,7 +21,7 @@ class RunningPeriodSummaryCalculator @Inject constructor(
             totalDistanceKm = totalDistance,
             totalCalories = calories,
             totalDurationMinutes = totalDurationMinutes,
-            averagePace = pace
+            averagePace = pace,
         )
     }
 

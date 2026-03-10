@@ -1,8 +1,8 @@
 package com.jeong.fitflow.domain.usecase
 
+import com.jeong.fitflow.domain.contract.RunningTimeContract
 import com.jeong.fitflow.domain.model.RunningGoal
 import com.jeong.fitflow.domain.model.RunningRecord
-import com.jeong.fitflow.domain.contract.RunningTimeContract
 import com.jeong.fitflow.domain.util.DateProvider
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -26,7 +26,7 @@ class WeeklySummaryCalculatorTest {
         val records = listOf(
             RunningRecord(id = 1L, date = 500L, distanceKm = 2.0, durationMinutes = 10),
             RunningRecord(id = 2L, date = 1200L, distanceKm = 3.0, durationMinutes = 20),
-            RunningRecord(id = 3L, date = 1500L, distanceKm = 4.0, durationMinutes = 30)
+            RunningRecord(id = 3L, date = 1500L, distanceKm = 4.0, durationMinutes = 30),
         )
 
         val summary = calculator.calculate(goal, records, todayMillis = 1600L)
@@ -37,7 +37,6 @@ class WeeklySummaryCalculatorTest {
         assertEquals(0.7f, summary.progress, 0.0001f)
     }
 
-
     @Test
     fun calculateExcludesRecordsOutsideCurrentWeekUpperBound() {
         val goal = RunningGoal(weeklyGoalKm = 20.0)
@@ -47,13 +46,13 @@ class WeeklySummaryCalculatorTest {
             id = 2L,
             date = 1000L + (RunningTimeContract.MILLIS_PER_DAY * 8),
             distanceKm = 12.0,
-            durationMinutes = 70
+            durationMinutes = 70,
         )
 
         val summary = calculator.calculate(
             goal = goal,
             records = listOf(recordInWeek, farFutureRecord),
-            todayMillis = 1600L
+            todayMillis = 1600L,
         )
 
         assertEquals(5.0, summary.totalThisWeekKm, 0.0)
@@ -64,7 +63,7 @@ class WeeklySummaryCalculatorTest {
     @Test
     fun calculateWithoutGoalReturnsZeroProgress() {
         val records = listOf(
-            RunningRecord(id = 1L, date = 1200L, distanceKm = 3.0, durationMinutes = 20)
+            RunningRecord(id = 1L, date = 1200L, distanceKm = 3.0, durationMinutes = 20),
         )
 
         val summary = calculator.calculate(goal = null, records = records, todayMillis = 1600L)
@@ -80,7 +79,7 @@ class WeeklySummaryCalculatorTest {
         val goal = RunningGoal(weeklyGoalKm = 5.0)
         val records = listOf(
             RunningRecord(id = 1L, date = 1200L, distanceKm = 4.0, durationMinutes = 30),
-            RunningRecord(id = 2L, date = 1300L, distanceKm = 4.0, durationMinutes = 35)
+            RunningRecord(id = 2L, date = 1300L, distanceKm = 4.0, durationMinutes = 35),
         )
 
         val summary = calculator.calculate(goal, records, todayMillis = 1600L)

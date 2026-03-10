@@ -12,7 +12,7 @@ class LungeKneeAngleSanitizer {
     fun sanitize(
         rawAngle: Float?,
         lastValidAngle: Float?,
-        side: PoseSide
+        side: PoseSide,
     ): LungeKneeAngleSanitizeResult {
         if (rawAngle == null) {
             return LungeKneeAngleSanitizeResult(angle = null, outlier = null)
@@ -24,8 +24,8 @@ class LungeKneeAngleSanitizer {
                     side = side,
                     rawAngle = rawAngle,
                     lastAngle = lastValidAngle,
-                    reason = LungeKneeAngleOutlierReason.LOW_RANGE
-                )
+                    reason = LungeKneeAngleOutlierReason.LOW_RANGE,
+                ),
             )
         }
         if (rawAngle > LUNGE_KNEE_ANGLE_MAX_VALID) {
@@ -35,8 +35,8 @@ class LungeKneeAngleSanitizer {
                     side = side,
                     rawAngle = rawAngle,
                     lastAngle = lastValidAngle,
-                    reason = LungeKneeAngleOutlierReason.HIGH_RANGE
-                )
+                    reason = LungeKneeAngleOutlierReason.HIGH_RANGE,
+                ),
             )
         }
         val jump = lastValidAngle?.let { abs(rawAngle - it) } ?: LUNGE_FLOAT_ZERO
@@ -47,22 +47,19 @@ class LungeKneeAngleSanitizer {
                     side = side,
                     rawAngle = rawAngle,
                     lastAngle = lastValidAngle,
-                    reason = LungeKneeAngleOutlierReason.JUMP
-                )
+                    reason = LungeKneeAngleOutlierReason.JUMP,
+                ),
             )
         }
         return LungeKneeAngleSanitizeResult(angle = rawAngle, outlier = null)
     }
 }
 
-data class LungeKneeAngleSanitizeResult(
-    val angle: Float?,
-    val outlier: LungeKneeAngleOutlier?
-)
+data class LungeKneeAngleSanitizeResult(val angle: Float?, val outlier: LungeKneeAngleOutlier?)
 
 data class LungeKneeAngleOutlier(
     val side: PoseSide,
     val rawAngle: Float,
     val lastAngle: Float?,
-    val reason: LungeKneeAngleOutlierReason
+    val reason: LungeKneeAngleOutlierReason,
 )

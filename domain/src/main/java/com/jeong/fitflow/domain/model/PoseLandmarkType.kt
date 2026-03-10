@@ -9,5 +9,5 @@ enum class PoseLandmarkType {
     LEFT_KNEE,
     RIGHT_KNEE,
     LEFT_ANKLE,
-    RIGHT_ANKLE
+    RIGHT_ANKLE,
 }

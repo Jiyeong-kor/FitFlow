@@ -20,7 +20,7 @@ class AddRunningRecordUseCaseTest {
         useCase(
             date = dateMillis,
             distanceKm = 7.5,
-            durationMinutes = 42
+            durationMinutes = 42,
         )
 
         assertEquals(1, repository.added.size)

@@ -34,5 +34,5 @@ data class SquatFrameMetrics(
     val isCameraTiltSuspected: Boolean,
     val transition: SquatPhaseTransition?,
     val isLandmarkReliable: Boolean,
-    val isCalibrated: Boolean
+    val isCalibrated: Boolean,
 )

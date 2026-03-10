@@ -4,5 +4,5 @@ data class RunningElapsedTime(
     val hours: Long,
     val minutes: Long,
     val seconds: Long,
-    val shouldShowHours: Boolean
+    val shouldShowHours: Boolean,
 )

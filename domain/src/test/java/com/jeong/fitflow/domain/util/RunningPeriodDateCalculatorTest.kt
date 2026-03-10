@@ -108,14 +108,14 @@ class RunningPeriodDateCalculatorTest {
                 id = 2,
                 date = start + RunningTimeContract.MILLIS_PER_DAY - 1,
                 distanceKm = 2.0,
-                durationMinutes = 20
+                durationMinutes = 20,
             ),
             RunningRecord(
                 id = 3,
                 date = start + RunningTimeContract.MILLIS_PER_DAY,
                 distanceKm = 3.0,
-                durationMinutes = 30
-            )
+                durationMinutes = 30,
+            ),
         )
 
         val filtered = calculator.filterByPeriod(records, PeriodState.DAILY, selectedDate)
@@ -147,9 +147,9 @@ class RunningPeriodDateCalculatorTest {
                 id = 2,
                 date = startOfWeek + RunningTimeContract.MILLIS_PER_DAY * 2,
                 distanceKm = 2.0,
-                durationMinutes = 20
+                durationMinutes = 20,
             ),
-            RunningRecord(id = 3, date = endOfWeek, distanceKm = 3.0, durationMinutes = 30)
+            RunningRecord(id = 3, date = endOfWeek, distanceKm = 3.0, durationMinutes = 30),
         )
 
         val filtered = calculator.filterByPeriod(records, PeriodState.WEEKLY, selectedDate)
@@ -182,9 +182,9 @@ class RunningPeriodDateCalculatorTest {
                 id = 2,
                 date = endOfMonth - RunningTimeContract.MILLIS_PER_DAY,
                 distanceKm = 2.0,
-                durationMinutes = 20
+                durationMinutes = 20,
             ),
-            RunningRecord(id = 3, date = endOfMonth, distanceKm = 3.0, durationMinutes = 30)
+            RunningRecord(id = 3, date = endOfMonth, distanceKm = 3.0, durationMinutes = 30),
         )
 
         val filtered = calculator.filterByPeriod(records, PeriodState.MONTHLY, selectedDate)

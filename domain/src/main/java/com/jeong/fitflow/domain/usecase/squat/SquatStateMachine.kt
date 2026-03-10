@@ -10,10 +10,7 @@ import com.jeong.fitflow.domain.contract.SQUAT_STANDING_KNEE_ANGLE_THRESHOLD
 import com.jeong.fitflow.domain.contract.SQUAT_STATE_HYSTERESIS_FRAMES
 import com.jeong.fitflow.domain.model.SquatState
 
-data class SquatStateMachineResult(
-    val state: SquatState,
-    val isRepCompleted: Boolean
-)
+data class SquatStateMachineResult(val state: SquatState, val isRepCompleted: Boolean)
 
 class SquatStateMachine(
     private val hysteresisFrames: Int = SQUAT_STATE_HYSTERESIS_FRAMES,
@@ -21,7 +18,7 @@ class SquatStateMachine(
     private val descendingAngleThreshold: Float = SQUAT_DESCENDING_KNEE_ANGLE_THRESHOLD,
     private val bottomAngleThreshold: Float = SQUAT_BOTTOM_KNEE_ANGLE_THRESHOLD,
     private val ascendingAngleThreshold: Float = SQUAT_ASCENDING_KNEE_ANGLE_THRESHOLD,
-    private val repCompleteAngleThreshold: Float = SQUAT_REP_COMPLETE_KNEE_ANGLE_THRESHOLD
+    private val repCompleteAngleThreshold: Float = SQUAT_REP_COMPLETE_KNEE_ANGLE_THRESHOLD,
 ) {
     private var state: SquatState = SquatState.STANDING
     private var candidateCount: Int = SQUAT_INT_ZERO
@@ -57,7 +54,7 @@ class SquatStateMachine(
             SquatState.ASCENDING -> {
                 if (isTransitionApplied(
                         kneeAngle >= repCompleteAngleThreshold,
-                        SquatState.REP_COMPLETE
+                        SquatState.REP_COMPLETE,
                     )
                 ) {
                     isRepCompleted = true

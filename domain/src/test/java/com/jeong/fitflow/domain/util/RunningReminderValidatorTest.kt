@@ -16,7 +16,7 @@ class RunningReminderValidatorTest {
             hour = 8,
             minute = 30,
             isEnabled = true,
-            days = emptySet()
+            days = emptySet(),
         )
 
         val normalized = validator.normalizeEnabledDays(reminder)
@@ -31,7 +31,7 @@ class RunningReminderValidatorTest {
             hour = 8,
             minute = 30,
             isEnabled = true,
-            days = setOf(1)
+            days = setOf(1),
         )
 
         val normalized = validator.normalizeEnabledDays(reminder)

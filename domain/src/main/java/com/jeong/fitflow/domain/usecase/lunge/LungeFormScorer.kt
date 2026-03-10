@@ -39,26 +39,26 @@ class LungeFormScorer {
             value = metrics.frontKneeMinAngle,
             min = LUNGE_FRONT_KNEE_TARGET_MIN_ANGLE,
             max = LUNGE_FRONT_KNEE_TARGET_MAX_ANGLE,
-            maxDeviation = LUNGE_FRONT_KNEE_MAX_DEVIATION
+            maxDeviation = LUNGE_FRONT_KNEE_MAX_DEVIATION,
         )
         val backDepthPenalty = rangePenalty(
             value = metrics.backKneeMinAngle,
             min = LUNGE_BACK_KNEE_TARGET_MIN_ANGLE,
             max = LUNGE_BACK_KNEE_TARGET_MAX_ANGLE,
-            maxDeviation = LUNGE_BACK_KNEE_MAX_DEVIATION
+            maxDeviation = LUNGE_BACK_KNEE_MAX_DEVIATION,
         )
         val depthPenalty = ((frontDepthPenalty + backDepthPenalty) / LUNGE_INT_TWO.toFloat())
             .coerceIn(LUNGE_FLOAT_ZERO, LUNGE_FLOAT_ONE)
         val kneeForwardPenalty = thresholdPenalty(
             value = metrics.maxKneeForwardRatio,
             soft = LUNGE_KNEE_FORWARD_RATIO_SOFT_THRESHOLD,
-            hard = LUNGE_KNEE_FORWARD_RATIO_HARD_THRESHOLD
+            hard = LUNGE_KNEE_FORWARD_RATIO_HARD_THRESHOLD,
         )
         val kneeCollapsePenalty = if (metrics.isFrontCamera) {
             thresholdPenalty(
                 value = metrics.maxKneeCollapseRatio,
                 soft = LUNGE_KNEE_COLLAPSE_RATIO_THRESHOLD,
-                hard = LUNGE_KNEE_COLLAPSE_RATIO_HARD_THRESHOLD
+                hard = LUNGE_KNEE_COLLAPSE_RATIO_HARD_THRESHOLD,
             )
         } else {
             LUNGE_FLOAT_ZERO
@@ -67,12 +67,12 @@ class LungeFormScorer {
         val posturePenalty = thresholdPenalty(
             value = metrics.maxTorsoLeanAngle,
             soft = LUNGE_TORSO_LEAN_SOFT_THRESHOLD,
-            hard = LUNGE_TORSO_LEAN_HARD_THRESHOLD
+            hard = LUNGE_TORSO_LEAN_HARD_THRESHOLD,
         )
         val stabilityPenalty = thresholdPenalty(
             value = metrics.stabilityStdDev,
             soft = LUNGE_STABILITY_SWAY_SOFT_THRESHOLD,
-            hard = LUNGE_STABILITY_SWAY_HARD_THRESHOLD
+            hard = LUNGE_STABILITY_SWAY_HARD_THRESHOLD,
         )
         val depthScore = scoreFromPenalty(depthPenalty)
         val alignmentScore = scoreFromPenalty(alignmentPenalty)
@@ -82,7 +82,7 @@ class LungeFormScorer {
             depthScore = depthScore,
             alignmentScore = alignmentScore,
             postureScore = postureScore,
-            stabilityScore = stabilityScore
+            stabilityScore = stabilityScore,
         )
         val feedbackKeys = selectFeedbackKeys(
             metrics = metrics,
@@ -91,7 +91,7 @@ class LungeFormScorer {
             kneeForwardPenalty = kneeForwardPenalty,
             torsoPenalty = posturePenalty,
             collapsePenalty = kneeCollapsePenalty,
-            stabilityPenalty = stabilityPenalty
+            stabilityPenalty = stabilityPenalty,
         )
         return LungeRepSummary(
             overallScore = overallScore,
@@ -106,7 +106,7 @@ class LungeFormScorer {
             maxKneeForwardRatio = metrics.maxKneeForwardRatio,
             maxTorsoLeanAngle = metrics.maxTorsoLeanAngle,
             maxKneeCollapseRatio = metrics.maxKneeCollapseRatio,
-            stabilityStdDev = metrics.stabilityStdDev
+            stabilityStdDev = metrics.stabilityStdDev,
         )
     }
 
@@ -114,17 +114,17 @@ class LungeFormScorer {
         depthScore: Int,
         alignmentScore: Int,
         postureScore: Int,
-        stabilityScore: Int
+        stabilityScore: Int,
     ): Int {
         val weighted = depthScore * LUNGE_SCORE_WEIGHT_DEPTH +
-                alignmentScore * LUNGE_SCORE_WEIGHT_ALIGNMENT +
-                postureScore * LUNGE_SCORE_WEIGHT_POSTURE +
-                stabilityScore * LUNGE_SCORE_WEIGHT_STABILITY
+            alignmentScore * LUNGE_SCORE_WEIGHT_ALIGNMENT +
+            postureScore * LUNGE_SCORE_WEIGHT_POSTURE +
+            stabilityScore * LUNGE_SCORE_WEIGHT_STABILITY
         val totalWeight =
             LUNGE_SCORE_WEIGHT_DEPTH +
-                    LUNGE_SCORE_WEIGHT_ALIGNMENT +
-                    LUNGE_SCORE_WEIGHT_POSTURE +
-                    LUNGE_SCORE_WEIGHT_STABILITY
+                LUNGE_SCORE_WEIGHT_ALIGNMENT +
+                LUNGE_SCORE_WEIGHT_POSTURE +
+                LUNGE_SCORE_WEIGHT_STABILITY
         return (weighted / totalWeight).roundToInt()
     }
 
@@ -156,7 +156,7 @@ class LungeFormScorer {
         kneeForwardPenalty: Float,
         torsoPenalty: Float,
         collapsePenalty: Float,
-        stabilityPenalty: Float
+        stabilityPenalty: Float,
     ): List<String> {
         val penalties = mutableMapOf<String, Float>()
         if (metrics.frontKneeMinAngle > LUNGE_FRONT_KNEE_TARGET_MAX_ANGLE) {
@@ -194,5 +194,5 @@ data class LungeRepMetrics(
     val maxKneeCollapseRatio: Float?,
     val stabilityStdDev: Float,
     val isFrontCamera: Boolean,
-    val frontLeg: PoseSide
+    val frontLeg: PoseSide,
 )

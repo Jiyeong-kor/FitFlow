@@ -6,16 +6,13 @@ import javax.inject.Inject
 
 class EstimateActivityCaloriesUseCase @Inject constructor() {
 
-    operator fun invoke(
-        segments: List<ActivityCaloriesSegment>,
-        userWeightKg: Double
-    ): Double {
+    operator fun invoke(segments: List<ActivityCaloriesSegment>, userWeightKg: Double): Double {
         if (userWeightKg <= 0.0) return 0.0
         return segments.sumOf { segment ->
             estimateSegmentCalories(
                 activityType = segment.activityType,
                 durationSeconds = segment.durationSeconds,
-                userWeightKg = userWeightKg
+                userWeightKg = userWeightKg,
             )
         }
     }
@@ -23,7 +20,7 @@ class EstimateActivityCaloriesUseCase @Inject constructor() {
     fun estimateSegmentCalories(
         activityType: CardioActivityType,
         durationSeconds: Long,
-        userWeightKg: Double
+        userWeightKg: Double,
     ): Double {
         if (durationSeconds <= 0L || userWeightKg <= 0.0) return 0.0
         val met = metFor(activityType)

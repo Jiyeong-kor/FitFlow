@@ -18,12 +18,12 @@ interface ExerciseAnalyzer {
 class ProcessPoseUseCase(
     lungeAnalyzer: LungeAnalyzer,
     squatAnalyzer: SquatAnalyzer,
-    pushUpAnalyzer: ExerciseAnalyzer
+    pushUpAnalyzer: ExerciseAnalyzer,
 ) {
     private val analyzers: Map<ExerciseType, ExerciseAnalyzer> = mapOf(
         ExerciseType.SQUAT to squatAnalyzer,
         ExerciseType.LUNGE to lungeAnalyzer,
-        ExerciseType.PUSH_UP to pushUpAnalyzer
+        ExerciseType.PUSH_UP to pushUpAnalyzer,
     )
 
     fun analyze(frame: PoseFrame, exerciseType: ExerciseType): PoseAnalysisResult =
@@ -34,7 +34,7 @@ class ProcessPoseUseCase(
                     type = PostureFeedbackType.UNKNOWN,
                     isValid = false,
                     accuracy = SQUAT_FLOAT_ZERO,
-                    isPerfectForm = false
+                    isPerfectForm = false,
                 ),
                 feedbackEvent = null,
                 feedbackEventKey = null,
@@ -43,6 +43,6 @@ class ProcessPoseUseCase(
                 lungeRepSummary = null,
                 warningEvent = null,
                 feedbackKeys = emptyList(),
-                isLowConfidenceSkipped = false
+                isLowConfidenceSkipped = false,
             )
 }

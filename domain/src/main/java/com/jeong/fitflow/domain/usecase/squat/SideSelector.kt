@@ -13,12 +13,12 @@ data class SideSelectionResult(
     val selectedSide: PoseSide?,
     val isLocked: Boolean,
     val leftConfidenceSum: Float,
-    val rightConfidenceSum: Float
+    val rightConfidenceSum: Float,
 )
 
 class SideSelector(
     private val minConfidence: Float = SQUAT_MIN_LANDMARK_CONFIDENCE,
-    private val stableWindowMs: Long = SQUAT_SIDE_SELECTION_STABLE_WINDOW_MS
+    private val stableWindowMs: Long = SQUAT_SIDE_SELECTION_STABLE_WINDOW_MS,
 ) {
     private var selectedSide: PoseSide? = null
     private var lockedSide: PoseSide? = null
@@ -37,7 +37,7 @@ class SideSelector(
                 selectedSide = lockedSide,
                 isLocked = true,
                 leftConfidenceSum = leftSum,
-                rightConfidenceSum = rightSum
+                rightConfidenceSum = rightSum,
             )
         }
         if (lockedSide != null) {
@@ -76,7 +76,7 @@ class SideSelector(
             selectedSide = selectedSide,
             isLocked = lockedSide != null,
             leftConfidenceSum = leftSum,
-            rightConfidenceSum = rightSum
+            rightConfidenceSum = rightSum,
         )
     }
 
@@ -92,7 +92,10 @@ class SideSelector(
         val typedLandmarks = landmarks.filterNotNull()
         val minConfidenceValue = typedLandmarks.minOf { it.confidence }
         if (minConfidenceValue < minConfidence) return SQUAT_FLOAT_ZERO
-        return typedLandmarks.fold(SQUAT_FLOAT_ZERO) { total, landmark -> total + landmark.confidence }
+        return typedLandmarks.fold(SQUAT_FLOAT_ZERO) { total, landmark ->
+            total +
+                landmark.confidence
+        }
     }
 
     private fun landmarksForSide(frame: PoseFrame, side: PoseSide): List<PoseLandmark?> =
@@ -101,14 +104,14 @@ class SideSelector(
                 frame.landmark(PoseLandmarkType.LEFT_SHOULDER),
                 frame.landmark(PoseLandmarkType.LEFT_HIP),
                 frame.landmark(PoseLandmarkType.LEFT_KNEE),
-                frame.landmark(PoseLandmarkType.LEFT_ANKLE)
+                frame.landmark(PoseLandmarkType.LEFT_ANKLE),
             )
         } else {
             listOf(
                 frame.landmark(PoseLandmarkType.RIGHT_SHOULDER),
                 frame.landmark(PoseLandmarkType.RIGHT_HIP),
                 frame.landmark(PoseLandmarkType.RIGHT_KNEE),
-                frame.landmark(PoseLandmarkType.RIGHT_ANKLE)
+                frame.landmark(PoseLandmarkType.RIGHT_ANKLE),
             )
         }
 }

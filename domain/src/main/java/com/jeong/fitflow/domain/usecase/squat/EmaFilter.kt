@@ -4,9 +4,7 @@ import com.jeong.fitflow.domain.contract.SQUAT_EMA_ALPHA
 import com.jeong.fitflow.domain.contract.SQUAT_FLOAT_ONE
 import com.jeong.fitflow.domain.contract.SQUAT_FLOAT_ZERO
 
-class EmaFilter(
-    private val alpha: Float = SQUAT_EMA_ALPHA
-) {
+class EmaFilter(private val alpha: Float = SQUAT_EMA_ALPHA) {
     private var hasValue: Boolean = false
     private var value: Float = SQUAT_FLOAT_ZERO
 
@@ -21,5 +19,4 @@ class EmaFilter(
     }
 
     fun current(): Float? = if (hasValue) value else null
-
 }

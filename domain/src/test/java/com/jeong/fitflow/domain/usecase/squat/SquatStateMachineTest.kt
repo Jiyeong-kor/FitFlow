@@ -14,7 +14,7 @@ class SquatStateMachineTest {
             descendingAngleThreshold = 150f,
             bottomAngleThreshold = 105f,
             ascendingAngleThreshold = 115f,
-            repCompleteAngleThreshold = 165f
+            repCompleteAngleThreshold = 165f,
         )
 
         assertEquals(SquatState.STANDING, stateMachine.update(170f, true).state)

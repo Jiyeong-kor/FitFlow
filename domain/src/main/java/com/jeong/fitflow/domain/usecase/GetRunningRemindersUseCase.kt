@@ -2,12 +2,12 @@ package com.jeong.fitflow.domain.usecase
 
 import com.jeong.fitflow.domain.model.RunningReminder
 import com.jeong.fitflow.domain.repository.RunningReminderRepository
+import javax.inject.Inject
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import javax.inject.Inject
 
 class GetRunningRemindersUseCase @Inject constructor(
-    private val repository: RunningReminderRepository
+    private val repository: RunningReminderRepository,
 ) {
     operator fun invoke(): Flow<List<RunningReminder>> = repository.getAllReminders()
         .map { reminders ->

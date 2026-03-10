@@ -11,7 +11,7 @@ class RunningReminderTest {
             hour = 7,
             minute = 30,
             isEnabled = true,
-            days = setOf(1, 2)
+            days = setOf(1, 2),
         )
 
         val updated = reminder.toggleDay(3)
@@ -26,7 +26,7 @@ class RunningReminderTest {
             hour = 9,
             minute = 0,
             isEnabled = false,
-            days = setOf(1, 2, 3)
+            days = setOf(1, 2, 3),
         )
 
         val updated = reminder.toggleDay(2)

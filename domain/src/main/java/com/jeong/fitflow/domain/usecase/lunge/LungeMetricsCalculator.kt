@@ -16,7 +16,7 @@ class LungeMetricsCalculator(
     private val minConfidence: Float = LUNGE_MIN_LANDMARK_CONFIDENCE,
     private val kneeMinConfidence: Float = LUNGE_KNEE_MIN_LANDMARK_CONFIDENCE,
     private val angleCalculator: AngleCalculator = AngleCalculator(),
-    private val debugLogger: (Any) -> Unit = {}
+    private val debugLogger: (Any) -> Unit = {},
 ) {
     fun calculate(frame: PoseFrame): LungeRawMetrics? {
         val leftShoulder = frame.landmark(PoseLandmarkType.LEFT_SHOULDER) ?: return null
@@ -36,7 +36,7 @@ class LungeMetricsCalculator(
                 leftKnee,
                 rightKnee,
                 leftAnkle,
-                rightAnkle
+                rightAnkle,
             ).minOf { it.confidence }
         if (minConfidenceValue < minConfidence) return null
         val leftKneeAngle = angleCalculator.kneeAngle(leftHip, leftKnee, leftAnkle) ?: return null
@@ -70,7 +70,7 @@ class LungeMetricsCalculator(
             leftKneeCollapseRatio = collapseRatios.first,
             rightKneeCollapseRatio = collapseRatios.second,
             hipCenterX = midHip.x,
-            shoulderCenterX = midShoulder.x
+            shoulderCenterX = midShoulder.x,
         )
     }
 
@@ -99,8 +99,8 @@ class LungeMetricsCalculator(
                     distalConfidence = distalConfidence,
                     distalType = distalSelection?.type,
                     minConfidence = kneeMinConfidence,
-                    reason = KneeAngleFailureReason.MISSING_LANDMARK
-                )
+                    reason = KneeAngleFailureReason.MISSING_LANDMARK,
+                ),
             )
             return null
         }
@@ -114,8 +114,8 @@ class LungeMetricsCalculator(
                     distalConfidence = distalConfidence,
                     distalType = distalSelection.type,
                     minConfidence = kneeMinConfidence,
-                    reason = KneeAngleFailureReason.LOW_CONFIDENCE
-                )
+                    reason = KneeAngleFailureReason.LOW_CONFIDENCE,
+                ),
             )
             return null
         }
@@ -123,8 +123,8 @@ class LungeMetricsCalculator(
             LungeKneeAngleUsageDebug(
                 side = side,
                 distalType = distalSelection.type,
-                distalConfidence = distalConfidence
-            )
+                distalConfidence = distalConfidence,
+            ),
         )
         val angle = angleCalculator.kneeAngle(hip, knee, distal)
         if (angle == null) {
@@ -136,27 +136,26 @@ class LungeMetricsCalculator(
                     distalConfidence = distalConfidence,
                     distalType = distalSelection.type,
                     minConfidence = minConfidenceValue,
-                    reason = KneeAngleFailureReason.ANGLE_CALCULATION_FAILED
-                )
+                    reason = KneeAngleFailureReason.ANGLE_CALCULATION_FAILED,
+                ),
             )
         }
         return angle
     }
 
-    private fun midpoint(first: PoseLandmark, second: PoseLandmark): PoseLandmark =
-        PoseLandmark(
-            type = PoseLandmarkType.NOSE,
-            x = (first.x + second.x) * LUNGE_FLOAT_HALF,
-            y = (first.y + second.y) * LUNGE_FLOAT_HALF,
-            z = (first.z + second.z) * LUNGE_FLOAT_HALF,
-            confidence = (first.confidence + second.confidence) * LUNGE_FLOAT_HALF
-        )
+    private fun midpoint(first: PoseLandmark, second: PoseLandmark): PoseLandmark = PoseLandmark(
+        type = PoseLandmarkType.NOSE,
+        x = (first.x + second.x) * LUNGE_FLOAT_HALF,
+        y = (first.y + second.y) * LUNGE_FLOAT_HALF,
+        z = (first.z + second.z) * LUNGE_FLOAT_HALF,
+        confidence = (first.confidence + second.confidence) * LUNGE_FLOAT_HALF,
+    )
 
     private fun collapseRatio(
         knee: PoseLandmark,
         ankle: PoseLandmark,
         centerX: Float,
-        frameWidth: Float
+        frameWidth: Float,
     ): Float? {
         val kneeDistance = abs(knee.x - centerX)
         val ankleDistance = abs(ankle.x - centerX)
@@ -173,25 +172,33 @@ class LungeMetricsCalculator(
 
     private fun selectDistalLandmark(frame: PoseFrame, side: PoseSide): DistalSelection? {
         val candidates = if (side == PoseSide.LEFT) {
-            listOf(DistalSelection(PoseLandmarkType.LEFT_ANKLE, frame.landmark(PoseLandmarkType.LEFT_ANKLE)))
+            listOf(
+                DistalSelection(
+                    PoseLandmarkType.LEFT_ANKLE,
+                    frame.landmark(PoseLandmarkType.LEFT_ANKLE),
+                ),
+            )
         } else {
             listOf(
-                DistalSelection(PoseLandmarkType.RIGHT_ANKLE, frame.landmark(PoseLandmarkType.RIGHT_ANKLE))
+                DistalSelection(
+                    PoseLandmarkType.RIGHT_ANKLE,
+                    frame.landmark(PoseLandmarkType.RIGHT_ANKLE),
+                ),
             )
         }
-        return candidates.filter { it.landmark != null }.maxByOrNull { it.landmark?.confidence ?: LUNGE_FLOAT_ZERO }
+        return candidates.filter { it.landmark != null }.maxByOrNull {
+            it.landmark?.confidence
+                ?: LUNGE_FLOAT_ZERO
+        }
     }
 }
 
-private data class DistalSelection(
-    val type: PoseLandmarkType,
-    val landmark: PoseLandmark?
-)
+private data class DistalSelection(val type: PoseLandmarkType, val landmark: PoseLandmark?)
 
 private data class LungeKneeAngleUsageDebug(
     val side: PoseSide,
     val distalType: PoseLandmarkType,
-    val distalConfidence: Float?
+    val distalConfidence: Float?,
 )
 
 private data class LungeKneeAngleDebug(
@@ -201,13 +208,13 @@ private data class LungeKneeAngleDebug(
     val distalConfidence: Float?,
     val distalType: PoseLandmarkType?,
     val minConfidence: Float,
-    val reason: KneeAngleFailureReason
+    val reason: KneeAngleFailureReason,
 )
 
 private enum class KneeAngleFailureReason {
     MISSING_LANDMARK,
     LOW_CONFIDENCE,
-    ANGLE_CALCULATION_FAILED
+    ANGLE_CALCULATION_FAILED,
 }
 
 data class LungeRawMetrics(
@@ -221,5 +228,5 @@ data class LungeRawMetrics(
     val leftKneeCollapseRatio: Float?,
     val rightKneeCollapseRatio: Float?,
     val hipCenterX: Float,
-    val shoulderCenterX: Float
+    val shoulderCenterX: Float,
 )

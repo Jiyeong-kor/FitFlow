@@ -11,5 +11,5 @@ data class PoseAnalysisResult(
     val warningEvent: PostureWarningEvent?,
     val feedbackKeys: List<String>,
     val isLowConfidenceSkipped: Boolean,
-    val lungeDebugInfo: LungeDebugInfo? = null
+    val lungeDebugInfo: LungeDebugInfo? = null,
 )

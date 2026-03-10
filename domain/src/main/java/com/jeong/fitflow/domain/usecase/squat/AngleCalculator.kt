@@ -17,7 +17,7 @@ class AngleCalculator {
     fun trunkTiltVerticalAngle(shoulder: PoseLandmark, hip: PoseLandmark): Float? =
         angleBetweenVectors(
             floatArrayOf(shoulder.x - hip.x, shoulder.y - hip.y),
-            floatArrayOf(SQUAT_FLOAT_ZERO, SQUAT_FLOAT_NEGATIVE_ONE)
+            floatArrayOf(SQUAT_FLOAT_ZERO, SQUAT_FLOAT_NEGATIVE_ONE),
         )
 
     fun trunkToThighAngle(shoulder: PoseLandmark, hip: PoseLandmark, knee: PoseLandmark): Float? =
@@ -25,28 +25,35 @@ class AngleCalculator {
             floatArrayOf(
                 shoulder.x - hip.x,
                 shoulder.y - hip.y,
-                shoulder.z - hip.z
+                shoulder.z - hip.z,
             ),
             floatArrayOf(
                 knee.x - hip.x,
                 knee.y - hip.y,
-                knee.z - hip.z
-            )
+                knee.z - hip.z,
+            ),
         )
 
     fun angle(first: PoseLandmark, middle: PoseLandmark, last: PoseLandmark): Float? =
         angleBetweenVectors(
             floatArrayOf(first.x - middle.x, first.y - middle.y),
-            floatArrayOf(last.x - middle.x, last.y - middle.y)
+            floatArrayOf(last.x - middle.x, last.y - middle.y),
         )
 
     private fun angleBetweenVectors(vectorA: FloatArray, vectorB: FloatArray): Float? {
         val dot =
-            vectorA[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] + vectorA[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE]
+            vectorA[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] +
+                vectorA[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE]
         val normA =
-            sqrt(vectorA[SQUAT_INT_ZERO] * vectorA[SQUAT_INT_ZERO] + vectorA[SQUAT_INT_ONE] * vectorA[SQUAT_INT_ONE])
+            sqrt(
+                vectorA[SQUAT_INT_ZERO] * vectorA[SQUAT_INT_ZERO] +
+                    vectorA[SQUAT_INT_ONE] * vectorA[SQUAT_INT_ONE],
+            )
         val normB =
-            sqrt(vectorB[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] + vectorB[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE])
+            sqrt(
+                vectorB[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] +
+                    vectorB[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE],
+            )
         if (normA == SQUAT_FLOAT_ZERO || normB == SQUAT_FLOAT_ZERO) return null
         val cosValue = (dot / (normA * normB)).coerceIn(SQUAT_FLOAT_NEGATIVE_ONE, SQUAT_FLOAT_ONE)
         return Math.toDegrees(acos(cosValue).toDouble()).toFloat()
@@ -55,19 +62,19 @@ class AngleCalculator {
     private fun angleBetweenVectors3d(vectorA: FloatArray, vectorB: FloatArray): Float? {
         val dot =
             vectorA[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] +
-                    vectorA[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE] +
-                    vectorA[SQUAT_INT_TWO] * vectorB[SQUAT_INT_TWO]
+                vectorA[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE] +
+                vectorA[SQUAT_INT_TWO] * vectorB[SQUAT_INT_TWO]
         val normA =
             sqrt(
                 vectorA[SQUAT_INT_ZERO] * vectorA[SQUAT_INT_ZERO] +
-                        vectorA[SQUAT_INT_ONE] * vectorA[SQUAT_INT_ONE] +
-                        vectorA[SQUAT_INT_TWO] * vectorA[SQUAT_INT_TWO]
+                    vectorA[SQUAT_INT_ONE] * vectorA[SQUAT_INT_ONE] +
+                    vectorA[SQUAT_INT_TWO] * vectorA[SQUAT_INT_TWO],
             )
         val normB =
             sqrt(
                 vectorB[SQUAT_INT_ZERO] * vectorB[SQUAT_INT_ZERO] +
-                        vectorB[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE] +
-                        vectorB[SQUAT_INT_TWO] * vectorB[SQUAT_INT_TWO]
+                    vectorB[SQUAT_INT_ONE] * vectorB[SQUAT_INT_ONE] +
+                    vectorB[SQUAT_INT_TWO] * vectorB[SQUAT_INT_TWO],
             )
         if (normA == SQUAT_FLOAT_ZERO || normB == SQUAT_FLOAT_ZERO) return null
         val cosValue = (dot / (normA * normB)).coerceIn(SQUAT_FLOAT_NEGATIVE_ONE, SQUAT_FLOAT_ONE)

@@ -13,5 +13,5 @@ data class LungeRepSummary(
     val maxKneeForwardRatio: Float?,
     val maxTorsoLeanAngle: Float,
     val maxKneeCollapseRatio: Float?,
-    val stabilityStdDev: Float
+    val stabilityStdDev: Float,
 )

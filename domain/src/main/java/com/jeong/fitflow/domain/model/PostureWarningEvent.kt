@@ -2,14 +2,14 @@ package com.jeong.fitflow.domain.model
 
 enum class ComparisonOperator {
     LESS_THAN,
-    GREATER_THAN
+    GREATER_THAN,
 }
 
 enum class SquatWarningMetric {
     TRUNK_TO_THIGH,
     KNEE_ANGLE,
     HEEL_RISE_RATIO,
-    KNEE_FORWARD_RATIO
+    KNEE_FORWARD_RATIO,
 }
 
 data class PostureWarningEvent(
@@ -19,5 +19,5 @@ data class PostureWarningEvent(
     val threshold: Float,
     val operator: ComparisonOperator,
     val phase: SquatPhase,
-    val timestampMs: Long
+    val timestampMs: Long,
 )

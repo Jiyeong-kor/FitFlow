@@ -8,12 +8,12 @@ enum class PostureFeedbackType {
     TOO_SHALLOW,
     STAND_TALL,
     NOT_IN_FRAME,
-    UNKNOWN
+    UNKNOWN,
 }
 
 data class PostureFeedback(
     val type: PostureFeedbackType,
     val isValid: Boolean,
     val accuracy: Float,
-    val isPerfectForm: Boolean
+    val isPerfectForm: Boolean,
 )

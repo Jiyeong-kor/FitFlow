@@ -18,12 +18,11 @@ class RunningStats {
         sumSquaredDiff += delta * delta2
     }
 
-    fun standardDeviation(): Float =
-        if (count <= LUNGE_INT_ONE) {
-            LUNGE_FLOAT_ZERO
-        } else {
-            sqrt(sumSquaredDiff / (count - LUNGE_INT_ONE))
-        }
+    fun standardDeviation(): Float = if (count <= LUNGE_INT_ONE) {
+        LUNGE_FLOAT_ZERO
+    } else {
+        sqrt(sumSquaredDiff / (count - LUNGE_INT_ONE))
+    }
 
     fun reset() {
         count = LUNGE_INT_ZERO

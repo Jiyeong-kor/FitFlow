@@ -5,14 +5,13 @@ data class RunningReminder(
     val hour: Int,
     val minute: Int,
     val isEnabled: Boolean,
-    val days: Set<Int>
+    val days: Set<Int>,
 ) {
-    fun toggleDay(day: Int): RunningReminder =
-        copy(
-            days = if (days.contains(day)) {
-                days - day
-            } else {
-                days + day
-            }
-        )
+    fun toggleDay(day: Int): RunningReminder = copy(
+        days = if (days.contains(day)) {
+            days - day
+        } else {
+            days + day
+        },
+    )
 }

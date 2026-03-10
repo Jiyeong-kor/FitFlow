@@ -4,16 +4,14 @@ import com.jeong.fitflow.domain.contract.LUNGE_LEAD_LEG_WINDOW
 import com.jeong.fitflow.domain.model.PoseSide
 import java.util.ArrayDeque
 
-class LungeLeadLegSelector(
-    private val windowSize: Int = LUNGE_LEAD_LEG_WINDOW
-) {
+class LungeLeadLegSelector(private val windowSize: Int = LUNGE_LEAD_LEG_WINDOW) {
     private val history = ArrayDeque<PoseSide>()
     private var lastSelection: PoseSide? = null
 
     fun update(
         metrics: LungeRawMetrics?,
         leftKneeAngle: Float?,
-        rightKneeAngle: Float?
+        rightKneeAngle: Float?,
     ): PoseSide? {
         val currentSelection = metrics?.let {
             leadLeg(it.leftKneeAngle, it.rightKneeAngle)

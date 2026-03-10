@@ -8,7 +8,7 @@ interface AuthRepository {
     suspend fun signInAnonymously(): Result<Unit>
     suspend fun reserveNicknameAndCreateUserProfile(
         nickname: String,
-        authProvider: AuthProvider
+        authProvider: AuthProvider,
     ): AuthResult<Unit>
 
     suspend fun checkNicknameAvailability(nickname: String): AuthResult<Boolean>

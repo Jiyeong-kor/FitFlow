@@ -1,11 +1,11 @@
 package com.jeong.fitflow.domain.usecase.lunge
 
+import com.jeong.fitflow.domain.contract.LUNGE_COUNTING_SIDE_LOCK_FRAMES
+import com.jeong.fitflow.domain.contract.LUNGE_FLOAT_ZERO
 import com.jeong.fitflow.domain.contract.LUNGE_INT_ONE
 import com.jeong.fitflow.domain.contract.LUNGE_INT_ZERO
 import com.jeong.fitflow.domain.contract.LUNGE_REASON_DOWN_THRESHOLD
 import com.jeong.fitflow.domain.contract.LUNGE_REASON_UP_THRESHOLD
-import com.jeong.fitflow.domain.contract.LUNGE_FLOAT_ZERO
-import com.jeong.fitflow.domain.contract.LUNGE_COUNTING_SIDE_LOCK_FRAMES
 import com.jeong.fitflow.domain.contract.LUNGE_RELIABILITY_GRACE_MS
 import com.jeong.fitflow.domain.model.PoseSide
 import com.jeong.fitflow.domain.model.SquatPhase
@@ -35,13 +35,13 @@ data class LungeRepCounterResult(
     val ascendingToCompleteCount: Int,
     val repCompleteToStandingCount: Int,
     val repCompleteToDescendingCount: Int,
-    val hysteresisFrames: Int
+    val hysteresisFrames: Int,
 )
 
 class LungeRepCounter(
     private val kneeFilter: EmaFilter = EmaFilter(),
     private val trunkTiltFilter: EmaFilter = EmaFilter(),
-    private val debugLogger: (Any) -> Unit = {}
+    private val debugLogger: (Any) -> Unit = {},
 ) {
     private val stateMachine = LungeStateMachine(debugLogger = debugLogger)
     private var phase: SquatPhase = SquatPhase.UP
@@ -67,12 +67,16 @@ class LungeRepCounter(
         metrics: LungeRawMetrics?,
         leftKneeAngle: Float?,
         rightKneeAngle: Float?,
-        leadLeg: PoseSide?
+        leadLeg: PoseSide?,
     ): LungeRepCounterResult? {
         val previousLeftValid = lastLeftValidKneeRaw
         val previousRightValid = lastRightValidKneeRaw
         val leftAngleResult = sanitizer.sanitize(leftKneeAngle, lastLeftValidKneeRaw, PoseSide.LEFT)
-        val rightAngleResult = sanitizer.sanitize(rightKneeAngle, lastRightValidKneeRaw, PoseSide.RIGHT)
+        val rightAngleResult = sanitizer.sanitize(
+            rightKneeAngle,
+            lastRightValidKneeRaw,
+            PoseSide.RIGHT,
+        )
         val leftValidAngle = leftAngleResult.angle
         val rightValidAngle = rightAngleResult.angle
         if (leftValidAngle != null) {
@@ -87,7 +91,8 @@ class LungeRepCounter(
         val stateResultPre = lastState
         val withinGrace = isWithinReliabilityGrace(timestampMs)
         val leftAngleForCounting = leftValidAngle ?: if (withinGrace) lastLeftValidKneeRaw else null
-        val rightAngleForCounting = rightValidAngle ?: if (withinGrace) lastRightValidKneeRaw else null
+        val rightAngleForCounting =
+            rightValidAngle ?: if (withinGrace) lastRightValidKneeRaw else null
         val countingAngle =
             selectCountingAngle(countingSide, leadLeg, leftAngleForCounting, rightAngleForCounting)
         if (countingAngle != null) {
@@ -114,7 +119,7 @@ class LungeRepCounter(
                 currentLeft = leftValidAngle,
                 previousRight = previousRightValid,
                 currentRight = rightValidAngle,
-                leadLeg = leadLeg
+                leadLeg = leadLeg,
             )
         }
         val newPhase = if (stateResult.state == SquatState.DESCENDING ||
@@ -134,7 +139,7 @@ class LungeRepCounter(
                     LUNGE_REASON_DOWN_THRESHOLD
                 } else {
                     LUNGE_REASON_UP_THRESHOLD
-                }
+                },
             )
             phase = newPhase
         }
@@ -176,8 +181,8 @@ class LungeRepCounter(
                     rightOutlier = rightAngleResult.outlier,
                     lockFramesRemaining = lockFramesRemaining,
                     isRepCompleted = isRepCompleted,
-                    repCount = repCount
-                )
+                    repCount = repCount,
+                ),
             )
         }
         lastState = stateResult.state
@@ -205,7 +210,7 @@ class LungeRepCounter(
             ascendingToCompleteCount = stateResult.ascendingToCompleteCount,
             repCompleteToStandingCount = stateResult.repCompleteToStandingCount,
             repCompleteToDescendingCount = stateResult.repCompleteToDescendingCount,
-            hysteresisFrames = stateResult.hysteresisFrames
+            hysteresisFrames = stateResult.hysteresisFrames,
         )
     }
 
@@ -216,7 +221,7 @@ class LungeRepCounter(
         currentSide: PoseSide?,
         leadLeg: PoseSide?,
         leftKneeAngle: Float?,
-        rightKneeAngle: Float?
+        rightKneeAngle: Float?,
     ): Float? = when (currentSide ?: leadLeg) {
         PoseSide.LEFT -> leftKneeAngle
         PoseSide.RIGHT -> rightKneeAngle
@@ -235,7 +240,7 @@ class LungeRepCounter(
         currentLeft: Float?,
         previousRight: Float?,
         currentRight: Float?,
-        leadLeg: PoseSide?
+        leadLeg: PoseSide?,
     ) {
         if (currentLeft != null && previousLeft != null) {
             leftLockScore += (previousLeft - currentLeft).coerceAtLeast(LUNGE_FLOAT_ZERO)
@@ -287,5 +292,5 @@ private data class LungeRepCounterDebug(
     val rightOutlier: LungeKneeAngleOutlier?,
     val lockFramesRemaining: Int,
     val isRepCompleted: Boolean,
-    val repCount: Int
+    val repCount: Int,
 )

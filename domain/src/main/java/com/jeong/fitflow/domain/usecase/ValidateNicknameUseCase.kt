@@ -8,7 +8,7 @@ sealed interface NicknameValidationResult {
 
     enum class Error : NicknameValidationResult {
         EMPTY,
-        INVALID_FORMAT
+        INVALID_FORMAT,
     }
 }
 

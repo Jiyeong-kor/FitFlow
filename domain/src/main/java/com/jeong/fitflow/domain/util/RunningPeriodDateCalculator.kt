@@ -9,17 +9,12 @@ import javax.inject.Inject
 
 class RunningPeriodDateCalculator @Inject constructor() {
 
-    fun startOfDayMillis(dateMillis: Long): Long =
-        Calendar.getInstance().apply {
-            timeInMillis = dateMillis
-            resetToStartOfDay(this)
-        }.timeInMillis
+    fun startOfDayMillis(dateMillis: Long): Long = Calendar.getInstance().apply {
+        timeInMillis = dateMillis
+        resetToStartOfDay(this)
+    }.timeInMillis
 
-    fun shiftDateByPeriod(
-        selectedDateMillis: Long,
-        period: PeriodState,
-        step: Int
-    ): Long {
+    fun shiftDateByPeriod(selectedDateMillis: Long, period: PeriodState, step: Int): Long {
         val calendar = Calendar.getInstance().apply {
             timeInMillis = selectedDateMillis
             resetToStartOfDay(this)
@@ -32,11 +27,7 @@ class RunningPeriodDateCalculator @Inject constructor() {
         return calendar.timeInMillis
     }
 
-    fun isDateInPeriod(
-        dateMillis: Long,
-        period: PeriodState,
-        selectedDateMillis: Long
-    ): Boolean {
+    fun isDateInPeriod(dateMillis: Long, period: PeriodState, selectedDateMillis: Long): Boolean {
         val range = when (period) {
             PeriodState.DAILY -> dateRangeForDay(selectedDateMillis)
             PeriodState.WEEKLY -> dateRangeForWeek(selectedDateMillis)
@@ -48,7 +39,7 @@ class RunningPeriodDateCalculator @Inject constructor() {
     fun filterByPeriod(
         records: List<RunningRecord>,
         period: PeriodState,
-        selectedDateMillis: Long
+        selectedDateMillis: Long,
     ): List<RunningRecord> {
         val range = when (period) {
             PeriodState.DAILY -> dateRangeForDay(selectedDateMillis)

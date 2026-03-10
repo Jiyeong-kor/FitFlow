@@ -18,7 +18,7 @@ class RunningMetricsCalculator @Inject constructor() {
             hours = hours,
             minutes = minutes,
             seconds = seconds,
-            shouldShowHours = hours > RunningTimeContract.ZERO_LONG
+            shouldShowHours = hours > RunningTimeContract.ZERO_LONG,
         )
     }
 
@@ -27,7 +27,7 @@ class RunningMetricsCalculator @Inject constructor() {
             return RunningPace(
                 minutes = 0,
                 seconds = 0,
-                isAvailable = false
+                isAvailable = false,
             )
         }
         val totalSeconds = elapsedMillis / RunningTimeContract.MILLIS_PER_SECOND
@@ -37,7 +37,7 @@ class RunningMetricsCalculator @Inject constructor() {
         return RunningPace(
             minutes = minutes,
             seconds = seconds,
-            isAvailable = true
+            isAvailable = true,
         )
     }
 

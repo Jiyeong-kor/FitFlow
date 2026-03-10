@@ -4,5 +4,5 @@ enum class CardioActivityType {
     Running,
     Walking,
     OnBicycle,
-    Other
+    Other,
 }

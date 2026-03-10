@@ -7,5 +7,5 @@ data class SquatRepSummary(
     val maxHeelRiseRatio: Float?,
     val maxKneeForwardRatio: Float?,
     val grade: SquatFormGrade,
-    val issues: List<SquatFormIssue>
+    val issues: List<SquatFormIssue>,
 )

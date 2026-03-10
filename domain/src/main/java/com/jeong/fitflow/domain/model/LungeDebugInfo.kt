@@ -41,5 +41,5 @@ data class LungeDebugInfo(
     val repCompleteToStandingCount: Int,
     val repCompleteToDescendingCount: Int,
     val metricsNullRate: Float,
-    val metricsNullStreak: Int
+    val metricsNullStreak: Int,
 )
